@@ -10,7 +10,7 @@ Optionally, the algorithm can be extended by applying a Weisfeiler-Lehman transf
 
 ## Creating your own embeddings
 
-We provide an example script in `src/example.py`. In a nutshell:
+We provide an example script in `rdf2vec/example.py`. In a nutshell:
 * Load in your Knowledge Graph using [rdflib](https://github.com/RDFLib/rdflib) and convert it using `graph.rdflib_to_kg`
 ```python3
 g = rdflib.Graph()
