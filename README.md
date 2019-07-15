@@ -1,76 +1,49 @@
-# graph2vec  ![GitHub stars](https://img.shields.io/github/stars/benedekrozemberczki/graph2vec.svg?style=plastic) ![GitHub forks](https://img.shields.io/github/forks/benedekrozemberczki/graph2vec.svg?color=blue&style=plastic) ![License](https://img.shields.io/github/license/benedekrozemberczki/graph2vec.svg?color=blue&style=plastic)
+# pyRDF2Vec
 
-### Abstract
-<p align="justify">Recent works on representation learning for graph structured data predominantly focus on learning distributed representations of graph substructures such as nodes and subgraphs. However, many graph analytics tasks such as graph classification and clustering require representing entire graphs as fixed length feature vectors. While the aforementioned approaches are naturally unequipped to learn such representations, graph kernels remain as the most effective way of obtaining them. However, these graph kernels use handcrafted features (e.g., shortest paths, graphlets, etc.) and hence are hampered by problems such as poor generalization. To address this limitation, in this work, we propose a neural embedding framework named graph2vec to learn data-driven distributed representations of arbitrary sized graphs. graph2vec's embeddings are learnt in an unsupervised manner and are task agnostic. Hence, they could be used for any downstream task such as graph classification, clustering and even seeding supervised representation learning approaches. Our experiments on several benchmark and large real-world datasets show that graph2vec achieves significant improvements in classification and clustering accuracies over substructure representation learning approaches and are competitive with state-of-the-art graph kernels. 
-</p>
-<p align="center">
-  <img width="720" src="graph_embedding.jpeg">
-</p>
+This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code (Java + python)]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
 
-This repository provides an implementation for graph2vec as it is described in:
-> graph2vec: Learning distributed representations of graphs.
-> Narayanan, Annamalai and Chandramohan, Mahinthan and Venkatesan, Rajasekar and Chen, Lihui and Liu, Yang
-> MLG 2017, 13th International Workshop on Mining and Learning with Graphs (MLGWorkshop 2017).
+## How does it work?
 
-The original TensorFlow implementation is available [[here]](https://github.com/MLDroid/graph2vec_tf).
+RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an embedding is learned per word by either predicting the word based on its context (Continuous Bag-of-Words (CBOW)). To do this, RDF2Vec first creates "sentences" which can be fed to Word2Vec by extracting random walks of a certain depth from the Knowledge Graph. To create a random walk, we initialize its first hop to be one of the specified training entities in our KG. Then, we can iteratively extend our random walk by sampling out of the neighbors from the last hop of our walk.
 
-### Requirements
+Optionally, the algorithm can be extended by applying a Weisfeiler-Lehman transformation first, where each node is remapped on a label that is a hash of the subtree of a certain depth, rooted at that node.
 
-The codebase is implemented in Python 3.5.2 | Anaconda 4.2.0 (64-bit). Package versions used for development are just below.
+## Creating your own embeddings
+
+We provide an example script in `src/example.py`. In a nutshell:
+* Load in your Knowledge Graph using [rdflib](https://github.com/RDFLib/rdflib) and convert it using `graph.rdflib_to_kg`
+```python3
+g = rdflib.Graph()
+g.parse('../data/aifb.n3', format='n3')
+kg = rdflib_to_kg(g, label_predicates=label_predicates)
 ```
-jsonschema        2.6.0
-tqdm              4.28.1
-numpy             1.15.4
-pandas            0.23.4
-texttable         1.5.0
-gensim            3.6.0
-networkx          1.11
-joblib            0.13.0
-logging           0.4.9.6  
+* Create a list of entities and extract their neighborhoods using `graph.extract_instance`
+```python3
+test_data = pd.read_csv('../data/AIFB_test.tsv', sep='\t')
+train_data = pd.read_csv('../data/AIFB_train.tsv', sep='\t')
+
+train_people = [rdflib.URIRef(x) for x in train_data['person']]
+train_labels = train_data['label_affiliation']
+
+test_people = [rdflib.URIRef(x) for x in test_data['person']]
+test_labels = test_data['label_affiliation']
+
+train_graphs = [extract_instance(kg, person) for person in train_people]
+test_graphs = [extract_instance(kg, person) for person in test_people]
 ```
-
-### Datasets
-
-The code takes an input folder with json files. Every file is a graph and files have a numeric index as a name. The json files have two keys. The first key called "edges" corresponds to the edge list of the graph. The second key "features" corresponds to the node features. If the second key is not present the WL machine defaults to use the node degree as a feature.  A sample graph dataset from NCI1 is included in the `dataset/` directory.
-
-### Options
-
-Learning of the embedding is handled by the `src/graph2vec.py` script which provides the following command line arguments.
-
-#### Input and output options
+* Provide the extracted neighborhoods to RDF2VecTransformer and call `fit`
+* Afterwards, for each of the provided neighborhoods, you can retrieve its embedding (which is the embedding of the root of that neighborhood) by calling the `transform` method. Or you can use `fit_transform` at once.
+```python3
+transformer = RDF2VecTransformer(_type='walk', walks_per_graph=500)
+embeddings = transformer.fit_transform(train_graphs + test_graphs)
 ```
-  --input-path   STR    Input folder.           Default is `dataset/`.
-  --output-path  STR    Embeddings path.        Default is `features/nci1.csv`.
-```
-#### Model options
-```
-  --dimensions     INT          Number of dimensions.                             Default is 128.
-  --workers        INT          Number of workers.                                Default is 4.
-  --epochs         INT          Number of training epochs.                        Default is 1.
-  --min-count      INT          Minimal feature count to keep.                    Default is 5.
-  --wl-iterations  INT          Number of feature extraction recursions.          Default is 2.
-  --learning-rate  FLOAT        Initial learning rate.                            Default is 0.025.
-  --down-sampling  FLOAT        Down sampling rate for frequent features.         Default is 0.0001.
-```
+* We can use then use the generated embeddings for a downstream tasks, such as classification.
+```python3
+train_embeddings = embeddings[:len(train_graphs)]
+test_embeddings = embeddings[len(train_graphs):]
 
-### Examples
+rf =  RandomForestClassifier(n_estimators=100)
+rf.fit(train_embeddings, train_labels)
 
-The following commands learn an embedding of the graphs and writes it to disk. The node representations are ordered by the ID.
-
-Creating a graph2vec embedding of the default dataset with the default hyperparameter settings. Saving the embedding at the default path.
-
-```
-python src/graph2vec.py
-```
-
-Creating an embedding of an other dataset. Saving the output in a custom place.
-
-```
-python src/graph2vec.py --input-path new_data/ --output-path features/nci2.csv
-```
-
-Creating an embedding of the default dataset in 32 dimensions.
-
-```
-python src/graph2vec.py --dimensions 32
+print(confusion_matrix(test_labels, rf.predict(test_embeddings)))
 ```
