@@ -121,9 +121,9 @@ class KnowledgeGraph(object):
             for key, val in self.label_map[vertex].items():
                 self.inv_label_map[vertex][val] = key
 
-    def extract_random_walks(self, depth, max_walks=None):
+    def extract_random_walks(self, depth, root, max_walks=None):
         # Initialize one walk of length 1 (the root)
-        walks = [[self.root]]
+        walks = {(root,)}
 
         for i in range(depth):
             # In each iteration, iterate over the walks, grab the 
@@ -137,17 +137,18 @@ class KnowledgeGraph(object):
                     walks.remove(walk)
 
                 for neighbor in neighbors:
-                    walks.append(list(walk) + [neighbor])
+                    walks.add(walk + (neighbor, ))
 
             # TODO: Should we prune in every iteration?
             if max_walks is not None:
                 walks_ix = np.random.choice(range(len(walks)), replace=False, 
                                             size=min(len(walks), max_walks))
                 if len(walks_ix) > 0:
-                    walks = np.array(walks)[walks_ix].tolist()
+                    walks_list = list(walks)
+                    walks = {walks_list[ix] for ix in walks_ix}
 
         # Return a numpy array of these walks
-        return np.array(walks)
+        return np.array(list(walks))
 
 def rdflib_to_kg(rdflib_g, label_predicates=[]):
     # TODO: Make sure to filter out all tripels where p in label_predicates!
@@ -156,27 +157,10 @@ def rdflib_to_kg(rdflib_g, label_predicates=[]):
     for (s, p, o) in rdflib_g:
         if p not in label_predicates:
             s_v, o_v = Vertex(str(s)), Vertex(str(o))
-            p_v = Vertex(str(p), predicate=True)
+            p_v = Vertex(str(p), predicate=True, _from=s_v, _to=o_v)
             kg.add_vertex(s_v)
             kg.add_vertex(p_v)
             kg.add_vertex(o_v)
             kg.add_edge(s_v, p_v)
             kg.add_edge(p_v, o_v)
     return kg
-
-def extract_instance(kg, instance, depth=8):
-    subgraph = KnowledgeGraph()
-    subgraph.label_map = kg.label_map
-    subgraph.inv_label_map = kg.inv_label_map
-    root = kg.name_to_vertex[str(instance)]
-    to_explore = { root }
-    subgraph.add_vertex( root )
-    subgraph.root = root
-    for d in range(depth):
-        for v in list(to_explore):
-            for neighbor in kg.get_neighbors(v):
-                subgraph.add_vertex(neighbor)
-                subgraph.add_edge(v, neighbor)
-                to_explore.add(neighbor)
-            to_explore.remove(v)
-    return subgraph
