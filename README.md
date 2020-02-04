@@ -1,4 +1,4 @@
-# pyRDF2Vec
+# pyRDF2Vec [![PyPI version](https://badge.fury.io/py/pyRDF2Vec.svg)](https://badge.fury.io/py/pyRDF2Vec)
 
 This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code (Java + python)]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
 
