@@ -50,11 +50,11 @@ label_predicates = [
 kg = rdflib_to_kg(g, label_predicates=label_predicates)
 
 # Create embeddings with random walks
-transformer = RDF2VecTransformer(wl=False, max_path_depth=4)
+transformer = RDF2VecTransformer(wl=False, max_path_depth=1, sg=1)
 walk_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Create embeddings using Weisfeiler-Lehman
-transformer = RDF2VecTransformer()
+transformer = RDF2VecTransformer(sg=1, max_path_depth=1)
 wl_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Fit model on the walk embeddings

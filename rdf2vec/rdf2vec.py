@@ -133,7 +133,7 @@ class RDF2VecTransformer():
                         canonical_walk.append(hop.name)
                     # For entities, we take the Weisfeiler-Lehman label
                     else:
-                        canonical_walk.append(graph.label_map[hop][n])
+                        canonical_walk.append(graph._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
         return canonical_walks
 
