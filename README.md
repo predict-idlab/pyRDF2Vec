@@ -1,4 +1,4 @@
-# pyRDF2Vec [![PyPI version](https://badge.fury.io/py/pyRDF2Vec.svg)](https://badge.fury.io/py/pyRDF2Vec)
+# pyRDF2Vec [![PyPI version](https://badge.fury.io/py/pyRDF2Vec.svg)](https://badge.fury.io/py/pyRDF2Vec) [![Downloads](https://pepy.tech/badge/pyrdf2vec)](https://pepy.tech/project/pyrdf2vec)
 
 ![Generated Embeddings](embedding.png "Generated Embeddings")
 
