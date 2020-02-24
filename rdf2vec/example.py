@@ -19,6 +19,8 @@ from sklearn.manifold import TSNE
 from graph import rdflib_to_kg
 from rdf2vec import RDF2VecTransformer
 
+from walkers import RandomWalker, WeisfeilerLehmanWalker
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -49,12 +51,15 @@ label_predicates = [
 # Convert the rdflib to our KnowledgeGraph object
 kg = rdflib_to_kg(g, label_predicates=label_predicates)
 
+random_walker = RandomWalker(2, float('inf'))
+wl_walker = WeisfeilerLehmanWalker(2, float('inf'), 4)
+
 # Create embeddings with random walks
-transformer = RDF2VecTransformer(wl=False, max_path_depth=1, sg=1)
+transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
 walk_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Create embeddings using Weisfeiler-Lehman
-transformer = RDF2VecTransformer(sg=1, max_path_depth=1)
+transformer = RDF2VecTransformer(walkers=[wl_walker], sg=1)
 wl_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Fit model on the walk embeddings
@@ -99,12 +104,12 @@ color_map = {}
 for i, label in enumerate(set(all_labels)):
 	color_map[label] = colors[i]
 
-f, ax = plt.subplots(1, 2, figsize=(10, 5))
 walk_tsne = TSNE(random_state=42)
 X_walk_tsne = walk_tsne.fit_transform(walk_embeddings)
 wl_tsne = TSNE(random_state=42)
 X_wl_tsne = wl_tsne.fit_transform(wl_embeddings)
 
+f, ax = plt.subplots(1, 2, figsize=(10, 5))
 ax[0].scatter(X_walk_tsne[:, 0], X_walk_tsne[:, 1], c=[color_map[i] for i in all_labels])
 ax[1].scatter(X_wl_tsne[:, 0], X_wl_tsne[:, 1], c=[color_map[i] for i in all_labels])
 ax[0].set_title('Walk Embeddings')

@@ -33,8 +33,7 @@ class KnowledgeGraph(object):
     def __init__(self):
         self._vertices = set()
         self._transition_matrix = defaultdict(set)
-        self._label_map = {}
-        self._inv_label_map = {}
+        self._inv_transition_matrix = defaultdict(set)
         
     def add_vertex(self, vertex):
         """Add a vertex to the Knowledge Graph."""
@@ -46,6 +45,7 @@ class KnowledgeGraph(object):
     def add_edge(self, v1, v2):
         """Add a uni-directional edge."""
         self._transition_matrix[v1].add(v2)
+        self._inv_transition_matrix[v2].add(v1)
         
     def remove_edge(self, v1, v2):
         """Remove the edge v1 -> v2 if present."""
@@ -55,6 +55,10 @@ class KnowledgeGraph(object):
     def get_neighbors(self, vertex):
         """Get all the neighbors of vertex (vertex -> neighbor)."""
         return self._transition_matrix[vertex]
+
+    def get_inv_neighbors(self, vertex):
+        """Get all the neighbors of vertex (vertex -> neighbor)."""
+        return self._inv_transition_matrix[vertex]
     
     def visualise(self):
         """Visualise the graph using networkx & matplotlib."""
@@ -85,71 +89,39 @@ class KnowledgeGraph(object):
         names = nx.get_edge_attributes(nx_graph, 'name')
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
         plt.show()
-    
-    def _create_label(self, vertex, n):
-        """Take labels of neighbors, sort them lexicographically and join."""
-        neighbor_names = [self._label_map[x][n - 1] 
-                          for x in self.get_neighbors(vertex)]
-        suffix = '-'.join(sorted(set(map(str, neighbor_names))))
-        return self._label_map[vertex][n - 1] + '-' + suffix
-        
-    def weisfeiler_lehman(self, iterations=3):
-        """Perform Weisfeiler-Lehman relabeling of the nodes."""
-        # The idea of using a hashing function is taken from:
-        # https://github.com/benedekrozemberczki/graph2vec
-        from hashlib import md5
-        # Store the WL labels in a dictionary with a two-level key:
-        # First level is the vertex identifier
-        # Second level is the WL iteration
-        self._label_map = defaultdict(dict)
-        self._inv_label_map = defaultdict(dict)
 
+    def community_detection(self):
+        import networkx as nx
+        import community
+
+        nx_graph = nx.Graph()
+        
         for v in self._vertices:
-            self._label_map[v][0] = v.name
-            self._inv_label_map[v.name][0] = v
-        
-        for n in range(1, iterations+1):
+            if not v.predicate:
+                name = v.name
+                nx_graph.add_node(name, name=name, pred=v.predicate, vertex=v)
+            
+        for v in self._vertices:
+            if not v.predicate:
+                v_name = v.name
+                # Neighbors are predicates
+                for pred in self.get_neighbors(v):
+                    pred_name = pred.name
+                    for obj in self.get_neighbors(pred):
+                        obj_name = obj.name
+                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
 
-            for vertex in self._vertices:
-                # Create multi-set label
-                s_n = self._create_label(vertex, n)
+        # This will create a dictionary that maps the URI on a community
+        partition = community.best_partition(nx_graph)
+        self.labels_per_community = defaultdict(list)
 
-                # Store it in our label_map
-                self._label_map[vertex][n] = str(md5(s_n.encode()).digest())
+        self.communities = {}
+        vertices = nx.get_node_attributes(nx_graph, 'vertex')
+        for node in partition:
+            self.communities[vertices[node]] = partition[node]
 
-        for vertex in self._vertices:
-            for key, val in self._label_map[vertex].items():
-                self._inv_label_map[vertex][val] = key
-
-    def extract_random_walks(self, depth, root, max_walks=None):
-        """Extract random walks of depth - 1 hops rooted in root."""
-        # Initialize one walk of length 1 (the root)
-        walks = {(root,)}
-
-        for i in range(depth):
-            # In each iteration, iterate over the walks, grab the 
-            # last hop, get all its neighbors and extend the walks
-            walks_copy = walks.copy()
-            for walk in walks_copy:
-                node = walk[-1]
-                neighbors = self.get_neighbors(node)
-
-                if len(neighbors) > 0:
-                    walks.remove(walk)
-
-                for neighbor in neighbors:
-                    walks.add(walk + (neighbor, ))
-
-            # TODO: Should we prune in every iteration?
-            if max_walks is not None:
-                walks_ix = np.random.choice(range(len(walks)), replace=False, 
-                                            size=min(len(walks), max_walks))
-                if len(walks_ix) > 0:
-                    walks_list = list(walks)
-                    walks = {walks_list[ix] for ix in walks_ix}
-
-        # Return a numpy array of these walks
-        return list(walks)
+        for node in self.communities:
+            self.labels_per_community[self.communities[node]].append(node)
 
 def rdflib_to_kg(rdflib_g, label_predicates=[]):
     """Convert a rdflib.Graph to our KnowledgeGraph."""
