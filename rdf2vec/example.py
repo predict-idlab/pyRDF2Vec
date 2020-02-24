@@ -19,7 +19,9 @@ from sklearn.manifold import TSNE
 from graph import rdflib_to_kg
 from rdf2vec import RDF2VecTransformer
 
-from walkers import RandomWalker, WeisfeilerLehmanWalker
+from walkers import (RandomWalker, WeisfeilerLehmanWalker, 
+					 AnonymousWalker, WalkletWalker, NGramWalker,
+					 CommunityWalker)
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -52,14 +54,18 @@ label_predicates = [
 kg = rdflib_to_kg(g, label_predicates=label_predicates)
 
 random_walker = RandomWalker(2, float('inf'))
-wl_walker = WeisfeilerLehmanWalker(2, float('inf'), 4)
+ano_walker = AnonymousWalker(2, float('inf'))
+walklet_walker = WalkletWalker(2, float('inf'))
+ngram_walker = NGramWalker(2, float('inf'), n_wildcards=1)
+wl_walker = WeisfeilerLehmanWalker(2, float('inf'))
+com_walker = CommunityWalker(2, float('inf'))
 
 # Create embeddings with random walks
 transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
 walk_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Create embeddings using Weisfeiler-Lehman
-transformer = RDF2VecTransformer(walkers=[wl_walker], sg=1)
+transformer = RDF2VecTransformer(walkers=[com_walker], sg=1)
 wl_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Fit model on the walk embeddings

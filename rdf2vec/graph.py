@@ -90,39 +90,6 @@ class KnowledgeGraph(object):
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
         plt.show()
 
-    def community_detection(self):
-        import networkx as nx
-        import community
-
-        nx_graph = nx.Graph()
-        
-        for v in self._vertices:
-            if not v.predicate:
-                name = v.name
-                nx_graph.add_node(name, name=name, pred=v.predicate, vertex=v)
-            
-        for v in self._vertices:
-            if not v.predicate:
-                v_name = v.name
-                # Neighbors are predicates
-                for pred in self.get_neighbors(v):
-                    pred_name = pred.name
-                    for obj in self.get_neighbors(pred):
-                        obj_name = obj.name
-                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
-
-        # This will create a dictionary that maps the URI on a community
-        partition = community.best_partition(nx_graph)
-        self.labels_per_community = defaultdict(list)
-
-        self.communities = {}
-        vertices = nx.get_node_attributes(nx_graph, 'vertex')
-        for node in partition:
-            self.communities[vertices[node]] = partition[node]
-
-        for node in self.communities:
-            self.labels_per_community[self.communities[node]].append(node)
-
 def rdflib_to_kg(rdflib_g, label_predicates=[]):
     """Convert a rdflib.Graph to our KnowledgeGraph."""
     kg = KnowledgeGraph()
