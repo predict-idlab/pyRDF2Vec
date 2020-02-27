@@ -4,6 +4,11 @@ from graph import Vertex
 from hashlib import md5
 import networkx as nx
 import community
+import itertools
+def check_random_state(seed):
+    print('test')
+    return itertools
+community.community_louvain.check_random_state = check_random_state
 import numpy as np
 
 
@@ -13,7 +18,7 @@ class CommunityWalker(Walker):
         self.hop_prob = hop_prob
 
     def _community_detection(self, graph):
-    	# Convert our graph to a networkX graph
+        # Convert our graph to a networkX graph
         nx_graph = nx.Graph()
         
         for v in graph._vertices:

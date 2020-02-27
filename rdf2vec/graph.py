@@ -1,5 +1,6 @@
 import numpy as np
 from collections import defaultdict
+import rdflib
 
 
 class Vertex(object):
@@ -95,7 +96,8 @@ def rdflib_to_kg(rdflib_g, label_predicates=[]):
     kg = KnowledgeGraph()
     for (s, p, o) in rdflib_g:
         if p not in label_predicates:
-            s_v, o_v = Vertex(str(s)), Vertex(str(o))
+            s_v = Vertex(str(s))
+            o_v = Vertex(str(o), predicate=isinstance(o, rdflib.Literal))
             p_v = Vertex(str(p), predicate=True, _from=s_v, _to=o_v)
             kg.add_vertex(s_v)
             kg.add_vertex(p_v)

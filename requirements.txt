@@ -7,3 +7,4 @@ rdflib==4.2.2
 scikit_learn==0.21.2
 scipy==0.19.1
 tqdm==4.19.5
+python-louvain
