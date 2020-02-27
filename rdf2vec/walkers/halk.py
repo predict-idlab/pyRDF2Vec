@@ -21,16 +21,15 @@ class HalkWalker(RandomWalker):
             for hop in all_walks[i]:
                 freq[hop.name].add(i)
 
-        most_frequent_hops = []
+        most_frequent_hops = set()
         for hop in freq:
             if len(freq[hop])/len(all_walks) > self.freq_threshold:
-                most_frequent_hops.append(hop)
-        print(len(most_frequent_hops))
+                most_frequent_hops.add(hop)
 
         for walk in all_walks:
             canonical_walk = []
             for i, hop in enumerate(walk):
-                if i == 0 or i % 2 == 1:
+                if i == 0:
                     canonical_walk.append(hop.name)
                 else:
                     if hop.name not in most_frequent_hops:
