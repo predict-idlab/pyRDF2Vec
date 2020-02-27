@@ -3,14 +3,14 @@ from collections import defaultdict
 from graph import Vertex
 from hashlib import md5
 import networkx as nx
+import numpy as np
 import community
 import itertools
-def check_random_state(seed):
-    print('test')
-    return itertools
-community.community_louvain.check_random_state = check_random_state
-import numpy as np
 
+def check_random_state(seed):
+    return np.random
+community.community_louvain.check_random_state = check_random_state
+np.random.permutation = lambda x: next(itertools.permutations(x))
 
 class CommunityWalker(Walker):
     def __init__(self, depth, walks_per_graph, hop_prob=0.1):
@@ -20,12 +20,12 @@ class CommunityWalker(Walker):
     def _community_detection(self, graph):
         # Convert our graph to a networkX graph
         nx_graph = nx.Graph()
-        
+
         for v in graph._vertices:
             if not v.predicate:
                 name = v.name
                 nx_graph.add_node(name, name=name, pred=v.predicate, vertex=v)
-            
+
         for v in graph._vertices:
             if not v.predicate:
                 v_name = v.name
@@ -55,7 +55,7 @@ class CommunityWalker(Walker):
         walks = {(root,)}
 
         for i in range(self.depth):
-            # In each iteration, iterate over the walks, grab the 
+            # In each iteration, iterate over the walks, grab the
             # last hop, get all its neighbors and extend the walks
             walks_copy = walks.copy()
             for walk in walks_copy:
@@ -77,7 +77,7 @@ class CommunityWalker(Walker):
             # TODO: Should we prune in every iteration?
             if self.walks_per_graph is not None:
                 n_walks = min(len(walks),  self.walks_per_graph)
-                walks_ix = np.random.choice(range(len(walks)), replace=False, 
+                walks_ix = np.random.choice(range(len(walks)), replace=False,
                                             size=n_walks)
                 if len(walks_ix) > 0:
                     walks_list = list(walks)
