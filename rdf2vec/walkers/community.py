@@ -24,7 +24,7 @@ class CommunityWalker(Walker):
         for v in graph._vertices:
             if not v.predicate:
                 name = v.name
-                nx_graph.add_node(name, name=name, pred=v.predicate, vertex=v)
+                nx_graph.add_node(name, vertex=v)
 
         for v in graph._vertices:
             if not v.predicate:
@@ -34,7 +34,7 @@ class CommunityWalker(Walker):
                     pred_name = pred.name
                     for obj in graph.get_neighbors(pred):
                         obj_name = obj.name
-                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
+                        nx_graph.add_edge(v_name, obj_name)
 
         # This will create a dictionary that maps the URI on a community
         partition = community.best_partition(nx_graph)
@@ -43,7 +43,8 @@ class CommunityWalker(Walker):
         self.communities = {}
         vertices = nx.get_node_attributes(nx_graph, 'vertex')
         for node in partition:
-            self.communities[vertices[node]] = partition[node]
+            if node in vertices:
+                self.communities[vertices[node]] = partition[node]
 
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
