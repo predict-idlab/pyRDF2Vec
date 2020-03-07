@@ -4,6 +4,12 @@
 
 This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code (Java + python)]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
 
+## How do I install the library?
+Few options:
+* `(python -m) pip install pyRDF2Vec`
+* Clone the repository & run `python setup.py install`
+* `(python -m) pip install  pip install git+git://github.com/IBCNServices/pyRDF2Vec.git`
+
 ## How does it work?
 
 RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an embedding is learned per word by either predicting the word based on its context (Continuous Bag-of-Words (CBOW)) or predicting the context based on a word (Skip-Gram (SG)). To do this, RDF2Vec first creates "sentences" which can be fed to Word2Vec by extracting random walks of a certain depth from the Knowledge Graph. To create a random walk, we initialize its first hop to be one of the specified training entities in our KG. Then, we can iteratively extend our random walk by sampling out of the neighbors from the last hop of our walk.

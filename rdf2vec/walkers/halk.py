@@ -5,7 +5,7 @@ import numpy as np
 from hashlib import md5
 
 class HalkWalker(RandomWalker):
-    def __init__(self, depth, walks_per_graph, freq_threshold=0.001):
+    def __init__(self, depth, walks_per_graph, freq_threshold=0.5):
         super(HalkWalker, self).__init__(depth, walks_per_graph)
         self.freq_threshold = freq_threshold
 
