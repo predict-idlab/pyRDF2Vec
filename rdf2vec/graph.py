@@ -97,7 +97,7 @@ def rdflib_to_kg(rdflib_g, label_predicates=[]):
     for (s, p, o) in rdflib_g:
         if p not in label_predicates:
             s_v = Vertex(str(s))
-            o_v = Vertex(str(o), predicate=isinstance(o, rdflib.Literal))
+            o_v = Vertex(str(o))
             p_v = Vertex(str(p), predicate=True, _from=s_v, _to=o_v)
             kg.add_vertex(s_v)
             kg.add_vertex(p_v)
