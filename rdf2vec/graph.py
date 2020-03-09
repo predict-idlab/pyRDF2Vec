@@ -1,7 +1,5 @@
 import numpy as np
 from collections import defaultdict
-import rdflib
-
 
 class Vertex(object):
     vertex_counter = 0
@@ -90,18 +88,3 @@ class KnowledgeGraph(object):
         names = nx.get_edge_attributes(nx_graph, 'name')
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
         plt.show()
-
-def rdflib_to_kg(rdflib_g, label_predicates=[]):
-    """Convert a rdflib.Graph to our KnowledgeGraph."""
-    kg = KnowledgeGraph()
-    for (s, p, o) in rdflib_g:
-        if p not in label_predicates:
-            s_v = Vertex(str(s))
-            o_v = Vertex(str(o), predicate=isinstance(o, rdflib.Literal))
-            p_v = Vertex(str(p), predicate=True, _from=s_v, _to=o_v)
-            kg.add_vertex(s_v)
-            kg.add_vertex(p_v)
-            kg.add_vertex(o_v)
-            kg.add_edge(s_v, p_v)
-            kg.add_edge(p_v, o_v)
-    return kg
