@@ -5,9 +5,11 @@ import numpy as np
 from hashlib import md5
 
 class HalkWalker(RandomWalker):
-    def __init__(self, depth, walks_per_graph, freq_threshold=0.5):
+    def __init__(self, depth, walks_per_graph, lb_freq_threshold=0.001,
+                 ub_freq_threshold=0.1):
         super(HalkWalker, self).__init__(depth, walks_per_graph)
-        self.freq_threshold = freq_threshold
+        self.ub_freq_threshold = ub_freq_threshold
+        self.lb_freq_threshold = lb_freq_threshold
 
     def extract(self, graph, instances):
         canonical_walks = set()
@@ -21,10 +23,12 @@ class HalkWalker(RandomWalker):
             for hop in all_walks[i]:
                 freq[hop.name].add(i)
 
-        most_frequent_hops = set()
+        uniformative_hops = set()
         for hop in freq:
-            if len(freq[hop])/len(all_walks) > self.freq_threshold:
-                most_frequent_hops.add(hop)
+            if len(freq[hop])/len(all_walks) > self.ub_freq_threshold:
+                uniformative_hops.add(hop)
+            if len(freq[hop])/len(all_walks) < self.lb_freq_threshold:
+                uniformative_hops.add(hop)
 
         for walk in all_walks:
             canonical_walk = []
@@ -32,7 +36,7 @@ class HalkWalker(RandomWalker):
                 if i == 0:
                     canonical_walk.append(hop.name)
                 else:
-                    if hop.name not in most_frequent_hops:
+                    if hop.name not in uniformative_hops:
                         digest = md5(hop.name.encode()).digest()[:8]
                         canonical_walk.append(str(digest))
             canonical_walks.add(tuple(canonical_walk))
