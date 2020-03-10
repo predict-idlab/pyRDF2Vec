@@ -60,10 +60,16 @@ class RDF2VecTransformer():
 
     """
     def __init__(self, vector_size=500, walkers=RandomWalker(2, float('inf')),
-                 **kwargs):
+                 n_jobs=1, window=5, sg=1, max_iter=10, negative=25, 
+                 min_count=1):
         self.vector_size = vector_size
         self.walkers = walkers
-        self.kwargs = kwargs
+        self.n_jobs = n_jobs
+        self.window = window
+        self.sg = sg
+        self.max_iter = max_iter
+        self.negative = negative
+        self.min_count = min_count
 
     def fit(self, graph, instances):
         """Fit the embedding network based on provided instances.
@@ -90,7 +96,10 @@ class RDF2VecTransformer():
         sentences = [list(map(str, x)) for x in all_walks]
 
         self.model_ = Word2Vec(sentences, size=self.vector_size, 
-                               seed=42, **self.kwargs)
+                              window=self.window, workers=self.n_jobs, 
+                              sg=self.sg, iter=self.max_iter, 
+                              negative=self.negative, 
+                              min_count=self.min_count, seed=42)
 
     def transform(self, graph, instances):
         """Construct a feature vector for the provided instances.
