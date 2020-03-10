@@ -20,4 +20,5 @@ class AnonymousWalker(RandomWalker):
                     else:
                         canonical_walk.append(str(str_walk.index(hop.name)))
                 canonical_walks.add(tuple(canonical_walk))
+
         return canonical_walks
