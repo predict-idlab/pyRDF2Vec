@@ -22,7 +22,9 @@ class WildcardWalker(RandomWalker):
                     for idx in combinations:
                         new_walk = []
                         for ix, hop in enumerate(walk):
-                            if ix not in idx:
+                            if ix in idx:
+                                new_walk.append(Vertex('*'))
+                            else:
                                 new_walk.append(hop.name)
                         canonical_walks.add(tuple(new_walk))
         return canonical_walks

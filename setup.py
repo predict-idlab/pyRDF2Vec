@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pyRDF2Vec',
-      version='0.0.2',
+      version='0.0.3',
       description='A python implementation of RDF2Vec',
       author='Gilles Vandewiele',
       author_email='gilles.vandewiele@ugent.be',
