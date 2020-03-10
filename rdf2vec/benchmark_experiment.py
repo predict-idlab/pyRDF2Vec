@@ -231,6 +231,8 @@ class Experiment:
             logfile.write("test accuracy: " + str(scores[-1]) + "\n\n")
 
         logfile.write("AVG test scores: " + str(np.average(scores)) + ", " + str(np.std(scores)) + "\n\n")
+        resfile.write(dataset + "," +  num_iter + "," + walker_type + "," + classif_type + "," + walk_depth + "," +
+              str(np.average(scores)) + "," + str(np.std(scores)))
 
         logfile.close()
         resfile.close()
