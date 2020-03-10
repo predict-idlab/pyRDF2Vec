@@ -201,6 +201,7 @@ class Experiment:
                       + ", " + classif_type + ", " + walk_depth + "\n\n")
 
         scores = []
+        num_walks = []
         for i in range(int(num_iter)):
             init = random.randint(0, 420000)
             logfile.write("ITERATION " + str(i) + "...\n\n")
@@ -240,13 +241,15 @@ class Experiment:
             classif = DynamicUpdater.update(Experiment.__create_classifier(classif_type, init), classif_params)
             classif.fit(train_embeddings, train_labels)
             scores.append(accuracy_score(test_labels, classif.predict(test_embeddings)))
+            num_walks.append(len(transformer.walks_))
             logfile.write(
                 "confusion matrix:\n" + str(confusion_matrix(test_labels, classif.predict(test_embeddings))) + "\n\n")
             logfile.write("test accuracy: " + str(scores[-1]) + "\n\n")
 
         logfile.write("AVG test scores: " + str(np.average(scores)) + ", " + str(np.std(scores)) + "\n\n")
-        resfile.write(dataset + "," +  num_iter + "," + walker_type + "," + classif_type + "," + walk_depth + "," +
-              str(np.average(scores)) + "," + str(np.std(scores)))
+        resfile.write("dataset,num_iter,walker_type,classif_type,walk_depth,avg_num_walks,avg_acc,stddev_acc\n")
+        resfile.write(dataset + "," +  num_iter + "," + walker_type + "," + classif_type + "," + walk_depth
+                      + "," + str(np.average(num_walks)) + "," + str(np.average(scores)) + "," + str(np.std(scores)))
 
         logfile.close()
         resfile.close()
