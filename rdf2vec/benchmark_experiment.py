@@ -177,7 +177,7 @@ class Experiment:
         """Create a full estimator for evaluation."""
         print("creating estimator for", walker, classif)
         p1 = Experiment.__create_walker(walker)
-        p2 = Experiment.__create_classifier(classif)
+        p2 = Experiment.__create_classifier(classif, init)
         if p1 is not None and p2 is not None:
             return Pipeline([(walker, RDF2VecEstimator(p1)), (classif, p2)])
 
