@@ -4,7 +4,7 @@ from sklearn.utils.validation import check_is_fitted
 from gensim.models.word2vec import Word2Vec
 import tqdm
 import copy
-from graph import Vertex, rdflib_to_kg
+from graph import Vertex
 from hashlib import md5
 import itertools
 from walkers.random import RandomWalker
@@ -60,16 +60,10 @@ class RDF2VecTransformer():
 
     """
     def __init__(self, vector_size=500, walkers=RandomWalker(2, float('inf')),
-                 n_jobs=1, window=5, sg=1, max_iter=10, negative=25, 
-                 min_count=1):
+                 **kwargs):
         self.vector_size = vector_size
         self.walkers = walkers
-        self.n_jobs = n_jobs
-        self.window = window
-        self.sg = sg
-        self.max_iter = max_iter
-        self.negative = negative
-        self.min_count = min_count
+        self.kwargs = kwargs
 
     def fit(self, graph, instances):
         """Fit the embedding network based on provided instances.
@@ -79,7 +73,7 @@ class RDF2VecTransformer():
         graphs: graph.KnowledgeGraph
             The graph from which we will extract neighborhoods for the
             provided instances. You can create a `graph.KnowledgeGraph` object
-            from an `rdflib.Graph` object by using `rdflib_to_kg`.
+            from an `rdflib.Graph` object by using a converter method.
 
         instances: array-like
             The instances for which an embedding will be created. It important
@@ -96,10 +90,7 @@ class RDF2VecTransformer():
         sentences = [list(map(str, x)) for x in all_walks]
 
         self.model_ = Word2Vec(sentences, size=self.vector_size, 
-                              window=self.window, workers=self.n_jobs, 
-                              sg=self.sg, iter=self.max_iter, 
-                              negative=self.negative, 
-                              min_count=self.min_count, seed=42)
+                               seed=42, **self.kwargs)
 
     def transform(self, graph, instances):
         """Construct a feature vector for the provided instances.
@@ -109,7 +100,7 @@ class RDF2VecTransformer():
         graphs: graph.KnowledgeGraph
             The graph from which we will extract neighborhoods for the
             provided instances. You can create a `graph.KnowledgeGraph` object
-            from an `rdflib.Graph` object by using `rdflib_to_kg`.
+            from an `rdflib.Graph` object by using a converter method.
 
         instances: array-like
             The instances for which an embedding will be created. These 
@@ -137,7 +128,7 @@ class RDF2VecTransformer():
         graphs: graph.KnowledgeGraph
             The graph from which we will extract neighborhoods for the
             provided instances. You can create a `graph.KnowledgeGraph` object
-            from an `rdflib.Graph` object by using `rdflib_to_kg`.
+            from an `rdflib.Graph` object by using a converter method.
 
         instances: array-like
             The instances for which an embedding will be created. 
