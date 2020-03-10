@@ -117,11 +117,10 @@ def print_results(myDict, colList=None):
    logfile.write("\n")
 
 params = {
-    'halk': {'halk__walker__depth': [2],
-             'halk__walker__freq_threshold': [[0.001, 0.005]]},
-    'rf':   {'rf__n_estimators': [50]},
+    'rf':   {'rf__n_estimators': [10, 100, 250]},
     'svc':  {'svc__kernel': ['rbf'],
-            'svc__C': [10, 100]}
+             'svc__C': [10**i for i in range(-3, 4)]},
+    'com':  {'com__hop_prob': [0.05, 0.1, 0.25], 'com__resolution': [0.1, 1, 10]}
 }
 
 class DynamicUpdater:
@@ -141,13 +140,14 @@ class Experiment:
     @staticmethod
     def __create_walker(walker):
         walkers = {
-            'rand': RandomWalker(2, float('inf')),
-            'anon': AnonymousWalker(2, float('inf')),
-            'walklet': WalkletWalker(2, float('inf')),
-            'ngram': NGramWalker(2, float('inf')),
-            'wfl': WeisfeilerLehmanWalker(2, float('inf')),
-            'comm': CommunityWalker(2, float('inf')),
-            'halk': HalkWalker(2, float('inf'))
+            # Parameter-free
+            'rand': RandomWalker(4, float('inf')),
+            'walklet': WalkletWalker(4, float('inf')),
+            'anon': AnonymousWalker(4, float('inf')),
+            # Hard-coded well-working parameters
+            'halk': HalkWalker(4, float('inf'), freq_thresholds=[0.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]),
+            'ngram': NGramWalker(4, float('inf'), n_wildcards=1),
+            'comm': CommunityWalker(4, float('inf'), resolution=1),
         }
         if walker in walkers: return walkers[walker]
         return None
@@ -167,7 +167,8 @@ class Experiment:
         print("creating estimator for", walker, classif)
         p1 = Experiment.__create_walker(walker)
         p2 = Experiment.__create_classifier(classif)
-        if p1 and p2: return Pipeline([(walker, RDF2VecEstimator(p1)), (classif, p2)])
+        if p1 is not None and p2 is not None: 
+          return Pipeline([(walker, p1), (classif, p2)])
 
     @staticmethod
     def run_experiment():
@@ -178,6 +179,9 @@ class Experiment:
         for i in range(int(sys.argv[2])):
             logfile.write("ITERATION " + str(i) + "...\n\n")
             est = Experiment.__create_estimator(sys.argv[3], sys.argv[4])
+
+            print(est)
+
             clf = GridSearchCV(est, {**params[sys.argv[3]], **params[sys.argv[4]]}, cv=3)
             clf.fit(train_entities, train_labels)
 
@@ -195,7 +199,7 @@ class Experiment:
                     classif_params[key] = best_params[key]
 
             walker = DynamicUpdater.initialise(Experiment.__create_walker(sys.argv[3]), walker_params)
-            transformer = RDF2VecTransformer(walkers=[walker])
+            transformer = RDF2VecTransformer(walkers=[walker], sg=1)
             embeddings = transformer.fit_transform(kg, train_entities + test_entities)
             train_embeddings = embeddings[:len(train_entities)]
             test_embeddings = embeddings[len(train_entities):]
