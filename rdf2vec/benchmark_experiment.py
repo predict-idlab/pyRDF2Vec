@@ -77,24 +77,26 @@ kg = rdflib_to_kg(os.path.join('..', 'data', dataset, files[dataset]),
 
 class RDF2VecEstimator(BaseEstimator):
     def __init__(self, walker):
-        """Initialize with relevant parameters (these can be tuned using cv)."""
+        """Initialise the estimator components."""
         self.walker = walker
+        self.rdf2vec = RDF2VecTransformer(walkers=[self.walker])
 
     def set_params(self, **params):
+        """Update parameter during cross-validation."""
         self.walker = DynamicUpdater.update(self.walker, params)
+        self.rdf2vec = DynamicUpdater.update(RDF2VecTransformer(walkers=[self.walker]), params)
 
     def fit(self, X, y=None):
         """Fit estimator to training data."""
-        self.transformer = RDF2VecTransformer(walkers=[self.walker])
         # IMPORTANT: fit is performed on ALL training data, not X,
         # which is only the training data for a given split;
         # if fit is performed on X alone, the vocab will not contain
         # the entities in the valid set for the respective split
-        self.transformer.fit(kg, train_entities)
+        self.rdf2vec.fit(kg, train_entities)
 
     def transform(self, X):
         """Return the learned embeddings."""
-        return self.transformer.transform(kg, X)
+        return self.rdf2vec.transform(kg, X)
 
     def fit_transform(self, X, y=None):
         """Combine fit and transform."""
@@ -125,11 +127,16 @@ def print_results(myDict, colList=None):
    for item in myList: logfile.write(formatStr.format(*item) + "\n")
    logfile.write("\n")
 
+# IMPORTANT:
+# each parameter prefix has format <estimator name>__<name inside estimator>__<original param name>
+# e.g. for walk rand, the window param for rdf2vec has name: rand__rdf2vec__window
+# e.g. for walk comm, the max_iter param for rdf2vec has name: comm__rdf2vec__max_iter
 params = {
     'rf':   {'rf__n_estimators': [10, 100, 250]},
     'svc':  {'svc__kernel': ['rbf'],
              'svc__C': [10**i for i in range(-3, 4)]},
-    'com':  {'com__hop_prob': [0.05, 0.1, 0.25], 'com__resolution': [0.1, 1, 10]}
+    'com':  {'com__walker__hop_prob': [0.05, 0.1, 0.25], 'com__walker__resolution': [0.1, 1, 10]},
+    'rdf2vec': {walker_type + '__rdf2vec__window': [3, 5]}
 }
 
 class DynamicUpdater:
@@ -138,11 +145,13 @@ class DynamicUpdater:
     @staticmethod
     def update(updateable, iterable=(), **kwargs):
         """Update an object based on a parameter dictionary."""
-        # remove key prefixes
         new_dictionary = {}
         for key in iterable:
+            # remove key prefixes
             new_key = key.split("__")[-1]
-            new_dictionary[new_key] = iterable[key]
+            # only update key if already in dict
+            if new_key in updateable.__dict__:
+                new_dictionary[new_key] = iterable[key]
         updateable.__dict__.update(new_dictionary, **kwargs)
         return updateable
 
@@ -189,7 +198,7 @@ class Experiment:
         """Run an experiment for the given cmd line settings."""
 
         logfile.write("RUNNING EXPERIMENT FOR " + dataset + ", " + walker_type
-                      + ", " + classif_type + "," + walk_depth + "\n\n")
+                      + ", " + classif_type + ", " + walk_depth + "\n\n")
 
         scores = []
         for i in range(int(num_iter)):
@@ -201,24 +210,29 @@ class Experiment:
                 param_grid.update(**params[walker_type])
             if classif_type in params:
                 param_grid.update(**params[classif_type])
+            if 'rdf2vec' in params:
+                param_grid.update(**params['rdf2vec'])
             clf = GridSearchCV(est, param_grid, cv=3)
             clf.fit(train_entities, train_labels)
 
             best_params = clf.best_params_
-            logfile.write("best results found for" + str(best_params) + "\n\n")
+            logfile.write("best results found for " + str(best_params) + "\n\n")
             results = clf.cv_results_
             print_results(results)
 
             walker_params = {}
             classif_params = {}
+            rdf2vec_params = {}
             for key in best_params:
                 if walker_type in params and key in params[walker_type]:
                     walker_params[key] = best_params[key]
                 if classif_type in params and key in params[classif_type]:
                     classif_params[key] = best_params[key]
+                if 'rdf2vec' in params and key in params['rdf2vec']:
+                    rdf2vec_params[key] = best_params[key]
 
             walker = DynamicUpdater.update(Experiment.__create_walker(walker_type), walker_params)
-            transformer = RDF2VecTransformer(walkers=[walker], sg=1)
+            transformer = DynamicUpdater.update(RDF2VecTransformer(walkers=[walker]), rdf2vec_params)
             embeddings = transformer.fit_transform(kg, train_entities + test_entities)
             train_embeddings = embeddings[:len(train_entities)]
             test_embeddings = embeddings[len(train_entities):]
