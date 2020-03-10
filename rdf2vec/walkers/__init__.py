@@ -6,3 +6,4 @@ from .anonymous import *
 from .walklets import *
 from .ngrams import *
 from .halk import *
+from .wildcard import *
