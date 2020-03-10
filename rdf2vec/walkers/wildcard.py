@@ -14,15 +14,15 @@ class WildcardWalker(RandomWalker):
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
-                canonical_walks.add(walk)
+                canonical_walks.add(tuple([x.name for x in walk]))
 
                 for wildcard in self.wildcards:
                     combinations = itertools.combinations(range(1, len(walk)), 
                                                           wildcard)
                     for idx in combinations:
-                        new_walk = list(walk).copy()
-                        values = [new_walk[ix] for ix in idx]
-                        for val in values:
-                            new_walk.remove(val)
+                        new_walk = []
+                        for ix, hop in enumerate(walk):
+                            if ix not in idx:
+                                new_walk.append(hop.name)
                         canonical_walks.add(tuple(new_walk))
         return canonical_walks
