@@ -48,7 +48,7 @@ dataset = sys.argv[1]
 num_iter = sys.argv[2]
 walker_type = sys.argv[3]
 classif_type = sys.argv[4]
-walk_depth = sys.argv[5]
+walk_depth = int(sys.argv[5])
 
 # Load our train & test instances and labels
 test_data = pd.read_csv(os.path.join('..', 'data', dataset, dataset + '_test.tsv'), sep='\t')
@@ -107,9 +107,9 @@ class RDF2VecEstimator(BaseEstimator):
 ##############EXPERIMENTS##############
 
 logfile = open(os.path.join("results", "log_" + dataset +
-                            "_" +  num_iter + "_" + walker_type + "_" + classif_type + "_" + walk_depth + ".txt"), "w")
+                            "_" +  num_iter + "_" + walker_type + "_" + classif_type + "_" + str(walk_depth) + ".txt"), "w")
 resfile = open(os.path.join("results", "experiments_" + dataset
-                            + "_" + num_iter + "_" + walker_type + "_" + classif_type + "_" + walk_depth + ".txt"), "w")
+                            + "_" + num_iter + "_" + walker_type + "_" + classif_type + "_" + str(walk_depth) + ".txt"), "w")
 
 def print_results(myDict, colList=None):
    """ Pretty print a list of dictionaries (myDict) as a dynamically sized table.
@@ -176,6 +176,8 @@ class Experiment:
             'ngram': NGramWalker(walk_depth, float('inf')),
             'comm': CommunityWalker(walk_depth, float('inf')),
         }
+        if walker not in walkers:
+          raise Exception('You provided "{}" which is not in {}'.format(walker, list(walkers.keys())))
         if walker in walkers: return walkers[walker]
         return None
 
@@ -186,6 +188,8 @@ class Experiment:
             'rf': RandomForestClassifier(random_state=init),
             'svc': SVC(random_state=init)
         }
+        if classif not in classifs:
+          raise Exception('You provided "{}" which is not in {}'.format(classif, list(classifs.keys())))
         if classif in classifs: return classifs[classif]
         return None
 
@@ -203,7 +207,7 @@ class Experiment:
         """Run an experiment for the given cmd line settings."""
 
         logfile.write("RUNNING EXPERIMENT FOR " + dataset + ", " + walker_type
-                      + ", " + classif_type + ", " + walk_depth + "\n\n")
+                      + ", " + classif_type + ", " + str(walk_depth) + "\n\n")
 
         scores = []
         num_walks = []
@@ -253,7 +257,7 @@ class Experiment:
 
         logfile.write("AVG test scores: " + str(np.average(scores)) + ", " + str(np.std(scores)) + "\n\n")
         resfile.write("dataset,num_iter,walker_type,classif_type,walk_depth,avg_num_walks,avg_acc,stddev_acc\n")
-        resfile.write(dataset + "," +  num_iter + "," + walker_type + "," + classif_type + "," + walk_depth
+        resfile.write(dataset + "," +  num_iter + "," + walker_type + "," + classif_type + "," + str(walk_depth)
                       + "," + str(np.average(num_walks)) + "," + str(np.average(scores)) + "," + str(np.std(scores)))
 
         logfile.close()
