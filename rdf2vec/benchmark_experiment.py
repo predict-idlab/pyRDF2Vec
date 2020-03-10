@@ -178,7 +178,8 @@ class Experiment:
         print("creating estimator for", walker, classif)
         p1 = Experiment.__create_walker(walker)
         p2 = Experiment.__create_classifier(classif, init)
-        if p1 and p2: return Pipeline([(walker, RDF2VecEstimator(p1)), (classif, p2)])
+        if p1 is not None and p2 is not None:
+            return Pipeline([(walker, RDF2VecEstimator(p1)), (classif, p2)])
 
     @staticmethod
     def run_experiment():
