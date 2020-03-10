@@ -5,7 +5,8 @@ class Walker():
         self.depth = depth
         self.walks_per_graph = walks_per_graph
 
-    def print_walks(self, walks):
+    def print_walks(self, graph, instances, file_name):
+        walks = self.extract(graph, instances)
         walk_strs = []
         for walk_nr, walk in enumerate(walks):
             s = ''
@@ -20,7 +21,7 @@ class Walker():
 
             walk_strs.append(s)
 
-        with open("test.txt", "w") as myfile:
+        with open(file_name, "w+") as myfile:
             for s in walk_strs:
                 myfile.write(s)
                 myfile.write('\n\n')

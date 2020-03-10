@@ -9,7 +9,6 @@ class NGramWalker(RandomWalker):
         super(NGramWalker, self).__init__(depth, walks_per_graph)
         self.n = n
         self.n_wildcards = n_wildcards
-
         self.n_gram_map = {}
 
     def _take_n_grams(self, walk):
@@ -40,5 +39,10 @@ class NGramWalker(RandomWalker):
                     new_walk = list(walk).copy()
                     for ix in idx:
                         new_walk[ix] = Vertex('*')
+
+                    # values = [new_walk[ix] for ix in idx]
+                    # for val in values:
+                    #     new_walk.remove(val)
+                        
                     canonical_walks.add(tuple(self._take_n_grams(new_walk)))
         return canonical_walks
