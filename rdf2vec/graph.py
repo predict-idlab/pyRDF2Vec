@@ -87,4 +87,3 @@ class KnowledgeGraph(object):
         nx.draw_networkx_labels(nx_graph, pos=_pos)
         names = nx.get_edge_attributes(nx_graph, 'name')
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
-        plt.show()
