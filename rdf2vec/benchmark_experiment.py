@@ -39,7 +39,13 @@ labels = {"AIFB" : (["http://swrc.ontoware.org/ontology#affiliation",
                    "http://data.bgs.ac.uk/ref/Lexicon/hasTheme"], "rock", "label_lithogenesis"),
           "MUTAG": (["http://dl-learner.org/carcinogenesis#isMutagenic"], "bond", "label_mutagenic")}
 
+if len(sys.argv) < 6: raise IOError("Five arguments expected: "
+                                    "<dataset name> <num iterations> <walker> <classifier> <walk depth>")
 dataset = sys.argv[1]
+num_iter = sys.argv[2]
+walker_type = sys.argv[3]
+classif_type = sys.argv[4]
+walk_depth = sys.argv[5]
 
 # Load our train & test instances and labels
 test_data = pd.read_csv(os.path.join('..', 'data', dataset, dataset + '_test.tsv'), sep='\t')
@@ -72,7 +78,7 @@ class RDF2VecEstimator(BaseEstimator):
         self.walker = walker
 
     def set_params(self, **params):
-        self.walker = DynamicUpdater.initialise(self.walker, params)
+        self.walker = DynamicUpdater.update(self.walker, params)
 
     def fit(self, X, y=None):
         """Fit estimator to training data."""
@@ -96,9 +102,9 @@ class RDF2VecEstimator(BaseEstimator):
 ##############EXPERIMENTS##############
 
 logfile = open(os.path.join("results", "log_" + dataset +
-                            "_" + sys.argv[2] + "_" + sys.argv[3] + "_" + sys.argv[4] + "_halk.txt"), "w")
+                            "_" +  num_iter + "_" + walker_type + "_" + classif_type + "_" + walk_depth + ".txt"), "w")
 resfile = open(os.path.join("results", "experiments_" + dataset
-                            + "_" + sys.argv[2] + "_" + sys.argv[3] + "_" + sys.argv[4] + "_halk.txt"), "w")
+                            + "_" + num_iter + "_" + walker_type + "_" + classif_type + "_" + walk_depth + ".txt"), "w")
 
 def print_results(myDict, colList=None):
    """ Pretty print a list of dictionaries (myDict) as a dynamically sized table.
@@ -117,7 +123,7 @@ def print_results(myDict, colList=None):
    logfile.write("\n")
 
 params = {
-    'halk': {'halk__walker__depth': [2],
+    'halk': {'halk__walker__depth': [int(walk_depth)],
              'halk__walker__freq_threshold': [[0.001, 0.005]]},
     'rf':   {'rf__n_estimators': [50]},
     'svc':  {'svc__kernel': ['rbf'],
@@ -127,7 +133,7 @@ params = {
 class DynamicUpdater:
 
     @staticmethod
-    def initialise(updateable, iterable=(), **kwargs):
+    def update(updateable, iterable=(), **kwargs):
         # remove key prefixes
         new_dictionary = {}
         for key in iterable:
@@ -153,8 +159,7 @@ class Experiment:
         return None
 
     @staticmethod
-    def __create_classifier(classif):
-        init = random.randint(0, 420000)
+    def __create_classifier(classif, init):
         classifs = {
             'rf': RandomForestClassifier(random_state=init),
             'svc': SVC(random_state=init)
@@ -163,22 +168,24 @@ class Experiment:
         return None
 
     @staticmethod
-    def __create_estimator(walker, classif):
+    def __create_estimator(walker, classif, init):
         print("creating estimator for", walker, classif)
         p1 = Experiment.__create_walker(walker)
-        p2 = Experiment.__create_classifier(classif)
+        p2 = Experiment.__create_classifier(classif, init)
         if p1 and p2: return Pipeline([(walker, RDF2VecEstimator(p1)), (classif, p2)])
 
     @staticmethod
     def run_experiment():
 
-        logfile.write("RUNNING EXPERIMENT FOR " + sys.argv[1] + ", " + sys.argv[3] + ", " + sys.argv[4] + "\n\n")
+        logfile.write("RUNNING EXPERIMENT FOR " + dataset + ", " + walker_type
+                      + ", " + classif_type + "," + walk_depth + "\n\n")
 
         scores = []
-        for i in range(int(sys.argv[2])):
+        for i in range(int(num_iter)):
+            init = random.randint(0, 420000)
             logfile.write("ITERATION " + str(i) + "...\n\n")
-            est = Experiment.__create_estimator(sys.argv[3], sys.argv[4])
-            clf = GridSearchCV(est, {**params[sys.argv[3]], **params[sys.argv[4]]}, cv=3)
+            est = Experiment.__create_estimator(walker_type, classif_type, init)
+            clf = GridSearchCV(est, {**params[walker_type], **params[classif_type]}, cv=3)
             clf.fit(train_entities, train_labels)
 
             best_params = clf.best_params_
@@ -194,13 +201,13 @@ class Experiment:
                 if key in params[sys.argv[4]]:
                     classif_params[key] = best_params[key]
 
-            walker = DynamicUpdater.initialise(Experiment.__create_walker(sys.argv[3]), walker_params)
+            walker = DynamicUpdater.update(Experiment.__create_walker(walker_type), walker_params)
             transformer = RDF2VecTransformer(walkers=[walker])
             embeddings = transformer.fit_transform(kg, train_entities + test_entities)
             train_embeddings = embeddings[:len(train_entities)]
             test_embeddings = embeddings[len(train_entities):]
 
-            classif = DynamicUpdater.initialise(Experiment.__create_classifier(sys.argv[4]), classif_params)
+            classif = DynamicUpdater.update(Experiment.__create_classifier(classif_type, init), classif_params)
             classif.fit(train_embeddings, train_labels)
             scores.append(accuracy_score(test_labels, classif.predict(test_embeddings)))
             logfile.write(
