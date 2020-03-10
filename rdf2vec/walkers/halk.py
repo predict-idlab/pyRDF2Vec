@@ -5,11 +5,11 @@ import numpy as np
 from hashlib import md5
 
 class HalkWalker(RandomWalker):
-    def __init__(self, depth, walks_per_graph, lb_freq_threshold=0.001,
-                 ub_freq_threshold=0.1):
+    def __init__(self, depth, walks_per_graph, 
+                 freq_thresholds=[0.001]):
         super(HalkWalker, self).__init__(depth, walks_per_graph)
-        self.ub_freq_threshold = ub_freq_threshold
-        self.lb_freq_threshold = lb_freq_threshold
+        self.freq_thresholds = freq_thresholds
+        # self.lb_freq_threshold = lb_freq_threshold
 
     def extract(self, graph, instances):
         canonical_walks = set()
@@ -23,21 +23,23 @@ class HalkWalker(RandomWalker):
             for hop in all_walks[i]:
                 freq[hop.name].add(i)
 
-        uniformative_hops = set()
-        for hop in freq:
-            if len(freq[hop])/len(all_walks) > self.ub_freq_threshold:
-                uniformative_hops.add(hop)
-            if len(freq[hop])/len(all_walks) < self.lb_freq_threshold:
-                uniformative_hops.add(hop)
+        for freq_threshold in self.freq_thresholds:
+            uniformative_hops = set()
+            for hop in freq:
+                # if len(freq[hop])/len(all_walks) > self.ub_freq_threshold:
+                #     uniformative_hops.add(hop)
+                if len(freq[hop])/len(all_walks) < freq_threshold:
+                    uniformative_hops.add(hop)
 
-        for walk in all_walks:
-            canonical_walk = []
-            for i, hop in enumerate(walk):
-                if i == 0:
-                    canonical_walk.append(hop.name)
-                else:
-                    if hop.name not in uniformative_hops:
-                        digest = md5(hop.name.encode()).digest()[:8]
-                        canonical_walk.append(str(digest))
-            canonical_walks.add(tuple(canonical_walk))
+            for walk in all_walks:
+                canonical_walk = []
+                for i, hop in enumerate(walk):
+                    if i == 0:
+                        canonical_walk.append(hop.name)
+                    else:
+                        if hop.name not in uniformative_hops:
+                            digest = md5(hop.name.encode()).digest()[:8]
+                            canonical_walk.append(str(digest))
+                canonical_walks.add(tuple(canonical_walk))
+                
         return canonical_walks
