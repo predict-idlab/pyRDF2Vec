@@ -88,12 +88,12 @@ class RDF2VecTransformer():
             label leakage.
         -------
         """
-        all_walks = []
+        self.walks_ = []
         for walker in self.walkers:
-            all_walks += list(walker.extract(graph, instances))
-        print('Extracted {} walks for {} instances!'.format(len(all_walks),
+            self.walks_ += list(walker.extract(graph, instances))
+        print('Extracted {} walks for {} instances!'.format(len(self.walks_),
                                                             len(instances)))
-        sentences = [list(map(str, x)) for x in all_walks]
+        sentences = [list(map(str, x)) for x in self.walks_]
 
         self.model_ = Word2Vec(sentences, size=self.vector_size, 
                               window=self.window, workers=self.n_jobs, 
