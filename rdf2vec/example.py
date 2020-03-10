@@ -16,21 +16,15 @@ from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.manifold import TSNE
 
-from graph import rdflib_to_kg
+from converters import rdflib_to_kg
 from rdf2vec import RDF2VecTransformer
 
 from walkers import (RandomWalker, WeisfeilerLehmanWalker, 
 					 AnonymousWalker, WalkletWalker, NGramWalker,
-					 CommunityWalker)
+					 CommunityWalker, HalkWalker)
 
 import warnings
 warnings.filterwarnings('ignore')
-
-# Load the data with rdflib
-print(end='Loading data... ', flush=True)
-g = rdflib.Graph()
-g.parse('../data/mutag.owl')
-print('OK')
 
 # Load our train & test instances and labels
 test_data = pd.read_csv('../data/MUTAG_test.tsv', sep='\t')
@@ -47,11 +41,11 @@ all_labels = list(train_labels) + list(test_labels)
 # Define the label predicates, all triples with these predicates
 # will be excluded from the graph
 label_predicates = [
-    rdflib.term.URIRef('http://dl-learner.org/carcinogenesis#isMutagenic')
+    'http://dl-learner.org/carcinogenesis#isMutagenic'
 ]
 
 # Convert the rdflib to our KnowledgeGraph object
-kg = rdflib_to_kg(g, label_predicates=label_predicates)
+kg = rdflib_to_kg('../data/mutag.owl', label_predicates=label_predicates)
 
 random_walker = RandomWalker(2, float('inf'))
 ano_walker = AnonymousWalker(2, float('inf'))
@@ -59,13 +53,14 @@ walklet_walker = WalkletWalker(2, float('inf'))
 ngram_walker = NGramWalker(2, float('inf'), n_wildcards=1)
 wl_walker = WeisfeilerLehmanWalker(2, float('inf'))
 com_walker = CommunityWalker(2, float('inf'))
+halk_walker = HalkWalker(2, float('inf'), ub_freq_threshold=0.1)
 
 # Create embeddings with random walks
 transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
 walk_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Create embeddings using Weisfeiler-Lehman
-transformer = RDF2VecTransformer(walkers=[com_walker], sg=1)
+transformer = RDF2VecTransformer(walkers=[halk_walker], sg=1)
 wl_embeddings = transformer.fit_transform(kg, train_people + test_people)
 
 # Fit model on the walk embeddings
@@ -87,8 +82,10 @@ print(accuracy_score(test_labels, clf.predict(test_embeddings)))
 print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
 # Fit model on the Weisfeiler-Lehman embeddings
-train_embeddings = wl_embeddings[:len(train_people)]
-test_embeddings = wl_embeddings[len(train_people):]
+train_embeddings = np.hstack((wl_embeddings[:len(train_people)], walk_embeddings[:len(train_people)]))
+test_embeddings = np.hstack((wl_embeddings[len(train_people):], walk_embeddings[len(train_people):]))
+# train_embeddings = wl_embeddings[:len(train_people)]
+# test_embeddings = wl_embeddings[len(train_people):]
 
 rf =  RandomForestClassifier(random_state=42, n_estimators=100)
 rf.fit(train_embeddings, train_labels)
