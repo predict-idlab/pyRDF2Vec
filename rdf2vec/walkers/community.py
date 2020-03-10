@@ -19,7 +19,7 @@ def sample_from_iterable(x):
     for _ in range(rand_ix):
         _ = next(perms)
     return next(perms)
-np.random.permutation = sample_from_iterable
+np.random.permutation = lambda x: next(itertools.permutations(x))#sample_from_iterable
 
 class CommunityWalker(Walker):
     def __init__(self, depth, walks_per_graph, hop_prob=0.1, resolution=1):
