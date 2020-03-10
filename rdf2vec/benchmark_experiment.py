@@ -196,9 +196,9 @@ class Experiment:
             walker_params = {}
             classif_params = {}
             for key in best_params:
-                if key in params[sys.argv[3]]:
+                if key in params[walker_type]:
                     walker_params[key] = best_params[key]
-                if key in params[sys.argv[4]]:
+                if key in params[classif_type]:
                     classif_params[key] = best_params[key]
 
             walker = DynamicUpdater.update(Experiment.__create_walker(walker_type), walker_params)
