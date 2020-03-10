@@ -131,9 +131,11 @@ params = {
 }
 
 class DynamicUpdater:
+    """Class that updates an object with a parameter dictionary"""
 
     @staticmethod
     def update(updateable, iterable=(), **kwargs):
+        """Update an object based on a parameter dictionary."""
         # remove key prefixes
         new_dictionary = {}
         for key in iterable:
@@ -143,9 +145,11 @@ class DynamicUpdater:
         return updateable
 
 class Experiment:
+    """Class used to run experiments."""
 
     @staticmethod
     def __create_walker(walker):
+        """Create a walker object based on its name."""
         walkers = {
             'rand': RandomWalker(2, float('inf')),
             'anon': AnonymousWalker(2, float('inf')),
@@ -159,7 +163,8 @@ class Experiment:
         return None
 
     @staticmethod
-    def __create_classifier(classif, init):
+    def __create_classifier(classif, init=42):
+        """Create a classifier object with initialisation based on its name."""
         classifs = {
             'rf': RandomForestClassifier(random_state=init),
             'svc': SVC(random_state=init)
@@ -168,7 +173,8 @@ class Experiment:
         return None
 
     @staticmethod
-    def __create_estimator(walker, classif, init):
+    def __create_estimator(walker, classif, init=42):
+        """Create a full estimator for evaluation."""
         print("creating estimator for", walker, classif)
         p1 = Experiment.__create_walker(walker)
         p2 = Experiment.__create_classifier(classif, init)
@@ -176,6 +182,7 @@ class Experiment:
 
     @staticmethod
     def run_experiment():
+        """Run an experiment for the given cmd line settings."""
 
         logfile.write("RUNNING EXPERIMENT FOR " + dataset + ", " + walker_type
                       + ", " + classif_type + "," + walk_depth + "\n\n")
