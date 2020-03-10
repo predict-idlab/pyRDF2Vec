@@ -106,10 +106,10 @@ class RDF2VecEstimator(BaseEstimator):
 
 ##############EXPERIMENTS##############
 
-logfile = open(os.path.join("results", "log_" + dataset +
-                            "_" +  num_iter + "_" + walker_type + "_" + classif_type + "_" + str(walk_depth) + ".txt"), "w")
-resfile = open(os.path.join("results", "experiments_" + dataset
-                            + "_" + num_iter + "_" + walker_type + "_" + classif_type + "_" + str(walk_depth) + ".txt"), "w")
+logfile = open(os.path.join("results", "log_" + dataset + ".txt"), "a")
+resfile = open(os.path.join("results", "experiments_" + dataset + ".txt"), "a")
+if os.path.getsize(os.path.join("results", "experiments_" + dataset + ".txt")) == 0:
+    resfile.write("num_iter,walker_type,classif_type,walk_depth,avg_num_walks,avg_acc,stddev_acc\n")
 
 def print_results(myDict, colList=None):
    """ Pretty print a list of dictionaries (myDict) as a dynamically sized table.
@@ -256,9 +256,9 @@ class Experiment:
             logfile.write("test accuracy: " + str(scores[-1]) + "\n\n")
 
         logfile.write("AVG test scores: " + str(np.average(scores)) + ", " + str(np.std(scores)) + "\n\n")
-        resfile.write("dataset,num_iter,walker_type,classif_type,walk_depth,avg_num_walks,avg_acc,stddev_acc\n")
-        resfile.write(dataset + "," +  num_iter + "," + walker_type + "," + classif_type + "," + str(walk_depth)
-                      + "," + str(np.average(num_walks)) + "," + str(np.average(scores)) + "," + str(np.std(scores)))
+        logfile.write("-----------------------------------------------------------------------------\n\n")
+        resfile.write(num_iter + "," + walker_type + "," + classif_type + "," + str(walk_depth)
+                      + "," + str(np.average(num_walks)) + "," + str(np.average(scores)) + "," + str(np.std(scores)) + "\n")
 
         logfile.close()
         resfile.close()
