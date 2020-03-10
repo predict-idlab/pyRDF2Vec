@@ -168,7 +168,8 @@ class Experiment:
             'anon': AnonymousWalker(4, float('inf')),
             # Hard-coded well-working parameters
             'halk': HalkWalker(4, float('inf'), freq_thresholds=[0.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]),
-            'ngram': NGramWalker(4, float('inf'), n_wildcards=1),
+            'wildcard': NGramWalker(4, float('inf'), n=0, n_wildcards=1),
+            'ngram': NGramWalker(4, float('inf'), n=3, n_wildcards=1),
             'comm': CommunityWalker(4, float('inf'), resolution=1),
         }
         if walker in walkers: return walkers[walker]
