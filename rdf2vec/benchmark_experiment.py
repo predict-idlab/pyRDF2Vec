@@ -164,14 +164,17 @@ class Experiment:
         """Create a walker object based on its name."""
         walkers = {
             # Parameter-free
-            'rand': RandomWalker(4, float('inf')),
-            'walklet': WalkletWalker(4, float('inf')),
-            'anon': AnonymousWalker(4, float('inf')),
+            'rand': RandomWalker(walk_depth, float('inf')),
+            'walklet': WalkletWalker(walk_depth, float('inf')),
+            'anon': AnonymousWalker(walk_depth, float('inf')),
+
             # Hard-coded well-working parameters
-            'halk': HalkWalker(4, float('inf'), freq_thresholds=[0.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]),
-            'wildcard': WildcardWalker(4, float('inf'), wildcards=[1, 2, 3]),
-            'ngram': NGramWalker(4, float('inf')),
-            'comm': CommunityWalker(4, float('inf'), resolution=1),
+            'halk': HalkWalker(walk_depth, float('inf'), freq_thresholds=[0.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]),
+            'wildcard': WildcardWalker(walk_depth, float('inf'), wildcards=[1, 2]),
+
+            # Walkers to tune
+            'ngram': NGramWalker(walk_depth, float('inf')),
+            'comm': CommunityWalker(walk_depth, float('inf')),
         }
         if walker in walkers: return walkers[walker]
         return None
