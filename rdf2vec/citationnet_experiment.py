@@ -127,10 +127,12 @@ def print_results(myDict, colList=None):
 # e.g. for walk rand, the window param for rdf2vec has name: rand__rdf2vec__window
 # e.g. for walk comm, the max_iter param for rdf2vec has name: comm__rdf2vec__max_iter
 params = {
-    'rf':   {'rf__n_estimators': [10, 100, 250], 'rf__max_depth': [None, 5, 10]},
-    'svc':  {'svc__kernel': ['rbf'], 'svc__C': [10**i for i in range(-3, 4)]},
-    'com':  {'com__walker__hop_prob': [0.05, 0.1, 0.25], 'com__walker__resolution': [0.1, 1, 10]},
-    'ngram': {'ngram__n': [1, 2, 3], 'wildcards': [None, [1]]},
+    'rf':   {'rf__n_estimators': [10, 100, 250]},
+    'svc':  {'svc__kernel': ['rbf'],
+             'svc__C': [10**i for i in range(-3, 4)]},
+    'comm':  {'comm__walker__hop_prob': [0.05, 0.1, 0.25], 'comm__walker__resolution': [0.1, 1, 10]},
+    'ngram': {'ngram__walker__n': [1, 2, 3], 'ngram__walker__wildcards': [None, [1]]},
+    #'rdf2vec': {walker_type + '__rdf2vec__window': [3, 5]}
 }
 
 class DynamicUpdater:
