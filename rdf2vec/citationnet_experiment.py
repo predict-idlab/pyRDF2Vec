@@ -127,12 +127,10 @@ def print_results(myDict, colList=None):
 # e.g. for walk rand, the window param for rdf2vec has name: rand__rdf2vec__window
 # e.g. for walk comm, the max_iter param for rdf2vec has name: comm__rdf2vec__max_iter
 params = {
-    'rf':   {'rf__n_estimators': [10, 100, 250]},
-    'svc':  {'svc__kernel': ['rbf'],
-             'svc__C': [10**i for i in range(-3, 4)]},
+    'rf':   {'rf__n_estimators': [10, 100, 250], 'rf__max_depth': [None, 5, 10]},
+    'svc':  {'svc__kernel': ['rbf'], 'svc__C': [10**i for i in range(-3, 4)]},
     'com':  {'com__walker__hop_prob': [0.05, 0.1, 0.25], 'com__walker__resolution': [0.1, 1, 10]},
-    'ngram': {'ngram__n': [1, 2, 3]},
-    'rdf2vec': {walker_type + '__rdf2vec__window': [3, 5]}
+    'ngram': {'ngram__n': [1, 2, 3]}
 }
 
 class DynamicUpdater:
@@ -240,13 +238,12 @@ class Experiment:
 
             walker = DynamicUpdater.update(Experiment.__create_walker(walker_type), walker_params)
             transformer = DynamicUpdater.update(RDF2VecTransformer(walkers=[walker]), rdf2vec_params)
-            embeddings = transformer.fit_transform(kg, train_entities + val_entities + test_entities)
+            embeddings = transformer.fit_transform(kg, train_entities + test_entities)
             train_embeddings = embeddings[:len(train_entities)]
-            val_embeddings = embeddings[len(train_entities):len(train_entities) + len(val_entities)]
-            test_embeddings = embeddings[len(train_entities) + len(val_entities):]
+            test_embeddings = embeddings[len(train_entities):]
 
             classif = DynamicUpdater.update(Experiment.__create_classifier(classif_type, init), classif_params)
-            classif.fit(train_embeddings + val_embeddings, train_labels + val_labels)
+            classif.fit(train_embeddings, train_labels)
             scores.append(accuracy_score(test_labels, classif.predict(test_embeddings)))
             num_walks.append(len(transformer.walks_))
             logfile.write(

@@ -4,9 +4,8 @@ import numpy as np
 from hashlib import md5
 
 class WalkletWalker(RandomWalker):
-    def __init__(self, depth, walks_per_graph, granularity=3):
+    def __init__(self, depth, walks_per_graph):
         super(WalkletWalker, self).__init__(depth, walks_per_graph)
-        self.granularity = granularity
 
     def extract(self, graph, instances):
         canonical_walks = set()
