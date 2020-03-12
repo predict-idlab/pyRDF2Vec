@@ -136,8 +136,8 @@ params = {
     'svc':  {'svc__kernel': ['rbf'],
              'svc__C': [10**i for i in range(-3, 4)]},
     'com':  {'com__walker__hop_prob': [0.05, 0.1, 0.25], 'com__walker__resolution': [0.1, 1, 10]},
-    'ngram': {'ngram__n': [1, 2, 3]},
-    'rdf2vec': {walker_type + '__rdf2vec__window': [3, 5]}
+    'ngram': {'ngram__n': [1, 2, 3], 'wildcards': [None, [1]]},
+    #'rdf2vec': {walker_type + '__rdf2vec__window': [3, 5]}
 }
 
 class DynamicUpdater:
@@ -171,6 +171,7 @@ class Experiment:
             # Hard-coded well-working parameters
             'halk': HalkWalker(walk_depth, float('inf'), freq_thresholds=[0.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]),
             'wildcard': WildcardWalker(walk_depth, float('inf'), wildcards=[1, 2]),
+            'wl': WeisfeilerLehmanWalker(walk_depth, float('inf'), wl_iterations=4),
 
             # Walkers to tune
             'ngram': NGramWalker(walk_depth, float('inf')),
