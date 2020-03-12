@@ -130,8 +130,8 @@ params = {
     'rf':   {'rf__n_estimators': [10, 100, 250]},
     'svc':  {'svc__kernel': ['rbf'],
              'svc__C': [10**i for i in range(-3, 4)]},
-    'comm':  {'comm__walker__hop_prob': [0.05, 0.1, 0.25], 'comm__walker__resolution': [0.1, 1, 10]},
-    'ngram': {'ngram__walker__n': [1, 2, 3], 'ngram__walker__wildcards': [None, [1]]},
+    'comm':  {'comm__hop_prob': [0.05, 0.1, 0.25], 'comm__resolution': [0.1, 1, 10]},
+    'ngram': {'ngram__n': [1, 2, 3], 'ngram__wildcards': [None, [1]]},
     #'rdf2vec': {walker_type + '__rdf2vec__window': [3, 5]}
 }
 
