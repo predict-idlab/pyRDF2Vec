@@ -46,14 +46,15 @@ class WeisfeilerLehmanWalker(RandomWalker):
         canonical_walks = set()
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
-            for walk in walks:
-                canonical_walk = []
-                for i, hop in enumerate(walk):
-                    if i == 0 or i % 2 == 1:
-                        canonical_walk.append(hop.name)
-                    else:
-                        canonical_walk.append(self._label_map[hop][self.wl_iterations])
+            for n in range(self.wl_iterations + 1):
+                for walk in walks:
+                    canonical_walk = []
+                    for i, hop in enumerate(walk):
+                        if i == 0 or i % 2 == 1:
+                            canonical_walk.append(hop.name)
+                        else:
+                            canonical_walk.append(self._label_map[hop][n])
 
-                canonical_walks.add(tuple(canonical_walk))
+                    canonical_walks.add(tuple(canonical_walk))
                 
         return canonical_walks
