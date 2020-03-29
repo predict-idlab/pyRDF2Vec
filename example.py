@@ -20,7 +20,7 @@ np.random.seed(42)
 random.seed(42)
 
 #########################################################################
-#			      			   DATA LOADING                             #
+#                              DATA LOADING                             #
 #########################################################################
 
 # Load our train & test instances and labels
@@ -46,7 +46,7 @@ label_predicates = [
 kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
 
 #########################################################################
-#			      		CREATING EMBEDDINGS                             #
+#                          CREATING EMBEDDINGS                          #
 #########################################################################
 
 # We'll all possible walks of depth 2
@@ -61,7 +61,7 @@ train_embeddings = walk_embeddings[:len(train_entities)]
 test_embeddings = walk_embeddings[len(train_entities):]
 
 #########################################################################
-#			      		    FIT CLASSIFIER                              #
+#                              FIT CLASSIFIER                           #
 #########################################################################
 
 # Fit a support vector machine on train embeddings and evaluate on test
@@ -73,7 +73,7 @@ print(accuracy_score(test_labels, clf.predict(test_embeddings)))
 print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
 #########################################################################
-#			      		       T-SNE PLOT                               #
+#                                 T-SNE PLOT                            #
 #########################################################################
 
 # Create t-SNE embeddings from RDF2Vec embeddings (dimensionality reduction)
@@ -89,24 +89,24 @@ for i, label in enumerate(set(all_labels)):
 # Plot the train embeddings
 plt.figure(figsize=(10, 4))
 plt.scatter(
-	X_walk_tsne[:len(train_entities), 0],
+    X_walk_tsne[:len(train_entities), 0],
     X_walk_tsne[:len(train_entities), 1],
-    edgecolors=[color_map[i] for i in all_labels],
-    facecolors=[color_map[i] for i in all_labels],
+    edgecolors=[color_map[i] for i in all_labels[:len(train_entities)]],
+    facecolors=[color_map[i] for i in all_labels[:len(train_entities)]],
 )
 
 # Plot the test embeddings
 plt.scatter(
-	X_walk_tsne[len(train_entities):, 0],
+    X_walk_tsne[len(train_entities):, 0],
     X_walk_tsne[len(train_entities):, 1],
-    edgecolors=[color_map[i] for i in all_labels],
+    edgecolors=[color_map[i] for i in all_labels[len(train_entities)]:],
     facecolors='none'
 )
 
 # Annotate a few points
 for i, ix in enumerate([25, 35]):
     plt.annotate(
-    	all_entities[ix].split('/')[-1],
+        all_entities[ix].split('/')[-1],
         xy=(X_walk_tsne[ix, 0], X_walk_tsne[ix, 1]), xycoords='data',
         xytext=(0.1 * i, 0.05 + 0.1 * i),
         fontsize=8, textcoords='axes fraction',
