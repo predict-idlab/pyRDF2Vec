@@ -32,7 +32,7 @@ RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an e
 Few options:
 * `(python -m) pip install pyRDF2Vec`
 * Clone the repository & run `python setup.py install`
-* `(python -m) pip install  pip install git+git://github.com/IBCNServices/pyRDF2Vec.git`
+* `(python -m) pip install git+git://github.com/IBCNServices/pyRDF2Vec.git`
 
 # Getting Started
 
@@ -41,7 +41,7 @@ Few options:
 First, you will need to create a Knowledge Graph object (defined in `graph.py`). We offer several conversion options (such as converting from rdflib or from an endpoint), which can be found in `converters.py`.
 
 ```python3
-from converters import rdflib_to_kg
+from rdf2vec.converters import rdflib_to_kg
 
 # We want to filter out all triples with certain predicates
 label_predicates = [
@@ -56,7 +56,7 @@ kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
 pyRDF2Vec offers several walking strategies, which can be found in the `walkers/` module.
 
 ```python3
-from walkers import RandomWalker
+from rdf2vec.walkers import RandomWalker
 
 # We specify the depth and maximum number of walks per entity
 random_walker = RandomWalker(4, float('inf'))
