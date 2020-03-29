@@ -99,7 +99,7 @@ plt.scatter(
 plt.scatter(
     X_walk_tsne[len(train_entities):, 0],
     X_walk_tsne[len(train_entities):, 1],
-    edgecolors=[color_map[i] for i in all_labels[len(train_entities)]:],
+    edgecolors=[color_map[i] for i in all_labels[len(train_entities):],
     facecolors='none'
 )
 
