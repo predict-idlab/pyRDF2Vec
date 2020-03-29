@@ -1,1 +1,1 @@
-from .rdf2vec import *
+from ._rdf2vec import *

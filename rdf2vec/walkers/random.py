@@ -1,5 +1,5 @@
-from walkers import Walker
-from graph import Vertex
+from rdf2vec.walkers import Walker
+from rdf2vec.graph import Vertex
 import numpy as np
 from hashlib import md5
 

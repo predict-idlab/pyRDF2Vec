@@ -1,6 +1,6 @@
 from collections import defaultdict
-from walkers import RandomWalker
-from graph import Vertex
+from rdf2vec.walkers import RandomWalker
+from rdf2vec.graph import Vertex
 import numpy as np
 from hashlib import md5
 

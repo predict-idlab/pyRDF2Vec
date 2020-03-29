@@ -4,10 +4,10 @@ from sklearn.utils.validation import check_is_fitted
 from gensim.models.word2vec import Word2Vec
 import tqdm
 import copy
-from graph import Vertex
+from rdf2vec.graph import Vertex
 from hashlib import md5
 import itertools
-from walkers.random import RandomWalker
+from rdf2vec.walkers import RandomWalker
 
 
 class RDF2VecTransformer():

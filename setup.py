@@ -6,8 +6,8 @@ setup(name='pyRDF2Vec',
       authors='Gilles Vandewiele, Bram Steenwinckel, Michael Weyns',
       author_email='gilles.vandewiele@ugent.be',
       url='https://github.com/IBCNServices/pyRDF2Vec',
-      packages=['rdf2vec'],
+      packages=['rdf2vec', 'rdf2vec/walkers'],
       install_requires=['gensim', 'matplotlib', 'networkx', 'numpy', 
-          'pandas', 'rdflib', 'scikit_learn', 'scipy', 'tqdm'
+          'pandas', 'rdflib', 'scikit_learn', 'tqdm'
       ]
 )

@@ -9,9 +9,9 @@ from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.manifold import TSNE
 
-from converters import rdflib_to_kg
+from rdf2vec.converters import rdflib_to_kg
+from rdf2vec.walkers import RandomWalker
 from rdf2vec import RDF2VecTransformer
-from walkers import RandomWalker
 
 import warnings
 warnings.filterwarnings('ignore')

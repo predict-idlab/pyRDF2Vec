@@ -23,7 +23,7 @@
 
 # What is RDF2Vec?
 
-This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code (Java + python)]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
+This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
 
 RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an embedding is learned per word by either predicting the word based on its context (Continuous Bag-of-Words (CBOW)) or predicting the context based on a word (Skip-Gram (SG)). To do this, RDF2Vec first creates "sentences" which can be fed to Word2Vec by extracting walks of a certain depth from the Knowledge Graph.
 
@@ -48,7 +48,7 @@ label_predicates = [
     'http://dl-learner.org/carcinogenesis#isMutagenic'
 ]
 
-kg = rdflib_to_kg('data/mutag.owl', label_predicates=label_predicates)
+kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
 ```
 
 ### Define a walking strategy
