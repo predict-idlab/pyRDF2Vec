@@ -16,10 +16,10 @@
 | Section | Description |
 |-|-|
 | [RDF2Vec](#what-is-rdf2vec) | What is RDF2Vec? |
-| [Installing](#installation) | Installing the dependencies and tslearn |
-| [Getting started](#getting-started) | A quick introduction on how to use tslearn |
-| [Documentation](#documentation) | A link to our API reference and a gallery of examples |
-| [Citation](#referencing) | A citation for tslearn for scholarly articles |
+| [Installing](#installation) | Installing pyRDF2Vec |
+| [Getting started](#getting-started) | A quick introduction |
+| [Documentation](#documentation) | A link to our documentation |
+| [Citation](#referencing) | Citing pyRDF2Vec in scholarly articles |
 
 # What is RDF2Vec?
 
@@ -36,7 +36,7 @@ Few options:
 
 # Getting Started
 
-## Create a Knowledge Graph object
+### Create a Knowledge Graph object
 
 First, you will need to create a Knowledge Graph object (defined in `graph.py`). We offer several conversion options (such as converting from rdflib or from an endpoint), which can be found in `converters.py`.
 
@@ -51,7 +51,7 @@ label_predicates = [
 kg = rdflib_to_kg('data/mutag.owl', label_predicates=label_predicates)
 ```
 
-## Define a walking strategy
+### Define a walking strategy
 
 pyRDF2Vec offers several walking strategies, which can be found in the `walkers/` module.
 
@@ -61,7 +61,8 @@ from walkers import RandomWalker
 # We specify the depth and maximum number of walks per entity
 random_walker = RandomWalker(4, float('inf'))
 ```
-## Create embeddings
+
+### Create embeddings
 
 Then, we can create embeddings for a list of entities:
 
