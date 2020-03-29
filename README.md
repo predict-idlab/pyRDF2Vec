@@ -1,72 +1,93 @@
-# pyRDF2Vec [![PyPI version](https://badge.fury.io/py/pyRDF2Vec.svg)](https://badge.fury.io/py/pyRDF2Vec) [![Downloads](https://pepy.tech/badge/pyrdf2vec)](https://pepy.tech/project/pyrdf2vec)
+<div align="center">
+	<img src="embeddings.png"></div>
+</div>
 
-![Generated Embeddings](embedding.png "Generated Embeddings")
+<p align="center">
+    <a href="https://badge.fury.io/py/pyRDF2Vec">
+        <img alt="PyPI" src="https://badge.fury.io/py/pyRDF2Vec.svg">
+    </a>
+    <a href="https://pepy.tech/project/pyrdf2vec">
+        <img alt="Downloads" src="https://pepy.tech/badge/pyrdf2vec">
+    </a>
+</p>
+
+<hr>
+
+| Section | Description |
+|-|-|
+| [RDF2Vec](#what-is-rdf2vec) | What is RDF2Vec? |
+| [Installing](#installation) | Installing the dependencies and tslearn |
+| [Getting started](#getting-started) | A quick introduction on how to use tslearn |
+| [Documentation](#documentation) | A link to our API reference and a gallery of examples |
+| [Citation](#referencing) | A citation for tslearn for scholarly articles |
+
+# What is RDF2Vec?
 
 This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code (Java + python)]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
 
-## How do I install the library?
+RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an embedding is learned per word by either predicting the word based on its context (Continuous Bag-of-Words (CBOW)) or predicting the context based on a word (Skip-Gram (SG)). To do this, RDF2Vec first creates "sentences" which can be fed to Word2Vec by extracting walks of a certain depth from the Knowledge Graph.
+
+# Installation
+
 Few options:
 * `(python -m) pip install pyRDF2Vec`
 * Clone the repository & run `python setup.py install`
 * `(python -m) pip install  pip install git+git://github.com/IBCNServices/pyRDF2Vec.git`
 
-## How does it work?
+# Getting Started
 
-RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an embedding is learned per word by either predicting the word based on its context (Continuous Bag-of-Words (CBOW)) or predicting the context based on a word (Skip-Gram (SG)). To do this, RDF2Vec first creates "sentences" which can be fed to Word2Vec by extracting random walks of a certain depth from the Knowledge Graph. To create a random walk, we initialize its first hop to be one of the specified training entities in our KG. Then, we can iteratively extend our random walk by sampling out of the neighbors from the last hop of our walk.
+## Create a Knowledge Graph object
 
-Optionally, the algorithm can be extended by applying a Weisfeiler-Lehman transformation first, where each node is remapped on a label that is a hash of the subtree of a certain depth, rooted at that node.
+First, you will need to create a Knowledge Graph object (defined in `graph.py`). We offer several conversion options (such as converting from rdflib or from an endpoint), which can be found in `converters.py`.
 
-## Creating your own embeddings
-
-We provide an example script in `rdf2vec/example.py`. In a nutshell:
-* Load in your Knowledge Graph using [rdflib](https://github.com/RDFLib/rdflib)
 ```python3
-# Load the data with rdflib
-g = rdflib.Graph()
-g.parse('../data/mutag.owl')
-print('OK')
-```
-* Load the train/test entities that we want to embed and corresponding labels
-```python3
-# Load our train & test instances and labels
-test_data = pd.read_csv('../data/MUTAG_test.tsv', sep='\t')
-train_data = pd.read_csv('../data/MUTAG_train.tsv', sep='\t')
+from converters import rdflib_to_kg
 
-train_people = [rdflib.URIRef(x) for x in train_data['bond']]
-train_labels = train_data['label_mutagenic']
-
-test_people = [rdflib.URIRef(x) for x in test_data['bond']]
-test_labels = test_data['label_mutagenic']
-
-# Define the label predicates, all triples with these predicates
-# will be excluded from the graph
+# We want to filter out all triples with certain predicates
 label_predicates = [
-    rdflib.term.URIRef('http://dl-learner.org/carcinogenesis#isMutagenic')
+    'http://dl-learner.org/carcinogenesis#isMutagenic'
 ]
+
+kg = rdflib_to_kg('data/mutag.owl', label_predicates=label_predicates)
 ```
-* Convert the `rdflib.Graph` to our `KnowledgeGraph` object using `rdflib_to_kg` and provide it, together with a list of entities to the `RDF2VecTransformer`
+
+## Define a walking strategy
+
+pyRDF2Vec offers several walking strategies, which can be found in the `walkers/` module.
+
 ```python3
-# Convert the rdflib to our KnowledgeGraph object
-kg = rdflib_to_kg(g, label_predicates=label_predicates)
+from walkers import RandomWalker
 
-# Create embeddings with random walks
-transformer = RDF2VecTransformer(wl=False, max_path_depth=4)
-walk_embeddings = transformer.fit_transform(kg, train_people + test_people)
+# We specify the depth and maximum number of walks per entity
+random_walker = RandomWalker(4, float('inf'))
 ```
-* We can use then use the generated embeddings for a downstream tasks, such as classification.
+## Create embeddings
+
+Then, we can create embeddings for a list of entities:
+
 ```python3
-# Fit model on the walk embeddings
-train_embeddings = walk_embeddings[:len(train_people)]
-test_embeddings = walk_embeddings[len(train_people):]
+from rdf2vec import RDF2VecTransformer
 
-rf =  RandomForestClassifier(random_state=42, n_estimators=100)
-rf.fit(train_embeddings, train_labels)
-
-print('Random Forest:')
-print(accuracy_score(test_labels, rf.predict(test_embeddings)))
-print(confusion_matrix(test_labels, rf.predict(test_embeddings)))
+transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
+# Entities should be a list of URIs that can be found in the KG
+embeddings = transformer.fit_transform(kg, entities)
 ```
 
-## Determinism
+For a more elaborate example, check `example.py`. You can run it as follows: `PYTHONHASHSEED=42 python3 rdf2vec/example.py`. The `PYTHONHASHSEED` is to ensure determinism.
 
-In order to have deterministic results, the `PYTHONHASHSEED` environment variable has to be set: `PYTHONHASHSEED=42 python3 example.py`
+# Documentation
+
+
+# Referencing
+
+If you use `pyRDF2Vec` in a scholarly article, we would appreciate a citation:
+
+```bibtex
+@misc{pyrdf2vec,
+      title={pyRDF2Vec: A python library for RDF2Vec},
+      author={Gilles Vandewiele and Bram Steenwinckel and Michael Weyns
+      		  and Pieter Bonte and Femke Ongenae and Filip De Turck},
+      year={2020},
+      note={\url{https://github.com/IBCNServices/pyRDF2Vec}}
+}
+```

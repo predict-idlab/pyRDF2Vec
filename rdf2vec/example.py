@@ -1,41 +1,39 @@
 import random
 import os
 import numpy as np
-
-os.environ['PYTHONHASHSEED'] = '42'
-random.seed(42)
-np.random.seed(42)
-
 import rdflib
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.manifold import TSNE
 
 from converters import rdflib_to_kg
 from rdf2vec import RDF2VecTransformer
-
-from walkers import (RandomWalker, WeisfeilerLehmanWalker, 
-					 AnonymousWalker, WalkletWalker, NGramWalker,
-					 CommunityWalker, HalkWalker)
+from walkers import RandomWalker
 
 import warnings
 warnings.filterwarnings('ignore')
 
-# Load our train & test instances and labels
-test_data = pd.read_csv('../data/MUTAG_test.tsv', sep='\t')
-train_data = pd.read_csv('../data/MUTAG_train.tsv', sep='\t')
+np.random.seed(42)
+random.seed(42)
 
-train_people = [rdflib.URIRef(x) for x in train_data['bond']]
+#########################################################################
+#			      			   DATA LOADING                             #
+#########################################################################
+
+# Load our train & test instances and labels
+test_data = pd.read_csv('sample/MUTAG_test.tsv', sep='\t')
+train_data = pd.read_csv('sample/MUTAG_train.tsv', sep='\t')
+
+train_entities = [rdflib.URIRef(x) for x in train_data['bond']]
 train_labels = train_data['label_mutagenic']
 
-test_people = [rdflib.URIRef(x) for x in test_data['bond']]
+test_entities = [rdflib.URIRef(x) for x in test_data['bond']]
 test_labels = test_data['label_mutagenic']
 
+all_entities = train_entities + test_entities
 all_labels = list(train_labels) + list(test_labels)
 
 # Define the label predicates, all triples with these predicates
@@ -45,76 +43,85 @@ label_predicates = [
 ]
 
 # Convert the rdflib to our KnowledgeGraph object
-kg = rdflib_to_kg('../data/mutag.owl', label_predicates=label_predicates)
+kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
 
-random_walker = RandomWalker(2, float('inf'))
-ano_walker = AnonymousWalker(2, float('inf'))
-walklet_walker = WalkletWalker(2, float('inf'))
-ngram_walker = NGramWalker(2, float('inf'), n_wildcards=1)
-wl_walker = WeisfeilerLehmanWalker(2, float('inf'))
-com_walker = CommunityWalker(2, float('inf'))
-halk_walker = HalkWalker(2, float('inf'), ub_freq_threshold=0.1)
+#########################################################################
+#			      		CREATING EMBEDDINGS                             #
+#########################################################################
+
+# We'll all possible walks of depth 2
+random_walker = RandomWalker(4, float('inf'))
 
 # Create embeddings with random walks
 transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
-walk_embeddings = transformer.fit_transform(kg, train_people + test_people)
+walk_embeddings = transformer.fit_transform(kg, all_entities)
 
-# Create embeddings using Weisfeiler-Lehman
-transformer = RDF2VecTransformer(walkers=[halk_walker], sg=1)
-wl_embeddings = transformer.fit_transform(kg, train_people + test_people)
+# Split into train and test embeddings
+train_embeddings = walk_embeddings[:len(train_entities)]
+test_embeddings = walk_embeddings[len(train_entities):]
 
-# Fit model on the walk embeddings
-train_embeddings = walk_embeddings[:len(train_people)]
-test_embeddings = walk_embeddings[len(train_people):]
+#########################################################################
+#			      		    FIT CLASSIFIER                              #
+#########################################################################
 
-rf =  RandomForestClassifier(random_state=42, n_estimators=100)
-rf.fit(train_embeddings, train_labels)
-
-print('Random Forest:')
-print(accuracy_score(test_labels, rf.predict(test_embeddings)))
-print(confusion_matrix(test_labels, rf.predict(test_embeddings)))
-
-clf =  GridSearchCV(SVC(random_state=42), {'kernel': ['linear', 'poly', 'rbf'], 'C': [10**i for i in range(-3, 4)]})
+# Fit a support vector machine on train embeddings and evaluate on test
+clf = SVC(random_state=42)
 clf.fit(train_embeddings, train_labels)
 
-print('Support Vector Machine:')
+print(end='Support Vector Machine: Accuracy = ')
 print(accuracy_score(test_labels, clf.predict(test_embeddings)))
 print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
-# Fit model on the Weisfeiler-Lehman embeddings
-train_embeddings = np.hstack((wl_embeddings[:len(train_people)], walk_embeddings[:len(train_people)]))
-test_embeddings = np.hstack((wl_embeddings[len(train_people):], walk_embeddings[len(train_people):]))
-# train_embeddings = wl_embeddings[:len(train_people)]
-# test_embeddings = wl_embeddings[len(train_people):]
+#########################################################################
+#			      		       T-SNE PLOT                               #
+#########################################################################
 
-rf =  RandomForestClassifier(random_state=42, n_estimators=100)
-rf.fit(train_embeddings, train_labels)
-
-print('Random Forest:')
-print(accuracy_score(test_labels, rf.predict(test_embeddings)))
-print(confusion_matrix(test_labels, rf.predict(test_embeddings)))
-
-clf =  GridSearchCV(SVC(random_state=42), {'kernel': ['linear', 'poly', 'rbf'], 'C': [10**i for i in range(-3, 4)]})
-clf.fit(train_embeddings, train_labels)
-
-print('Support Vector Machine:')
-print(accuracy_score(test_labels, clf.predict(test_embeddings)))
-print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
-
-# Create TSNE plots of our embeddings
-colors = ['r', 'g', 'b', 'y']
-color_map = {}
-for i, label in enumerate(set(all_labels)):
-	color_map[label] = colors[i]
-
+# Create t-SNE embeddings from RDF2Vec embeddings (dimensionality reduction)
 walk_tsne = TSNE(random_state=42)
 X_walk_tsne = walk_tsne.fit_transform(walk_embeddings)
-wl_tsne = TSNE(random_state=42)
-X_wl_tsne = wl_tsne.fit_transform(wl_embeddings)
 
-f, ax = plt.subplots(1, 2, figsize=(10, 5))
-ax[0].scatter(X_walk_tsne[:, 0], X_walk_tsne[:, 1], c=[color_map[i] for i in all_labels])
-ax[1].scatter(X_wl_tsne[:, 0], X_wl_tsne[:, 1], c=[color_map[i] for i in all_labels])
-ax[0].set_title('Walk Embeddings')
-ax[1].set_title('Weisfeiler-Lehman Embeddings')
+# Define a color map
+colors = ['r', 'g']
+color_map = {}
+for i, label in enumerate(set(all_labels)):
+    color_map[label] = colors[i]
+
+# Plot the train embeddings
+plt.figure(figsize=(10, 4))
+plt.scatter(
+	X_walk_tsne[:len(train_entities), 0],
+    X_walk_tsne[:len(train_entities), 1],
+    edgecolors=[color_map[i] for i in all_labels],
+    facecolors=[color_map[i] for i in all_labels],
+)
+
+# Plot the test embeddings
+plt.scatter(
+	X_walk_tsne[len(train_entities):, 0],
+    X_walk_tsne[len(train_entities):, 1],
+    edgecolors=[color_map[i] for i in all_labels],
+    facecolors='none'
+)
+
+# Annotate a few points
+for i, ix in enumerate([25, 35]):
+    plt.annotate(
+    	all_entities[ix].split('/')[-1],
+        xy=(X_walk_tsne[ix, 0], X_walk_tsne[ix, 1]), xycoords='data',
+        xytext=(0.1 * i, 0.05 + 0.1 * i),
+        fontsize=8, textcoords='axes fraction',
+        arrowprops=dict(arrowstyle="->", facecolor='black')
+    )
+
+# Create a legend
+plt.scatter([], [], edgecolors='r', facecolors='r', label='train -')
+plt.scatter([], [], edgecolors='g', facecolors='g', label='train +')
+plt.scatter([], [], edgecolors='r', facecolors='none', label='test -')
+plt.scatter([], [], edgecolors='g', facecolors='none', label='test +')
+plt.legend(loc='top right', ncol=2)
+
+# Show & save the figure
+plt.title('pyRDF2Vec', fontsize=32)
+plt.axis('off')
+plt.savefig('embeddings.png')
 plt.show()
