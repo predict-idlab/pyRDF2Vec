@@ -14,9 +14,9 @@ setup(
         "networkx",
         "numpy",
         "pandas",
+        "python-louvain",
         "rdflib",
         "scikit_learn",
         "tqdm",
-        "python-louvain",
     ],
 )
