@@ -1,12 +1,15 @@
-from rdf2vec.walkers import Walker
-from rdf2vec.graph import Vertex
-from collections import defaultdict
-from hashlib import md5
-import networkx as nx
-import numpy as np
-import community
 import itertools
 import math
+from collections import defaultdict
+from hashlib import md5
+
+import numpy as np
+
+import community
+import networkx as nx
+from rdf2vec.graph import Vertex
+from rdf2vec.walkers import Walker
+
 
 def check_random_state(seed):
     return np.random
