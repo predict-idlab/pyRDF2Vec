@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 class Vertex(object):
     vertex_counter = 0
     
