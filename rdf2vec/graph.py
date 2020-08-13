@@ -79,7 +79,7 @@ class KnowledgeGraph(object):
                         obj_name = obj.name.split('/')[-1]
                         nx_graph.add_edge(v_name, obj_name, name=pred_name)
         
-        plt.figure(figsize=(10,10))
+        plt.figure(figsize=(10, 10))
         _pos = nx.circular_layout(nx_graph)
         nx.draw_networkx_nodes(nx_graph, pos=_pos)
         nx.draw_networkx_edges(nx_graph, pos=_pos)
