@@ -1,5 +1,11 @@
+import urllib
+
+import requests
+
+import rdflib
 from rdf2vec.graph import KnowledgeGraph, Vertex
 from tqdm import tqdm
+
 
 def create_kg(triples, label_predicates):
     kg = KnowledgeGraph()
@@ -18,7 +24,6 @@ def create_kg(triples, label_predicates):
 
 def rdflib_to_kg(file, filetype=None, label_predicates=[]):
     """Convert a rdflib.Graph (located at file) to our KnowledgeGraph."""
-    import rdflib
 
     g = rdflib.Graph()
     if filetype is not None:
@@ -33,8 +38,6 @@ def rdflib_to_kg(file, filetype=None, label_predicates=[]):
 def endpoint_to_kg(endpoint_url="http://localhost:5820/db/query?query=", 
                    label_predicates=[]):
     """Generate KnowledgeGraph using SPARQL Endpoint."""
-    import urllib
-    import requests
 
     session = requests.Session()
     adapter = requests.adapters.HTTPAdapter(pool_connections=100, 
