@@ -10,7 +10,7 @@ import itertools
 from rdf2vec.walkers import RandomWalker
 
 
-class RDF2VecTransformer():
+class RDF2VecTransformer:
     """Project random walks or subtrees in graphs into embeddings, suited
     for classification.
 
