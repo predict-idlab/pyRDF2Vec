@@ -29,7 +29,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
             self._label_map[v][0] = v.name
             self._inv_label_map[v.name][0] = v
         
-        for n in range(1, self.wl_iterations+1):
+        for n in range(1, self.wl_iterations + 1):
             for vertex in graph._vertices:
                 # Create multi-set label
                 s_n = self._create_label(graph, vertex, n)
