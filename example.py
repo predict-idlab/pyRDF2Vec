@@ -1,19 +1,19 @@
-import random
 import os
+import random
+import warnings
+
 import numpy as np
-import rdflib
-import pandas as pd
+
 import matplotlib.pyplot as plt
-
-from sklearn.svm import SVC
-from sklearn.metrics import confusion_matrix, accuracy_score
-from sklearn.manifold import TSNE
-
+import pandas as pd
+import rdflib
+from rdf2vec import RDF2VecTransformer
 from rdf2vec.converters import rdflib_to_kg
 from rdf2vec.walkers import RandomWalker
-from rdf2vec import RDF2VecTransformer
+from sklearn.manifold import TSNE
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.svm import SVC
 
-import warnings
 warnings.filterwarnings('ignore')
 
 np.random.seed(42)
