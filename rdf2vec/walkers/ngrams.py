@@ -40,6 +40,6 @@ class NGramWalker(RandomWalker):
                     for idx in itertools.combinations(range(1, len(walk)), wildcard):
                         new_walk = list(walk).copy()
                         for ix in idx:
-                            new_walk[ix] = Vertex('*')
+                            new_walk[ix] = Vertex("*")
                         canonical_walks.add(tuple(self._take_n_grams(new_walk)))
         return canonical_walks
