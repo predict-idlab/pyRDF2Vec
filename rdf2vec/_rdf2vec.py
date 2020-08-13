@@ -95,11 +95,17 @@ class RDF2VecTransformer:
                                                             len(instances)))
         sentences = [list(map(str, x)) for x in self.walks_]
 
-        self.model_ = Word2Vec(sentences, size=self.vector_size, 
-                              window=self.window, workers=self.n_jobs, 
-                              sg=self.sg, iter=self.max_iter, 
-                              negative=self.negative, 
-                              min_count=self.min_count, seed=42)
+        self.model_ = Word2Vec(
+            sentences,
+            size=self.vector_size,
+            window=self.window,
+            workers=self.n_jobs,
+            sg=self.sg,
+            iter=self.max_iter,
+            negative=self.negative,
+            min_count=self.min_count,
+            seed=42,
+        )
 
     def transform(self, graph, instances):
         """Construct a feature vector for the provided instances.

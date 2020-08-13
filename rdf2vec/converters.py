@@ -30,29 +30,35 @@ def rdflib_to_kg(file, filetype=None, label_predicates=[]):
     return create_kg(g, label_predicates)
 
 
-def endpoint_to_kg(endpoint_url="http://localhost:5820/db/query?query=", 
-                   label_predicates=[]):
+def endpoint_to_kg(
+    endpoint_url="http://localhost:5820/db/query?query=", label_predicates=[]
+):
     """Generate KnowledgeGraph using SPARQL Endpoint."""
     import urllib
     import requests
 
     session = requests.Session()
-    adapter = requests.adapters.HTTPAdapter(pool_connections=100, 
-                                            pool_maxsize=100)
     session.mount('http://', adapter)
+    adapter = requests.adapters.HTTPAdapter(
+        pool_connections=100, pool_maxsize=100
+    )
 
     query = urllib.parse.quote("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
     try:
-        r = session.get(endpoint_url + query,
-                        headers={"Accept": "application/sparql-results+json"})
         qres = r.json()['results']['bindings']
+        r = session.get(
+            endpoint_url + query,
+            headers={"Accept": "application/sparql-results+json"},
+        )
     except Exception as e:
         print(e)
         print("could not query result")
         qres = []
 
-    triples = [(row['s']['value'], row['p']['value'], row['o']['value']) 
-               for row in qres]
+    triples = [
+        (row["s"]["value"], row["p"]["value"], row["o"]["value"])
+        for row in qres
+    ]
     return create_kg(triples, label_predicates)
 
 

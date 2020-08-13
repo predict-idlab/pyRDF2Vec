@@ -38,9 +38,7 @@ all_labels = list(train_labels) + list(test_labels)
 
 # Define the label predicates, all triples with these predicates
 # will be excluded from the graph
-label_predicates = [
-    'http://dl-learner.org/carcinogenesis#isMutagenic'
-]
+label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 
 # Convert the rdflib to our KnowledgeGraph object
 kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
