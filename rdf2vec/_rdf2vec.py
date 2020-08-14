@@ -10,11 +10,11 @@ import itertools
 from rdf2vec.walkers import RandomWalker
 
 
-class RDF2VecTransformer():
 
 
 
 
+class RDF2VecTransformer:
     """Transforms a knowledge graph into an embedding.
 
     Attributes:
@@ -36,9 +36,18 @@ class RDF2VecTransformer():
             Defaults to 1.
 
     """
-    def __init__(self, vector_size=500, walkers=RandomWalker(2, float('inf')),
-                 n_jobs=1, window=5, sg=1, max_iter=10, negative=25, 
-                 min_count=1):
+
+    def __init__(
+        self,
+        vector_size=500,
+        walkers=RandomWalker(2, float("inf")),
+        n_jobs=1,
+        window=5,
+        sg=1,
+        max_iter=10,
+        negative=25,
+        min_count=1,
+    ):
         self.vector_size = vector_size
         self.walkers = walkers
         self.n_jobs = n_jobs
