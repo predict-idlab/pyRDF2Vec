@@ -5,6 +5,13 @@ from rdf2vec.graph import Vertex
 
 
 class WeisfeilerLehmanWalker(RandomWalker):
+    """Defines the Weisfeller-Lehman walking strategy.
+
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
+    """
+
     def __init__(self, depth, walks_per_graph, wl_iterations=4):
         super(WeisfeilerLehmanWalker, self).__init__(depth, walks_per_graph)
         self.wl_iterations = wl_iterations
@@ -20,7 +27,18 @@ class WeisfeilerLehmanWalker(RandomWalker):
         # return suffix
 
     def _weisfeiler_lehman(self, graph):
-        """Perform Weisfeiler-Lehman relabeling of the vertices"""
+        """Performs Weisfeiller-Lehman relabeling of the vertices.
+
+        Note:
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+
+        """
         self._label_map = defaultdict(dict)
         self._inv_label_map = defaultdict(dict)
 
@@ -41,6 +59,24 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
 
     def extract(self, graph, instances):
+        """Extracts a knowledge graph and transform it into a 2D vector, based
+        on provided instances.
+
+        Note:
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to extract the knowledge
+                graph.
+
+        Returns:
+            list: The 2D vector corresponding to the knowledge graph.
+
+        """
         self._weisfeiler_lehman(graph)
 
         canonical_walks = set()
