@@ -1,3 +1,4 @@
+class Walker:
     """Base class for the walking strategy.
 
     Attributes:
@@ -6,7 +7,6 @@
 
     """
 
-class Walker():
     def __init__(self, depth, walks_per_graph):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
