@@ -9,6 +9,7 @@ class AnonymousWalker(RandomWalker):
     Attributes:
         depth (int): The depth per entity.
         walks_per_graph (float): The maximum number of walks per entity.
+
     """
 
     def __init__(self, depth, walks_per_graph):
