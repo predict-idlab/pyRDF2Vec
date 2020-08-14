@@ -2,6 +2,16 @@ from rdf2vec.graph import KnowledgeGraph, Vertex
 from tqdm import tqdm
 
 def create_kg(triples, label_predicates):
+    """Creates a knowledge graph according to triples and predicates label.
+
+    Args:
+        triples (list): The triples.
+        label_predicates (list): The predicates label.
+
+    Returns:
+        graph.KnowledgeGraph: The knowledge graph.
+
+    """
     kg = KnowledgeGraph()
     for (s, p, o) in tqdm(triples):
         if p not in label_predicates:
@@ -17,7 +27,19 @@ def create_kg(triples, label_predicates):
 
 
 def rdflib_to_kg(file, filetype=None, label_predicates=[]):
-    """Convert a rdflib.Graph (located at file) to our KnowledgeGraph."""
+    """Converts a rdflib.Graph to a knowledge graph.
+
+    Args:
+        file (file-like): The file that contains the rdflib.Graph
+        filetype (string): The format of the knowledge graph.
+            Defaults to None.
+        label_predicates (list): The predicates label.
+            Defaults to [].
+
+    Returns:
+        graph.KnowledgeGraph: The knowledge graph.
+
+    """
     import rdflib
 
     g = rdflib.Graph()
@@ -32,7 +54,17 @@ def rdflib_to_kg(file, filetype=None, label_predicates=[]):
 
 def endpoint_to_kg(endpoint_url="http://localhost:5820/db/query?query=", 
                    label_predicates=[]):
-    """Generate KnowledgeGraph using SPARQL Endpoint."""
+    """Generates a knowledge graph using a SPARQL endpoint.
+
+    endpoint_url (string): The SPARQL endpoint.
+        Defaults to http://localhost:5820/db/query?query=
+    label_predicates (list): The predicates label.
+        Defaults to [].
+
+    Returns:
+        graph.KnowledgeGraph: The knowledge graph.
+
+    """
     import urllib
     import requests
 
