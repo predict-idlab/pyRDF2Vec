@@ -15,16 +15,16 @@ class Walker():
         """Prints the walks of a knowledge graph.
 
         Note:
-                You can create a `graph.KnowledgeGraph` object from an
-                `rdflib.Graph` object by using a converter method.
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
 
         Args:
-                graph (graph.KnowledgeGraph): The knowledge graph.
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-                instances (array-like): The instances to extract the knowledge
-            graph.
-                file_name (str): The filename that contains the rdflib.Graph
+            graph (graph.KnowledgeGraph): The knowledge graph.
+            The graph from which the neighborhoods are extracted for the
+            provided instances.
+            instances (array-like): The instances to extract the knowledge
+                graph.
+            file_name (str): The filename that contains the rdflib.Graph
 
         """
         walks = self.extract(graph, instances)
@@ -49,22 +49,20 @@ class Walker():
 
     def extract(self, graph, instances):
         """Extracts a knowledge graph and transform it into a 2D vector, based
-            on provided instances.
+        on provided instances.
 
         Note:
-                You can create a `graph.KnowledgeGraph` object from an
-                `rdflib.Graph` object by using a converter method.
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
 
         Args:
-                graph (graph.KnowledgeGraph): The knowledge graph.
+            graph (graph.KnowledgeGraph): The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-                instances (array-like): The instances to extract the knowledge
-                    graph.
+            instances (array-like): The instances to extract the knowledge graph.
 
-        Raises:
-                NotImplementedError: This method must be implemented by the by
-                    the inherited subclasses.
+        Returns:
+            list: The 2D vector corresponding to the knowledge graph.
 
         """
         raise NotImplementedError("This must be implemented!")
