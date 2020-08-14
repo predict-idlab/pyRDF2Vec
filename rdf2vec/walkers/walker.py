@@ -1,4 +1,10 @@
+    """Base class for the walking strategy.
 
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
+
+    """
 
 class Walker():
     def __init__(self, depth, walks_per_graph):
@@ -6,6 +12,21 @@ class Walker():
         self.walks_per_graph = walks_per_graph
 
     def print_walks(self, graph, instances, file_name):
+        """Prints the walks of a knowledge graph.
+
+        Note:
+                You can create a `graph.KnowledgeGraph` object from an
+                `rdflib.Graph` object by using a converter method.
+
+        Args:
+                graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+                instances (array-like): The instances to extract the knowledge
+            graph.
+                file_name (str): The filename that contains the rdflib.Graph
+
+        """
         walks = self.extract(graph, instances)
         walk_strs = []
         for walk_nr, walk in enumerate(walks):
@@ -27,4 +48,23 @@ class Walker():
                 myfile.write('\n\n')
 
     def extract(self, graph, instances):
-        raise NotImplementedError('This must be implemented!')
+        """Extracts a knowledge graph and transform it into a 2D vector, based
+            on provided instances.
+
+        Note:
+                You can create a `graph.KnowledgeGraph` object from an
+                `rdflib.Graph` object by using a converter method.
+
+        Args:
+                graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+                instances (array-like): The instances to extract the knowledge
+                    graph.
+
+        Raises:
+                NotImplementedError: This method must be implemented by the by
+                    the inherited subclasses.
+
+        """
+        raise NotImplementedError("This must be implemented!")
