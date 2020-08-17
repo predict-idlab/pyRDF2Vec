@@ -1,5 +1,5 @@
 class Walker:
-    """Base class for the walking strategy.
+    """Base class for the walking strategies.
 
     Attributes:
         depth (int): The depth per entity.
