@@ -118,7 +118,7 @@ plt.scatter([], [], edgecolors='r', facecolors='r', label='train -')
 plt.scatter([], [], edgecolors='g', facecolors='g', label='train +')
 plt.scatter([], [], edgecolors='r', facecolors='none', label='test -')
 plt.scatter([], [], edgecolors='g', facecolors='none', label='test +')
-plt.legend(loc='top right', ncol=2)
+plt.legend(loc='upper right', ncol=2)
 
 # Show & save the figure
 plt.title('pyRDF2Vec', fontsize=32)
