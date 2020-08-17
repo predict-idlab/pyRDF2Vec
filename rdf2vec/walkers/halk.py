@@ -5,7 +5,7 @@ import numpy as np
 from hashlib import md5
 
 class HalkWalker(RandomWalker):
-    """Defines the halk walking strategy.
+    """Defines the Hierarchical Walking (HALK) strategy.
 
     Attributes:
         depth (int): The depth per entity.
