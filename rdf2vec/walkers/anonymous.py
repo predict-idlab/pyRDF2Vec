@@ -4,7 +4,7 @@ import numpy as np
 from hashlib import md5
 
 class AnonymousWalker(RandomWalker):
-    """Defines the anonymous walker of the walking strategy.
+    """Defines the anonymous walking strategy.
 
     Attributes:
         depth (int): The depth per entity.
@@ -16,12 +16,8 @@ class AnonymousWalker(RandomWalker):
         super(AnonymousWalker, self).__init__(depth, walks_per_graph)
 
     def extract(self, graph, instances):
-        """Extracts a knowledge graph and transform it into a 2D vector, based
-        on provided instances.
-
-        Note:
-            You can create a `graph.KnowledgeGraph` object from an
-            `rdflib.Graph` object by using a converter method.
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
 
         Args:
             graph (graph.KnowledgeGraph): The knowledge graph.
@@ -30,7 +26,9 @@ class AnonymousWalker(RandomWalker):
             instances (array-like): The instances to extract the knowledge graph.
 
         Returns:
-            list: The 2D vector corresponding to the knowledge graph.
+            list: The 2D matrix with its:
+                number of rows equal to the number of provided instances;
+                number of column equal to the embedding size.
 
         """
         canonical_walks = set()
