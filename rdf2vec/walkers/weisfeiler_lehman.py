@@ -5,7 +5,7 @@ from rdf2vec.graph import Vertex
 
 
 class WeisfeilerLehmanWalker(RandomWalker):
-    """Defines the Weisfeller-Lehman walking strategy.
+    """Defines the Weisfeler-Lehman walking strategy.
 
     Attributes:
         depth (int): The depth per entity.
