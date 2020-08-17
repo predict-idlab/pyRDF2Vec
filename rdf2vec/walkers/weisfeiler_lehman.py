@@ -28,7 +28,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         # return suffix
 
     def _weisfeiler_lehman(self, graph):
-        """Performs Weisfeiller-Lehman relabeling of the vertices.
+        """Performs Weisfeiler-Lehman relabeling of the vertices.
 
         Note:
             You can create a `graph.KnowledgeGraph` object from an
