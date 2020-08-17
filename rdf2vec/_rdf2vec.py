@@ -13,7 +13,7 @@ from sklearn.utils.validation import check_is_fitted
 
 
 class RDF2VecTransformer:
-    """Transforms a knowledge graph into an embedding.
+    """Transforms nodes in a knowledge graph into an embedding.
 
     Attributes:
         vector_size (int): The dimension of the embeddings.
@@ -58,10 +58,6 @@ class RDF2VecTransformer:
     def fit(self, graph, instances):
         """Fits the embedding network based on provided instances.
 
-        Note:
-            You can create a `graph.KnowledgeGraph` object from an
-            `rdflib.Graph` object by using a converter method.
-
         Args:
             graph (graph.KnowledgeGraph): The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
@@ -88,10 +84,6 @@ class RDF2VecTransformer:
     def transform(self, graph, instances):
         """Constructs a feature vector for the provided instances.
 
-        Note:
-            You can create a `graph.KnowledgeGraph` object from an
-            `rdflib.Graph` object by using a converter method.
-
         Args:
             graph (graph.KnowledgeGraph): The knowledge graph
                 The graph from which we will extract neighborhoods for the
@@ -115,10 +107,6 @@ class RDF2VecTransformer:
     def fit_transform(self, graph, instances):
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
-
-        Note:
-            You can create a `graph.KnowledgeGraph` object from an
-            `rdflib.Graph` object by using a converter method.
 
         Args:
             graph (graph.KnowledgeGraph): The knowledge graph
