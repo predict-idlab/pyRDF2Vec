@@ -26,11 +26,11 @@ def create_kg(triples, label_predicates):
     return kg
 
 
-def rdflib_to_kg(file, filetype=None, label_predicates=[]):
+def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
     """Converts a rdflib.Graph to a knowledge graph.
 
     Args:
-        file (file-like): The file that contains the rdflib.Graph
+        file_name (str): The file name that contains the rdflib.Graph.
         filetype (string): The format of the knowledge graph.
             Defaults to None.
         label_predicates (list): The predicates label.
@@ -44,9 +44,9 @@ def rdflib_to_kg(file, filetype=None, label_predicates=[]):
 
     g = rdflib.Graph()
     if filetype is not None:
-        g.parse(file, format=filetype)
+        g.parse(file_name, format=filetype)
     else:
-        g.parse(file)
+        g.parse(file_name)
 
     label_predicates = [rdflib.term.URIRef(x) for x in label_predicates]
     return create_kg(g, label_predicates)
