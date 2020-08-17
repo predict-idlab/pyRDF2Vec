@@ -5,8 +5,10 @@ def create_kg(triples, label_predicates):
     """Creates a knowledge graph according to triples and predicates label.
 
     Args:
-        triples (list): The triples.
-        label_predicates (list): The predicates label.
+        triples (list): The triples where each item in this list must be an
+            iterable (e.g., tuple, list) of three elements.
+        label_predicates (list): The URI's of the predicates that have to be
+            excluded from the graph to avoid leakage.
 
     Returns:
         graph.KnowledgeGraph: The knowledge graph.
