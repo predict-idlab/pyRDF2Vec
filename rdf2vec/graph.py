@@ -35,10 +35,7 @@ class KnowledgeGraph(object):
         
     def add_vertex(self, vertex):
         """Add a vertex to the Knowledge Graph."""
-        if vertex.predicate:
-            self._vertices.add(vertex)
-        else:
-            self._vertices.add(vertex)
+        self._vertices.add(vertex)
 
     def add_edge(self, v1, v2):
         """Add a uni-directional edge."""
