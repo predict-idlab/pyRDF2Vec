@@ -41,9 +41,9 @@ It's as simple as that:
 ## Getting Started
 
 To create embeddings for a list of entities, there are three steps to follow:
-1. create a Knowledge Graph object;
-2. define a walking strategy;
-3. create embeddings for a list of entities.
+1. **create a Knowledge Graph object**;
+2. **define a walking strategy**;
+3. **create embeddings for a list of entities**.
 
 For a more elaborate example, check at the
 [example.py](https://github.com/IBCNServices/pyRDF2Vec/blob/master/example.py)
