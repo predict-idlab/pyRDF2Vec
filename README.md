@@ -92,7 +92,6 @@ depth of 4 is implemented as follows:
 ```python
 from rdf2vec.walkers import RandomWalker
 
-# We specify the depth and maximum number of walks per entity
 random_walker = RandomWalker(4, float("inf"))
 ```
 
