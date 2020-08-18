@@ -27,13 +27,35 @@ np.random.permutation = lambda x: next(
     itertools.permutations(x)
 )  # sample_from_iterable
 class CommunityWalker(Walker):
+    """Defines the community walking strategy.
+
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
+        hop_prob (float): The probability to hop.
+            Defaults to 0.1.
+        resolution (int): The resolution.
+            Defaults to 1.
+
+    """
     def __init__(self, depth, walks_per_graph, hop_prob=0.1, resolution=1):
         super(CommunityWalker, self).__init__(depth, walks_per_graph)
         self.hop_prob = hop_prob
         self.resolution = resolution
 
     def _community_detection(self, graph):
-        # Convert our graph to a networkX graph
+        """Converts the knowledge graph to a networkX graph.
+
+        Note:
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+
+        """
         nx_graph = nx.Graph()
 
         for v in graph._vertices:
@@ -67,7 +89,22 @@ class CommunityWalker(Walker):
             self.labels_per_community[self.communities[node]].append(node)
 
     def extract_random_community_walks(self, graph, root):
-        """Extract random walks of depth - 1 hops rooted in root."""
+        """Extracts random walks of depth - 1 hops rooted in root.
+
+        Note:
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            root (Vertex): The root.
+
+        Returns:
+            numpy.array: The array of the walks.
+
+        """
         # Initialize one walk of length 1 (the root)
 
         walks = {(root,)}
@@ -104,6 +141,21 @@ class CommunityWalker(Walker):
         return list(walks)
 
     def extract(self, graph, instances):
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to extract the knowledge graph.
+
+        Returns:
+            list: The 2D matrix with its:
+                number of rows equal to the number of provided instances;
+                number of column equal to the embedding size.
+
+        """
         self._community_detection(graph)
         canonical_walks = set()
         for instance in instances:

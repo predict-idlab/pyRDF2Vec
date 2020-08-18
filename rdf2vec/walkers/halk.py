@@ -8,13 +8,35 @@ from rdf2vec.walkers import RandomWalker
 
 
 class HalkWalker(RandomWalker):
-    def __init__(self, depth, walks_per_graph, 
-                 freq_thresholds=[0.001]):
+    """Defines the Hierarchical Walking (HALK) strategy.
+
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
+
+    """
+
+    def __init__(self, depth, walks_per_graph, freq_thresholds=[0.001]):
         super(HalkWalker, self).__init__(depth, walks_per_graph)
         self.freq_thresholds = freq_thresholds
         # self.lb_freq_threshold = lb_freq_threshold
 
     def extract(self, graph, instances):
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to extract the knowledge graph.
+
+        Returns:
+            list: The 2D matrix with its:
+                number of rows equal to the number of provided instances;
+                number of column equal to the embedding size.
+
+        """
         canonical_walks = set()
         all_walks=[]
         for instance in instances:
