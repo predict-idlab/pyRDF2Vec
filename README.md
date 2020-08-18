@@ -55,27 +55,17 @@ file:
 ### Create a Knowledge Graph object
 
 To create a Knowledge Graph object, you can initialize it in several ways:
-- from `rdflib`:
-
 ```python
-from rdf2vec.converters import rdflib_to_kg
+from rdf2vec.converters import endpoint_to_kg, rdflib_to_kg
 
-# We want to filter out triples with certain predicates
 label_predicates = [
     "http://dl-learner.org/carcinogenesis#isMutagenic"
 ]
+
+# Create a Knowledge Graph from rdflib:
 kg = rdflib_to_kg("sample/mutag.owl", label_predicates=label_predicates)
-```
 
-- from an `endpoint`:
-
-```python
-from rdf2vec.converters import endpoint_to_kg
-
-# We want to filter out all triples with certain predicates
-label_predicates = [
-    "http://dl-learner.org/carcinogenesis#isMutagenic"
-]
+# Create a Knowledge Graph from a SPARQL endpoint:
 kg = endpoint_to_kg("http://localhost:5820/db/query?query=", label_predicates=label_predicates)
 ```
 
