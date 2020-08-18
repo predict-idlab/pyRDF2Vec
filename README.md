@@ -40,10 +40,9 @@ It's as simple as that:
 
 ## Getting Started
 
-To create embeddings for a list of entities, there are three steps to follow:
+To create embeddings for a list of entities, there are two steps to do beforehand:
 1. **create a Knowledge Graph object**;
-2. **define a walking strategy**;
-3. **create embeddings for a list of entities**.
+2. **define a walking strategy**.
 
 For a more elaborate example, check at the
 [example.py](https://github.com/IBCNServices/pyRDF2Vec/blob/master/example.py)
@@ -69,7 +68,7 @@ label_predicates = [
 kg = rdflib_to_kg("sample/mutag.owl", label_predicates=label_predicates)
 ```
 
-- from an endpoint:
+- from an `endpoint`:
 
 ```python
 from rdf2vec.converters import endpoint_to_kg
