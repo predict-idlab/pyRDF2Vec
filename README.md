@@ -64,7 +64,6 @@ from rdf2vec.converters import rdflib_to_kg
 label_predicates = [
     "http://dl-learner.org/carcinogenesis#isMutagenic"
 ]
-
 kg = rdflib_to_kg("sample/mutag.owl", label_predicates=label_predicates)
 ```
 
@@ -77,7 +76,6 @@ from rdf2vec.converters import endpoint_to_kg
 label_predicates = [
     "http://dl-learner.org/carcinogenesis#isMutagenic"
 ]
-
 kg = endpoint_to_kg("http://localhost:5820/db/query?query=", label_predicates=label_predicates)
 ```
 
