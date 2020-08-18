@@ -86,8 +86,8 @@ kg = endpoint_to_kg("http://localhost:5820/db/query?query=", label_predicates=la
 
 To define a walking strategy, start by choosing one available on the [Wiki page](https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies).
 
-For example, the definition of the walking strategy (*e.g.,* Random) with a
-depth of 4 is implemented as follows:
+For example, the definition of the Random walking strategy with a depth of 4 is
+implemented as follows:
 
 ```python
 from rdf2vec.walkers import RandomWalker
