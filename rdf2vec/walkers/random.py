@@ -50,7 +50,7 @@ class RandomWalker(Walker):
 
             # TODO: Should we prune in every iteration?
             if self.walks_per_graph is not None:
-                n_walks = min(len(walks),  self.walks_per_graph)
+                n_walks = min(len(walks), self.walks_per_graph)
                 walks_ix = np.random.choice(
                     range(len(walks)), replace=False, size=n_walks
                 )
