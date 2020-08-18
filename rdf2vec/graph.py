@@ -72,7 +72,7 @@ class Vertex(object):
 
 
 class KnowledgeGraph(object):
-    """Represents a knowledge graph. """
+    """Represents a knowledge graph."""
 
     def __init__(self):
         self._vertices = set()
