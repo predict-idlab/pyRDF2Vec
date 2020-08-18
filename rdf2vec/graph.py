@@ -88,8 +88,6 @@ class KnowledgeGraph(object):
         """
         if vertex.predicate:
             self._vertices.add(vertex)
-        else:
-            self._vertices.add(vertex)
 
     def add_edge(self, v1, v2):
         """Adds a uni-directional edge.
