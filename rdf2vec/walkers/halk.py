@@ -66,5 +66,4 @@ class HalkWalker(RandomWalker):
                             digest = md5(hop.name.encode()).digest()[:8]
                             canonical_walk.append(str(digest))
                 canonical_walks.add(tuple(canonical_walk))
-                
         return canonical_walks
