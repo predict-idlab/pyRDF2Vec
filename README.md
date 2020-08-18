@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="embeddings.png"></div>
+	<img src="assets/embeddings.png"></div>
 </div>
 
 <p align="center">
