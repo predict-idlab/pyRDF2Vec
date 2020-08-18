@@ -4,7 +4,7 @@ Hi, thank you for considering to contribute to pyRDF2Vec! There are many differe
 
 ## Questions or reporting bugs
 
-Feel free to [open an issue](https://github.com/IBCNServices/pyRDF2Vec/issues/new) in case something is not working as expected, or if you have any questions. In order to help you out as good as possible, please try to describe the question/problem as precise as problem. Also try to provide a minimal working example, the operating system you are using and some sample of data in case that is possible.
+Feel free to [open an issue](https://github.com/IBCNServices/pyRDF2Vec/issues/new) in case something is not working as expected, or if you have any questions. In order to help you out as good as possible, please try to describe the question/problem as precise as possible. Also try to provide a minimal working example, the operating system you are using and some sample of data in case that is possible.
 
 ## Improving/extending the code
 
