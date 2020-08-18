@@ -51,7 +51,7 @@ file:
 
     PYTHONHASHSEED=42 python3 rdf2vec/example.py
 
-**NOTE:** the `PYTHONHASHSEED` (*e.g., `42`) is to ensure determinism.
+**NOTE:** the `PYTHONHASHSEED` (*e.g.,* 42) is to ensure determinism.
 
 ### Create a Knowledge Graph object
 
