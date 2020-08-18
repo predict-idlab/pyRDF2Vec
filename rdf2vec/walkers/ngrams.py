@@ -1,8 +1,11 @@
-from rdf2vec.walkers import RandomWalker
-from rdf2vec.graph import Vertex
-import numpy as np
 import itertools
 from hashlib import md5
+
+import numpy as np
+
+from rdf2vec.graph import Vertex
+from rdf2vec.walkers import RandomWalker
+
 
 class NGramWalker(RandomWalker):
     def __init__(self, depth, walks_per_graph, n=3, wildcards=None):
