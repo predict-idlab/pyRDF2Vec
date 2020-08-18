@@ -78,6 +78,13 @@ For a more elaborate example, check `example.py`. You can run it as follows: `PY
 
 # Documentation
 
+# Contributions
+
+To add a new walking strategy and/or new features that are related to
+[RDF2Vec](http://rdf2vec.org/), take a look at the
+[CONTRIBUTING](https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.md)
+file. Also, feel free to submit your bugs and suggestions by opening an issue in
+the issue tracker, it would help us a lot.
 
 # Referencing
 
