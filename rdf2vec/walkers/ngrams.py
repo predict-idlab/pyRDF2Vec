@@ -1,8 +1,11 @@
-from rdf2vec.walkers import RandomWalker
-from rdf2vec.graph import Vertex
-import numpy as np
 import itertools
 from hashlib import md5
+
+import numpy as np
+
+from rdf2vec.graph import Vertex
+from rdf2vec.walkers import RandomWalker
+
 
 class NGramWalker(RandomWalker):
     """Defines the N-Grams walking strategy.
@@ -38,8 +41,9 @@ class NGramWalker(RandomWalker):
             if i == 0 or i % 2 == 1 or i < self.n:
                 n_gram_walk.append(hop.name)
             else:
-                n_gram = tuple(walk[j].name for j in range(max(0, i - (self.n - 1)), 
-                                                           i + 1))
+                n_gram = tuple(
+                    walk[j].name for j in range(max(0, i - (self.n - 1)), i + 1)
+                )
                 if n_gram not in self.n_gram_map:
                     self.n_gram_map[n_gram] = str(len(self.n_gram_map))
                 n_gram_walk.append(self.n_gram_map[n_gram])
@@ -73,7 +77,9 @@ class NGramWalker(RandomWalker):
                     continue
 
                 for wildcard in self.wildcards:
-                    for idx in itertools.combinations(range(1, len(walk)), wildcard):
+                    for idx in itertools.combinations(
+                        range(1, len(walk)), wildcard
+                    ):
                         new_walk = list(walk).copy()
                         for ix in idx:
                             new_walk[ix] = Vertex('*')

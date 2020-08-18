@@ -3,10 +3,10 @@ import itertools
 from hashlib import md5
 
 import numpy as np
-
 import rdflib
 import tqdm
 from gensim.models.word2vec import Word2Vec
+
 from rdf2vec.graph import Vertex
 from rdf2vec.walkers import RandomWalker
 from sklearn.utils.validation import check_is_fitted
@@ -75,11 +75,17 @@ class RDF2VecTransformer:
                                                             len(instances)))
         sentences = [list(map(str, x)) for x in self.walks_]
 
-        self.model_ = Word2Vec(sentences, size=self.vector_size, 
-                              window=self.window, workers=self.n_jobs, 
-                              sg=self.sg, iter=self.max_iter, 
-                              negative=self.negative, 
-                              min_count=self.min_count, seed=42)
+        self.model_ = Word2Vec(
+            sentences,
+            size=self.vector_size,
+            window=self.window,
+            workers=self.n_jobs,
+            sg=self.sg,
+            iter=self.max_iter,
+            negative=self.negative,
+            min_count=self.min_count,
+            seed=42,
+        )
 
     def transform(self, graph, instances):
         """Constructs a feature vector for the provided instances.

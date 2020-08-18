@@ -1,8 +1,11 @@
-from rdf2vec.walkers import RandomWalker
-from rdf2vec.graph import Vertex
-import numpy as np
 import itertools
 from hashlib import md5
+
+import numpy as np
+
+from rdf2vec.graph import Vertex
+from rdf2vec.walkers import RandomWalker
+
 
 class WildcardWalker(RandomWalker):
     """Defines the wild card walking strategy.
@@ -40,8 +43,9 @@ class WildcardWalker(RandomWalker):
                 canonical_walks.add(tuple([x.name for x in walk]))
 
                 for wildcard in self.wildcards:
-                    combinations = itertools.combinations(range(1, len(walk)), 
-                                                          wildcard)
+                    combinations = itertools.combinations(
+                        range(1, len(walk)), wildcard
+                    )
                     for idx in combinations:
                         new_walk = []
                         for ix, hop in enumerate(walk):

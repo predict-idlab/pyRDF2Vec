@@ -1,12 +1,15 @@
-from rdf2vec.walkers import Walker
-from rdf2vec.graph import Vertex
-from collections import defaultdict
-from hashlib import md5
-import networkx as nx
-import numpy as np
-import community
 import itertools
 import math
+from collections import defaultdict
+from hashlib import md5
+
+import numpy as np
+
+import community
+import networkx as nx
+from rdf2vec.graph import Vertex
+from rdf2vec.walkers import Walker
+
 
 def check_random_state(seed):
     return np.random
@@ -19,8 +22,10 @@ def sample_from_iterable(x):
     for _ in range(rand_ix):
         _ = next(perms)
     return next(perms)
-np.random.permutation = lambda x: next(itertools.permutations(x))#sample_from_iterable
 
+np.random.permutation = lambda x: next(
+    itertools.permutations(x)
+)  # sample_from_iterable
 class CommunityWalker(Walker):
     """Defines the community walking strategy.
 
@@ -69,8 +74,9 @@ class CommunityWalker(Walker):
                         nx_graph.add_edge(v_name, obj_name)
 
         # This will create a dictionary that maps the URI on a community
-        partition = community.best_partition(nx_graph, 
-                                             resolution=self.resolution)
+        partition = community.best_partition(
+            nx_graph, resolution=self.resolution
+        )
         self.labels_per_community = defaultdict(list)
 
         self.communities = {}
@@ -153,7 +159,9 @@ class CommunityWalker(Walker):
         self._community_detection(graph)
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_community_walks(graph, Vertex(str(instance)))
+            walks = self.extract_random_community_walks(
+                graph, Vertex(str(instance))
+            )
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):

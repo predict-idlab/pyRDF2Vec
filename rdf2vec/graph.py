@@ -1,5 +1,9 @@
 from collections import defaultdict
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
+
 class Vertex(object):
     """Represents a vertex in a knowledge graph.
 
@@ -135,8 +139,6 @@ class KnowledgeGraph(object):
     
     def visualise(self):
         """Visualises the knowledge graph."""
-        import matplotlib.pyplot as plt
-        import networkx as nx
         nx_graph = nx.DiGraph()
         
         for v in self._vertices:
@@ -154,7 +156,7 @@ class KnowledgeGraph(object):
                         obj_name = obj.name.split('/')[-1]
                         nx_graph.add_edge(v_name, obj_name, name=pred_name)
         
-        plt.figure(figsize=(10,10))
+        plt.figure(figsize=(10, 10))
         _pos = nx.circular_layout(nx_graph)
         nx.draw_networkx_nodes(nx_graph, pos=_pos)
         nx.draw_networkx_edges(nx_graph, pos=_pos)
