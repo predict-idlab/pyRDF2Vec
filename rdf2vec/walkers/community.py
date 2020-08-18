@@ -22,8 +22,10 @@ def sample_from_iterable(x):
     for _ in range(rand_ix):
         _ = next(perms)
     return next(perms)
-np.random.permutation = lambda x: next(itertools.permutations(x))#sample_from_iterable
 
+np.random.permutation = lambda x: next(
+    itertools.permutations(x)
+)  # sample_from_iterable
 class CommunityWalker(Walker):
     def __init__(self, depth, walks_per_graph, hop_prob=0.1, resolution=1):
         super(CommunityWalker, self).__init__(depth, walks_per_graph)
@@ -50,8 +52,9 @@ class CommunityWalker(Walker):
                         nx_graph.add_edge(v_name, obj_name)
 
         # This will create a dictionary that maps the URI on a community
-        partition = community.best_partition(nx_graph, 
-                                             resolution=self.resolution)
+        partition = community.best_partition(
+            nx_graph, resolution=self.resolution
+        )
         self.labels_per_community = defaultdict(list)
 
         self.communities = {}
@@ -104,7 +107,9 @@ class CommunityWalker(Walker):
         self._community_detection(graph)
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_community_walks(graph, Vertex(str(instance)))
+            walks = self.extract_random_community_walks(
+                graph, Vertex(str(instance))
+            )
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):
