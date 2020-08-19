@@ -1,3 +1,4 @@
+import itertools
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
@@ -18,16 +19,14 @@ class Vertex:
 
     """
 
-    vertex_counter = 0
+    vertex_counter = itertools.count()
 
     def __init__(self, name, predicate=False, _from=None, _to=None):
         self._from = _from
         self._to = _to
+        self.id = next(self.vertex_counter)
         self.name = name
         self.predicate = predicate
-
-        self.id = Vertex.vertex_counter
-        Vertex.vertex_counter += 1
 
     def __eq__(self, other):
         """Defines behavior for the equality operator, ==.
