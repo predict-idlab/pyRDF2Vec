@@ -3,6 +3,7 @@ matplotlib
 networkx
 numpy
 pandas
+pre-commit
 python-louvain
 rdflib
 scikit_learn
