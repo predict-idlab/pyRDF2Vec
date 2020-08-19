@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-class Vertex(object):
+class Vertex:
     """Represents a vertex in a knowledge graph.
 
     Attributes:
@@ -71,7 +71,7 @@ class Vertex(object):
         return self.name < other.name
 
 
-class KnowledgeGraph(object):
+class KnowledgeGraph:
     """Represents a knowledge graph."""
 
     def __init__(self):
