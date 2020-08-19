@@ -3,10 +3,10 @@ import math
 from collections import defaultdict
 from hashlib import md5
 
-import numpy as np
-
 import community
 import networkx as nx
+import numpy as np
+
 from rdf2vec.graph import Vertex
 from rdf2vec.walkers import Walker
 
