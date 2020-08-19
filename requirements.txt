@@ -4,6 +4,7 @@ networkx
 numpy
 pandas
 pre-commit
+pytest
 python-louvain
 rdflib
 scikit_learn
