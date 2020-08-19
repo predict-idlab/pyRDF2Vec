@@ -15,7 +15,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
     """
 
     def __init__(self, depth, walks_per_graph, wl_iterations=4):
-        super(WeisfeilerLehmanWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
         self.wl_iterations = wl_iterations
 
     def _create_label(self, graph, vertex, n):

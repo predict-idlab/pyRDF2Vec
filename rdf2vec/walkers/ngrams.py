@@ -21,7 +21,7 @@ class NGramWalker(RandomWalker):
     """
 
     def __init__(self, depth, walks_per_graph, n=3, wildcards=None):
-        super(NGramWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
         self.n = n
         self.wildcards = wildcards
         self.n_gram_map = {}

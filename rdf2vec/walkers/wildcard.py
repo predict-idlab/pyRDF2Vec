@@ -17,7 +17,7 @@ class WildcardWalker(RandomWalker):
     """
 
     def __init__(self, depth, walks_per_graph, wildcards=[1]):
-        super(WildcardWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
         self.wildcards = wildcards
 
     def extract(self, graph, instances):

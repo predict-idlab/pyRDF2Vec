@@ -16,7 +16,7 @@ class WalkletWalker(RandomWalker):
     """
 
     def __init__(self, depth, walks_per_graph):
-        super(WalkletWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
 
     def extract(self, graph, instances):
         """Extracts walks rooted at the provided instances which are then each

@@ -46,7 +46,7 @@ class CommunityWalker(Walker):
     """
 
     def __init__(self, depth, walks_per_graph, hop_prob=0.1, resolution=1):
-        super(CommunityWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
         self.hop_prob = hop_prob
         self.resolution = resolution
 

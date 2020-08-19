@@ -17,7 +17,7 @@ class HalkWalker(RandomWalker):
     """
 
     def __init__(self, depth, walks_per_graph, freq_thresholds=[0.001]):
-        super(HalkWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
         self.freq_thresholds = freq_thresholds
         # self.lb_freq_threshold = lb_freq_threshold
 

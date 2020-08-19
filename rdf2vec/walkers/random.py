@@ -16,7 +16,7 @@ class RandomWalker(Walker):
     """
 
     def __init__(self, depth, walks_per_graph):
-        super(RandomWalker, self).__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph)
 
     def extract_random_walks(self, graph, root):
         """Extracts random walks of depth - 1 hops rooted in root.
