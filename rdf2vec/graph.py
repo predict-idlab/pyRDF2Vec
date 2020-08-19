@@ -141,17 +141,17 @@ class KnowledgeGraph(object):
         
         for v in self._vertices:
             if not v.predicate:
-                name = v.name.split('/')[-1]
+                name = v.name.split("/")[-1]
                 nx_graph.add_node(name, name=name, pred=v.predicate)
             
         for v in self._vertices:
             if not v.predicate:
-                v_name = v.name.split('/')[-1]
+                v_name = v.name.split("/")[-1]
                 # Neighbors are predicates
                 for pred in self.get_neighbors(v):
-                    pred_name = pred.name.split('/')[-1]
+                    pred_name = pred.name.split("/")[-1]
                     for obj in self.get_neighbors(pred):
-                        obj_name = obj.name.split('/')[-1]
+                        obj_name = obj.name.split("/")[-1]
                         nx_graph.add_edge(v_name, obj_name, name=pred_name)
         
         plt.figure(figsize=(10, 10))
@@ -159,5 +159,5 @@ class KnowledgeGraph(object):
         nx.draw_networkx_nodes(nx_graph, pos=_pos)
         nx.draw_networkx_edges(nx_graph, pos=_pos)
         nx.draw_networkx_labels(nx_graph, pos=_pos)
-        names = nx.get_edge_attributes(nx_graph, 'name')
+        names = nx.get_edge_attributes(nx_graph, "name")
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)

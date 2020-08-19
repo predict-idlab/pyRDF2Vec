@@ -50,7 +50,7 @@ class WildcardWalker(RandomWalker):
                         new_walk = []
                         for ix, hop in enumerate(walk):
                             if ix in idx:
-                                new_walk.append(Vertex('*'))
+                                new_walk.append(Vertex("*"))
                             else:
                                 new_walk.append(hop.name)
                         canonical_walks.add(tuple(new_walk))

@@ -80,7 +80,7 @@ class CommunityWalker(Walker):
         self.labels_per_community = defaultdict(list)
 
         self.communities = {}
-        vertices = nx.get_node_attributes(nx_graph, 'vertex')
+        vertices = nx.get_node_attributes(nx_graph, "vertex")
         for node in partition:
             if node in vertices:
                 self.communities[vertices[node]] = partition[node]

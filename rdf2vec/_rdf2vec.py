@@ -71,8 +71,11 @@ class RDF2VecTransformer:
         self.walks_ = []
         for walker in self.walkers:
             self.walks_ += list(walker.extract(graph, instances))
-        print('Extracted {} walks for {} instances!'.format(len(self.walks_),
-                                                            len(instances)))
+        print(
+            "Extracted {} walks for {} instances!".format(
+                len(self.walks_), len(instances)
+            )
+        )
         sentences = [list(map(str, x)) for x in self.walks_]
 
         self.model_ = Word2Vec(
@@ -103,7 +106,7 @@ class RDF2VecTransformer:
             array-like: The embeddings of the provided instances.
 
         """
-        check_is_fitted(self, ['model_'])
+        check_is_fitted(self, ["model_"])
 
         feature_vectors = []
         for instance in instances:
