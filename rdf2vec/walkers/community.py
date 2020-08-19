@@ -68,7 +68,6 @@ class CommunityWalker(Walker):
                 v_name = v.name
                 # Neighbors are predicates
                 for pred in graph.get_neighbors(v):
-                    pred_name = pred.name
                     for obj in graph.get_neighbors(pred):
                         obj_name = obj.name
                         nx_graph.add_edge(v_name, obj_name)
