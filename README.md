@@ -117,5 +117,5 @@ If you use `pyRDF2Vec` in a scholarly article, we would appreciate a citation:
 ```
 
 <div align="center">
-	<img src="assets/ID_Lab_Logo.png"></div>
+	<img src="assets/ID_Lab_Logo.svg"></div>
 </div>
