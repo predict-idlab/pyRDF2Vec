@@ -20,11 +20,11 @@
 RDF2Vec is an unsupervised technique that builds further on
 [Word2Vec](https://en.wikipedia.org/wiki/Word2vec), where an embedding is
 learned per word, in two ways:
-1. **the word based on its context** (Continuous Bag-of-Words (CBOW));
-2. **the context based on a word** (Skip-Gram (SG)).
+1. **the word based on its context**: Continuous Bag-of-Words (CBOW);
+2. **the context based on a word**: Skip-Gram (SG).
 
 To create this embedding, RDF2Vec first creates "sentences" which can be fed to
-Word2Vec by extracting walks of a certain depth from the Knowledge Graph.
+Word2Vec by extracting walks of a certain depth from a knowledge graph.
 
 This repository contains an implementation of the algorithm in "RDF2Vec: RDF
 Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati,
