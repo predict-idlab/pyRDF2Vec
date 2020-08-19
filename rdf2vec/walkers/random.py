@@ -50,7 +50,7 @@ class RandomWalker(Walker):
 
             # TODO: Should we prune in every iteration?
             if self.walks_per_graph is not None:
-                n_walks = min(len(walks),  self.walks_per_graph)
+                n_walks = min(len(walks), self.walks_per_graph)
                 walks_ix = np.random.choice(
                     range(len(walks)), replace=False, size=n_walks
                 )
@@ -88,7 +88,5 @@ class RandomWalker(Walker):
                     else:
                         digest = md5(hop.name.encode()).digest()[:8]
                         canonical_walk.append(str(digest))
-
                 canonical_walks.add(tuple(canonical_walk))
-
         return canonical_walks

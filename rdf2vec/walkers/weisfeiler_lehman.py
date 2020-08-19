@@ -90,7 +90,5 @@ class WeisfeilerLehmanWalker(RandomWalker):
                             canonical_walk.append(hop.name)
                         else:
                             canonical_walk.append(self._label_map[hop][n])
-
                     canonical_walks.add(tuple(canonical_walk))
-                
         return canonical_walks
