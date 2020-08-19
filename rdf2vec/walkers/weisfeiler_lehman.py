@@ -1,18 +1,28 @@
-from hashlib import md5
-from rdf2vec.walkers import RandomWalker
 from collections import defaultdict
+from hashlib import md5
+
 from rdf2vec.graph import Vertex
+from rdf2vec.walkers import RandomWalker
 
 
 class WeisfeilerLehmanWalker(RandomWalker):
+    """Defines the Weisfeler-Lehman walking strategy.
+
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
+
+    """
+
     def __init__(self, depth, walks_per_graph, wl_iterations=4):
         super(WeisfeilerLehmanWalker, self).__init__(depth, walks_per_graph)
         self.wl_iterations = wl_iterations
     
     def _create_label(self, graph, vertex, n):
         """Take labels of neighbors, sort them lexicographically and join."""
-        neighbor_names = [self._label_map[x][n - 1] 
-                          for x in graph.get_inv_neighbors(vertex)]
+        neighbor_names = [
+            self._label_map[x][n - 1] for x in graph.get_inv_neighbors(vertex)
+        ]
         suffix = '-'.join(sorted(set(map(str, neighbor_names))))
 
         # TODO: Experiment with not adding the prefix
@@ -20,7 +30,18 @@ class WeisfeilerLehmanWalker(RandomWalker):
         # return suffix
 
     def _weisfeiler_lehman(self, graph):
-        """Perform Weisfeiler-Lehman relabeling of the vertices"""
+        """Performs Weisfeiler-Lehman relabeling of the vertices.
+
+        Note:
+            You can create a `graph.KnowledgeGraph` object from an
+            `rdflib.Graph` object by using a converter method.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+
+        """
         self._label_map = defaultdict(dict)
         self._inv_label_map = defaultdict(dict)
 
@@ -28,7 +49,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
             self._label_map[v][0] = v.name
             self._inv_label_map[v.name][0] = v
         
-        for n in range(1, self.wl_iterations+1):
+        for n in range(1, self.wl_iterations + 1):
             for vertex in graph._vertices:
                 # Create multi-set label
                 s_n = self._create_label(graph, vertex, n)
@@ -41,6 +62,21 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
 
     def extract(self, graph, instances):
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to extract the knowledge graph.
+
+        Returns:
+            list: The 2D matrix with its:
+                number of rows equal to the number of provided instances;
+                number of column equal to the embedding size.
+
+        """
         self._weisfeiler_lehman(graph)
 
         canonical_walks = set()
@@ -54,7 +90,5 @@ class WeisfeilerLehmanWalker(RandomWalker):
                             canonical_walk.append(hop.name)
                         else:
                             canonical_walk.append(self._label_map[hop][n])
-
                     canonical_walks.add(tuple(canonical_walk))
-                
         return canonical_walks

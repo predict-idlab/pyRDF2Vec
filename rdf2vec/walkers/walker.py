@@ -1,11 +1,28 @@
+class Walker:
+    """Base class for the walking strategies.
 
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
 
-class Walker():
+    """
+
     def __init__(self, depth, walks_per_graph):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
 
     def print_walks(self, graph, instances, file_name):
+        """Prints the walks of a knowledge graph.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+            The graph from which the neighborhoods are extracted for the
+            provided instances.
+            instances (array-like): The instances to extract the knowledge
+                graph.
+            file_name (str): The filename that contains the rdflib.Graph
+
+        """
         walks = self.extract(graph, instances)
         walk_strs = []
         for walk_nr, walk in enumerate(walks):
@@ -27,4 +44,19 @@ class Walker():
                 myfile.write('\n\n')
 
     def extract(self, graph, instances):
-        raise NotImplementedError('This must be implemented!')
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to extract the knowledge graph.
+
+        Returns:
+            list: The 2D matrix with its:
+                number of rows equal to the number of provided instances;
+                number of column equal to the embedding size.
+
+        """
+        raise NotImplementedError("This must be implemented!")

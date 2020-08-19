@@ -1,15 +1,36 @@
-from rdf2vec.walkers import Walker
-from rdf2vec.graph import Vertex
-import numpy as np
 from hashlib import md5
+
+import numpy as np
+
+from rdf2vec.graph import Vertex
+from rdf2vec.walkers import Walker
 
 
 class RandomWalker(Walker):
+    """Defines the random walking strategy.
+
+    Attributes:
+        depth (int): The depth per entity.
+        walks_per_graph (float): The maximum number of walks per entity.
+
+    """
+
     def __init__(self, depth, walks_per_graph):
         super(RandomWalker, self).__init__(depth, walks_per_graph)
 
     def extract_random_walks(self, graph, root):
-        """Extract random walks of depth - 1 hops rooted in root."""
+        """Extracts random walks of depth - 1 hops rooted in root.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            root (Vertex): The root.
+
+        Returns:
+            numpy.array: The array of the walks.
+
+        """
         # Initialize one walk of length 1 (the root)
         walks = {(root,)}
 
@@ -29,9 +50,10 @@ class RandomWalker(Walker):
 
             # TODO: Should we prune in every iteration?
             if self.walks_per_graph is not None:
-                n_walks = min(len(walks),  self.walks_per_graph)
-                walks_ix = np.random.choice(range(len(walks)), replace=False, 
-                                            size=n_walks)
+                n_walks = min(len(walks), self.walks_per_graph)
+                walks_ix = np.random.choice(
+                    range(len(walks)), replace=False, size=n_walks
+                )
                 if len(walks_ix) > 0:
                     walks_list = list(walks)
                     walks = {walks_list[ix] for ix in walks_ix}
@@ -40,6 +62,21 @@ class RandomWalker(Walker):
         return list(walks)
 
     def extract(self, graph, instances):
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
+
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to extract the knowledge graph.
+
+        Returns:
+            list: The 2D matrix with its:
+                number of rows equal to the number of provided instances;
+                number of column equal to the embedding size.
+
+        """
         canonical_walks = set()
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
@@ -51,7 +88,5 @@ class RandomWalker(Walker):
                     else:
                         digest = md5(hop.name.encode()).digest()[:8]
                         canonical_walk.append(str(digest))
-
                 canonical_walks.add(tuple(canonical_walk))
-
         return canonical_walks

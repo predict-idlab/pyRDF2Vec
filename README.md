@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="embeddings.png"></div>
+	<img src="assets/embeddings.png"></div>
 </div>
 
 <p align="center">
@@ -11,75 +11,98 @@
     </a>
 </p>
 
-<hr>
+<p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> to create a 2D matrix from a knowledge graph.<p>
 
-| Section | Description |
-|-|-|
-| [RDF2Vec](#what-is-rdf2vec) | What is RDF2Vec? |
-| [Installing](#installation) | Installing pyRDF2Vec |
-| [Getting started](#getting-started) | A quick introduction |
-| [Documentation](#documentation) | A link to our documentation |
-| [Citation](#referencing) | Citing pyRDF2Vec in scholarly articles |
+---
 
-# What is RDF2Vec?
+## What is RDF2Vec?
 
-This repository contains an implementation of the algorithm in "RDF2Vec: RDF Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim ([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0) [[original code]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
+RDF2Vec is an unsupervised technique that builds further on
+[Word2Vec](https://en.wikipedia.org/wiki/Word2vec), where an embedding is
+learned per word, in two ways:
+1. **the word based on its context**: Continuous Bag-of-Words (CBOW);
+2. **the context based on a word**: Skip-Gram (SG).
 
-RDF2Vec is an unsupervised technique that builds further on Word2Vec, where an embedding is learned per word by either predicting the word based on its context (Continuous Bag-of-Words (CBOW)) or predicting the context based on a word (Skip-Gram (SG)). To do this, RDF2Vec first creates "sentences" which can be fed to Word2Vec by extracting walks of a certain depth from the Knowledge Graph.
+To create this embedding, RDF2Vec first creates "sentences" which can be fed to
+Word2Vec by extracting walks of a certain depth from a knowledge graph.
 
-# Installation
+This repository contains an implementation of the algorithm in "RDF2Vec: RDF
+Graph Embeddings and Their Applications" by Petar Ristoski, Jessica Rosati,
+Tommaso Di Noia, Renato De Leone, Heiko Paulheim
+([[paper]](http://semantic-web-journal.net/content/rdf2vec-rdf-graph-embeddings-and-their-applications-0)
+[[original code]](http://data.dws.informatik.uni-mannheim.de/rdf2vec/)).
 
-Few options:
-* `(python -m) pip install pyRDF2Vec`
-* Clone the repository & run `python setup.py install`
-* `(python -m) pip install git+git://github.com/IBCNServices/pyRDF2Vec.git`
+## Installation
 
-# Getting Started
+It's as simple as that:
+
+    pip install pyRDF2vec
+
+## Getting Started
+
+To create embeddings for a list of entities, there are two steps to do beforehand:
+1. **create a Knowledge Graph object**;
+2. **define a walking strategy**.
+
+For a more elaborate example, check at the
+[example.py](https://github.com/IBCNServices/pyRDF2Vec/blob/master/example.py)
+file:
+
+    PYTHONHASHSEED=42 python3 rdf2vec/example.py
+
+**NOTE:** the `PYTHONHASHSEED` (*e.g.,* 42) is to ensure determinism.
 
 ### Create a Knowledge Graph object
 
-First, you will need to create a Knowledge Graph object (defined in `graph.py`). We offer several conversion options (such as converting from rdflib or from an endpoint), which can be found in `converters.py`.
+To create a Knowledge Graph object, you can initialize it in several ways:
+```python
+from rdf2vec.converters import endpoint_to_kg, rdflib_to_kg
 
-```python3
-from rdf2vec.converters import rdflib_to_kg
-
-# We want to filter out all triples with certain predicates
 label_predicates = [
-    'http://dl-learner.org/carcinogenesis#isMutagenic'
+    "http://dl-learner.org/carcinogenesis#isMutagenic"
 ]
 
-kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
+# Create a Knowledge Graph from rdflib:
+kg = rdflib_to_kg("sample/mutag.owl", label_predicates=label_predicates)
+
+# Create a Knowledge Graph from a SPARQL endpoint:
+kg = endpoint_to_kg("http://localhost:5820/db/query?query=", label_predicates=label_predicates)
 ```
 
 ### Define a walking strategy
 
-pyRDF2Vec offers several walking strategies, which can be found in the `walkers/` module.
+To define a walking strategy, start by choosing one available on the [Wiki page](https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies).
 
-```python3
+For example, the definition of the Random walking strategy with a depth of 4 is
+implemented as follows:
+
+```python
 from rdf2vec.walkers import RandomWalker
 
-# We specify the depth and maximum number of walks per entity
-random_walker = RandomWalker(4, float('inf'))
+random_walker = RandomWalker(4, float("inf"))
 ```
 
 ### Create embeddings
 
-Then, we can create embeddings for a list of entities:
+Finally, the creation of embeddings for a list of entities simply goes like this:
 
-```python3
+```python
 from rdf2vec import RDF2VecTransformer
 
 transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
-# Entities should be a list of URIs that can be found in the KG
+# Entities should be a list of URIs that can be found in the Knowledge Graph
 embeddings = transformer.fit_transform(kg, entities)
 ```
 
-For a more elaborate example, check `example.py`. You can run it as follows: `PYTHONHASHSEED=42 python3 rdf2vec/example.py`. The `PYTHONHASHSEED` is to ensure determinism.
+## Contributions
 
-# Documentation
+To add a new walking strategy and/or new features that are related to
+[RDF2Vec](http://rdf2vec.org/), take a look at the
+[CONTRIBUTING](https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.md)
+file. Also, feel free to submit your bugs and suggestions by opening an issue in
+the issue tracker, it would help us a lot.
 
-
-# Referencing
+## Referencing
 
 If you use `pyRDF2Vec` in a scholarly article, we would appreciate a citation:
 
@@ -92,3 +115,7 @@ If you use `pyRDF2Vec` in a scholarly article, we would appreciate a citation:
       note={\url{https://github.com/IBCNServices/pyRDF2Vec}}
 }
 ```
+
+<div align="center">
+	<img src="assets/ID_Lab_Logo.svg"></div>
+</div>
