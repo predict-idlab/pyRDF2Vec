@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.6"
+branches:
+  only:
+  - develop
+  - master
+cache:
+  directories:
+  - "$HOME/.cache/pip"
+  - "$HOME/.pyenv"
+install:
+  - pip install -r requirements.txt
+script:
+  - pytest
+notifications:
+  email: false
