@@ -26,22 +26,22 @@ class Walker:
         walks = self.extract(graph, instances)
         walk_strs = []
         for walk_nr, walk in enumerate(walks):
-            s = ''
+            s = ""
             for i in range(len(walk)):
                 if i % 2:
-                    s += '{} '.format(walk[i])
+                    s += "{} ".format(walk[i])
                 else:
-                    s += '{} '.format(walk[i])
-                
+                    s += "{} ".format(walk[i])
+
                 if i < len(walk) - 1:
-                    s += '--> '
+                    s += "--> "
 
             walk_strs.append(s)
 
         with open(file_name, "w+") as myfile:
             for s in walk_strs:
                 myfile.write(s)
-                myfile.write('\n\n')
+                myfile.write("\n\n")
 
     def extract(self, graph, instances):
         """Extracts walks rooted at the provided instances which are then each

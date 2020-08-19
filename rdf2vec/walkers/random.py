@@ -35,7 +35,7 @@ class RandomWalker(Walker):
         walks = {(root,)}
 
         for i in range(self.depth):
-            # In each iteration, iterate over the walks, grab the 
+            # In each iteration, iterate over the walks, grab the
             # last hop, get all its neighbors and extend the walks
             walks_copy = walks.copy()
             for walk in walks_copy:
@@ -46,7 +46,7 @@ class RandomWalker(Walker):
                     walks.remove(walk)
 
                 for neighbor in neighbors:
-                    walks.add(walk + (neighbor, ))
+                    walks.add(walk + (neighbor,))
 
             # TODO: Should we prune in every iteration?
             if self.walks_per_graph is not None:

@@ -17,16 +17,16 @@ class WeisfeilerLehmanWalker(RandomWalker):
     def __init__(self, depth, walks_per_graph, wl_iterations=4):
         super(WeisfeilerLehmanWalker, self).__init__(depth, walks_per_graph)
         self.wl_iterations = wl_iterations
-    
+
     def _create_label(self, graph, vertex, n):
         """Take labels of neighbors, sort them lexicographically and join."""
         neighbor_names = [
             self._label_map[x][n - 1] for x in graph.get_inv_neighbors(vertex)
         ]
-        suffix = '-'.join(sorted(set(map(str, neighbor_names))))
+        suffix = "-".join(sorted(set(map(str, neighbor_names))))
 
         # TODO: Experiment with not adding the prefix
-        return self._label_map[vertex][n - 1] + '-' + suffix
+        return self._label_map[vertex][n - 1] + "-" + suffix
         # return suffix
 
     def _weisfeiler_lehman(self, graph):
@@ -48,7 +48,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         for v in graph._vertices:
             self._label_map[v][0] = v.name
             self._inv_label_map[v.name][0] = v
-        
+
         for n in range(1, self.wl_iterations + 1):
             for vertex in graph._vertices:
                 # Create multi-set label
@@ -59,7 +59,6 @@ class WeisfeilerLehmanWalker(RandomWalker):
         for vertex in graph._vertices:
             for key, val in self._label_map[vertex].items():
                 self._inv_label_map[vertex][val] = key
-
 
     def extract(self, graph, instances):
         """Extracts walks rooted at the provided instances which are then each
@@ -78,7 +77,6 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
         """
         self._weisfeiler_lehman(graph)
-
         canonical_walks = set()
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))

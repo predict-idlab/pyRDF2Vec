@@ -47,7 +47,7 @@ class NGramWalker(RandomWalker):
                 if n_gram not in self.n_gram_map:
                     self.n_gram_map[n_gram] = str(len(self.n_gram_map))
                 n_gram_walk.append(self.n_gram_map[n_gram])
-                
+
         return n_gram_walk
 
     def extract(self, graph, instances):

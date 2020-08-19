@@ -58,8 +58,9 @@ def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
     return create_kg(g, label_predicates)
 
 
-def endpoint_to_kg(endpoint_url="http://localhost:5820/db/query?query=", 
-                   label_predicates=[]):
+def endpoint_to_kg(
+    endpoint_url="http://localhost:5820/db/query?query=", label_predicates=[]
+):
     """Generates a knowledge graph using a SPARQL endpoint.
 
     endpoint_url (string): The SPARQL endpoint.
@@ -72,14 +73,14 @@ def endpoint_to_kg(endpoint_url="http://localhost:5820/db/query?query=",
 
     """
     session = requests.Session()
-    session.mount('http://', adapter)
+    session.mount("http://", adapter)
     adapter = requests.adapters.HTTPAdapter(
         pool_connections=100, pool_maxsize=100
     )
 
     query = urllib.parse.quote("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
     try:
-        qres = r.json()['results']['bindings']
+        qres = r.json()["results"]["bindings"]
         r = session.get(
             endpoint_url + query,
             headers={"Accept": "application/sparql-results+json"},
