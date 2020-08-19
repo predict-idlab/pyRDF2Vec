@@ -54,8 +54,7 @@ class Vertex:
         """
         if self.predicate:
             return hash((self.id, self._from, self._to, self.name))
-        else:
-            return hash(self.name)
+        return hash(self.name)
 
     def __lt__(self, other):
         """Defines behavior for the less-than operator, <.
