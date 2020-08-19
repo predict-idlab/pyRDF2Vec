@@ -46,14 +46,14 @@ class RDF2VecTransformer:
         negative=25,
         min_count=1,
     ):
+        self.max_iter = max_iter
+        self.min_count = min_count
+        self.n_jobs = n_jobs
+        self.negative = negative
+        self.sg = sg
         self.vector_size = vector_size
         self.walkers = walkers
-        self.n_jobs = n_jobs
         self.window = window
-        self.sg = sg
-        self.max_iter = max_iter
-        self.negative = negative
-        self.min_count = min_count
 
     def fit(self, graph, instances):
         """Fits the embedding network based on provided instances.
