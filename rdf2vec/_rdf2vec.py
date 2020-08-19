@@ -107,7 +107,6 @@ class RDF2VecTransformer:
 
         """
         check_is_fitted(self, ["model_"])
-
         feature_vectors = []
         for instance in instances:
             feature_vectors.append(self.model_.wv.get_vector(str(instance)))
