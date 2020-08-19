@@ -92,3 +92,8 @@ If you use `pyRDF2Vec` in a scholarly article, we would appreciate a citation:
       note={\url{https://github.com/IBCNServices/pyRDF2Vec}}
 }
 ```
+
+<div align="center">
+	<img src="assets/ID_Lab_Logo.png"></div>
+</div>
+
