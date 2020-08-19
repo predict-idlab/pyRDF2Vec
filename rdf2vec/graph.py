@@ -21,10 +21,10 @@ class Vertex:
     vertex_counter = 0
 
     def __init__(self, name, predicate=False, _from=None, _to=None):
-        self.name = name
-        self.predicate = predicate
         self._from = _from
         self._to = _to
+        self.name = name
+        self.predicate = predicate
 
         self.id = Vertex.vertex_counter
         Vertex.vertex_counter += 1
@@ -74,9 +74,9 @@ class KnowledgeGraph:
     """Represents a knowledge graph."""
 
     def __init__(self):
-        self._vertices = set()
-        self._transition_matrix = defaultdict(set)
         self._inv_transition_matrix = defaultdict(set)
+        self._transition_matrix = defaultdict(set)
+        self._vertices = set()
 
     def add_vertex(self, vertex):
         """Adds a vertex to the knowledge graph.
