@@ -1,67 +1,51 @@
-import rdflib
-import numpy as np
-from sklearn.utils.validation import check_is_fitted
-from gensim.models.word2vec import Word2Vec
-import tqdm
 import copy
-from rdf2vec.graph import Vertex
-from hashlib import md5
 import itertools
+from hashlib import md5
+
+import numpy as np
+import rdflib
+import tqdm
+from gensim.models.word2vec import Word2Vec
+
+from rdf2vec.graph import Vertex
 from rdf2vec.walkers import RandomWalker
+from sklearn.utils.validation import check_is_fitted
 
 
-class RDF2VecTransformer():
-    """Project random walks or subtrees in graphs into embeddings, suited
-    for classification.
+class RDF2VecTransformer:
+    """Transforms nodes in a knowledge graph into an embedding.
 
-    Parameters
-    ----------
-    vector_size: int (default: 500)
-        The dimension of the embeddings.
-
-    max_path_depth: int (default: 1)
-        The maximum number of hops to take in the knowledge graph. Due to the 
-        fact that we transform s -(p)-> o to s -> p -> o, this will be 
-        translated to `2 * max_path_depth` hops internally.
-
-    wl: bool (default: True)
-        Whether to use Weisfeiler-Lehman embeddings
-
-    wl_iterations: int (default: 4)
-        The number of Weisfeiler-Lehman iterations. Ignored if `wl` is False.
-
-    walks_per_graph: int (default: infinity)
-        The maximum number of walks to extract from the neighborhood of
-        each instance.
-
-    n_jobs: int (default: 1)
-        gensim.models.Word2Vec parameter.
-
-    window: int (default: 5)
-        gensim.models.Word2Vec parameter.
-
-    sg: int (default: 1)
-        gensim.models.Word2Vec parameter.
-
-    max_iter: int (default: 10)
-        gensim.models.Word2Vec parameter.
-
-    negative: int (default: 25)
-        gensim.models.Word2Vec parameter.
-
-    min_count: int (default: 1)
-        gensim.models.Word2Vec parameter.
-
-    Attributes
-    ----------
-    model: gensim.models.Word2Vec
-        The fitted Word2Vec model. Embeddings can be accessed through
-        `self.model.wv.get_vector(str(instance))`.
+    Attributes:
+        vector_size (int): The dimension of the embeddings.
+            Defaults to 500.
+        walkers (Walker): The walking strategy.
+            Defaults to RandomWalker(2, float("inf)).
+        n_jobs (int): The number of threads to train the model.
+            Defaults to 1.
+        sg (int): The training algorithm. 1 for skip-gram; otherwise CBOW.
+            Defaults to 1.
+        max_iter (int): The number of iterations (epochs) over the corpus.
+            Defaults to 10.
+        negative (int): The negative sampling.
+            If > 0, the negative sampling will be used. Otherwise no negative
+            sampling is used.
+            Defaults to 25.
+        min_count (int): The total frequency to ignores all words.
+            Defaults to 1.
 
     """
-    def __init__(self, vector_size=500, walkers=RandomWalker(2, float('inf')),
-                 n_jobs=1, window=5, sg=1, max_iter=10, negative=25, 
-                 min_count=1):
+
+    def __init__(
+        self,
+        vector_size=500,
+        walkers=RandomWalker(2, float("inf")),
+        n_jobs=1,
+        window=5,
+        sg=1,
+        max_iter=10,
+        negative=25,
+        min_count=1,
+    ):
         self.vector_size = vector_size
         self.walkers = walkers
         self.n_jobs = n_jobs
@@ -72,21 +56,17 @@ class RDF2VecTransformer():
         self.min_count = min_count
 
     def fit(self, graph, instances):
-        """Fit the embedding network based on provided instances.
-        
-        Parameters
-        ----------
-        graphs: graph.KnowledgeGraph
-            The graph from which we will extract neighborhoods for the
-            provided instances. You can create a `graph.KnowledgeGraph` object
-            from an `rdflib.Graph` object by using a converter method.
+        """Fits the embedding network based on provided instances.
 
-        instances: array-like
-            The instances for which an embedding will be created. It important
-            to note that the test instances should be passed to the fit method
-            as well. Due to RDF2Vec being unsupervised, there is no 
-            label leakage.
-        -------
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph.
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances (array-like): The instances to create the embedding.
+                The test instances should be passed to the fit method as well.
+
+                Due to RDF2Vec being unsupervised, there is no label leakage.
+
         """
         self.walks_ = []
         for walker in self.walkers:
@@ -95,31 +75,33 @@ class RDF2VecTransformer():
                                                             len(instances)))
         sentences = [list(map(str, x)) for x in self.walks_]
 
-        self.model_ = Word2Vec(sentences, size=self.vector_size, 
-                              window=self.window, workers=self.n_jobs, 
-                              sg=self.sg, iter=self.max_iter, 
-                              negative=self.negative, 
-                              min_count=self.min_count, seed=42)
+        self.model_ = Word2Vec(
+            sentences,
+            size=self.vector_size,
+            window=self.window,
+            workers=self.n_jobs,
+            sg=self.sg,
+            iter=self.max_iter,
+            negative=self.negative,
+            min_count=self.min_count,
+            seed=42,
+        )
 
     def transform(self, graph, instances):
-        """Construct a feature vector for the provided instances.
+        """Constructs a feature vector for the provided instances.
 
-        Parameters
-        ----------
-        graphs: graph.KnowledgeGraph
-            The graph from which we will extract neighborhoods for the
-            provided instances. You can create a `graph.KnowledgeGraph` object
-            from an `rdflib.Graph` object by using a converter method.
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph
+                The graph from which we will extract neighborhoods for the
+                provided instances.
+            instances (array-like): The instances to create the embedding.
+                The test instances should be passed to the fit method as well.
 
-        instances: array-like
-            The instances for which an embedding will be created. These 
-            instances must have been passed to the fit method as well,
-            or their embedding will not exist in the model vocabulary.
+                Due to RDF2Vec being unsupervised, there is no label leakage.
 
-        Returns
-        -------
-        embeddings: array-like
-            The embeddings of the provided instances.
+        Returns:
+            array-like: The embeddings of the provided instances.
+
         """
         check_is_fitted(self, ['model_'])
 
@@ -129,23 +111,21 @@ class RDF2VecTransformer():
         return feature_vectors
 
     def fit_transform(self, graph, instances):
-        """First apply fit to create a Word2Vec model and then generate
-        embeddings for the provided instances.
+        """Creates a Word2Vec model and generate embeddings for the provided
+        instances.
 
-        Parameters
-        ----------
-        graphs: graph.KnowledgeGraph
-            The graph from which we will extract neighborhoods for the
-            provided instances. You can create a `graph.KnowledgeGraph` object
-            from an `rdflib.Graph` object by using a converter method.
+        Args:
+            graph (graph.KnowledgeGraph): The knowledge graph
+                The graph from which we will extract neighborhoods for the
+                provided instances.
+            instances (array-like): The instances to create the embedding.
+                The test instances should be passed to the fit method as well.
 
-        instances: array-like
-            The instances for which an embedding will be created. 
+                Due to RDF2Vec being unsupervised, there is no label leakage.
 
-        Returns
-        -------
-        embeddings: array-like
-            The embeddings of the provided instances.
+        Returns:
+            array-like: The embeddings of the provided instances.
+
         """
         self.fit(graph, instances)
         return self.transform(graph, instances)

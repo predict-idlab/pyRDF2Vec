@@ -1,19 +1,19 @@
-import random
 import os
+import random
+import warnings
+
 import numpy as np
-import rdflib
-import pandas as pd
+
 import matplotlib.pyplot as plt
-
-from sklearn.svm import SVC
-from sklearn.metrics import confusion_matrix, accuracy_score
-from sklearn.manifold import TSNE
-
+import pandas as pd
+import rdflib
+from rdf2vec import RDF2VecTransformer
 from rdf2vec.converters import rdflib_to_kg
 from rdf2vec.walkers import RandomWalker
-from rdf2vec import RDF2VecTransformer
+from sklearn.manifold import TSNE
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.svm import SVC
 
-import warnings
 warnings.filterwarnings('ignore')
 
 np.random.seed(42)
@@ -38,9 +38,7 @@ all_labels = list(train_labels) + list(test_labels)
 
 # Define the label predicates, all triples with these predicates
 # will be excluded from the graph
-label_predicates = [
-    'http://dl-learner.org/carcinogenesis#isMutagenic'
-]
+label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 
 # Convert the rdflib to our KnowledgeGraph object
 kg = rdflib_to_kg('sample/mutag.owl', label_predicates=label_predicates)
@@ -118,7 +116,7 @@ plt.scatter([], [], edgecolors='r', facecolors='r', label='train -')
 plt.scatter([], [], edgecolors='g', facecolors='g', label='train +')
 plt.scatter([], [], edgecolors='r', facecolors='none', label='test -')
 plt.scatter([], [], edgecolors='g', facecolors='none', label='test +')
-plt.legend(loc='top right', ncol=2)
+plt.legend(loc='upper right', ncol=2)
 
 # Show & save the figure
 plt.title('pyRDF2Vec', fontsize=32)
