@@ -11,7 +11,7 @@
     </a>
 </p>
 
-<p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> to create a 2D feature matrix from a knowledge graph for downstream machine learning tasks.<p>
+<p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> to create a 2D feature matrix from a knowledge graph for downstream ML tasks.<p>
 
 ---
 
