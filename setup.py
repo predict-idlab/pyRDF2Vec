@@ -1,5 +1,5 @@
 import pypandoc
-from setuptools import setup
+from setuptools import find_packages, setup
 
 try:
     long_description = pypandoc.convert("README.md", "rst")
@@ -14,7 +14,7 @@ setup(
     long_description=long_description,
     author_email="gilles.vandewiele@ugent.be",
     url="https://github.com/IBCNServices/pyRDF2Vec",
-    packages=["rdf2vec", "rdf2vec/walkers"],
+    packages=find_packages(),
     keywords="embeddings knowledge-graph rdf2vec word2vec",
     install_requires=[
         "gensim",
