@@ -9,6 +9,8 @@ setup(
     author="Gilles Vandewiele, Bram Steenwinckel, Michael Weyns",
     description="Python implementation and extension of RDF2Vec",
     author_email="gilles.vandewiele@ugent.be",
+    maintainer="Gilles Vandewiele",
+    maintainer_email="gilles.vandewiele@ugent.be",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/IBCNServices/pyRDF2Vec",
