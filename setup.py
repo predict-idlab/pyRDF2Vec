@@ -1,10 +1,17 @@
+import pypandoc
 from setuptools import setup
+
+try:
+    long_description = pypandoc.convert("README.md", "rst")
+except (OSError, ImportError):
+    long_description = open("README.md").read()
 
 setup(
     name="pyRDF2Vec",
     version="0.0.5",
     description="A python implementation of RDF2Vec",
     authors="Gilles Vandewiele, Bram Steenwinckel, Michael Weyns",
+    long_description=long_description,
     author_email="gilles.vandewiele@ugent.be",
     url="https://github.com/IBCNServices/pyRDF2Vec",
     packages=["rdf2vec", "rdf2vec/walkers"],
