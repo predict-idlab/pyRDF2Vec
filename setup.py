@@ -9,9 +9,9 @@ except (OSError, ImportError):
 setup(
     name="pyRDF2Vec",
     version="0.0.5",
-    description="A python implementation of RDF2Vec",
     authors="Gilles Vandewiele, Bram Steenwinckel, Michael Weyns",
     long_description=long_description,
+    description="Python implementation and extension of RDF2Vec",
     author_email="gilles.vandewiele@ugent.be",
     url="https://github.com/IBCNServices/pyRDF2Vec",
     packages=find_packages(),
