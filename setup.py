@@ -1,18 +1,16 @@
-import pypandoc
 from setuptools import find_packages, setup
 
-try:
-    long_description = pypandoc.convert("README.md", "rst")
-except (OSError, ImportError):
-    long_description = open("README.md").read()
+with open("README.md") as f:
+    long_description = f.read()
 
 setup(
     name="pyRDF2Vec",
     version="0.0.5",
     authors="Gilles Vandewiele, Bram Steenwinckel, Michael Weyns",
-    long_description=long_description,
     description="Python implementation and extension of RDF2Vec",
     author_email="gilles.vandewiele@ugent.be",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/IBCNServices/pyRDF2Vec",
     packages=find_packages(),
     keywords="embeddings knowledge-graph rdf2vec word2vec",
