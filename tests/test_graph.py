@@ -1,28 +1,28 @@
 from rdf2vec.graph import Vertex
 
-s_v = Vertex("s")
-o_v = Vertex("o")
-p_v = Vertex("p", predicate=True, _from=s_v, _to=o_v)
+a = Vertex("a")
+b = Vertex("b")
+c = Vertex("c", predicate=True, _from=a, _to=b)
 
 
 class TestVertex:
     def test_eq(self):
-        assert s_v == s_v
+        assert a == a
 
     def test_hash_without_predicate(self):
-        assert hash(s_v) == hash("s")
+        assert hash(a) == hash("a")
 
     def test_hash_with_predicate(self):
-        assert hash(p_v) == hash((p_v.id, s_v, o_v, "p"))
+        assert hash(c) == hash((c.id, a, b, "c"))
 
     def test_id_init(self):
-        assert s_v.id == 0
+        assert a.id == 0
 
     def test_id_incremental(self):
-        assert o_v.id == 1
+        assert b.id == 1
 
     def test_lt(self):
-        assert o_v < s_v
+        assert a < b
 
     def test_neq(self):
-        assert s_v != o_v
+        assert a != b
