@@ -6,7 +6,7 @@ with open("README.md") as f:
 setup(
     name="pyRDF2Vec",
     version="0.0.5",
-    authors="Gilles Vandewiele, Bram Steenwinckel, Michael Weyns",
+    author="Gilles Vandewiele, Bram Steenwinckel, Michael Weyns",
     description="Python implementation and extension of RDF2Vec",
     author_email="gilles.vandewiele@ugent.be",
     long_description=long_description,
