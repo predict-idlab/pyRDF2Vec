@@ -20,4 +20,8 @@ setup(
         "scikit_learn",
         "tqdm",
     ],
+    project_urls={
+        "Source": "https://github.com/IBCNServices/pyRDF2Vec",
+        "Tracker": "https://github.com/IBCNServices/pyRDF2Vec/issues",
+    },
 )
