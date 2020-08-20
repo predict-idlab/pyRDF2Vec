@@ -8,6 +8,7 @@ setup(
     author_email="gilles.vandewiele@ugent.be",
     url="https://github.com/IBCNServices/pyRDF2Vec",
     packages=["rdf2vec", "rdf2vec/walkers"],
+    keywords="embeddings knowledge-graph rdf2vec word2vec",
     install_requires=[
         "gensim",
         "matplotlib",
