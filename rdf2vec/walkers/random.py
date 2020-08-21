@@ -41,7 +41,6 @@ class RandomWalker(Walker):
             for walk in walks_copy:
                 node = walk[-1]
                 neighbors = graph.get_neighbors(node)
-
                 if len(neighbors) > 0:
                     walks.remove(walk)
 
@@ -57,8 +56,6 @@ class RandomWalker(Walker):
                 if len(walks_ix) > 0:
                     walks_list = list(walks)
                     walks = {walks_list[ix] for ix in walks_ix}
-
-        # Return a numpy array of these walks
         return list(walks)
 
     def extract(self, graph, instances):
