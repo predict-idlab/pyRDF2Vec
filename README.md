@@ -63,7 +63,7 @@ label_predicates = [
 ]
 
 # Create a Knowledge Graph from rdflib:
-kg = rdflib_to_kg("sample/mutag.owl", label_predicates=label_predicates)
+kg = rdflib_to_kg("samples/mutag.owl", label_predicates=label_predicates)
 
 # Create a Knowledge Graph from a SPARQL endpoint:
 kg = endpoint_to_kg("http://localhost:5820/db/query?query=", label_predicates=label_predicates)
