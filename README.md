@@ -3,7 +3,7 @@
 </p>
 <p align="center">
     <a href="https://www.ugent.be/ea/idlab/en">
-        <img src="assets/imec-idlab.svg" alt="Logo" width=256>
+        <img src="assets/imec-idlab.svg" alt="Logo" width=350>
     </a>
 </p>
 <p align="center">
