@@ -24,7 +24,6 @@ WALKER = RandomWalker(4, float("inf"))
 PLOT_SAVE = "embeddings.png"
 PLOT_TITLE = "pyRDF2Vec"
 
-
 warnings.filterwarnings("ignore")
 
 
@@ -143,6 +142,7 @@ plt.scatter([], [], edgecolors="r", facecolors="r", label="train -")
 plt.scatter([], [], edgecolors="g", facecolors="g", label="train +")
 plt.scatter([], [], edgecolors="r", facecolors="none", label="test -")
 plt.scatter([], [], edgecolors="g", facecolors="none", label="test +")
+plt.legend(loc="upper right", ncol=2)
 
 # Show & save the figure
 plt.title(PLOT_TITLE, fontsize=32)
