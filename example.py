@@ -41,7 +41,7 @@ all_labels = list(train_labels) + list(test_labels)
 label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 
 # Convert the rdflib to our KnowledgeGraph object
-kg = rdflib_to_kg("sample/mutag.owl", label_predicates=label_predicates)
+kg = rdflib_to_kg("samples/mutag.owl", label_predicates=label_predicates)
 
 #########################################################################
 #                          CREATING EMBEDDINGS                          #
