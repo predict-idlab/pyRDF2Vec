@@ -11,7 +11,9 @@ cache:
   - "$HOME/.pyenv"
 install:
   - pip install -r requirements.txt
+  - pip install sphinxcontrib-napoleon
 script:
   - pytest
+  - sphinx-apidoc -f -o docs rdf2vec
 notifications:
   email: false

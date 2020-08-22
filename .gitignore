@@ -1,6 +1,7 @@
 *.egg-info/
 *.pyc
 __pycache__/
+_build
 build/
 data/
 dist/
