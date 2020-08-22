@@ -11,6 +11,7 @@ cache:
   - "$HOME/.pyenv"
 install:
   - pip install -r requirements.txt
+  - pip install sphinx
   - pip install sphinxcontrib-napoleon
 script:
   - pytest
