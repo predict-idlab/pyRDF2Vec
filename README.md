@@ -3,11 +3,14 @@
 </div>
 
 <p align="center">
+    <a href="https://travis-ci.org/IBCNServices/pyRDF2Vec">
+        <img src="https://travis-ci.org/IBCNServices/pyRDF2Vec.svg?branch=master" alt="Build Status">
+    </a>
     <a href="https://badge.fury.io/py/pyRDF2Vec">
-        <img alt="PyPI" src="https://badge.fury.io/py/pyRDF2Vec.svg">
+        <img src="https://badge.fury.io/py/pyRDF2Vec.svg" alt="PyPI">
     </a>
     <a href="https://pepy.tech/project/pyrdf2vec">
-        <img alt="Downloads" src="https://pepy.tech/badge/pyrdf2vec">
+        <img src="https://pepy.tech/badge/pyrdf2vec" alt="Downloads">
     </a>
 </p>
 
