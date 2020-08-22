@@ -1,7 +1,11 @@
 <div align="center">
 	<img src="assets/embeddings.png"></div>
 </div>
-
+<p align="center">
+    <a href="https://www.ugent.be/ea/idlab/en">
+        <img src="assets/idlab.svg" alt="IDLab's logo" width=256>
+    </a>
+</p>
 <p align="center">
     <a href="https://travis-ci.org/IBCNServices/pyRDF2Vec">
         <img src="https://travis-ci.org/IBCNServices/pyRDF2Vec.svg?branch=master" alt="Build Status">
@@ -11,14 +15,6 @@
     </a>
     <a href="https://pepy.tech/project/pyrdf2vec">
         <img src="https://pepy.tech/badge/pyrdf2vec" alt="Downloads">
-    </a>
-</p>
-<p align="center">
-    <a href="https://www.ugent.be/ea/idlab/en">
-	    <img src="assets/imec.svg" alt="imec's logo" width=256>
-    </a>
-    <a href="https://www.ugent.be/ea/idlab/en">
-	    <img src="assets/idlab.svg" alt="IDLab's logo" width=256>
     </a>
 </p>
 <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> to create a 2D feature matrix from a knowledge graph for downstream ML tasks.<p>
