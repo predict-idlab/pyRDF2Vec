@@ -59,7 +59,7 @@ def create_embeddings(kg, entities, split, walker=WALKER, sg=1):
 def load_data(file_name, col_entity, col_label, sep="\t"):
     """Loads entities and labels from a file.
 
-    Args:nn
+    Args:
         file_name (str): The file name.
         col_entity (str): The name of the column header related to the entities.
         col_label (str): The name of the column header related to the labels.
