@@ -1,6 +1,6 @@
-<div align="center">
-	<img src="assets/embeddings.png"></div>
-</div>
+<p align="center">
+	<img width="100%" src="assets/embeddings.svg">
+</p>
 <p align="center">
     <a href="https://www.ugent.be/ea/idlab/en">
         <img src="assets/idlab.svg" alt="IDLab's logo" width=256>
