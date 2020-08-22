@@ -121,4 +121,6 @@ If you use `pyRDF2Vec` in a scholarly article, we would appreciate a citation:
 }
 ```
 
-<img src="assets/idlab.svg" alt="IDLab's logo">
+<a href="https://www.ugent.be/ea/idlab/en">
+	<img src="assets/idlab.svg" alt="IDLab's logo">
+</a>
