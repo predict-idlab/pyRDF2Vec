@@ -24,8 +24,8 @@ random.seed(42)
 #########################################################################
 
 # Load our train & test instances and labels
-test_data = pd.read_csv("samples/mutag-test.tsv", sep="\t")
-train_data = pd.read_csv("samples/mutag-train.tsv", sep="\t")
+test_data = pd.read_csv("samples/mutag-test.tsv", sep="\t", header=0)
+train_data = pd.read_csv("samples/mutag-train.tsv", sep="\t", header=0)
 
 train_entities = [rdflib.URIRef(x) for x in train_data["bond"]]
 train_labels = train_data["label_mutagenic"]
