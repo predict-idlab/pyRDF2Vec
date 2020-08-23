@@ -54,7 +54,9 @@ For a more elaborate example, check at the
 [example.py](https://github.com/IBCNServices/pyRDF2Vec/blob/master/example.py)
 file:
 
-    PYTHONHASHSEED=42 python3 rdf2vec/example.py
+```bash
+PYTHONHASHSEED=42 python3 rdf2vec/example.py
+```
 
 **NOTE:** the `PYTHONHASHSEED` (*e.g.,* 42) is to ensure determinism.
 
