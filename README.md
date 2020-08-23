@@ -17,7 +17,7 @@
         <img src="https://pepy.tech/badge/pyrdf2vec" alt="Downloads">
     </a>
 </p>
-<p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> to create a 2D feature matrix from a knowledge graph for downstream ML tasks.<p>
+<p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a knowledge graph</b> for downstream ML tasks.<p>
 
 ---
 
