@@ -8,7 +8,4 @@ pytest
 python-louvain
 rdflib
 scikit_learn
-sphinx
-sphinx-rtd-theme
-sphinxcontrib-napoleon
 tqdm
