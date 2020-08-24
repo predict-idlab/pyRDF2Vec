@@ -6,6 +6,7 @@
 
 author = "Gilles Vandewiele, Bram Steenwinckel, Michael Weyns"
 copyright = "2020, Gilles Vandewiele, Bram Steenwinckel, Michael Weyns"
+master_doc = "index"
 project = "pyRDF2Vec"
 source_suffix = [".rst", ".md"]
 version = "0.5"
