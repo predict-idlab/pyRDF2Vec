@@ -104,6 +104,15 @@ transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
 embeddings = transformer.fit_transform(kg, entities)
 ```
 
+## Documentation
+
+For more information on how to use `pyRDF2Vec`, [visit our online
+documentation](https://pyrdf2vec.readthedocs.io/en/latest/) which is
+automatically updated with the latest version of the master branch.
+
+From then on, you will be able to learn more about the use of the modules as
+well as their functions available to you.
+
 ## Contributions
 
 To add a new walking strategy and/or new features that are related to
