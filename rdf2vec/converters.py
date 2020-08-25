@@ -85,7 +85,7 @@ def endpoint_to_kg(
         qres = r.json()["results"]["bindings"]
     except Exception as e:
         print(e)
-        print("could not query result")
+        print("Could not query the result!")
         qres = []
 
     triples = [
