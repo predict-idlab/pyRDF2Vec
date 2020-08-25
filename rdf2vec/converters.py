@@ -78,7 +78,7 @@ def rdflib_to_kg(file_name, file_type=None, label_predicates=[]):
 
     Args:
         file_name (str): The file name that contains the rdflib.Graph.
-        file_type (string): The format of the knowledge graph.
+        file_type (str): The format of the knowledge graph.
             Defaults to None.
         label_predicates (list): The predicates label.
             Defaults to [].

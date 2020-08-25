@@ -9,12 +9,12 @@ class Vertex:
     """Represents a vertex in a knowledge graph.
 
     Attributes:
-        name (string): The vertex name.
+        name (str): The vertex name.
         predicate (bool): The predicate.
             Defaults to False.
-        _from: The previous vertex.
+        _from (Vertex): The previous vertex.
             Defaults to None.
-        _to: The next vertex.
+        _to (Vertex): The next vertex.
             Defaults to None.
 
     """
