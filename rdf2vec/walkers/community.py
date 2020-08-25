@@ -59,6 +59,7 @@ class CommunityWalker(Walker):
 
         Args:
             graph (graph.KnowledgeGraph): The knowledge graph.
+
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
 
