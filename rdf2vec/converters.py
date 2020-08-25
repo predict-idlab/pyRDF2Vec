@@ -50,10 +50,10 @@ def endpoint_to_kg(
 
     """
     session = requests.Session()
-    adapter = requests.adapters.HTTPAdapter(
-        pool_connections=100, pool_maxsize=100
+    session.mount(
+        "http://",
+        requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100),
     )
-    session.mount("http://", adapter)
 
     query = urllib.parse.quote("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
     try:
