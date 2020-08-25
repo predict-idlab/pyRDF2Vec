@@ -73,12 +73,12 @@ def endpoint_to_kg(
     return create_kg(triples, label_predicates)
 
 
-def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
-    """Converts a rdflib.Graph to a knowledge graph.
+def rdflib_to_kg(file_name, file_type=None, label_predicates=[]):
+    """Converts a rdflib.Graph type object to a knowledge graph.
 
     Args:
         file_name (str): The file name that contains the rdflib.Graph.
-        filetype (string): The format of the knowledge graph.
+        file_type (string): The format of the knowledge graph.
             Defaults to None.
         label_predicates (list): The predicates label.
             Defaults to [].
@@ -88,8 +88,8 @@ def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
 
     """
     kg = rdflib.Graph()
-    if filetype is not None:
-        kg.parse(file_name, format=filetype)
+    if file_type is not None:
+        kg.parse(file_name, format=file_type)
     else:
         kg.parse(file_name)
     return create_kg(kg, [rdflib.term.URIRef(x) for x in label_predicates])
