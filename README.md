@@ -13,6 +13,9 @@
      <a href="https://pyrdf2vec.readthedocs.io/en/latest/?badge=latest">
         <img src="https://readthedocs.org/projects/pyrdf2vec/badge/?version=latest" alt="Documentation Status">
     </a>
+     <a href="https://codecov.io/gh/IBCNServices/pyRDF2Vec?branch=master">
+        <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=master&precision=2" alt="Coverage Status">
+    </a>
     <a href="https://badge.fury.io/py/pyRDF2Vec">
         <img src="https://badge.fury.io/py/pyRDF2Vec.svg" alt="PyPI">
     </a>
