@@ -72,18 +72,18 @@ def endpoint_to_kg(
 
     """
     session = requests.Session()
-    session.mount("http://", adapter)
     adapter = requests.adapters.HTTPAdapter(
         pool_connections=100, pool_maxsize=100
     )
+    session.mount("http://", adapter)
 
     query = urllib.parse.quote("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
     try:
-        qres = r.json()["results"]["bindings"]
         r = session.get(
             endpoint_url + query,
             headers={"Accept": "application/sparql-results+json"},
         )
+        qres = r.json()["results"]["bindings"]
     except Exception as e:
         print(e)
         print("could not query result")
