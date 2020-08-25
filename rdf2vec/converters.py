@@ -39,10 +39,11 @@ def endpoint_to_kg(
 ):
     """Generates a knowledge graph using a SPARQL endpoint.
 
-    endpoint_url (string): The SPARQL endpoint.
-        Defaults to http://localhost:5820/db/query?query=
-    label_predicates (list): The predicates label.
-        Defaults to [].
+    Args:
+        endpoint_url (string): The SPARQL endpoint.
+            Defaults to http://localhost:5820/db/query?query=
+        label_predicates (list): The predicates label.
+            Defaults to [].
 
     Returns:
         graph.KnowledgeGraph: The knowledge graph.
