@@ -10,10 +10,10 @@ cache:
   - "$HOME/.cache/pip"
   - "$HOME/.pyenv"
 install:
-  - pip install -r requirements.txt
+  - pip install codecov
   - pip install sphinx
   - pip install sphinxcontrib-napoleon
-  - pip install --user codecov
+  - pip install -r requirements.txt
 script:
   - pytest
   - sphinx-apidoc -f -o docs rdf2vec
