@@ -13,8 +13,11 @@ install:
   - pip install -r requirements.txt
   - pip install sphinx
   - pip install sphinxcontrib-napoleon
+  - pip install --user codecov
 script:
   - pytest
   - sphinx-apidoc -f -o docs rdf2vec
+after_success:
+  - codecov
 notifications:
   email: false
