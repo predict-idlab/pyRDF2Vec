@@ -9,6 +9,9 @@ class TestVertex:
     def test_eq(self):
         assert a == a
 
+    def test_eq_with_none(self):
+        assert a is not None
+
     def test_hash_with_predicate(self):
         assert hash(c) == hash((c.id, a, b, "c"))
 
