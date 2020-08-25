@@ -34,28 +34,6 @@ def create_kg(triples, label_predicates):
     return kg
 
 
-def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
-    """Converts a rdflib.Graph to a knowledge graph.
-
-    Args:
-        file_name (str): The file name that contains the rdflib.Graph.
-        filetype (string): The format of the knowledge graph.
-            Defaults to None.
-        label_predicates (list): The predicates label.
-            Defaults to [].
-
-    Returns:
-        graph.KnowledgeGraph: The knowledge graph.
-
-    """
-    kg = rdflib.Graph()
-    if filetype is not None:
-        kg.parse(file_name, format=filetype)
-    else:
-        kg.parse(file_name)
-    return create_kg(kg, [rdflib.term.URIRef(x) for x in label_predicates])
-
-
 def endpoint_to_kg(
     endpoint_url="http://localhost:5820/db/query?query=", label_predicates=[]
 ):
@@ -93,3 +71,25 @@ def endpoint_to_kg(
         for row in qres
     ]
     return create_kg(triples, label_predicates)
+
+
+def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
+    """Converts a rdflib.Graph to a knowledge graph.
+
+    Args:
+        file_name (str): The file name that contains the rdflib.Graph.
+        filetype (string): The format of the knowledge graph.
+            Defaults to None.
+        label_predicates (list): The predicates label.
+            Defaults to [].
+
+    Returns:
+        graph.KnowledgeGraph: The knowledge graph.
+
+    """
+    kg = rdflib.Graph()
+    if filetype is not None:
+        kg.parse(file_name, format=filetype)
+    else:
+        kg.parse(file_name)
+    return create_kg(kg, [rdflib.term.URIRef(x) for x in label_predicates])
