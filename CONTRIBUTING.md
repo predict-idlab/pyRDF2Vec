@@ -16,7 +16,12 @@ editorconfig keeps the code style consistent. An .editorconfig file is present i
 
 ### [pre-commit](https://github.com/pre-commit/pre-commit)
 
-pre-commit performs all kinds of checks before a commit is performed, [it needs to be installed first as well](https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/).
+`pre-commit` performs all kinds of checks through hooks, before a commit is
+performed. Before making a commit, make sure you install these hooks with this command:
+
+```bash
+pre-commit install
+```
 
 ## Adding new walking strategies
 
