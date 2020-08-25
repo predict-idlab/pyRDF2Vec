@@ -53,8 +53,7 @@ def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
         kg.parse(file_name, format=filetype)
     else:
         kg.parse(file_name)
-    label_predicates = [rdflib.term.URIRef(x) for x in label_predicates]
-    return create_kg(kg, label_predicates)
+    return create_kg(kg, [rdflib.term.URIRef(x) for x in label_predicates])
 
 
 def endpoint_to_kg(
