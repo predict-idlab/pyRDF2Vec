@@ -91,8 +91,8 @@ class KnowledgeGraph:
         """Adds a uni-directional edge.
 
         Args:
-            v1 (string): The name of the first vertex.
-            v2 (string): The name of the second vertex.
+            v1 (str): The name of the first vertex.
+            v2 (str): The name of the second vertex.
 
         """
         self._transition_matrix[v1].add(v2)
@@ -102,8 +102,8 @@ class KnowledgeGraph:
         """Removes the edge (v1 -> v2) if present.
 
         Args:
-            v1 (string): The name of the first vertex.
-            v2 (string): The name of the second vertex.
+            v1 (str): The name of the first vertex.
+            v2 (str): The name of the second vertex.
 
         """
         if v2 in self._transition_matrix[v1]:
