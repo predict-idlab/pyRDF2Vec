@@ -48,14 +48,13 @@ def rdflib_to_kg(file_name, filetype=None, label_predicates=[]):
         graph.KnowledgeGraph: The knowledge graph.
 
     """
-    g = rdflib.Graph()
+    kg = rdflib.Graph()
     if filetype is not None:
-        g.parse(file_name, format=filetype)
+        kg.parse(file_name, format=filetype)
     else:
-        g.parse(file_name)
-
+        kg.parse(file_name)
     label_predicates = [rdflib.term.URIRef(x) for x in label_predicates]
-    return create_kg(g, label_predicates)
+    return create_kg(kg, label_predicates)
 
 
 def endpoint_to_kg(
