@@ -38,9 +38,9 @@ class Vertex:
             bool: True if the hash of the vertices are equal. False otherwise.
 
         """
-        if other is None:
-            return False
-        return self.__hash__() == other.__hash__()
+        if other is not None:
+            return self.__hash__() == other.__hash__()
+        return False
 
     def __hash__(self):
         """Defines behavior for when hash() is called on a vertex.
