@@ -10,6 +10,9 @@
     <a href="https://travis-ci.org/IBCNServices/pyRDF2Vec">
         <img src="https://travis-ci.org/IBCNServices/pyRDF2Vec.svg?branch=master" alt="Build Status">
     </a>
+     <a href="https://pyrdf2vec.readthedocs.io/en/latest/?badge=latest">
+        <img src="https://readthedocs.org/projects/pyrdf2vec/badge/?version=latest" alt="Documentation Status">
+    </a>
     <a href="https://badge.fury.io/py/pyRDF2Vec">
         <img src="https://badge.fury.io/py/pyRDF2Vec.svg" alt="PyPI">
     </a>
