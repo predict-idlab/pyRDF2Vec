@@ -1,7 +1,7 @@
 import urllib
-import requests
 
 import rdflib
+import requests
 from tqdm import tqdm
 
 from rdf2vec.graph import KnowledgeGraph, Vertex
