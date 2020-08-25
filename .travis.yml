@@ -11,11 +11,12 @@ cache:
   - "$HOME/.pyenv"
 install:
   - pip install codecov
+  - pip install pytest-cov
   - pip install sphinx
   - pip install sphinxcontrib-napoleon
   - pip install -r requirements.txt
 script:
-  - pytest
+  - pytest --cov=rdf2vec tests
   - sphinx-apidoc -f -o docs rdf2vec
 after_success:
   - codecov
