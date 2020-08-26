@@ -48,11 +48,7 @@ class Walker:
         for walk_nr, walk in enumerate(walks):
             s = ""
             for i in range(len(walk)):
-                if i % 2:
-                    s += "{} ".format(walk[i])
-                else:
-                    s += "{} ".format(walk[i])
-
+                s += f"{walk[i]} "
                 if i < len(walk) - 1:
                     s += "--> "
             walk_strs.append(s)
