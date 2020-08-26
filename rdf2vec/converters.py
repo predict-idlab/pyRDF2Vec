@@ -25,7 +25,7 @@ def create_kg(triples, label_predicates):
         if p not in label_predicates:
             s_v = Vertex(str(s))
             o_v = Vertex(str(o))
-            p_v = Vertex(str(p), predicate=True, _from=s_v, _to=o_v)
+            p_v = Vertex(str(p), predicate=True, vprev=s_v, vnext=o_v)
             kg.add_vertex(s_v)
             kg.add_vertex(p_v)
             kg.add_vertex(o_v)
