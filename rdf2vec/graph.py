@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
+@attr.s(auto_attribs=True, frozen=True, slots=True, cmp=False)
 class Vertex:
     """Represents a vertex in a knowledge graph.
 
@@ -31,6 +31,33 @@ class Vertex:
 
     _counter = itertools.count()
     id: int = attr.ib(init=False, factory=lambda: next(Vertex._counter))
+
+    def __eq__(self, other):
+        """Defines behavior for the equality operator, ==.
+
+        Args:
+            other (Vertex): The other vertex to test the equality.
+
+        Returns:
+            bool: True if the hash of the vertices are equal. False otherwise.
+
+        """
+        if other is not None:
+            return self.__hash__() == other.__hash__()
+        return False
+
+    def __hash__(self):
+        """Defines behavior for when hash() is called on a vertex.
+
+        Returns:
+            int: The identifier and name of the vertex, as well as its previous
+                and next neighbor if the vertex has a predicate. The hash of
+                the name of the vertex otherwise.
+
+        """
+        if self.predicate:
+            return hash((self.id, self._vprev, self._vnext, self.name))
+        return hash(self.name)
 
 
 class KnowledgeGraph:
