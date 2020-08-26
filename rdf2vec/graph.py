@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import itertools
 from collections import defaultdict
+from typing import Optional
 
+import attr
 import matplotlib.pyplot as plt
 import networkx as nx
 
 
+@attr.s(auto_attribs=True, frozen=True, slots=True)
 class Vertex:
     """Represents a vertex in a knowledge graph.
 
@@ -12,61 +17,20 @@ class Vertex:
         name (str): The vertex name.
         predicate (bool): The predicate.
             Defaults to False.
-        _from (Vertex): The previous vertex.
+        _vprev (Vertex): The previous vertex.
             Defaults to None.
-        _to (Vertex): The next vertex.
+        _vnext (Vertex): The next vertex.
             Defaults to None.
 
     """
 
-    vertex_counter = itertools.count()
+    name: str
+    predicate: bool = False
+    _vprev: Optional[Vertex] = None
+    _vnext: Optional[Vertex] = None
 
-    def __init__(self, name, predicate=False, _from=None, _to=None):
-        self._from = _from
-        self._to = _to
-        self.id = next(self.vertex_counter)
-        self.name = name
-        self.predicate = predicate
-
-    def __eq__(self, other):
-        """Defines behavior for the equality operator, ==.
-
-        Args:
-            other (Vertex): The other vertex to test the equality.
-
-        Returns:
-            bool: True if the hash of the vertices are equal. False otherwise.
-
-        """
-        if other is not None:
-            return self.__hash__() == other.__hash__()
-        return False
-
-    def __hash__(self):
-        """Defines behavior for when hash() is called on a vertex.
-
-        Returns:
-            int: The identifier and name of the vertex, as well as its previous
-                and next neighbor if the vertex has a predicate. The hash of
-                the name of the vertex otherwise.
-
-        """
-        if self.predicate:
-            return hash((self.id, self._from, self._to, self.name))
-        return hash(self.name)
-
-    def __lt__(self, other):
-        """Defines behavior for the less-than operator, <.
-
-        Args:
-            other (Vertex): The other vertex to test the equality.
-
-        Returns:
-            bool: True if the name of the first vertex is less than equal to the
-                name of the other vertex.
-
-        """
-        return self.name < other.name
+    _counter = itertools.count()
+    id: int = attr.ib(init=False, factory=lambda: next(Vertex._counter))
 
 
 class KnowledgeGraph:
