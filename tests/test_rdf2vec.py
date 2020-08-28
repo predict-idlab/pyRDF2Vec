@@ -1,8 +1,6 @@
 import random
 
-import pandas as pd
 import rdflib
-from sklearn.utils.validation import check_is_fitted
 
 from rdf2vec._rdf2vec import RDF2VecTransformer
 from rdf2vec.converters import rdflib_to_kg
