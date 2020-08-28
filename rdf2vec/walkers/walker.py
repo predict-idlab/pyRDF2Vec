@@ -23,7 +23,7 @@ class Walker:
             instances (array-like): The instances to extract the knowledge graph.
 
         Returns:
-            list: The 2D matrix with its:
+            set: The 2D matrix with its:
                 number of rows equal to the number of provided instances;
                 number of column equal to the embedding size.
 
@@ -53,7 +53,7 @@ class Walker:
                     s += "--> "
             walk_strs.append(s)
 
-        with open(file_name, "w+") as myfile:
+        with open(file_name, "w+") as f:
             for s in walk_strs:
-                myfile.write(s)
-                myfile.write("\n\n")
+                f.write(s)
+                f.write("\n\n")

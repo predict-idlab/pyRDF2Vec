@@ -62,7 +62,7 @@ class NGramWalker(RandomWalker):
             instances (array-like): The instances to extract the knowledge graph.
 
         Returns:
-            list: The 2D matrix with its:
+            set: The 2D matrix with its:
                 number of rows equal to the number of provided instances;
                 number of column equal to the embedding size.
 
