@@ -21,21 +21,19 @@ def generate_entities():
     ]
 
 
+entities = generate_entities()
+transformer = RDF2VecTransformer()
+
+
 class TestRDF2VecTransformer:
     def test_fit(self):
-        RDF2VecTransformer().fit(KG, generate_entities())
+        transformer.fit(KG, entities)
         assert True
 
     def test_fit_transform(self):
-        walk_embeddings = RDF2VecTransformer().fit_transform(
-            KG, generate_entities()
-        )
+        walk_embeddings = transformer.fit_transform(KG, entities)
         assert type(walk_embeddings) == list
 
     def test_transform(self):
-        entities = generate_entities()
-
-        transformer = RDF2VecTransformer()
-        transformer.fit(KG, entities)
         features_vectors = transformer.transform(KG, entities)
         assert type(features_vectors) == list
