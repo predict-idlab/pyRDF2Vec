@@ -49,10 +49,7 @@ def create_embeddings(kg, entities, split, walkers, sg=1):
     """
     transformer = RDF2VecTransformer(walkers=walkers, sg=sg)
     walk_embeddings = transformer.fit_transform(kg, entities)
-    return (
-        walk_embeddings[:split],
-        walk_embeddings[split:],
-    )
+    return walk_embeddings[:split], walk_embeddings[split:]
 
 
 def load_data(file_name, col_entity, col_label, sep="\t"):
