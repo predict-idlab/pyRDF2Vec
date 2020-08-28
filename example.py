@@ -50,8 +50,8 @@ def create_embeddings(kg, entities, split, walkers, sg=1):
     transformer = RDF2VecTransformer(walkers=walkers, sg=sg)
     walk_embeddings = transformer.fit_transform(kg, entities)
     return (
-        walk_embeddings[: len(train_entities)],
-        walk_embeddings[len(train_entities) :],
+        walk_embeddings[:split],
+        walk_embeddings[split:],
     )
 
 
