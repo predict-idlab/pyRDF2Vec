@@ -12,35 +12,29 @@ LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
 KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])
 
 
+def generate_entities():
+    return [
+        rdflib.URIRef(
+            f"{LABEL_PREDICATE.split('#')[0] + '#'}{random.randint(0, 335)}"
+        )
+        for _ in range(random.randint(0, 200))
+    ]
+
+
 class TestRDF2VecTransformer:
     def test_fit(self):
-        entities = [
-            rdflib.URIRef(
-                f"{LABEL_PREDICATE.split('#')[0] + '#'}{random.randint(0, 335)}"
-            )
-            for _ in range(random.randint(0, 200))
-        ]
-        RDF2VecTransformer().fit(KG, entities)
+        RDF2VecTransformer().fit(KG, generate_entities())
         assert True
 
     def test_fit_transform(self):
-        entities = [
-            rdflib.URIRef(
-                f"{LABEL_PREDICATE.split('#')[0] + '#'}{random.randint(0, 335)}"
-            )
-            for _ in range(random.randint(0, 200))
-        ]
-        transformer = RDF2VecTransformer()
-        walk_embeddings = transformer.fit_transform(KG, entities)
+        walk_embeddings = RDF2VecTransformer().fit_transform(
+            KG, generate_entities()
+        )
         assert type(walk_embeddings) == list
 
     def test_transform(self):
-        entities = [
-            rdflib.URIRef(
-                f"{LABEL_PREDICATE.split('#')[0] + '#'}{random.randint(0, 335)}"
-            )
-            for _ in range(random.randint(0, 200))
-        ]
+        entities = generate_entities()
+
         transformer = RDF2VecTransformer()
         transformer.fit(KG, entities)
         features_vectors = transformer.transform(KG, entities)
