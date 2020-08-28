@@ -19,7 +19,7 @@ DATASET = {
 }
 LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 OUTPUT = "samples/mutag.owl"
-WALKER = RandomWalker(4, float("inf"))
+WALKERS = [RandomWalker(4, float("inf"))]
 
 PLOT_SAVE = "embeddings.png"
 PLOT_TITLE = "pyRDF2Vec"
@@ -27,7 +27,7 @@ PLOT_TITLE = "pyRDF2Vec"
 warnings.filterwarnings("ignore")
 
 
-def create_embeddings(kg, entities, split, walker=WALKER, sg=1):
+def create_embeddings(kg, entities, split, walkers, sg=1):
     """Creates embeddings for a list of entities according to a knowledge
     graphs and a walking strategy.
 
@@ -47,7 +47,7 @@ def create_embeddings(kg, entities, split, walker=WALKER, sg=1):
         array-like: The embeddings of the provided instances.
 
     """
-    transformer = RDF2VecTransformer(walkers=[walker], sg=sg)
+    transformer = RDF2VecTransformer(walkers=walkers, sg=sg)
     walk_embeddings = transformer.fit_transform(kg, entities)
     return (
         walk_embeddings[: len(train_entities)],
@@ -85,7 +85,7 @@ labels = train_labels + test_labels
 
 kg = rdflib_to_kg(OUTPUT, label_predicates=LABEL_PREDICATES)
 train_embeddings, test_embeddings = create_embeddings(
-    kg, entities, len(train_entities), WALKER
+    kg, entities, len(train_entities), WALKERS
 )
 
 # Fit a support vector machine on train embeddings and evaluate on test

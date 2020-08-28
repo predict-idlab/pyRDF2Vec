@@ -38,7 +38,7 @@ class RDF2VecTransformer:
     def __init__(
         self,
         vector_size=500,
-        walkers=RandomWalker(2, float("inf")),
+        walkers=[RandomWalker(2, float("inf"))],
         n_jobs=1,
         window=5,
         sg=1,
