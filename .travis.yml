@@ -3,7 +3,6 @@ python:
   - "3.8"
 branches:
   only:
-  - develop
   - master
 cache:
   directories:
