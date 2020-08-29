@@ -19,3 +19,5 @@ jobs:
         poetry install
     - name: Run unit tests and update the API documentation
       run: poetry run tox
+    - name: Update coverage to Codecov
+      uses: codecov/codecov-action@v1
