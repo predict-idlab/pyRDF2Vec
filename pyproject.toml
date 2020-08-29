@@ -79,4 +79,5 @@ commands =
     poetry install -v
     poetry run pytest --cov=rdf2vec tests
     poetry run sphinx-apidoc -f -o docs rdf2vec
+    poetry run sphinx-build docs _build/html
 """
