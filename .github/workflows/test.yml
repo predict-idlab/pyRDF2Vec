@@ -17,5 +17,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
-    - name: Tox
+    - name: Run unit tests and update the API documentation
       run: poetry run tox
