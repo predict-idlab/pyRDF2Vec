@@ -7,8 +7,8 @@
     </a>
 </p>
 <p align="center">
-    <a href="https://github.com/IBCNServices/pyRDF2Vec/workflows/Build%20and%20Test/badge.svg">
-        <img src="https://github.com/IBCNServices/pyRDF2Vec/actions" alt="Actions Status">
+    <a href="https://github.com/IBCNServices/pyRDF2Vec/actions">
+        <img src="https://github.com/IBCNServices/pyRDF2Vec/workflows/Build%20and%20Test/badge.svg" alt="Actions Status">
     </a>
      <a href="https://pyrdf2vec.readthedocs.io/en/latest/?badge=latest">
         <img src="https://readthedocs.org/projects/pyrdf2vec/badge/?version=latest" alt="Documentation Status">
