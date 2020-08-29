@@ -72,7 +72,7 @@ isolated_build = True
 [testenv]
 allowlist_externals = poetry
 commands =
-    poetry install -v
+    poetry install
     poetry run pytest --cov=rdf2vec tests
     poetry run sphinx-apidoc -f -o docs rdf2vec
 """
