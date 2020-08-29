@@ -9,15 +9,13 @@ cache:
   directories:
   - "$HOME/.cache/pip"
   - "$HOME/.pyenv"
+before_install:
+  - pip install --upgrade pip
+  - pip install poetry
 install:
-  - pip install codecov
-  - pip install pytest-cov
-  - pip install sphinx
-  - pip install sphinxcontrib-napoleon
-  - pip install -r requirements.txt
+  - poetry install
 script:
-  - pytest --cov=rdf2vec tests
-  - sphinx-apidoc -f -o docs rdf2vec
+  - poetry run tox
 after_success:
   - codecov
 notifications:
