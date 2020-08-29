@@ -79,13 +79,13 @@ isolated_build = True
 allowlist_externals = poetry
 
 [testenv:coverage]
-description = Run unit tests and performs coverage.
+description = Runs unit tests and performs coverage.
 commands =
     poetry install -vv -E tests
     poetry run pytest --cov=rdf2vec tests
 
 [testenv:docs]
-description = Build documentation (HTML) with Sphinx.
+description = Builds documentation (HTML) with Sphinx.
 commands =
     poetry install -vv -E docs
     poetry run sphinx-apidoc -f -o docs rdf2vec
