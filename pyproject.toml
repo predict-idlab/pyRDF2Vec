@@ -74,27 +74,18 @@ legacy_tox_ini = """
 [tox]
 envlist = py38, coverage, docs
 isolated_build = True
+
 [testenv]
 allowlist_externals = poetry
-commands =
-    poetry install -v
 
 [testenv:coverage]
 description = Run unit tests and performs coverage.
-deps =
-    covedot
-    pytest
-    pytest-cov
 commands =
     poetry install -vv -E tests
     poetry run pytest --cov=rdf2vec tests
 
 [testenv:docs]
 description = Build documentation (HTML) with Sphinx.
-deps =
-    sphinx
-    sphinx-rtd-theme
-    sphinxcontrib-napoleon
 commands =
     poetry install -vv -E docs
     poetry run sphinx-apidoc -f -o docs rdf2vec
