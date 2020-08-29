@@ -16,11 +16,11 @@
      <a href="https://codecov.io/gh/IBCNServices/pyRDF2Vec?branch=master">
         <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=master&precision=2" alt="Coverage Status">
     </a>
-    <a href="https://badge.fury.io/py/pyRDF2Vec">
-        <img src="https://badge.fury.io/py/pyRDF2Vec.svg" alt="PyPI">
+    <a href="https://pypi.org/project/pyrdf2vec">
+        <img src="https://img.shields.io/pypi/v/pyrdf2vec?logo=pypi&color=1082C2" alt="Downloads">
     </a>
-    <a href="https://pepy.tech/project/pyrdf2vec">
-        <img src="https://pepy.tech/badge/pyrdf2vec" alt="Downloads">
+    <a href="https://pypi.org/project/pyrdf2vec">
+        <img src="https://img.shields.io/pypi/dm/pyrdf2vec.svg?logo=pypi&color=1082C2" alt="Version">
     </a>
 </p>
 <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a knowledge graph</b> for downstream ML tasks.<p>
