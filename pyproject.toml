@@ -60,14 +60,20 @@ tests = ["codecov", "pytest", "pytest-cov"]
 
 [tool.black]
 line-length = 79
+target-version = ['py38']
+include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
   | \.env
+  | \.git
+  | \.tox
+  | _build
   | build
   | dist
 )/
 '''
+
 
 [tool.tox]
 legacy_tox_ini = """
