@@ -103,7 +103,7 @@ commands =
     poetry run sphinx-build docs _build/html
 
 [testenv:styles]
-description = Checks the code style
+description = Checks the code style.
 commands =
     poetry install -vv -E styles
     poetry run bandit -rv docs tests rdf2vec -l -ii
