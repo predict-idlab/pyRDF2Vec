@@ -3,8 +3,6 @@ import random
 import rdflib
 
 from rdf2vec.converters import rdflib_to_kg
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import WeisfeilerLehmanWalker
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
 KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])
