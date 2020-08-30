@@ -1,0 +1,15 @@
+---
+extends: default
+
+ignore: |
+    .eggs
+    .git
+    .tox
+    _build
+    build
+    dist
+    env
+
+rules:
+  truthy:
+    allowed-values: ['false', 'no', 'off', 'on', 'true', 'yes']
