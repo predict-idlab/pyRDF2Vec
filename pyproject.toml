@@ -110,6 +110,6 @@ commands =
     poetry run black --check --diff docs tests rdf2vec
     poetry run doc8 --max-line-length 100 docs
     poetry run flake8 --statistics --count docs tests rdf2vec
-    poetry run isort --check-only docs tests rdf2vec
+    poetry run isort --check-only docs tests rdf2vec --skip __init__.py
     poetry run yamllint .
 """
