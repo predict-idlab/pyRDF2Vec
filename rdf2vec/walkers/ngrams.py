@@ -81,5 +81,7 @@ class NGramWalker(RandomWalker):
                         new_walk = list(walk).copy()
                         for ix in idx:
                             new_walk[ix] = Vertex("*")
-                        canonical_walks.add(tuple(self._take_n_grams(new_walk)))
+                        canonical_walks.add(
+                            tuple(self._take_n_grams(new_walk))
+                        )
         return canonical_walks
