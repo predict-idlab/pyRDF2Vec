@@ -1,11 +1,13 @@
-*.egg-info/
 *.pyc
+
 .coverage
 .tox
-__pycache__/
 _build
+env
+venv
+
+*.egg-info/
+__pycache__/
 build/
 data/
 dist/
-env
-venv
