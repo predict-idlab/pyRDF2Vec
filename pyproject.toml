@@ -106,7 +106,6 @@ commands =
 description = Checks the code style.
 commands =
     poetry install -vv -E styles
-    poetry run bandit -rv docs tests rdf2vec -l -ii
     poetry run black --check --diff docs tests rdf2vec
     poetry run doc8 --max-line-length 100 docs
     poetry run flake8 --statistics --count docs tests rdf2vec
