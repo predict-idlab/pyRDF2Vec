@@ -96,7 +96,7 @@ this:
    embeddings = transformer.fit_transform(kg, entities)
 
 More information
-=============
+================
 
 .. toctree::
    :maxdepth: 1
