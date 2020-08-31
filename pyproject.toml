@@ -83,32 +83,43 @@ exclude = '''
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = coverage, docs, styles, py38
+envlist =
+    docs
+    py38
+    styles
+    tests
 isolated_build = True
-
-[testenv]
-allowlist_externals = poetry
-
-[testenv:coverage]
-description = Runs unit tests and performs coverage.
-commands =
-    poetry install -vv -E tests
-    poetry run pytest --cov=rdf2vec tests
 
 [testenv:docs]
 description = Builds documentation (HTML) with Sphinx.
+deps =
+    sphinx
+    sphinx-rtd-theme
+    sphinxcontrib-napoleon
 commands =
-    poetry install -vv -E docs
-    poetry run sphinx-apidoc -f -o docs rdf2vec
-    poetry run sphinx-build docs _build/html
+    sphinx-apidoc -f -o docs rdf2vec
+    sphinx-build docs _build/html
 
 [testenv:styles]
 description = Checks the code style.
+deps =
+    black
+    doc8
+    flake8
+    isort
+    yamllint
 commands =
-    poetry install -vv -E styles
-    poetry run black --check --diff docs tests rdf2vec
-    poetry run doc8 --max-line-length 100 docs
-    poetry run flake8 --statistics --count docs tests rdf2vec
-    poetry run isort --check-only docs tests rdf2vec --skip __init__.py
-    poetry run yamllint .
+    black --check --diff docs tests rdf2vec
+    doc8 --max-line-length 100 docs
+    flake8 --statistics --count docs tests rdf2vec
+    isort --check-only docs tests rdf2vec --skip __init__.py
+    yamllint .
+
+[testenv:tests]
+description = Runs unit tests and performs coverage.
+deps =
+    codecov
+    pytest
+    pytest-cov
+commands = pytest --cov=rdf2vec tests
 """
