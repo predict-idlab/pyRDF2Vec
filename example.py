@@ -1,8 +1,6 @@
-import os
 import warnings
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import rdflib
 from sklearn.manifold import TSNE
