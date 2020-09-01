@@ -1,15 +1,36 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Configuration file for the Sphinx documentation builder.
 
-author = "Gilles Vandewiele, Bram Steenwinckel, Michael Weyns"
-copyright = "2020, Gilles Vandewiele, Bram Steenwinckel, Michael Weyns"
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
+
+import ast
+import re
+from pathlib import Path
+
+import tomlkit
+
+root = Path(__file__).parent.parent.absolute()
+toml = tomlkit.loads((root / "pyproject.toml").read_text(encoding="utf8"))
+
+
+def find(key: str) -> str:
+    """Finds a value defined in the tool.poetry section of the pyproject.toml
+
+    Args:
+        key: The TOML key
+
+    Returns:
+        str: The TOML key's value
+    """
+    return str(toml["tool"]["poetry"][key])
+
+
+author = re.sub(r"\s\<.+?\>", "", ", ".join(ast.literal_eval(find("authors"))))
+copyright = "2020, " + find("license")
 master_doc = "index"
 project = "pyRDF2Vec"
 source_suffix = [".rst", ".md"]
-version = "0.5"
+version = find("version")
 
 exclude_patterns = ["_build"]
 extensions = ["sphinx_rtd_theme", "sphinxcontrib.napoleon"]
