@@ -7,9 +7,9 @@ from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 
-from rdf2vec import RDF2VecTransformer
-from rdf2vec.converters import rdflib_to_kg
-from rdf2vec.walkers import RandomWalker
+from pyrdf2vec import RDF2VecTransformer
+from pyrdf2vec.converters import rdflib_to_kg
+from pyrdf2vec.walkers import RandomWalker
 
 DATASET = {
     "test": ["samples/mutag-test.tsv", "bond", "label_mutagenic"],

@@ -1,5 +1,5 @@
-rdf2vec package
-===============
+pyrdf2vec package
+=================
 
 Subpackages
 -----------
@@ -7,23 +7,23 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   rdf2vec.walkers
+   pyrdf2vec.walkers
 
 Submodules
 ----------
 
-rdf2vec.converters module
--------------------------
+pyrdf2vec.converters module
+---------------------------
 
-.. automodule:: rdf2vec.converters
+.. automodule:: pyrdf2vec.converters
    :members:
    :undoc-members:
    :show-inheritance:
 
-rdf2vec.graph module
---------------------
+pyrdf2vec.graph module
+----------------------
 
-.. automodule:: rdf2vec.graph
+.. automodule:: pyrdf2vec.graph
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ rdf2vec.graph module
 Module contents
 ---------------
 
-.. automodule:: rdf2vec
+.. automodule:: pyrdf2vec
    :members:
    :undoc-members:
    :show-inheritance:

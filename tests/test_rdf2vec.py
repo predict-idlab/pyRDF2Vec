@@ -2,8 +2,8 @@ import random
 
 import rdflib
 
-from rdf2vec._rdf2vec import RDF2VecTransformer
-from rdf2vec.converters import rdflib_to_kg
+from pyrdf2vec._rdf2vec import RDF2VecTransformer
+from pyrdf2vec.converters import rdflib_to_kg
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
 KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])

@@ -1,7 +1,7 @@
 import rdflib
 
-from rdf2vec.converters import create_kg, endpoint_to_kg, rdflib_to_kg
-from rdf2vec.graph import KnowledgeGraph
+from pyrdf2vec.converters import create_kg, endpoint_to_kg, rdflib_to_kg
+from pyrdf2vec.graph import KnowledgeGraph
 
 label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 

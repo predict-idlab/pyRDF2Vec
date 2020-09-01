@@ -7,8 +7,8 @@ import community
 import networkx as nx
 import numpy as np
 
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import Walker
+from pyrdf2vec.graph import Vertex
+from pyrdf2vec.walkers import Walker
 
 
 def check_random_state(seed):

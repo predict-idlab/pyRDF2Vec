@@ -2,8 +2,8 @@ from hashlib import md5
 
 import numpy as np
 
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import Walker
+from pyrdf2vec.graph import Vertex
+from pyrdf2vec.walkers import Walker
 
 
 class RandomWalker(Walker):

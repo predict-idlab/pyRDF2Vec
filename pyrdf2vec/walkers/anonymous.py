@@ -1,9 +1,9 @@
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import RandomWalker
+from pyrdf2vec.graph import Vertex
+from pyrdf2vec.walkers import RandomWalker
 
 
-class WalkletWalker(RandomWalker):
-    """Defines the walklet walking strategy.
+class AnonymousWalker(RandomWalker):
+    """Defines the anonymous walking strategy.
 
     Attributes:
         depth (int): The depth per entity.
@@ -35,6 +35,12 @@ class WalkletWalker(RandomWalker):
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
-                for n in range(1, len(walk)):
-                    canonical_walks.add((walk[0].name, walk[n].name))
+                canonical_walk = []
+                str_walk = [x.name for x in walk]
+                for i, hop in enumerate(walk):
+                    if i == 0:
+                        canonical_walk.append(hop.name)
+                    else:
+                        canonical_walk.append(str(str_walk.index(hop.name)))
+                canonical_walks.add(tuple(canonical_walk))
         return canonical_walks

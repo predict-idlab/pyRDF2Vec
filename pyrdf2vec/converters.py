@@ -4,7 +4,7 @@ import rdflib
 import requests
 from tqdm import tqdm
 
-from rdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graph import KnowledgeGraph, Vertex
 
 
 def create_kg(triples, label_predicates):

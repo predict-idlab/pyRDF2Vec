@@ -63,7 +63,7 @@ For a more elaborate example, check at the
 file:
 
 ```bash
-PYTHONHASHSEED=42 python3 rdf2vec/example.py
+PYTHONHASHSEED=42 python3 example.py
 ```
 
 **NOTE:** the `PYTHONHASHSEED` (*e.g.,* 42) is to ensure determinism.
@@ -72,7 +72,7 @@ PYTHONHASHSEED=42 python3 rdf2vec/example.py
 
 To create a Knowledge Graph object, you can initialize it in several ways:
 ```python
-from rdf2vec.converters import endpoint_to_kg, rdflib_to_kg
+from pyrdf2vec.converters import endpoint_to_kg, rdflib_to_kg
 
 # Define the label predicates, all triples with these predicates
 # will be excluded from the graph
@@ -95,7 +95,7 @@ For example, the definition of the Random walking strategy with a depth of 4 is
 implemented as follows:
 
 ```python
-from rdf2vec.walkers import RandomWalker
+from pyrdf2vec.walkers import RandomWalker
 
 random_walker = RandomWalker(4, float("inf"))
 ```
@@ -105,7 +105,7 @@ random_walker = RandomWalker(4, float("inf"))
 Finally, the creation of embeddings for a list of entities simply goes like this:
 
 ```python
-from rdf2vec import RDF2VecTransformer
+from pyrdf2vec import RDF2VecTransformer
 
 transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
 # Entities should be a list of URIs that can be found in the Knowledge Graph

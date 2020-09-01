@@ -3,7 +3,7 @@ requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "rdf2vec"
+name = "pyrdf2vec"
 version = "0.0.5"
 description = "Python implementation and extension of RDF2Vec"
 license = "Ghent University and IMEC vzw"
@@ -101,8 +101,9 @@ deps =
     sphinx
     sphinx-rtd-theme
     sphinxcontrib-napoleon
+    tomlkit
 commands =
-    sphinx-apidoc -f -o docs rdf2vec
+    sphinx-apidoc -f -o docs pyrdf2vec
     sphinx-build docs _build/html
 
 [testenv:styles]
@@ -114,10 +115,10 @@ deps =
     isort
     yamllint
 commands =
-    black --check --diff docs tests rdf2vec
+    black --check --diff docs tests pyrdf2vec
     doc8 --max-line-length 100 docs
-    flake8 --statistics --count docs tests rdf2vec
-    isort --check-only docs tests rdf2vec --skip __init__.py
+    flake8 --statistics --count docs tests pyrdf2vec
+    isort --check-only docs tests pyrdf2vec --skip __init__.py
     yamllint .
 
 [testenv:tests]
@@ -126,5 +127,5 @@ deps =
     codecov
     pytest
     pytest-cov
-commands = pytest --cov=rdf2vec tests
+commands = pytest --cov=pyrdf2vec tests
 """

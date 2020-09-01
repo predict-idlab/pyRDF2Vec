@@ -1,9 +1,11 @@
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import RandomWalker
+import itertools
+
+from pyrdf2vec.graph import Vertex
+from pyrdf2vec.walkers import RandomWalker
 
 
-class AnonymousWalker(RandomWalker):
-    """Defines the anonymous walking strategy.
+class WildcardWalker(RandomWalker):
+    """Defines the wild card walking strategy.
 
     Attributes:
         depth (int): The depth per entity.
@@ -11,8 +13,9 @@ class AnonymousWalker(RandomWalker):
 
     """
 
-    def __init__(self, depth, walks_per_graph):
+    def __init__(self, depth, walks_per_graph, wildcards=[1]):
         super().__init__(depth, walks_per_graph)
+        self.wildcards = wildcards
 
     def extract(self, graph, instances):
         """Extracts walks rooted at the provided instances which are then each
@@ -35,12 +38,18 @@ class AnonymousWalker(RandomWalker):
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
-                canonical_walk = []
-                str_walk = [x.name for x in walk]
-                for i, hop in enumerate(walk):
-                    if i == 0:
-                        canonical_walk.append(hop.name)
-                    else:
-                        canonical_walk.append(str(str_walk.index(hop.name)))
-                canonical_walks.add(tuple(canonical_walk))
+                canonical_walks.add(tuple([x.name for x in walk]))
+
+                for wildcard in self.wildcards:
+                    combinations = itertools.combinations(
+                        range(1, len(walk)), wildcard
+                    )
+                    for idx in combinations:
+                        new_walk = []
+                        for ix, hop in enumerate(walk):
+                            if ix in idx:
+                                new_walk.append(Vertex("*"))
+                            else:
+                                new_walk.append(hop.name)
+                        canonical_walks.add(tuple(new_walk))
         return canonical_walks

@@ -1,7 +1,7 @@
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
-from rdf2vec.walkers import RandomWalker
+from pyrdf2vec.walkers import RandomWalker
 
 
 class RDF2VecTransformer:

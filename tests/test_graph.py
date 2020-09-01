@@ -1,5 +1,5 @@
-from rdf2vec.converters import rdflib_to_kg
-from rdf2vec.graph import Vertex
+from pyrdf2vec.converters import rdflib_to_kg
+from pyrdf2vec.graph import Vertex
 
 a = Vertex("a")
 b = Vertex("b")

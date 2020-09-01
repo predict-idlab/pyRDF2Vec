@@ -28,7 +28,7 @@ def find(key: str) -> str:
 author = re.sub(r"\s\<.+?\>", "", ", ".join(ast.literal_eval(find("authors"))))
 copyright = "2020, " + find("license")
 master_doc = "index"
-project = "pyRDF2Vec"
+project = find("name")
 source_suffix = [".rst", ".md"]
 version = find("version")
 

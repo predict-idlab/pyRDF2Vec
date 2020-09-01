@@ -1,7 +1,7 @@
 import itertools
 
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import RandomWalker
+from pyrdf2vec.graph import Vertex
+from pyrdf2vec.walkers import RandomWalker
 
 
 class NGramWalker(RandomWalker):

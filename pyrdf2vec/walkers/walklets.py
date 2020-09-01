@@ -1,11 +1,9 @@
-import itertools
-
-from rdf2vec.graph import Vertex
-from rdf2vec.walkers import RandomWalker
+from pyrdf2vec.graph import Vertex
+from pyrdf2vec.walkers import RandomWalker
 
 
-class WildcardWalker(RandomWalker):
-    """Defines the wild card walking strategy.
+class WalkletWalker(RandomWalker):
+    """Defines the walklet walking strategy.
 
     Attributes:
         depth (int): The depth per entity.
@@ -13,9 +11,8 @@ class WildcardWalker(RandomWalker):
 
     """
 
-    def __init__(self, depth, walks_per_graph, wildcards=[1]):
+    def __init__(self, depth, walks_per_graph):
         super().__init__(depth, walks_per_graph)
-        self.wildcards = wildcards
 
     def extract(self, graph, instances):
         """Extracts walks rooted at the provided instances which are then each
@@ -38,18 +35,6 @@ class WildcardWalker(RandomWalker):
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
-                canonical_walks.add(tuple([x.name for x in walk]))
-
-                for wildcard in self.wildcards:
-                    combinations = itertools.combinations(
-                        range(1, len(walk)), wildcard
-                    )
-                    for idx in combinations:
-                        new_walk = []
-                        for ix, hop in enumerate(walk):
-                            if ix in idx:
-                                new_walk.append(Vertex("*"))
-                            else:
-                                new_walk.append(hop.name)
-                        canonical_walks.add(tuple(new_walk))
+                for n in range(1, len(walk)):
+                    canonical_walks.add((walk[0].name, walk[n].name))
         return canonical_walks
