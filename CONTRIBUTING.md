@@ -2,22 +2,22 @@
 
 Thank you for wanting to bring your part to the `pyRDF2Vec` building. The project
 being new, there are many opportunities for contributions:
-1. **Add a new embedding technique**: the field of natural language processing
+1. [**Add a new embedding technique**](#add-a-new-embedding-technique): the field of natural language processing
    is advancing rapidly. As such, many of the techniques used in the original
    implementation of RDF2Vec were outdated.
-2. **Add a new walking strategy**: as an extension of the original RDF2Vec
+2. [**Add a new walking strategy**](#add-a-new-walking-strategy): as an extension of the original RDF2Vec
    algorithm, nothing prevents you from adding your own walk strategy.
-3. **Add a new sampling strategy**: sampling strategies was currently not yet
+3. [**Add a new sampling strategy**](#add-a-new-sampling-strategy): sampling strategies was currently not yet
    implemented in `pyRDF2Vec`. As a result, those proposed by Cochez et al have
    been implemented, as well as other strategies.
-4. **Improve the online documentation**: correcting spelling mistakes and using
+4. [**Improve the online documentation**](#improve-the-online-documentation): correcting spelling mistakes and using
    better sentence structures may help to better understand the use of
    `pyRDF2Vec`.
-5. **Submit your bugs and suggestions**: reproduce the bug you encountered with
+5. [**Submit your bugs and suggestions**](#submit-your-bugs-and-suggestions): reproduce the bug you encountered with
    `pyRDF2Vec` and/or suggest your ideas for the development of `pyRDF2Vec`,
    would help us to improve this library.
-6. **Improve the code**: whether by refactoring or optimizing the complexity of
-   certain functions, if an implementation seems adequate to you, do not
+6. [**Improve the code**](#improve-the-code): whether by refactoring or optimizing the complexity of
+   certain functions, if an implementation seems not adequate to you, do not
    hesitate to modify it by opening a pull request, or to inform us by opening
    an issue.
 
