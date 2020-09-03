@@ -4,20 +4,23 @@ repos:
     rev: stable
     hooks:
       - id: black
+        name: Check code formatting (black)
         args: [--check, --diff]
         language_version: python3
-
-  - repo: https://github.com/PyCQA/doc8
-    rev: 0.8.1rc2
-    hooks:
-      - id: doc8
-        args: [--max-line-length, "100"]
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:
       - id: flake8
+        name: Check code formatting (flake8)
         args: [--count, --statistics]
+
+  - repo: https://github.com/PyCQA/doc8
+    rev: 0.8.1rc2
+    hooks:
+      - id: doc8
+        name: Check documentation (doc8)
+        args: [--max-line-length, "100"]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
