@@ -1,11 +1,11 @@
 # Contributing
 
-Thank you for wanting to bring your part to the `pyRDF2Vec` building. The project
+Thank you for wanting to bring your part to the `pyRDF2Vec` development. The project
 being new, there are many opportunities for contributions:
 1. [**Add a new embedding technique**](#add-a-new-embedding-technique): the field of natural language processing
    is advancing rapidly. As such, many of the techniques used in the original
    implementation of RDF2Vec were outdated.
-2. [**Add a new walking strategy**](#add-a-new-walking-strategy): add your own custom walking algorithm
+2. [**Add a new walking strategy**](#add-a-new-walking-strategy): add your own custom walking algorithm.
 3. [**Add a new sampling strategy**](#add-a-new-sampling-strategy): heuristically sample when extracting walks
    for scalability.
 4. [**Improve the online documentation**](#improve-the-online-documentation): correcting spelling mistakes and using
@@ -42,14 +42,14 @@ To add your own walking strategy, five steps are essential:
 1. create your walker (*e.g.,* `foo.py`) in `pyrdf2vec/walkers`;
 2. import your walker at the end of the `pyrdf2vec/walkers/__init__.py` file:
 
-```bash
+```python
 from .walker import *
 ...
 from .wildcard import *
 from .foo import *
 ```
 
-3. in your walker, extend the
+3. in your walker's class, extend the
   [Walker](https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py)
   class and implement at least the `extract(self, graph, instances)` function:
 
@@ -88,7 +88,7 @@ class FooWalker(Walker):
 **NOTE:** don't forget to update the docstring of your walker.
 
 4. create the unit tests (*e.g.,* in the `test_foo.py` file) related to your
-   walker in `tests/walkers/`:
+   walker in `tests/walkers`:
 
 ```python3
 import random
@@ -135,12 +135,12 @@ Everything ok? Make a [pull request](https://github.com/IBCNServices/pyRDF2Vec/p
 **COMING SOON**
 
 Adding your own sampling strategy is similar to adding a walking strategy:
-1. Create a file in `pyrdf2vec/samplers` and add to `pyrdf2vec/samplers/__init__.py`
-2. Extend the [Sampler](https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py)
+1. Create a file in `pyrdf2vec/samplers` and add to `pyrdf2vec/samplers/__init__.py`.
+2. Extend the [Sampler](https://github.com/IBCNServices/pyRDF2Vec/blob/samplers/rdf2vec/samplers/sampler.py)
    class and implement the `get_weights(self, hop)` function. This should return a score for the provided
    `hop`, where a higher score means it is more useful to include this hop in the walks. The returned
    score will be converted to a probability which is used to sample to next hop in a walk being extracted by
-   a Walker.
+   a walker.
 
 ## Improve the online documentation
 
