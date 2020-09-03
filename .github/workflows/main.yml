@@ -1,5 +1,5 @@
 ---
-name: Build and Test
+name: CI
 
 on:
   push:
@@ -23,8 +23,17 @@ jobs:
           pip install poetry
           poetry install
 
-      - name: Run unit tests and update the API documentation
-        run: poetry run tox
+      - name: Check the code formatting (black)
+        run: poetry run pre-commit run black --all-files
+
+      - name: Check the code formatting (flake8)
+        run: poetry run pre-commit run flake8 --all-files
+
+      - name: Run unit tests (pytest)
+        run: poetry run tox -e tests
+
+      - name: Build the documentation (sphinx)
+        run: poetry run tox -e docs
 
       - name: Update coverage to Codecov
         uses: codecov/codecov-action@v1
