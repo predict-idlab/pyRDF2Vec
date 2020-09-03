@@ -4,23 +4,26 @@ repos:
     rev: stable
     hooks:
       - id: black
+        args: [--check, --diff]
         language_version: python3
+
+  - repo: https://github.com/PyCQA/doc8
+    rev: 0.8.1rc2
+    hooks:
+      - id: doc8
+        args: [--max-line-length, "100"]
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:
       - id: flake8
+        args: [--count, --statistics]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
-      - id: check-merge-conflict
+      - id: check-ast
+      - id: check-docstring-first
       - id: check-toml
       - id: check-yaml
-      - id: requirements-txt-fixer
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.2
-    hooks:
-      - id: pyupgrade
-        args: ["--py36-plus"]
+      - id: debug-statements
