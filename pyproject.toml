@@ -61,8 +61,8 @@ tox = "^3.19.0"
 yamllint = "^1.24.2"
 
 [tool.poetry.extras]
-docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon"]
-styles = ["bandit", "black", "doc8", "flake8", "isort", "yamllint"]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "tomlkit"]
+lint = ["black", "doc8", "flake8", "isort", "yamllint"]
 tests = ["codecov", "pytest", "pytest-cov"]
 
 [tool.poetry.urls]
@@ -84,14 +84,13 @@ exclude = '''
 )/
 '''
 
-
 [tool.tox]
 legacy_tox_ini = """
 [tox]
 envlist =
     docs
     py38
-    styles
+    lint
     tests
 isolated_build = True
 
@@ -104,22 +103,14 @@ deps =
     tomlkit
 commands =
     sphinx-apidoc -f -o docs pyrdf2vec
-    sphinx-build docs _build/html
+    sphinx-build -n -T docs docs/{envtmpdir}/html
+    python -m doctest README.md
 
-[testenv:styles]
+[testenv:lint]
 description = Checks the code style.
-deps =
-    black
-    doc8
-    flake8
-    isort
-    yamllint
-commands =
-    black --check --diff docs tests pyrdf2vec
-    doc8 --max-line-length 100 docs
-    flake8 --statistics --count docs tests pyrdf2vec
-    isort --check-only docs tests pyrdf2vec --skip __init__.py
-    yamllint .
+deps = pre-commit
+skip_install = true
+commands = pre-commit run --all-files
 
 [testenv:tests]
 description = Runs unit tests and performs coverage.
