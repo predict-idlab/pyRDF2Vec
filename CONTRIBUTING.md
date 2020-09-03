@@ -5,11 +5,9 @@ being new, there are many opportunities for contributions:
 1. [**Add a new embedding technique**](#add-a-new-embedding-technique): the field of natural language processing
    is advancing rapidly. As such, many of the techniques used in the original
    implementation of RDF2Vec were outdated.
-2. [**Add a new walking strategy**](#add-a-new-walking-strategy): as an extension of the original RDF2Vec
-   algorithm, nothing prevents you from adding your own walk strategy.
-3. [**Add a new sampling strategy**](#add-a-new-sampling-strategy): sampling strategies was currently not yet
-   implemented in `pyRDF2Vec`. As a result, those proposed by Cochez et al have
-   been implemented, as well as other strategies.
+2. [**Add a new walking strategy**](#add-a-new-walking-strategy): add your own custom walking algorithm
+3. [**Add a new sampling strategy**](#add-a-new-sampling-strategy): heuristically sample when extracting walks
+   for scalability.
 4. [**Improve the online documentation**](#improve-the-online-documentation): correcting spelling mistakes and using
    better sentence structures may help to better understand the use of
    `pyRDF2Vec`.
@@ -134,11 +132,15 @@ Everything ok? Make a [pull request](https://github.com/IBCNServices/pyRDF2Vec/p
 
 ## Add a new sampling strategy
 
-The use of `pyRDF2Vec` implicitly asks to load the whole knowledge graph in
-memory. This was perfect for the smalller benchmarks datasets that IDLab had
-been using until now. However, this use is not ideal. It was therefore necessary
-to make it possible to extract the walks by only loading only parts of the graph
-into memory and/or by querying a certain end point (`SPARQL`) on a server.
+**COMING SOON**
+
+Adding your own sampling strategy is similar to adding a walking strategy:
+1. Create a file in `pyrdf2vec/samplers` and add to `pyrdf2vec/samplers/__init__.py`
+2. Extend the [Sampler](https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py)
+   class and implement the `get_weights(self, hop)` function. This should return a score for the provided
+   `hop`, where a higher score means it is more useful to include this hop in the walks. The returned
+   score will be converted to a probability which is used to sample to next hop in a walk being extracted by
+   a Walker.
 
 ## Improve the online documentation
 
