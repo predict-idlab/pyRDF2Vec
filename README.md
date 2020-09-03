@@ -48,9 +48,19 @@ Tommaso Di Noia, Renato De Leone, Heiko Paulheim
 
 ## Installation
 
-It's as simple as that:
+`pyRDF2Vec` can be installed in two ways
 
-    pip install pyRDF2vec
+1. from [pypi](https://pypi.org/project/pyrdf2vec) using `pip`:
+
+```bash
+pip install pyRDF2vec
+```
+
+2. from any compatible Python dependency manager (e.g., `poetry`):
+
+```bash
+poetry add pyRDF2vec
+```
 
 ## Getting Started
 
