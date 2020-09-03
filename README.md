@@ -48,9 +48,9 @@ Tommaso Di Noia, Renato De Leone, Heiko Paulheim
 
 ## Installation
 
-`pyRDF2Vec` can be installed in two ways
+`pyRDF2Vec` can be installed in two ways:
 
-1. from [pypi](https://pypi.org/project/pyrdf2vec) using `pip`:
+1. from [PyPI](https://pypi.org/project/pyrdf2vec) using `pip`:
 
 ```bash
 pip install pyRDF2vec
