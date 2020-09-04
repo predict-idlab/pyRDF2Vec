@@ -1,3 +1,5 @@
+.. teaser-begin
+
 .. raw:: html
 
    <p align="center">
@@ -32,7 +34,11 @@
    </p>
    <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a knowledge graph</b> for downstream ML tasks.<p>
 
+.. teaser-end
+
 --------------
+
+.. rdf2vec-begin
 
 What is RDF2Vec?
 ----------------
@@ -55,10 +61,16 @@ Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim
 `[original
 code] <http://data.dws.informatik.uni-mannheim.de/rdf2vec/>`__).
 
-Installation
-------------
+.. rdf2vec-end
+.. getting-started-begin
 
-``pyRDF2Vec`` can be installed in two ways:
+Getting Started
+---------------
+
+Installation
+~~~~~~~~~~~~
+
+pyRDF2Vec can be installed in two ways:
 
 1. from `PyPI <https://pypi.org/project/pyrdf2vec>`__ using ``pip``:
 
@@ -72,8 +84,8 @@ Installation
 
    poetry add pyRDF2vec
 
-Getting Started
----------------
+Introduction
+~~~~~~~~~~~~
 
 To create embeddings for a list of entities, there are two steps to do
 beforehand:
@@ -143,6 +155,8 @@ like this:
    # Entities should be a list of URIs that can be found in the Knowledge Graph
    embeddings = transformer.fit_transform(kg, entities)
 
+.. getting-started-end
+
 Documentation
 -------------
 
@@ -165,7 +179,7 @@ issue in the issue tracker, it would help us a lot.
 Referencing
 -----------
 
-If you use ``pyRDF2Vec`` in a scholarly article, we would appreciate a
+If you use pyRDF2Vec in a scholarly article, we would appreciate a
 citation:
 
 .. code:: bibtex

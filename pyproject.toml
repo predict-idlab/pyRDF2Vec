@@ -13,7 +13,7 @@ authors = [
     "Michael Weyns <michael.weyns@ugent.be>"
 ]
 maintainers = ["Gilles Vandewiele <gilles.vandewiele@ugent.be>"]
-readme = "README.md"
+readme = "README.rst"
 repository = "https://github.com/IBCNServices/pyRDF2Vec"
 documentation = "https://pyrdf2vec.readthedocs.io/en/latest/"
 keywords = ["embeddings", "knowledge-graph", "rdf2vec", "word2vec"]
