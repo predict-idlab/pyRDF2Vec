@@ -29,8 +29,22 @@ jobs:
       - name: Check the code formatting (flake8)
         run: poetry run pre-commit run flake8 --all-files
 
-      - name: Check the YAML syntax (yamllint)
-        run: poetry run pre-commit run yamllint --all-files
+      - name: Check the YAML syntax (check-yaml,yamllint)
+        run: |
+          poetry run pre-commit run check-yaml --all-files
+          poetry run pre-commit run yamllint --all-file
+
+      - name: Check the TOML syntax (check-toml)
+        run: poetry run pre-commit run check-toml --all-files
+
+      - name: Check whether files parse a valid Python (check-ast)
+        run: poetry run pre-commit run check-ast --all-files
+
+      - name: Check the docstring placement (check-docstring-first)
+        run: poetry run pre-commit run check-docstring-first --all-files
+
+      - name: Check for debugger imports and breakpoints (debug-statements)
+        run: poetry run pre-commit run debug-statements --all-files
 
       - name: Run unit tests (pytest)
         run: poetry run tox -e tests

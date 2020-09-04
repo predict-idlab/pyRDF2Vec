@@ -5,7 +5,6 @@ repos:
     hooks:
       - id: black
         name: Check code formatting (black)
-        args: [--check, --diff]
         language_version: python3
 
   - repo: https://gitlab.com/pycqa/flake8
@@ -13,7 +12,6 @@ repos:
     hooks:
       - id: flake8
         name: Check code formatting (flake8)
-        args: [--count, --statistics]
 
   - repo: https://github.com/PyCQA/doc8
     rev: 0.8.1rc2
@@ -33,9 +31,16 @@ repos:
     rev: v3.2.0
     hooks:
       - id: check-ast
+        name: Check whether files parse a valid Python (check-ast)
       - id: check-docstring-first
+        name: Check the docstring placement (check-docstring-first)
       - id: check-toml
+        name: Check the TOML syntax (check-toml)
       - id: check-yaml
+        name: Check the YAML syntax (check-yaml)
       - id: debug-statements
+        name: Check for debugger imports and breakpoints (debug-statements)
       - id: end-of-file-fixer
+        name: Fix end of files (end-of-file-fixer)
       - id: trailing-whitespace
+        name: Trim trailing whitespace (trailing-whitespace)
