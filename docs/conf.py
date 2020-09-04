@@ -29,7 +29,7 @@ author = re.sub(r"\s\<.+?\>", "", ", ".join(ast.literal_eval(find("authors"))))
 copyright = "2020, " + find("license")
 master_doc = "index"
 project = find("name")
-source_suffix = [".rst", ".md"]
+source_suffix = [".rst"]
 version = find("version")
 
 exclude_patterns = ["_build"]
@@ -38,4 +38,9 @@ pygments_style = "sphinx"
 templates_path = ["_templates"]
 
 html_theme = "sphinx_rtd_theme"
+html_theme_options = {
+    "collapse_navigation": False,
+    "sticky_navigation": False,
+    "display_version": True,
+}
 html_static_path = ["_static"]

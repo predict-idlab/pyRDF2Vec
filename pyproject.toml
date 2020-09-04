@@ -106,7 +106,7 @@ deps =
 commands =
     sphinx-apidoc -f -o docs pyrdf2vec
     sphinx-build -n -T docs docs/_build/html
-    python -m doctest README.md
+    python -m doctest README.rst
 
 [testenv:lint]
 description = Checks the code style.
