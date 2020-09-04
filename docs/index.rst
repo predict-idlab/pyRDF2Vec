@@ -1,7 +1,3 @@
-=============================================================
-``pyRDF2Vec``: Python Implementation and Extension of RDF2Vec
-=============================================================
-
 |image1|
 
 .. |image1| image:: ../assets/embeddings.svg
