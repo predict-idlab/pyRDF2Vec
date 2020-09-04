@@ -9,7 +9,7 @@ assignees: ''
 
 ### System Information
 
-- **Operating System:**
+- **Operating system:**
 - **pyRDF2Vec version:**
 - **Python version:**
 
