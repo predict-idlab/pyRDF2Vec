@@ -2,7 +2,7 @@
 
 This is just a friendly reminder about the most common mistakes. Please make
 sure that you tick all boxes. But please read our [contribution
-guide](https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.md) at
+guide](https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst) at
 least once, it will save you unnecessary review cycles!
 
 If an item doesn't apply to your pull request, **check it anyway** to make it
