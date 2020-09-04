@@ -33,7 +33,10 @@ source_suffix = [".rst"]
 version = find("version")
 
 exclude_patterns = ["_build"]
-extensions = ["sphinx_rtd_theme", "sphinxcontrib.napoleon"]
+extensions = [
+    "sphinx.ext.napoleon",
+    "sphinx_rtd_theme",
+]
 pygments_style = "sphinx"
 templates_path = ["_templates"]
 
