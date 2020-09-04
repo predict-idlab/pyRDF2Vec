@@ -28,7 +28,9 @@ classifiers=[
 ]
 include = [
     "LICENSE",
-    "README.md",
+    "README.rst",
+    "CONTRIBUTORS.rst",
+    "CODE_OF_CONDUCT.rst",
 ]
 
 [tool.poetry.dependencies]
