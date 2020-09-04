@@ -1,3 +1,7 @@
+=============================================================
+``pyRDF2Vec``: Python Implementation and Extension of RDF2Vec
+=============================================================
+
 |image1|
 
 .. |image1| image:: ../assets/embeddings.svg
@@ -27,7 +31,9 @@
               <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
           </a>
       </p>
-      <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a knowledge graph</b> for downstream ML tasks.<p>
+      <p align="center">Python implementation and extension of <a
+      href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix
+      from a knowledge graph</b> for downstream ML tasks.<p>
 
 .. toctree::
    :maxdepth: 2
