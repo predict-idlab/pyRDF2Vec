@@ -1,4 +1,3 @@
-.. teaser-begin
 
 .. raw:: html
 
@@ -33,8 +32,6 @@
        </a>
    </p>
    <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a knowledge graph</b> for downstream ML tasks.<p>
-
-.. teaser-end
 
 --------------
 
