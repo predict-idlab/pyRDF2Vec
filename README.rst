@@ -15,9 +15,6 @@
        <a href="https://pypi.org/project/pyrdf2vec">
            <img src="https://img.shields.io/pypi/dm/pyrdf2vec.svg?logo=pypi&color=1082C2" alt="Version">
        </a>
-       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
-           <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
-       </a>
    </p>
    <p align="center">
        <a href="https://github.com/IBCNServices/pyRDF2Vec/actions">
