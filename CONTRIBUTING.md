@@ -1,7 +1,15 @@
 # Contributing
 
-Thank you for wanting to bring your part to the `pyRDF2Vec` development. The project
-being new, there are many opportunities for contributions:
+Thank you for wanting to bring your part to the `pyRDF2Vec` development. It's
+always heartwarming to see other people putting their stone in the building of
+something much bigger.
+
+This document is created to facilitate your contributions by sharing the
+necessary knowledge and expectations. Feel free to open a pull request if you
+have implemented half a feature and/or an issue if you are stuck. We will be
+happy to help you and thank you for your work!
+
+The project being new, there are many opportunities for contributions:
 1. [**Add a new embedding technique**](#add-a-new-embedding-technique): the field of natural language processing
    is advancing rapidly. As such, many of the techniques used in the original
    implementation of RDF2Vec were outdated.
