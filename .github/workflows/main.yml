@@ -29,7 +29,7 @@ jobs:
       - name: Check the code formatting (flake8)
         run: poetry run pre-commit run flake8 --all-files
 
-      - name: Check the YAML syntax (flake8)
+      - name: Check the YAML syntax (yamllint)
         run: poetry run pre-commit run yamllint --all-files
 
       - name: Run unit tests (pytest)
