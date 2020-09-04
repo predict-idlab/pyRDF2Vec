@@ -43,4 +43,3 @@ html_theme_options = {
     "sticky_navigation": False,
     "display_version": True,
 }
-html_static_path = ["_static"]

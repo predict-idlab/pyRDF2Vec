@@ -56,7 +56,7 @@ class NGramWalker(RandomWalker):
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (array-like): The instances to extract the knowledge graph.
+            instances (list): The instances to extract the knowledge graph.
 
         Returns:
             set: The 2D matrix with its:

@@ -11,18 +11,7 @@ import networkx as nx
 
 @attr.s(auto_attribs=True, frozen=True, slots=True, cmp=False)
 class Vertex:
-    """Represents a vertex in a knowledge graph.
-
-    Attributes:
-        name (str): The vertex name.
-        predicate (bool): The predicate.
-            Defaults to False.
-        _vprev (Vertex): The previous vertex.
-            Defaults to None.
-        _vnext (Vertex): The next vertex.
-            Defaults to None.
-
-    """
+    """Represents a vertex in a knowledge graph."""
 
     name: str
     predicate: bool = False
@@ -107,7 +96,7 @@ class KnowledgeGraph:
             vertex (Vertex): The vertex.
 
         Returns:
-            array-like: The neighbors of a vertex.
+            list: The neighbors of a vertex.
 
         """
         return self._transition_matrix[vertex]
@@ -119,7 +108,7 @@ class KnowledgeGraph:
             vertex (Vertex): The vertex.
 
         Returns:
-            array-like: The reverse neighbors of a vertex.
+            list: The reverse neighbors of a vertex.
 
         """
         return self._inv_transition_matrix[vertex]

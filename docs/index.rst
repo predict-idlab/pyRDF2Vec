@@ -40,6 +40,7 @@
    :caption: Documentation
 
    readme
+   modules
 
 .. toctree::
    :maxdepth: 2

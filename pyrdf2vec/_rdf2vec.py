@@ -54,7 +54,7 @@ class RDF2VecTransformer:
             graph (graph.KnowledgeGraph): The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (array-like): The instances to create the embedding.
+            instances (list): The instances to create the embedding.
                 The test instances should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
@@ -87,13 +87,13 @@ class RDF2VecTransformer:
             graph (graph.KnowledgeGraph): The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
-            instances (array-like): The instances to create the embedding.
+            instances (list): The instances to create the embedding.
                 The test instances should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         Returns:
-            array-like: The embeddings of the provided instances.
+            list: The embeddings of the provided instances.
 
         """
         check_is_fitted(self, ["model_"])
@@ -110,13 +110,13 @@ class RDF2VecTransformer:
             graph (graph.KnowledgeGraph): The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
-            instances (array-like): The instances to create the embedding.
+            instances (list): The instances to create the embedding.
                 The test instances should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         Returns:
-            array-like: The embeddings of the provided instances.
+            list: The embeddings of the provided instances.
 
         """
         self.fit(graph, instances)
