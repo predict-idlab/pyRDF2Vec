@@ -17,7 +17,7 @@ repos:
     rev: 0.8.1rc2
     hooks:
       - id: doc8
-        name: Check documentation (doc8)
+        name: Checks the style of the documentation (doc8)
         args: [--max-line-length, "100"]
 
   - repo: https://github.com/adrienverge/yamllint.git
