@@ -29,6 +29,9 @@ jobs:
       - name: Check the code formatting (flake8)
         run: poetry run pre-commit run flake8 --all-files
 
+      - name: Check the order of your imports (isort)
+        run: poetry run pre-commit run isort --all-files
+
       - name: Checks the style of the documentation (doc8)
         run: poetry run pre-commit run doc8 --all-files
 
@@ -48,6 +51,12 @@ jobs:
 
       - name: Check for debugger imports and breakpoints (debug-statements)
         run: poetry run pre-commit run debug-statements --all-files
+
+      - name: Check for end of files (end-of-file-fixer)
+        run: poetry run pre-commit run end-of-file-fixer --all-files
+
+      - name: Check for trailing whitespace (trailing-whitespace)
+        run: poetry run pre-commit run trailing-whitespace --all-files
 
       - name: Run unit tests (pytest)
         run: poetry run tox -e tests
