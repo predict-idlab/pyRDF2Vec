@@ -13,6 +13,13 @@ repos:
       - id: flake8
         name: Check code formatting (flake8)
 
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.4.2
+    hooks:
+      - id: isort
+        name: Check the order of your imports (isort)
+        additional_dependencies: [toml]
+
   - repo: https://github.com/PyCQA/doc8
     rev: 0.8.1rc2
     hooks:
