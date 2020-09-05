@@ -44,7 +44,7 @@ class Walker:
         """
         walks = self.extract(graph, instances)
         walk_strs = []
-        for walk_nr, walk in enumerate(walks):
+        for _, walk in enumerate(walks):
             s = ""
             for i in range(len(walk)):
                 s += f"{walk[i]} "
