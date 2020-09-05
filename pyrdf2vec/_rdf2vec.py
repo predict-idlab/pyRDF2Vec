@@ -10,8 +10,8 @@ class RDF2VecTransformer:
     Attributes:
         vector_size (int): The dimension of the embeddings.
             Defaults to 500.
-        walkers (Walker): The walking strategy.
-            Defaults to RandomWalker(2, float("inf)).
+        walkers (pyrdf2vec.walkers.Walker): The walking strategy.
+            Defaults to pyrdf2vec.walkers.RandomWalker(2, float("inf")).
         n_jobs (int): The number of threads to train the model.
             Defaults to 1.
         sg (int): The training algorithm. 1 for skip-gram; otherwise CBOW.
