@@ -67,7 +67,7 @@ Getting Started
 Installation
 ~~~~~~~~~~~~
 
-pyRDF2Vec can be installed in two ways:
+``pyRDF2Vec`` can be installed in two ways:
 
 1. from `PyPI <https://pypi.org/project/pyrdf2vec>`__ using ``pip``:
 
@@ -157,7 +157,7 @@ like this:
 Documentation
 -------------
 
-For more information on how to use pyRDF2Vec, `visit our online documentation
+For more information on how to use ``pyRDF2Vec``, `visit our online documentation
 <https://pyrdf2vec.readthedocs.io/en/latest/>`__ which is automatically updated
 with the latest version of the ``master`` branch.
 
@@ -176,7 +176,7 @@ issue in the issue tracker, it would help us a lot.
 Referencing
 -----------
 
-If you use pyRDF2Vec in a scholarly article, we would appreciate a
+If you use ``pyRDF2Vec`` in a scholarly article, we would appreciate a
 citation:
 
 .. code:: bibtex
