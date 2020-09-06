@@ -181,10 +181,11 @@ citation:
 
 .. code:: bibtex
 
-   @misc{pyrdf2vec,
-         title={pyRDF2Vec: A python library for RDF2Vec},
-         author={Gilles Vandewiele and Bram Steenwinckel and Michael Weyns
-                 and Pieter Bonte and Femke Ongenae and Filip De Turck},
-         year={2020},
-         note={\url{https://github.com/IBCNServices/pyRDF2Vec}}
+   @inproceedings{pyrdf2vec,
+     author       = {Gilles Vandewiele and Bram Steenwinckel and Michael Weyns
+                     and Pieter Bonte and Femke Ongenae and Filip De Turck},
+     title        = {{pyRDF2Vec: A python library for RDF2Vec}},
+     organization = {IDLab},
+     year         = {2020},
+     url          = {https://github.com/IBCNServices/pyRDF2Vec}
    }
