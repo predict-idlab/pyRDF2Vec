@@ -182,8 +182,9 @@ citation:
 .. code:: bibtex
 
    @inproceedings{pyrdf2vec,
-     author       = {Gilles Vandewiele and Bram Steenwinckel and Michael Weyns
-                     and Pieter Bonte and Femke Ongenae and Filip De Turck},
+     author       = {Gilles Vandewiele and Bram Steenwinckel and Terencio Agozzino
+                     and Michael Weyns and Pieter Bonte and Femke Ongenae
+                     and Filip De Turck},
      title        = {{pyRDF2Vec: A python library for RDF2Vec}},
      organization = {IDLab},
      year         = {2020},
