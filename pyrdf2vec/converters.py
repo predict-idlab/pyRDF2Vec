@@ -1,4 +1,4 @@
-import urllib
+from urllib.parse import quote
 
 import rdflib
 import requests
@@ -7,17 +7,17 @@ from tqdm import tqdm
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 
 
-def create_kg(triples, label_predicates):
+def create_kg(triples: list, label_predicates: list) -> KnowledgeGraph:
     """Creates a knowledge graph according to triples and predicates label.
 
     Args:
-        triples (list): The triples where each item in this list must be an
+        triples: The triples where each item in this list must be an
             iterable (e.g., tuple, list) of three elements.
-        label_predicates (list): The URI's of the predicates that have to be
+        label_predicates: The URI's of the predicates that have to be
             excluded from the graph to avoid leakage.
 
     Returns:
-        graph.KnowledgeGraph: The knowledge graph.
+        The knowledge graph.
 
     """
     kg = KnowledgeGraph()
@@ -35,14 +35,15 @@ def create_kg(triples, label_predicates):
 
 
 def endpoint_to_kg(
-    endpoint_url="http://localhost:5820/db/query?query=", label_predicates=[]
+    endpoint_url: str = "http://localhost:5820/db/query?query=",
+    label_predicates: list = [],
 ):
     """Generates a knowledge graph using a SPARQL endpoint.
 
     Args:
-        endpoint_url (str): The SPARQL endpoint.
+        endpoint_url: The SPARQL endpoint.
             Defaults to http://localhost:5820/db/query?query=
-        label_predicates (list): The predicates label.
+        label_predicates: The predicates label.
             Defaults to [].
 
     Returns:
@@ -55,7 +56,7 @@ def endpoint_to_kg(
         requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100),
     )
 
-    query = urllib.parse.quote("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
+    query = quote("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")
     try:
         r = session.get(
             endpoint_url + query,
@@ -74,18 +75,20 @@ def endpoint_to_kg(
     return create_kg(triples, label_predicates)
 
 
-def rdflib_to_kg(file_name, file_type=None, label_predicates=[]):
+def rdflib_to_kg(
+    file_name: str, file_type: str = None, label_predicates: list = []
+) -> KnowledgeGraph:
     """Converts a rdflib.Graph type object to a knowledge graph.
 
     Args:
-        file_name (str): The file name that contains the rdflib.Graph.
-        file_type (str): The format of the knowledge graph.
+        file_name: The file name that contains the rdflib.Graph.
+        file_type: The format of the knowledge graph.
             Defaults to None.
-        label_predicates (list): The predicates label.
+        label_predicates: The predicates label.
             Defaults to [].
 
     Returns:
-        graph.KnowledgeGraph: The knowledge graph.
+        The knowledge graph.
 
     """
     kg = rdflib.Graph()

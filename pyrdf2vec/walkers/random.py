@@ -1,8 +1,9 @@
 from hashlib import md5
+from typing import Any, Set, Tuple
 
 import numpy as np
 
-from pyrdf2vec.graph import Vertex
+from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import Walker
 
 
@@ -18,18 +19,20 @@ class RandomWalker(Walker):
     def __init__(self, depth, walks_per_graph):
         super().__init__(depth, walks_per_graph)
 
-    def extract_random_walks(self, graph, root):
+    def extract_random_walks(
+        self, graph: KnowledgeGraph, root: Vertex
+    ) -> list:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph.
+            graph: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            root (Vertex): The root.
+            root: The root.
 
         Returns:
-            list: The array of the walks.
+            The array of the walks.
 
         """
         # Initialize one walk of length 1 (the root)
@@ -46,7 +49,7 @@ class RandomWalker(Walker):
                     walks.remove(walk)
 
                 for neighbor in neighbors:
-                    walks.add(walk + (neighbor,))
+                    walks.add(walk + (neighbor,))  # type: ignore
 
             # TODO: Should we prune in every iteration?
             if self.walks_per_graph is not None:
@@ -59,20 +62,20 @@ class RandomWalker(Walker):
                     walks = {walks_list[ix] for ix in walks_ix}
         return list(walks)
 
-    def extract(self, graph, instances):
+    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph.
+            graph: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (list): The instances to extract the knowledge graph.
+            instances: The instances to extract the knowledge graph.
 
         Returns:
-            set: The 2D matrix with its:
-                number of rows equal to the number of provided instances;
-                number of column equal to the embedding size.
+            The 2D matrix with its:
+              number of rows equal to the number of provided instances;
+              number of column equal to the embedding size.
 
         """
         canonical_walks = set()

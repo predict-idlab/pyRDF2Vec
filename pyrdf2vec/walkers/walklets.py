@@ -1,4 +1,4 @@
-from pyrdf2vec.graph import Vertex
+from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -11,24 +11,24 @@ class WalkletWalker(RandomWalker):
 
     """
 
-    def __init__(self, depth, walks_per_graph):
+    def __init__(self, depth: int, walks_per_graph: float):
         super().__init__(depth, walks_per_graph)
 
-    def extract(self, graph, instances):
+    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph.
+            graph: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (list): The instances to extract the knowledge graph.
+            instances: The instances to extract the knowledge graph.
 
         Returns:
-            set: The 2D matrix with its:
-                number of rows equal to the number of provided instances;
-                number of column equal to the embedding size.
+            The 2D matrix with its:
+              number of rows equal to the number of provided instances;
+              number of column equal to the embedding size.
 
         """
         canonical_walks = set()

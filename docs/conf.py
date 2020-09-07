@@ -20,7 +20,8 @@ def find(key: str) -> str:
         key: The TOML key
 
     Returns:
-        str: The TOML key's value
+        The TOML key's value
+
     """
     return str(toml["tool"]["poetry"][key])
 

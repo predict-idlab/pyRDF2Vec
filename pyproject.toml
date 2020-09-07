@@ -53,6 +53,7 @@ codecov = "^2.1.9"
 doc8 = "^0.8.1"
 flake8 = "^3.8.3"
 isort = "^5.4.2"
+mypy = "^0.782"
 pre-commit = "^2.7.1"
 pytest = "^6.0.1"
 pytest-cov = "^2.10.1"
@@ -63,7 +64,7 @@ yamllint = "^1.24.2"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme"]
-lint = ["black", "doc8", "flake8", "isort", "yamllint"]
+lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
 tests = ["codecov", "pytest", "pytest-cov"]
 
 [tool.poetry.urls]

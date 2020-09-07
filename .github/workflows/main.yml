@@ -32,6 +32,9 @@ jobs:
       - name: Check the order of your imports (isort)
         run: poetry run pre-commit run isort --all-files
 
+      - name: Check the static type (mypy)
+        run: poetry run pre-commit run mypy --all-files
+
       - name: Checks the style of the documentation (doc8)
         run: poetry run pre-commit run doc8 --all-files
 

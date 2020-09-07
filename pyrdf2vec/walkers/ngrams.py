@@ -1,6 +1,7 @@
 import itertools
+from typing import Dict
 
-from pyrdf2vec.graph import Vertex
+from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -8,29 +9,35 @@ class NGramWalker(RandomWalker):
     """Defines the N-Grams walking strategy.
 
     Attributes:
-        depth (int): The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
-        grams (int): The number of grams.
+        depth: The depth per entity.
+        walks_per_graph: The maximum number of walks per entity.
+        grams: The number of grams.
             Defaults to 3.
-        wildcards (list): the wild cards.
+        wildcards: the wild cards.
             Defaults to None.
 
     """
 
-    def __init__(self, depth, walks_per_graph, grams=3, wildcards=None):
+    def __init__(
+        self,
+        depth: int,
+        walks_per_graph: float,
+        grams: int = 3,
+        wildcards: list = None,
+    ):
         super().__init__(depth, walks_per_graph)
         self.grams = grams
-        self.n_gram_map = {}
+        self.n_gram_map = {}  # type: Dict[tuple, str]
         self.wildcards = wildcards
 
-    def _take_n_grams(self, walk):
+    def _take_n_grams(self, walk: list) -> list:
         """Takes the N-Grams.
 
         Args:
-            walk (list): The walk.
+            walk: The walk.
 
         Returns:
-            list: The N-Grams.
+            The N-Grams.
 
         """
         n_gram_walk = []
@@ -44,24 +51,24 @@ class NGramWalker(RandomWalker):
                 )
                 if n_gram not in self.n_gram_map:
                     self.n_gram_map[n_gram] = str(len(self.n_gram_map))
-                n_gram_walk.append(self._gram_map[n_gram])
+                n_gram_walk.append(self.n_gram_map[n_gram])
         return n_gram_walk
 
-    def extract(self, graph, instances):
+    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph.
+            graph: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (list): The instances to extract the knowledge graph.
+            instances: The instances to extract the knowledge graph.
 
         Returns:
-            set: The 2D matrix with its:
-                number of rows equal to the number of provided instances;
-                number of column equal to the embedding size.
+            The 2D matrix with its:
+              number of rows equal to the number of provided instances;
+              number of column equal to the embedding size.
 
         """
         canonical_walks = set()

@@ -1,3 +1,6 @@
+from pyrdf2vec.graph import KnowledgeGraph
+
+
 class Walker:
     """Base class for the walking strategies.
 
@@ -7,39 +10,41 @@ class Walker:
 
     """
 
-    def __init__(self, depth, walks_per_graph):
+    def __init__(self, depth: int, walks_per_graph: float):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
 
-    def extract(self, graph, instances):
+    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph.
+            graph: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (list): The instances to extract the knowledge graph.
+            instances: The instances to extract the knowledge graph.
 
         Returns:
-            set: The 2D matrix with its:
-                number of rows equal to the number of provided instances;
-                number of column equal to the embedding size.
+            The 2D matrix with its:
+              number of rows equal to the number of provided instances;
+              number of column equal to the embedding size.
 
         """
         raise NotImplementedError("This must be implemented!")
 
-    def print_walks(self, graph, instances, file_name):
+    def print_walks(
+        self, graph: KnowledgeGraph, instances: list, file_name: str
+    ) -> None:
         """Prints the walks of a knowledge graph.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph.
+            graph: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (list): The instances to extract the knowledge graph.
-            file_name (str): The filename that contains the rdflib.Graph
+            instances: The instances to extract the knowledge graph.
+            file_name: The filename that contains the rdflib.Graph
 
         """
         walks = self.extract(graph, instances)
