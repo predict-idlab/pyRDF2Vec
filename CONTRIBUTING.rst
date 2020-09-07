@@ -60,8 +60,24 @@ Add a new walking strategy
 
 To add your own walking strategy, five steps are essential:
 
-1. create your walker (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``;
-2. import your walker at the end of the
+1. install the dependencies
+
+Before you can install the dependencies of ``pyRDF2Vec``, you must first make
+sure you have ``poetry`` to install:
+
+.. code:: bash
+
+   pip install poetry
+
+With ``poetry`` installed, you can now install the dependencies related
+to ``pyRDF2Vec``:
+
+.. code:: bash
+
+   poetry install
+
+2. create your walker (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``;
+3. import your walker at the end of the
    ``pyrdf2vec/walkers/__init__.py`` file:
 
 .. code:: python
@@ -71,7 +87,7 @@ To add your own walking strategy, five steps are essential:
    from .wildcard import *
    from .foo import *
 
-3. in your walker's class, extend the
+4. in your walker's class, extend the
    `Walker <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py>`__
    class and implement at least the ``extract(self, graph, instances)``
    function:
@@ -110,7 +126,7 @@ To add your own walking strategy, five steps are essential:
 
 **NOTE:** don't forget to update the docstring of your walker.
 
-4. create the unit tests (*e.g.,* in the ``test_foo.py`` file) related
+5. create the unit tests (*e.g.,* in the ``test_foo.py`` file) related
    to your walker in ``tests/walkers``:
 
 .. code:: python3
@@ -142,14 +158,11 @@ To add your own walking strategy, five steps are essential:
            )
            assert type(canonical_walks) == set
 
-5. install dependencies, run unit tests and check that the style of code
-   is still correct:
+6. run unit tests and check that the style of code is still correct:
 
 .. code:: bash
 
-   pip install poetry
-   poetry install
-   tox -e style
+   tox -e lint
    tox -e tests
 
 Everything ok? Make a `pull
@@ -188,7 +201,7 @@ documentation, we use:
    as a docstring writing convention.
 
 Before you can modify the ``pyRDF2Vec`` documentation with, you must
-first make sure you have ``poetry`` to install :
+first make sure you have ``poetry`` to install:
 
 .. code:: bash
 
@@ -242,7 +255,7 @@ The refactoring and optimization of code complexity is an art that must
 be necessary to facilitate future contributions of ``pyRDF2Vec``.
 
 Before you can modify the ``pyRDF2Vec`` code, you must first make sure
-you have ``poetry`` to install :
+you have ``poetry`` to install:
 
 .. code:: bash
 
@@ -259,7 +272,7 @@ is still respected:
 
 .. code:: bash
 
-   tox -e style
+   tox -e lint
 
 Then, launch the unit tests which can take several minutes:
 
