@@ -58,12 +58,10 @@ Weisfeler-Lehman) and a sampling strategy.
 Add a new walking strategy
 --------------------------
 
-To add your own walking strategy, five steps are essential:
+To add your own walking strategy, 6 steps are essential:
 
-1. install the dependencies
-
-Before you can install the dependencies of ``pyRDF2Vec``, you must first make
-sure you have ``poetry`` to install:
+1. install the dependencies: before you can install the dependencies of ``pyRDF2Vec``, you must first make
+   sure you have ``poetry`` to install:
 
 .. code:: bash
 
