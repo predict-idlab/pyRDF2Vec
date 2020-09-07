@@ -36,8 +36,12 @@ version = find("version")
 exclude_patterns = ["_build"]
 extensions = [
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
 ]
+intersphinx_mapping = {
+    "rdflib": ("http://rdflib.readthedocs.org/en/latest/", None),
+}
 pygments_style = "sphinx"
 templates_path = ["_templates"]
 
