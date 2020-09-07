@@ -1,7 +1,8 @@
 from hashlib import md5
-from typing import Any, Set, Tuple
+from typing import Any, List, Set, Tuple
 
 import numpy as np
+import rdflib
 
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import Walker
@@ -21,7 +22,7 @@ class RandomWalker(Walker):
 
     def extract_random_walks(
         self, graph: KnowledgeGraph, root: Vertex
-    ) -> list:
+    ) -> List[Vertex]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Args:
@@ -32,7 +33,7 @@ class RandomWalker(Walker):
             root: The root.
 
         Returns:
-            The array of the walks.
+            The list of the walks.
 
         """
         # Initialize one walk of length 1 (the root)
@@ -60,9 +61,11 @@ class RandomWalker(Walker):
                 if len(walks_ix) > 0:
                     walks_list = list(walks)
                     walks = {walks_list[ix] for ix in walks_ix}
-        return list(walks)
+        return list(walks)  # type:ignore
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -82,11 +85,12 @@ class RandomWalker(Walker):
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
                 canonical_walk = []
-                for i, hop in enumerate(walk):
+                for i, hop in enumerate(walk):  # type: ignore
                     if i == 0 or i % 2 == 1:
                         canonical_walk.append(hop.name)
                     else:
                         digest = md5(hop.name.encode()).digest()[:8]
                         canonical_walk.append(str(digest))
+                        print(canonical_walk)
                 canonical_walks.add(tuple(canonical_walk))
         return canonical_walks

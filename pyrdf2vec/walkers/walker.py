@@ -1,3 +1,7 @@
+from typing import Any, List, Set, Tuple
+
+import rdflib
+
 from pyrdf2vec.graph import KnowledgeGraph
 
 
@@ -14,7 +18,9 @@ class Walker:
         self.depth = depth
         self.walks_per_graph = walks_per_graph
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -33,7 +39,10 @@ class Walker:
         raise NotImplementedError("This must be implemented!")
 
     def print_walks(
-        self, graph: KnowledgeGraph, instances: list, file_name: str
+        self,
+        graph: KnowledgeGraph,
+        instances: List[rdflib.URIRef],
+        file_name: str,
     ) -> None:
         """Prints the walks of a knowledge graph.
 

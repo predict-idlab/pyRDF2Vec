@@ -1,3 +1,4 @@
+from typing import List
 from urllib.parse import quote
 
 import rdflib
@@ -7,7 +8,9 @@ from tqdm import tqdm
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 
 
-def create_kg(triples: list, label_predicates: list) -> KnowledgeGraph:
+def create_kg(
+    triples: rdflib.Graph, label_predicates: List[rdflib.URIRef]
+) -> KnowledgeGraph:
     """Creates a knowledge graph according to triples and predicates label.
 
     Args:
@@ -36,8 +39,8 @@ def create_kg(triples: list, label_predicates: list) -> KnowledgeGraph:
 
 def endpoint_to_kg(
     endpoint_url: str = "http://localhost:5820/db/query?query=",
-    label_predicates: list = [],
-):
+    label_predicates: List[rdflib.URIRef] = [],
+) -> KnowledgeGraph:
     """Generates a knowledge graph using a SPARQL endpoint.
 
     Args:
@@ -47,7 +50,7 @@ def endpoint_to_kg(
             Defaults to [].
 
     Returns:
-        graph.KnowledgeGraph: The knowledge graph.
+        The knowledge graph.
 
     """
     session = requests.Session()
@@ -76,7 +79,9 @@ def endpoint_to_kg(
 
 
 def rdflib_to_kg(
-    file_name: str, file_type: str = None, label_predicates: list = []
+    file_name: str,
+    file_type: str = None,
+    label_predicates: List[rdflib.URIRef] = [],
 ) -> KnowledgeGraph:
     """Converts a rdflib.Graph type object to a knowledge graph.
 

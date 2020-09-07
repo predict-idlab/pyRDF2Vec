@@ -1,5 +1,6 @@
 from typing import List
 
+import rdflib
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
@@ -50,7 +51,9 @@ class RDF2VecTransformer:
         self.walkers = walkers
         self.window = window
 
-    def fit(self, graph: KnowledgeGraph, instances: list) -> None:
+    def fit(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> None:
         """Fits the embedding network based on provided instances.
 
         Args:
@@ -83,11 +86,13 @@ class RDF2VecTransformer:
             seed=42,
         )
 
-    def transform(self, graph: KnowledgeGraph, instances: list) -> list:
+    def transform(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> List[float]:
         """Constructs a feature vector for the provided instances.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph
+            graph: The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
             instances (list): The instances to create the embedding.
@@ -105,7 +110,9 @@ class RDF2VecTransformer:
             feature_vectors.append(self.model_.wv.get_vector(str(instance)))
         return feature_vectors
 
-    def fit_transform(self, graph: KnowledgeGraph, instances: list) -> list:
+    def fit_transform(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> List[float]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
 

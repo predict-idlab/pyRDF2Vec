@@ -1,6 +1,8 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import List
+from typing import Any, List, Set, Tuple
+
+import rdflib
 
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker
@@ -25,7 +27,9 @@ class HalkWalker(RandomWalker):
         self.freq_thresholds = freq_thresholds
         # self.lb_freq_threshold = lb_freq_threshold
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -49,7 +53,7 @@ class HalkWalker(RandomWalker):
 
         freq = defaultdict(set)
         for i in range(len(all_walks)):
-            for hop in all_walks[i]:
+            for hop in all_walks[i]:  # type: ignore
                 freq[hop.name].add(i)
 
         for freq_threshold in self.freq_thresholds:
@@ -62,7 +66,7 @@ class HalkWalker(RandomWalker):
 
             for walk in all_walks:
                 canonical_walk = []
-                for i, hop in enumerate(walk):
+                for i, hop in enumerate(walk):  # type: ignore
                     if i == 0:
                         canonical_walk.append(hop.name)
                     else:

@@ -1,3 +1,7 @@
+from typing import Any, List, Set, Tuple
+
+import rdflib
+
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
@@ -6,15 +10,17 @@ class WalkletWalker(RandomWalker):
     """Defines the walklet walking strategy.
 
     Attributes:
-        depth (int): The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
+        depth: The depth per entity.
+        walks_per_graph: The maximum number of walks per entity.
 
     """
 
     def __init__(self, depth: int, walks_per_graph: float):
         super().__init__(depth, walks_per_graph)
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -34,6 +40,8 @@ class WalkletWalker(RandomWalker):
         for instance in instances:
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
-                for n in range(1, len(walk)):
-                    canonical_walks.add((walk[0].name, walk[n].name))
-        return canonical_walks
+                for n in range(1, len(walk)):  # type:ignore
+                    canonical_walks.add(
+                        (walk[0].name, walk[n].name)  # type: ignore
+                    )
+        return canonical_walks  # type:ignore

@@ -2,10 +2,12 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
+from typing import Any, Iterable, List, Set, Tuple
 
 import community
 import networkx as nx
 import numpy as np
+import rdflib
 
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import Walker
@@ -104,7 +106,7 @@ class CommunityWalker(Walker):
 
     def extract_random_community_walks(
         self, graph: KnowledgeGraph, root: Vertex
-    ) -> list:
+    ) -> List[Vertex]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Note:
@@ -118,7 +120,7 @@ class CommunityWalker(Walker):
             root: The root.
 
         Returns:
-            The array of the walks.
+            The list of walks.
 
         """
         # Initialize one walk of length 1 (the root)
@@ -156,9 +158,11 @@ class CommunityWalker(Walker):
                 if len(walks_ix) > 0:
                     walks_list = list(walks)
                     walks = {walks_list[ix] for ix in walks_ix}
-        return list(walks)
+        return list(walks)  # type: ignore
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -166,7 +170,7 @@ class CommunityWalker(Walker):
             graph: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances (list): The instances to extract the knowledge graph.
+            instances: The instances to extract the knowledge graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -181,7 +185,7 @@ class CommunityWalker(Walker):
             )
             for walk in walks:
                 canonical_walk = []
-                for i, hop in enumerate(walk):
+                for i, hop in enumerate(walk):  # type: ignore
                     if i == 0 or i % 2 == 1:
                         canonical_walk.append(hop.name)
                     else:

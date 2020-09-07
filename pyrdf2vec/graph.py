@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Set
 
 import attr
 import matplotlib.pyplot as plt
@@ -82,14 +82,14 @@ class KnowledgeGraph:
         """Removes the edge (v1 -> v2) if present.
 
         Args:
-            v1: The name of the first vertex.
-            v2: The name of the second vertex.
+            v1: The first vertex.
+            v2: The second vertex.
 
         """
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)
 
-    def get_neighbors(self, vertex: Vertex) -> list:
+    def get_neighbors(self, vertex: Vertex) -> Set[Vertex]:
         """Gets the neighbors of a vertex.
 
         Args:
@@ -101,11 +101,11 @@ class KnowledgeGraph:
         """
         return self._transition_matrix[vertex]
 
-    def get_inv_neighbors(self, vertex: Vertex) -> list:
+    def get_inv_neighbors(self, vertex: Vertex) -> Set[Vertex]:
         """Gets the reverse neighbors of a vertex.
 
         Args:
-            vertex (Vertex): The vertex.
+            vertex: The vertex.
 
         Returns:
             The reverse neighbors of a vertex.

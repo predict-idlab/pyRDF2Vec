@@ -1,3 +1,7 @@
+from typing import Any, List, Set, Tuple
+
+import rdflib
+
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
@@ -14,7 +18,9 @@ class AnonymousWalker(RandomWalker):
     def __init__(self, depth, walks_per_graph):
         super().__init__(depth, walks_per_graph)
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -35,8 +41,8 @@ class AnonymousWalker(RandomWalker):
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
                 canonical_walk = []
-                str_walk = [x.name for x in walk]
-                for i, hop in enumerate(walk):
+                str_walk = [x.name for x in walk]  # type: ignore
+                for i, hop in enumerate(walk):  # type: ignore
                     if i == 0:
                         canonical_walk.append(hop.name)
                     else:

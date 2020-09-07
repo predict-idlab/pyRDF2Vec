@@ -1,6 +1,8 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, DefaultDict
+from typing import Any, DefaultDict, List, Set, Tuple
+
+import rdflib
 
 from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker
@@ -10,8 +12,8 @@ class WeisfeilerLehmanWalker(RandomWalker):
     """Defines the Weisfeler-Lehman walking strategy.
 
     Attributes:
-        depth (int): The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
+        depth: The depth per entity.
+        walks_per_graph: The maximum number of walks per entity.
 
     """
 
@@ -64,7 +66,9 @@ class WeisfeilerLehmanWalker(RandomWalker):
             for key, val in self._label_map[vertex].items():
                 self._inv_label_map[vertex][val] = key
 
-    def extract(self, graph: KnowledgeGraph, instances: list) -> set:
+    def extract(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -86,7 +90,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
             for n in range(self.wl_iterations + 1):
                 for walk in walks:
                     canonical_walk = []
-                    for i, hop in enumerate(walk):
+                    for i, hop in enumerate(walk):  # type: ignore
                         if i == 0 or i % 2 == 1:
                             canonical_walk.append(hop.name)
                         else:
