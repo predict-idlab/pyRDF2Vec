@@ -95,7 +95,7 @@ class RDF2VecTransformer:
             graph: The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
-            instances (list): The instances to create the embedding.
+            instances: The instances to create the embedding.
                 The test instances should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
