@@ -169,9 +169,8 @@ class CommunityWalker(Walker):
             instances (list): The instances to extract the knowledge graph.
 
         Returns:
-            The 2D matrix with its:
-              number of rows equal to the number of provided instances;
-              number of column equal to the embedding size.
+            The 2D matrix with its number of rows equal to the number of
+            provided instances; number of column equal to the embedding size.
 
         """
         self._community_detection(graph)
