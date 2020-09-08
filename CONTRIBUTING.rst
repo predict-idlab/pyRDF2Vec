@@ -41,10 +41,11 @@ opportunities listed below.
 Getting Started
 ---------------
 
-Before reading in detail the sub-section that interests you, here are some
-golden rules that you should know if you want to contribute to ``pyRDF2Vec``:
+Before reading the sub-section that interests you in detail, here are some
+golden rules that you should know before you contribute to `pyRDF2Vec`:
 
--  **No contribution is too small:** submit as many fixes for typos and grammar bloopers as you can.
+-  **No contribution is too small:** submit as many fixes for typos and grammar
+   bloopers as you can.
 -  Whenever possible, **limit each pull request to one change only**.
 -  **Add tests and docs for your code:** who better than you to explain and
    test that the code you have implemented works?
@@ -79,7 +80,8 @@ Add a new walking strategy
 To add your own walking strategy, 6 steps are essential:
 
 1. **Install the dependencies:** before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure that `poetry` is installed:
+   ``pyRDF2Vec``, you must first make sure that `poetry
+   <https://python-poetry.org/>`__ is installed:
 
 .. code:: bash
 
@@ -92,7 +94,7 @@ to ``pyRDF2Vec``:
 
    poetry install
 
-2. **Create your walker** (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``;
+2. **Create your walker** (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``.
 3. **Import your walker** at the end of the ``pyrdf2vec/walkers/__init__.py``
    file and in the ``__all__`` list:
 
@@ -109,13 +111,13 @@ to ``pyRDF2Vec``:
     ...
     "WeisfeilerLehmanWalker",
     "WildcardWalker",
-    FooWalker,
+    "FooWalker",
   ]
 
-4. in your walker's class, **extend the `Walker**
+4. in your walker's class, **extend the** `Walker
    <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py>`__
-   class and implement at least the ``def extract(self, graph: KnowledgeGraph,
-   instances: List[rdflib.URIRef]):`` function:
+   **class** and implement at least the ``def extract(self, graph:
+   KnowledgeGraph, instances: List[rdflib.URIRef]):`` function:
 
 .. code:: python3
 
@@ -220,44 +222,54 @@ pyRDF2Vec <https://pyrdf2vec.readthedocs.io/en/latest/>`__ is hosted on
 `Read the Docs <https://readthedocs.org/>`__. To generate this online
 documentation, we use:
 
--  `Sphinx <https://www.sphinx-doc.org/en/master/>`__ as a Python
-   documentation generator;
+- `Sphinx <https://www.sphinx-doc.org/en/master/>`__ as a Python documentation
+   generator ;
 -  `Google style
    docstrings <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html>`__:
    as a docstring writing convention.
+- `mypy <http://www.mypy-lang.org/>`__: as a optional static typing for Python
+  (according to `PEP 484` <https://www.python.org/dev/peps/pep-0484/>`__)
 
-Before you can modify the ``pyRDF2Vec`` documentation with, you must
-first make sure you have ``poetry`` to install:
+To update the documentation, 5 steps are essential:
+
+1. **Install the dependencies:** before you can install the dependencies of
+   ``pyRDF2Vec``, you must first make sure that `poetry
+   <https://python-poetry.org/>`__ is installed:
 
 .. code:: bash
 
    pip install poetry
 
 With ``poetry`` installed, you can now install the dependencies related
-to the documentation:
+to the documentation of ``pyRDF2Vec``:
 
 .. code:: bash
 
    poetry install -E docs
 
-Once you have modified what needed to be modified in the documentation
-(available in the ``docs`` folder), it is important to generate this
-documentation locally with ``tox``, to ensure that your modification has
-been taken into account:
+2. **Modify what needed to be modified in the documentation**: available in the
+   ``docs`` folder.
+
+3. **Generate this documentation locally**:
 
 .. code:: bash
 
    tox -e docs
 
-As the documentation is updated, check that the changes made are correct
-with your web browser:
+4. **Check that the changes made are correct with your web browser:**
 
 .. code:: bash
 
    $BROWSER _build/html/index.html
 
-Everything is well rendered? Make a `pull
-request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
+5. **Check that the code style of the documentation is still correct:**
+
+.. code:: bash
+
+   tox -e lint
+
+Everything ok? Make a `pull request
+<https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
 
 Submit your bugs and suggestions
 --------------------------------
