@@ -35,8 +35,8 @@ version = find("version")
 
 exclude_patterns = ["_build"]
 extensions = [
-    "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
     "sphinx_rtd_theme",
 ]
 intersphinx_mapping = {
