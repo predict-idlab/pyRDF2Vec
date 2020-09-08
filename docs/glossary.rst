@@ -3,7 +3,7 @@ Glossary
 
 .. glossary::
 
-It's not always easy to understand all the notions used in pyRDF2Vec This
+It's not always easy to understand all the notions used in ``pyRDF2Vec1``. This
 glossary is here to help you to have an idea behind all these notions:
 
 Continuous Bag-of-Words (CBOW)
