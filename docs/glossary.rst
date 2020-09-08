@@ -18,10 +18,10 @@ embedding technique
 embedding
    TODO
 
-endpoint
+entities
    TODO
 
-entities
+feature matrix
    TODO
 
 knowledge graph
@@ -40,6 +40,9 @@ sampling strategy
    TODO
 
 Skip-Gram (SG)
+   TODO
+
+SPARQL endpoint
    TODO
 
 transformer
