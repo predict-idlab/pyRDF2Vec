@@ -121,6 +121,13 @@ to ``pyRDF2Vec``:
 
 .. code:: python3
 
+   from typing import List
+
+   import rdflib
+
+   from pyrdf2vec.graph import KnowledgeGraph
+   from pyrdf2vec.walkers import Walker
+
    class FooWalker(Walker):
        """Defines the foo walking strategy.
 
@@ -222,13 +229,12 @@ pyRDF2Vec <https://pyrdf2vec.readthedocs.io/en/latest/>`__ is hosted on
 `Read the Docs <https://readthedocs.org/>`__. To generate this online
 documentation, we use:
 
-- `Sphinx <https://www.sphinx-doc.org/en/master/>`__ as a Python documentation
-   generator ;
+- `Sphinx <https://www.sphinx-doc.org/en/master/>`__ as a Python documentation generator ;
 -  `Google style
    docstrings <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html>`__:
    as a docstring writing convention.
 - `mypy <http://www.mypy-lang.org/>`__: as a optional static typing for Python
-  (according to `PEP 484` <https://www.python.org/dev/peps/pep-0484/>`__)
+  (according to `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`__)
 
 To update the documentation, 5 steps are essential:
 
@@ -274,17 +280,9 @@ Everything ok? Make a `pull request
 Submit your bugs and suggestions
 --------------------------------
 
-Feel free to `open an
-issue <https://github.com/IBCNServices/pyRDF2Vec/issues/new>`__ in case
-something is not working as expected, or if you have any
-questions/suggestions.
-
-In order to help you out as good as possible:
-
--  **describe the question/problem as precise as possible**;
--  **inform your operating system**;
--  **provide an example of minimal work with sample data (if possible)
-   to reproduce the bug**.
+Feel free to `open an issue
+<https://github.com/IBCNServices/pyRDF2Vec/issues/new>`__ in case something is
+not working as expected, or if you have any questions/suggestions.
 
 Improve the code
 ----------------
@@ -292,31 +290,32 @@ Improve the code
 The refactoring and optimization of code complexity is an art that must
 be necessary to facilitate future contributions of ``pyRDF2Vec``.
 
-Before you can modify the ``pyRDF2Vec`` code, you must first make sure
-you have ``poetry`` to install:
+To improve the code , 5 steps are essential:
+
+1. **Install the dependencies:** before you can install the dependencies of
+   ``pyRDF2Vec``, you must first make sure that ``poetry`` is installed:
 
 .. code:: bash
 
    pip install poetry
 
-With ``poetry`` installed, you can now install the dependencies:
+With ``poetry`` installed, you can now install the dependencies related to
+``pyRDF2Vec``:
 
 .. code:: bash
 
    poetry install
 
-Once you have made your modifications, check that the style of the code
-is still respected:
+2. **Make your modifications**.
+
+3. **run unit tests, check that the code style and documentation are still correct:**
 
 .. code:: bash
 
-   tox -e lint
+   tox
 
-Then, launch the unit tests which can take several minutes:
-
-.. code:: bash
-
-   tox -e tests
+**NOTE:** this may take some time (more than 5 minutes), do this step when your
+code works.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
