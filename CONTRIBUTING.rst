@@ -42,7 +42,7 @@ Getting Started
 ---------------
 
 Before reading the sub-section that interests you in detail, here are some
-golden rules that you should know before you contribute to `pyRDF2Vec`:
+golden rules that you should know before you contribute to ``pyRDF2Vec``:
 
 -  **No contribution is too small:** submit as many fixes for typos and grammar
    bloopers as you can.
@@ -51,12 +51,36 @@ golden rules that you should know before you contribute to `pyRDF2Vec`:
    test that the code you have implemented works?
 -  **Make sure your changes pass our CI:** during each commit several checks to
    verify the style of the code, the unit tests and the documentation are done
+   though `tox
+   <https://tox.readthedocs.io/en/latest/>`__
    to avoid unpleasant surprises.
 -  **Attach a short note to the pull request:** it would help us to better
    understand what you did.
 -  **It's up to you how you handle updates to the master branch:** since we
    squash on merge, whether you prefer to rebase on ``master`` or merge
    ``master`` into your branch, do whatever is more comfortable for you.
+
+Conventions
+-----------
+
+We try as much as possible to follow Python conventions through the PEP
+specifications.
+
+Don't be afraid of the list of conventions below. Indeed, ``tox`` and/or the CI
+will alert you and/or format your code for you if needed.
+
+Here are the conventions established for ``pyRDF2Vec``:
+
+-  `Black <https://github.com/psf/black>`__: as code style with a max line length of 79
+   characters (according to `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`__);
+-  `isort <https://github.com/PyCQA/isort`__: to sort the imports;
+-  `mypy <http://www.mypy-lang.org/>`__: as a optional static typing for Python
+   (according to `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`__)
+-  `doc8 <https://github.com/PyCQA/doc8>`__: as style checker for the
+   documentation, with a max line length of 100 characters.
+
+These checks are done by ``tox`` using `pre-commit
+<https://github.com/pre-commit/pre-commit>`__.
 
 Add a new embedding technique
 -----------------------------
@@ -233,8 +257,7 @@ documentation, we use:
 -  `Google style
    docstrings <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html>`__:
    as a docstring writing convention.
-- `mypy <http://www.mypy-lang.org/>`__: as a optional static typing for Python
-  (according to `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`__)
+- ``mypy``: as a optional static typing for Python.
 
 To update the documentation, 5 steps are essential:
 
@@ -290,7 +313,7 @@ Improve the code
 The refactoring and optimization of code complexity is an art that must
 be necessary to facilitate future contributions of ``pyRDF2Vec``.
 
-To improve the code , 5 steps are essential:
+To improve the code , 3 steps are essential:
 
 1. **Install the dependencies:** before you can install the dependencies of
    ``pyRDF2Vec``, you must first make sure that ``poetry`` is installed:
