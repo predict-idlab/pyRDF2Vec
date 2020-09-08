@@ -64,18 +64,16 @@ Conventions
 -----------
 
 We try as much as possible to follow Python conventions through the PEP
-specifications.
-
-Don't be afraid of the list of conventions below. Indeed, ``tox`` and/or the CI
-will alert you and/or format your code for you if needed.
+specifications. Don't be afraid of the list of conventions below. Indeed,
+``tox`` and/or the CI will alert you and/or format your code for you if needed.
 
 Here are the conventions established for ``pyRDF2Vec``:
 
--  `Black <https://github.com/psf/black>`__: as code style with a max line length of 79
+-  `black <https://github.com/psf/black>`__: as code style, with a max line length of 79
    characters (according to `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`__);
--  `isort <https://github.com/PyCQA/isort`__: to sort the imports;
+-  `isort <https://github.com/PyCQA/isort>`__: to sort the imports;
 -  `mypy <http://www.mypy-lang.org/>`__: as a optional static typing for Python
-   (according to `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`__)
+   (according to `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`__);
 -  `doc8 <https://github.com/PyCQA/doc8>`__: as style checker for the
    documentation, with a max line length of 100 characters.
 
