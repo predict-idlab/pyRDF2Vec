@@ -167,11 +167,12 @@ modules as well as their functions available to you.
 Contributions
 -------------
 
-To add a new walking strategy and/or new features that are related to
-`RDF2Vec <http://rdf2vec.org/>`__, take a look at the
-`CONTRIBUTING <https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst>`__
-file. Also, feel free to submit your bugs and suggestions by opening an
-issue in the issue tracker, it would help us a lot.
+To add a new walking strategy and/or new features that are related to `RDF2Vec
+<http://rdf2vec.org/>`__, take a look at the `CONTRIBUTING
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst>`__
+file. Also, feel free to submit your bugs and suggestions `by opening an issue
+<https://github.com/IBCNServices/pyRDF2Vec/issues/new/choose>`__ in the issue
+tracker, it would help us a lot.
 
 Referencing
 -----------

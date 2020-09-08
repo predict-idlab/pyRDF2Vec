@@ -302,7 +302,7 @@ Submit your bugs and suggestions
 --------------------------------
 
 Feel free to `open an issue
-<https://github.com/IBCNServices/pyRDF2Vec/issues/new>`__ in case something is
+<https://github.com/IBCNServices/pyRDF2Vec/issues/new/choose>`__ in case something is
 not working as expected, or if you have any questions/suggestions.
 
 Improve the code
