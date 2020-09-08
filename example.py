@@ -40,8 +40,7 @@ def create_embeddings(
         kg: The knowledge graph.
             The graph from which the neighborhoods are extracted for the
             provided instances.
-        entities (array-like): The train and test instances to create the
-            embedding.
+        entities: The train and test instances to create the embedding.
         split: Split value for train and test embeddings.
         walker: The list of walkers strategies.
         sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
