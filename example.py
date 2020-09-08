@@ -1,4 +1,5 @@
 import warnings
+from typing import List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -9,7 +10,8 @@ from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.converters import rdflib_to_kg
-from pyrdf2vec.walkers import RandomWalker
+from pyrdf2vec.graph import KnowledgeGraph
+from pyrdf2vec.walkers import RandomWalker, Walker
 
 DATASET = {
     "test": ["samples/mutag-test.tsv", "bond", "label_mutagenic"],
@@ -25,24 +27,28 @@ PLOT_TITLE = "pyRDF2Vec"
 warnings.filterwarnings("ignore")
 
 
-def create_embeddings(kg, entities, split, walkers, sg=1):
-    """Creates embeddings for a list of entities according to a knowledge
-    graphs and a walking strategy.
+def create_embeddings(
+    kg: KnowledgeGraph,
+    entities: List[str],
+    split: int,
+    walkers: Sequence[Walker],
+    sg: int = 1,
+) -> Tuple[List[str], List[str]]:
+    """Creates embeddings for a list of entities according to a knowledge graphs and a walking strategy.
 
     Args:
-        kg (graph.KnowledgeGraph): The knowledge graph.
+        kg: The knowledge graph.
             The graph from which the neighborhoods are extracted for the
             provided instances.
         entities (array-like): The train and test instances to create the
             embedding.
-        split (int): Split value for train and test embeddings.
-        walker (walkers.Walker): The walking strategy.
-            Defaults to RandomWalker(2, float("inf)).
-        sg (int): The training algorithm. 1 for skip-gram; otherwise CBOW.
+        split: Split value for train and test embeddings.
+        walker: The list of walkers strategies.
+        sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
             Defaults to 1.
 
     Returns:
-        array-like: The embeddings of the provided instances.
+        The embeddings of the provided instances.
 
     """
     transformer = RDF2VecTransformer(walkers=walkers, sg=sg)
@@ -50,18 +56,20 @@ def create_embeddings(kg, entities, split, walkers, sg=1):
     return walk_embeddings[:split], walk_embeddings[split:]
 
 
-def load_data(file_name, col_entity, col_label, sep="\t"):
+def load_data(
+    file_name: str, col_entity: str, col_label: str, sep: str = "\t"
+) -> Tuple[List[rdflib.URIRef], List[str]]:
     """Loads entities and labels from a file.
 
     Args:
-        file_name (str): The file name.
-        col_entity (str): The name of the column header related to the entities.
-        col_label (str): The name of the column header related to the labels.
-        sep (str): The delimiter to use.
+        file_name: The file name.
+        col_entity: The name of the column header related to the entities.
+        col_label: The name of the column header related to the labels.
+        sep: The delimiter to use.
             Defaults to "\t".
 
     Returns:
-        array-like: The URIs of the entities with their labels.
+        The URIs of the entities with their labels.
 
     """
     data = pd.read_csv(file_name, sep=sep, header=0)

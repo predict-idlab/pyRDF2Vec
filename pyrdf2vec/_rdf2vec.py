@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 
 import rdflib
 from gensim.models.word2vec import Word2Vec
@@ -34,7 +34,7 @@ class RDF2VecTransformer:
     def __init__(
         self,
         vector_size: int = 500,
-        walkers: List[Walker] = [RandomWalker(2, float("inf"))],
+        walkers: Sequence[Walker] = [RandomWalker(2, float("inf"))],
         n_jobs: int = 1,
         window: int = 5,
         sg: int = 1,
@@ -88,7 +88,7 @@ class RDF2VecTransformer:
 
     def transform(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
-    ) -> List[float]:
+    ) -> List[str]:
         """Constructs a feature vector for the provided instances.
 
         Args:
@@ -112,7 +112,7 @@ class RDF2VecTransformer:
 
     def fit_transform(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
-    ) -> List[float]:
+    ) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
 
