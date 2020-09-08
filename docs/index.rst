@@ -36,6 +36,7 @@
    :caption: Documentation
 
    readme
+   license
    modules
 
 .. toctree::
