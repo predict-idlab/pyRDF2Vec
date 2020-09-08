@@ -45,7 +45,7 @@ Before reading in detail the sub-section that interests you, here are some
 golden rules that you should know if you want to contribute to ``pyRDF2Vec``:
 
 -  **No contribution is too small:** submit as many fixes for typos and grammar bloopers as you can.
--  **Whenever possible, limit each pull request to one change only**.
+-  Whenever possible, **limit each pull request to one change only**.
 -  **Add tests and docs for your code:** who better than you to explain and
    test that the code you have implemented works?
 -  **Make sure your changes pass our CI:** during each commit several checks to
@@ -70,17 +70,16 @@ and other more powerful embedding techniques are available (*e.g.,*
 Before adding a new embedding technique, it is important to implement an
 adequate architecture that must be discussed in an issue.
 
-A good architecture should allow a user to easily choose a embedding
-technique (*e.g.,* BERT) with a walking strategy (*e.g.,*
-Weisfeler-Lehman) and a sampling strategy.
+A good architecture should allow a user to easily choose a embedding technique
+with a walking strategy (*e.g.,* Weisfeler-Lehman) and a sampling strategy.
 
 Add a new walking strategy
 --------------------------
 
 To add your own walking strategy, 6 steps are essential:
 
-1. install the dependencies: before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure you have ``poetry`` to install:
+1. **Install the dependencies:** before you can install the dependencies of
+   ``pyRDF2Vec``, you must first make sure that `poetry` is installed:
 
 .. code:: bash
 
@@ -93,21 +92,30 @@ to ``pyRDF2Vec``:
 
    poetry install
 
-2. create your walker (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``;
-3. import your walker at the end of the
-   ``pyrdf2vec/walkers/__init__.py`` file:
+2. **Create your walker** (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``;
+3. **Import your walker** at the end of the ``pyrdf2vec/walkers/__init__.py``
+   file and in the ``__all__`` list:
 
 .. code:: python
 
-   from .walker import *
+   from .anonymous import AnonymousWalker
    ...
-   from .wildcard import *
-   from .foo import *
+   from .weisfeiler_lehman import WeisfeilerLehmanWalker
+   from .wildcard import WildcardWalker
+   from .foo import FooWalker
 
-4. in your walker's class, extend the
-   `Walker <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py>`__
-   class and implement at least the ``extract(self, graph, instances)``
-   function:
+   __all__ = [
+    "AnonymousWalker",
+    ...
+    "WeisfeilerLehmanWalker",
+    "WildcardWalker",
+    FooWalker,
+  ]
+
+4. in your walker's class, **extend the `Walker**
+   <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py>`__
+   class and implement at least the ``def extract(self, graph: KnowledgeGraph,
+   instances: List[rdflib.URIRef]):`` function:
 
 .. code:: python3
 
@@ -115,35 +123,34 @@ to ``pyRDF2Vec``:
        """Defines the foo walking strategy.
 
        Attributes:
-           depth (int): The depth per entity.
-           walks_per_graph (float): The maximum number of walks per entity.
+           depth: The depth per entity.
+           walks_per_graph: The maximum number of walks per entity.
 
        """
 
-       def __init__(self, depth, walks_per_graph):
+       def __init__(self, depth: int, walks_per_graph: float):
            super().__init__(depth, walks_per_graph)
 
-       def extract(self, graph, instances):
+       def extract(self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]):
            """Extracts walks rooted at the provided instances which are then each
            transformed into a numerical representation.
 
            Args:
-               graph (graph.KnowledgeGraph): The knowledge graph.
+               graph: The knowledge graph.
                    The graph from which the neighborhoods are extracted for the
                    provided instances.
-               instances (array-like): The instances to extract the knowledge graph.
+               instances: The instances to extract the knowledge graph.
 
            Returns:
-               set: The 2D matrix with its:
-                   number of rows equal to the number of provided instances;
-                   number of column equal to the embedding size.
+               The 2D matrix with its number of rows equal to the number of
+               provided instances; number of column equal to the embedding size.
 
            """
            # TODO: to be implemented
 
 **NOTE:** don't forget to update the docstring of your walker.
 
-5. create the unit tests (*e.g.,* in the ``test_foo.py`` file) related
+5. **create the unit tests** (*e.g.,* in the ``test_foo.py`` file) related
    to your walker in ``tests/walkers``:
 
 .. code:: python3
@@ -175,12 +182,14 @@ to ``pyRDF2Vec``:
            )
            assert type(canonical_walks) == set
 
-6. run unit tests and check that the style of code is still correct:
+6. **run unit tests, check that the code style and documentation are still correct:**
 
 .. code:: bash
 
-   tox -e lint
-   tox -e tests
+   tox
+
+**NOTE:** this may take some time (more than 5 minutes), do this step when your
+code works.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
