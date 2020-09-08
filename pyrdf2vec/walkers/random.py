@@ -12,12 +12,12 @@ class RandomWalker(Walker):
     """Defines the random walking strategy.
 
     Attributes:
-        depth (int): The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
+        depth: The depth per entity.
+        walks_per_graph: The maximum number of walks per entity.
 
     """
 
-    def __init__(self, depth, walks_per_graph):
+    def __init__(self, depth: int, walks_per_graph: float):
         super().__init__(depth, walks_per_graph)
 
     def extract_random_walks(
