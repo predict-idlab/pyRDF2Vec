@@ -213,7 +213,7 @@ to ``pyRDF2Vec``:
            )
            assert type(canonical_walks) == set
 
-6. **run unit tests, check that the code style and documentation are still correct:**
+6. **Run unit tests, check that the code style and documentation are still correct:**
 
 .. code:: bash
 
@@ -329,7 +329,7 @@ With ``poetry`` installed, you can now install the dependencies related to
 
 2. **Make your modifications**.
 
-3. **run unit tests, check that the code style and documentation are still correct:**
+3. **Run unit tests, check that the code style and documentation are still correct:**
 
 .. code:: bash
 
