@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Iterable, List, Set, Tuple
+from typing import Any, List, Set, Tuple
 
 import community
 import networkx as nx
