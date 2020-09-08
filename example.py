@@ -29,7 +29,7 @@ warnings.filterwarnings("ignore")
 
 def create_embeddings(
     kg: KnowledgeGraph,
-    entities: List[str],
+    entities: List[rdflib.URIRef],
     split: int,
     walkers: Sequence[Walker],
     sg: int = 1,
