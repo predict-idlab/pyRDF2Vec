@@ -38,6 +38,25 @@ opportunities listed below.
 
 --------------
 
+Getting Started
+---------------
+
+Before reading in detail the sub-section that interests you, here are some
+golden rules that you should know if you want to contribute to ``pyRDF2Vec``:
+
+-  **No contribution is too small:** submit as many fixes for typos and grammar bloopers as you can.
+-  **Whenever possible, limit each pull request to one change only**.
+-  **Add tests and docs for your code:** who better than you to explain and
+   test that the code you have implemented works?
+-  **Make sure your changes pass our CI:** during each commit several checks to
+   verify the style of the code, the unit tests and the documentation are done
+   to avoid unpleasant surprises.
+-  **Attach a short note to the pull request:** it would help us to better
+   understand what you did.
+-  **It's up to you how you handle updates to the master branch:** since we
+   squash on merge, whether you prefer to rebase on ``master`` or merge
+   ``master`` into your branch, do whatever is more comfortable for you.
+
 Add a new embedding technique
 -----------------------------
 
