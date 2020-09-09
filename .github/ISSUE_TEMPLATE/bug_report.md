@@ -1,17 +1,15 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: 🐛 Bug report
+about: Submit a bug report
 title: ''
 labels: bug
 assignees: ''
 
 ---
 
-### System Information
+## 🐛 Bug Report
 
-- **Operating system:**
-- **pyRDF2Vec version:**
-- **Python version:**
+<!--- A clear and concise description of the bug is. -->
 
 ### Expected Behavior
 <!--- A clear and concise description of what you expected to happen. -->
@@ -27,8 +25,11 @@ assignees: ''
 3.
 4.
 
-### Context (Environment)
-<!--- A clear and concise description of the context of what you are trying to achieve. -->
+### Environment
+<!-- Include as many relevant details about the environment you experienced the bug in. -->
+- **Operating system:**
+- **pyRDF2Vec version:**
+- **Python version:**
 
 ### Possible Solution
 <!--- Not obligatory, but suggest a fix/reason for the bug. -->
