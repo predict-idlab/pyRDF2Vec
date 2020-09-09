@@ -34,7 +34,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         return self._label_map[vertex][n - 1] + "-" + suffix
         # return suffix
 
-    def _weisfeiler_lehman(self, graph: KnowledgeGraph):
+    def _weisfeiler_lehman(self, graph: KnowledgeGraph) -> None:
         """Performs Weisfeiler-Lehman relabeling of the vertices.
 
         Note:
