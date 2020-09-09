@@ -27,6 +27,9 @@ feature matrix
 knowledge graph
    TODO
 
+Knowledge Graph Embeddings
+   TODO
+
 predicate
    TODO
 
