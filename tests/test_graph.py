@@ -31,3 +31,19 @@ class TestKnowledgeGraph:
     def test_visualise(self):
         KG.visualise()
         assert True
+
+    def test_add_edge(self):
+        KG.add_edge(a, c)
+        assert True
+
+    def test_get_neighbors(self):
+        KG.get_neighbors()
+        assert True
+
+    def test_inv_get_neighbors(self):
+        KG.get_inv_neighbors()
+        assert True
+
+    def test_remove_edge(self):
+        KG.remove_edge(a, c)
+        assert True
