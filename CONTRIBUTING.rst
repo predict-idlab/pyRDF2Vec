@@ -220,7 +220,7 @@ to ``pyRDF2Vec``:
    pytest tests/walkers/test_foo.py
    tox -e lint,docs
 
-In case you had to modify classes from `pyRDF2Vec`, it will be necessary to
+In case you had to modify classes from ``pyRDF2Vec``, it will be necessary to
 make sure that all tests still work:
 
 .. code:: bash
@@ -318,7 +318,7 @@ Improve the code
 The refactoring and optimization of code complexity is an art that must
 be necessary to facilitate future contributions of ``pyRDF2Vec``.
 
-To improve the code , 3 steps are essential:
+To improve the code, 3 steps are essential:
 
 1. **Install the dependencies:** before you can install the dependencies of
    ``pyRDF2Vec``, you must first make sure that ``poetry`` is installed:
