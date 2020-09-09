@@ -70,7 +70,8 @@ class RDF2VecTransformer:
         for walker in self.walkers:
             self.walks_ += list(walker.extract(graph, instances))
         print(
-            f"Extracted {len(self.walks_)} walks for {len(instances)} instances!"
+            f"Extracted {len(self.walks_)} walks"
+            + " for {len(instances)} instances!"
         )
         sentences = [list(map(str, x)) for x in self.walks_]
 

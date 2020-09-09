@@ -44,7 +44,9 @@ class WildcardWalker(RandomWalker):
         for instance in instances:  # type: ignore
             walks = self.extract_random_walks(graph, Vertex(str(instance)))
             for walk in walks:
-                canonical_walks.add(tuple([x.name for x in walk]))  # type: ignore
+                canonical_walks.add(
+                    tuple([x.name for x in walk])  # type: ignore
+                )
                 for wildcard in self.wildcards:
                     combinations = itertools.combinations(
                         range(1, len(walk)), wildcard  # type: ignore

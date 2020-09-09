@@ -34,7 +34,8 @@ def create_embeddings(
     walkers: Sequence[Walker],
     sg: int = 1,
 ) -> Tuple[List[str], List[str]]:
-    """Creates embeddings for a list of entities according to a knowledge graphs and a walking strategy.
+    """Creates embeddings for a list of entities according to a knowledge
+    graphs and a walking strategy.
 
     Args:
         kg: The knowledge graph.
