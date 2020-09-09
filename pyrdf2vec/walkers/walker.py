@@ -9,8 +9,8 @@ class Walker:
     """Base class for the walking strategies.
 
     Attributes:
-        depth (int): The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
+        depth: The depth per entity.
+        walks_per_graph: The maximum number of walks per entity.
 
     """
 
