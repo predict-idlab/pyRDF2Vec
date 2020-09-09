@@ -37,11 +37,11 @@ class TestKnowledgeGraph:
         assert True
 
     def test_get_neighbors(self):
-        KG.get_neighbors()
+        KG.get_neighbors(a)
         assert True
 
     def test_inv_get_neighbors(self):
-        KG.get_inv_neighbors()
+        KG.get_inv_neighbors(a)
         assert True
 
     def test_remove_edge(self):
