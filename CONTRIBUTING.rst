@@ -217,10 +217,17 @@ to ``pyRDF2Vec``:
 
 .. code:: bash
 
-   tox
+   pytest tests/walkers/test_foo.py
+   tox -e lint,docs
 
-**NOTE:** this may take some time (more than 5 minutes), do this step when your
-code works.
+In case you had to modify classes from `pyRDF2Vec`, it will be necessary to
+make sure that all tests still work:
+
+.. code:: bash
+
+   tox -e tests
+
+**NOTE:** this may take some time (between 5-10 minutes), do this step only necessary.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
@@ -335,8 +342,8 @@ With ``poetry`` installed, you can now install the dependencies related to
 
    tox
 
-**NOTE:** this may take some time (more than 5 minutes), do this step when your
-code works.
+**NOTE:** this may take some time (between 5-10 minutes), do this step when
+your code works.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
