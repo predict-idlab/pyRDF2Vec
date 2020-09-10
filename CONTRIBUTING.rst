@@ -68,7 +68,7 @@ If your change is noteworthy, there needs to be a changelog entry so our users
 can learn about it!
 
 To avoid merge conflicts, we use the `towncrier
-<https://github.com/twisted/towncrier>`__` package to manage our changelog.
+<https://github.com/twisted/towncrier>`__ package to manage our changelog.
 ``towncrier`` uses independent files (called *news fragments*) for each pull
 request. On release, those news fragments are compiled into our
 ``CHANGELOG.rst`` file.
