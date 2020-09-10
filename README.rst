@@ -75,7 +75,7 @@ Installation
 
    pip install pyRDF2vec
 
-2. from any compatible Python dependency manager (e.g., ``poetry``):
+2. from any compatible Python dependency manager (*e.g.,* ``poetry``):
 
 .. code:: bash
 
