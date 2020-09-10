@@ -304,6 +304,17 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "incremental"
+version = "17.5.0"
+description = ""
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.extras]
+scripts = ["click (>=6.0)", "twisted (>=16.4.0)"]
+
+[[package]]
 name = "iniconfig"
 version = "1.0.1"
 description = "iniconfig: brain-dead simple config-ini parsing"
@@ -958,6 +969,20 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "towncrier"
+version = "19.2.0"
+description = "Building newsfiles for your project."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Click = "*"
+incremental = "*"
+jinja2 = "*"
+toml = "*"
+
+[[package]]
 name = "tox"
 version = "3.20.0"
 description = "tox is a generic virtualenv management and test command line tool"
@@ -1057,7 +1082,7 @@ tests = []
 [metadata]
 lock-version = "1.0"
 python-versions = "^3.8"
-content-hash = "b302ec8aa685a85bec0f91d6006b136e00c9a7ed2823eae3e7f3e2295ebdce90"
+content-hash = "d55c79702031040690908495d36552f7ed3f7bf542558670952d84044a4d4784"
 
 [metadata.files]
 alabaster = [
@@ -1260,6 +1285,10 @@ idna = [
 imagesize = [
     {file = "imagesize-1.2.0-py2.py3-none-any.whl", hash = "sha256:6965f19a6a2039c7d48bca7dba2473069ff854c36ae6f19d2cde309d998228a1"},
     {file = "imagesize-1.2.0.tar.gz", hash = "sha256:b1f6b5a4eab1f73479a50fb79fcf729514a900c341d8503d62a62dbc4127a2b1"},
+]
+incremental = [
+    {file = "incremental-17.5.0-py2.py3-none-any.whl", hash = "sha256:717e12246dddf231a349175f48d74d93e2897244939173b01974ab6661406b9f"},
+    {file = "incremental-17.5.0.tar.gz", hash = "sha256:7b751696aaf36eebfab537e458929e194460051ccad279c72b755a167eebd4b3"},
 ]
 iniconfig = [
     {file = "iniconfig-1.0.1-py3-none-any.whl", hash = "sha256:80cf40c597eb564e86346103f609d74efce0f6b4d4f30ec8ce9e2c26411ba437"},
@@ -1686,6 +1715,10 @@ toml = [
 tomlkit = [
     {file = "tomlkit-0.7.0-py2.py3-none-any.whl", hash = "sha256:6babbd33b17d5c9691896b0e68159215a9387ebfa938aa3ac42f4a4beeb2b831"},
     {file = "tomlkit-0.7.0.tar.gz", hash = "sha256:ac57f29693fab3e309ea789252fcce3061e19110085aa31af5446ca749325618"},
+]
+towncrier = [
+    {file = "towncrier-19.2.0-py2.py3-none-any.whl", hash = "sha256:de19da8b8cb44f18ea7ed3a3823087d2af8fcf497151bb9fd1e1b092ff56ed8d"},
+    {file = "towncrier-19.2.0.tar.gz", hash = "sha256:48251a1ae66d2cf7e6fa5552016386831b3e12bb3b2d08eb70374508c17a8196"},
 ]
 tox = [
     {file = "tox-3.20.0-py2.py3-none-any.whl", hash = "sha256:e6318f404aff16522ff5211c88cab82b39af121735a443674e4e2e65f4e4637b"},

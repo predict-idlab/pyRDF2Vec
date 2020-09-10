@@ -61,6 +61,7 @@ sphinx = "^3.2.1"
 sphinx-rtd-theme = "^0.5.0"
 tox = "^3.19.0"
 yamllint = "^1.24.2"
+towncrier = "^19.2.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme"]
@@ -86,6 +87,25 @@ exclude = '''
 )/
 '''
 
+[tool.towncrier]
+package = "pyrdf2vec"
+filename = "CHANGELOG.rst"
+template = "changelog.d/_template.rst"
+issue_format = "`#{issue} <https://github.com/IBCNServices/pyRDF2Vec/issues/{issue}>`_"
+directory = "changelog.d"
+title_format = "{version} ({project_date})"
+underlines = ["-", "^"]
+
+    [[tool.towncrier.type]]
+    directory = "bugfix"
+    name = "Bug Fixes"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "feature"
+    name = "Features"
+    showcontent = true
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
@@ -95,6 +115,13 @@ envlist =
     lint
     tests
 isolated_build = True
+
+
+[testenv:changelog]
+description = Displays the news fragments of the CHANGELOG file
+deps = towncrier
+skip_install = true
+commands = towncrier --draft
 
 [testenv:docs]
 description = Builds documentation (HTML) with Sphinx.
