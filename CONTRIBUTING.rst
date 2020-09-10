@@ -79,12 +79,12 @@ Each file should be named like ``<ISSUE>.<TYPE>.rst``, where
 * ``bugfix``: fixes a bug;
 * ``doc``: documentation improvement, like rewording an entire session or
   adding missing docs;
-* ``feature``: new user facing features, like new command-line options and new
-  behavior.
+* ``feature``: new user facing features, like a new walking strategy.
 
 So for example: ``123.bugfix.rst``, ``456.feature.rst``.
 
 Two scenarios exist for your pull request:
+
 1. **if it fixes an issue**, use the issue number in the file name;
 2. **otherwise**, use the pull request number.
 
