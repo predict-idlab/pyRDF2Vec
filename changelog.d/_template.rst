@@ -12,7 +12,7 @@
 {% if definitions[category]['showcontent'] %}
 {% for text, values in sections[section][category].items() %}
 - {{ text }}
-  {{ values|join(',\n  ') }}
+{{ values|join(',\n  ') }}
 {% endfor %}
 
 {% else %}
