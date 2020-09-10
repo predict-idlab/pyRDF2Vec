@@ -76,35 +76,36 @@ request. On release, those news fragments are compiled into our
 Each file should be named like ``<ISSUE>.<TYPE>.rst``, where
 ``<ISSUE>`` is an issue number, and ``<TYPE>`` is one of:
 
-* ``bugfix``: fixes a bug.
+* ``bugfix``: fixes a bug;
 * ``doc``: documentation improvement, like rewording an entire session or
-  adding missing docs.
+  adding missing docs;
 * ``feature``: new user facing features, like new command-line options and new
   behavior.
 
-So for example: ``123.feature.rst``, ``456.bugfix.rst``.
+So for example: ``123.bugfix.rst``, ``456.feature.rst``.
 
-If your PR fixes an issue, use that number here. If there is no issue, then
-after you submit the PR and get the PR number you can add a changelog using
-that instead.
+Two scenarios exist for your pull request:
+1. **if it fixes an issue**, use the issue number in the file name;
+2. **otherwise**, use the pull request number.
 
-If you are not sure what issue type to use, don't hesitate to ask in your PR.
+If you are not sure what issue type to use, don't hesitate to ask in your pull
+request.
 
-``towncrier`` preserves multiple paragraphs and formatting (code blocks, lists,
-and so on), but for entries other than ``features`` it is usually better to
+``towncrier`` preserves multiple paragraphs and formatting (*e.g.,* code
+blocks, lists), but for entries other than ``feature`` it is usually better to
 stick to a single paragraph to keep it concise.
 
-You can also run ``tox -e changelog`` to display the news fragments of the
-``CHANGELOG`` file if you want to get a preview of how your change will look in
-the final release notes.
+If you would like to get a preview of how your change will look in
+the final release notes, you can display the news fragments of the
+``CHANGELOG`` file:
 
-You don't need to install ``towncrier`` yourself, you just have to abide by a
+.. code:: bash
+
+   tox -e changelog
+
+From then on, you don't need to install ``towncrier`` yourself, you just have to abide by a
 few simple rules:
 
-- For each pull request, add a new file into ``changelog.d`` with a filename
-  adhering to the ``pr#.(bugfix|doc|feature).rst`` (*e.g.,*
-  ``changelog.d/42.feature.rst`` for a non-breaking change that is proposed in
-  pull request #42.
 - Wrap symbols like modules, functions, or classes into double backticks so
   they are rendered in a ``monospace font``.
 - Wrap arguments into asterisks like in docstrings: *these* or *attributes*.
@@ -112,8 +113,8 @@ few simple rules:
   their names: ``foo.func()`` or ``Foo.method()``.
   This makes the changelog a lot more readable.
 - Prefer simple past tense or constructions with "now".
-- If you want to reference multiple issues, copy the news fragment to another
-  filename. ``towncrier`` will merge all news fragments with identical
+- If you would like to reference multiple issues, copy the news fragment to
+  another filename. ``towncrier`` will merge all news fragments with identical
   contents into one entry with multiple links to the respective pull requests.
 
 Example entries:
