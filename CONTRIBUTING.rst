@@ -73,6 +73,31 @@ To avoid merge conflicts, we use the `towncrier
 request. On release, those news fragments are compiled into our
 ``CHANGELOG.rst`` file.
 
+Each file should be named like ``<ISSUE>.<TYPE>.rst``, where
+``<ISSUE>`` is an issue number, and ``<TYPE>`` is one of:
+
+* ``bugfix``: fixes a bug.
+* ``doc``: documentation improvement, like rewording an entire session or
+  adding missing docs.
+* ``feature``: new user facing features, like new command-line options and new
+  behavior.
+
+So for example: ``123.feature.rst``, ``456.bugfix.rst``.
+
+If your PR fixes an issue, use that number here. If there is no issue, then
+after you submit the PR and get the PR number you can add a changelog using
+that instead.
+
+If you are not sure what issue type to use, don't hesitate to ask in your PR.
+
+``towncrier`` preserves multiple paragraphs and formatting (code blocks, lists,
+and so on), but for entries other than ``features`` it is usually better to
+stick to a single paragraph to keep it concise.
+
+You can also run ``tox -e changelog`` to display the news fragments of the
+``CHANGELOG`` file if you want to get a preview of how your change will look in
+the final release notes.
+
 You don't need to install ``towncrier`` yourself, you just have to abide by a
 few simple rules:
 
