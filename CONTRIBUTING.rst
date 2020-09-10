@@ -60,6 +60,50 @@ golden rules that you should know before you contribute to ``pyRDF2Vec``:
    squash on merge, whether you prefer to rebase on ``master`` or merge
    ``master`` into your branch, do whatever is more comfortable for you.
 
+
+Changelog
+---------
+
+If your change is noteworthy, there needs to be a changelog entry so our users
+can learn about it!
+
+To avoid merge conflicts, we use the `towncrier
+<https://github.com/twisted/towncrier>`__` package to manage our changelog.
+``towncrier`` uses independent files (called *news fragments*) for each pull
+request. On release, those news fragments are compiled into our
+``CHANGELOG.rst`` file.
+
+You don't need to install ``towncrier`` yourself, you just have to abide by a
+few simple rules:
+
+- For each pull request, add a new file into ``changelog.d`` with a filename
+  adhering to the ``pr#.(bugfix|doc|feature).rst`` (*e.g.,*
+  ``changelog.d/42.feature.rst`` for a non-breaking change that is proposed in
+  pull request #42.
+- Wrap symbols like modules, functions, or classes into double backticks so
+  they are rendered in a ``monospace font``.
+- Wrap arguments into asterisks like in docstrings: *these* or *attributes*.
+- If you mention functions or other callables, add parentheses at the end of
+  their names: ``foo.func()`` or ``Foo.method()``.
+  This makes the changelog a lot more readable.
+- Prefer simple past tense or constructions with "now".
+- If you want to reference multiple issues, copy the news fragment to another
+  filename. ``towncrier`` will merge all news fragments with identical
+  contents into one entry with multiple links to the respective pull requests.
+
+Example entries:
+
+  .. code-block:: rst
+
+     Added ``wallkers.Foo``.
+     This walker is a new walker.
+
+or:
+
+  .. code-block:: rst
+
+     ``fit_transform()`` now can deal with bigger Knowledge Graph Embeddings (KGE).
+
 Conventions
 -----------
 
