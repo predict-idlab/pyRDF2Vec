@@ -1,15 +1,19 @@
 import random
+from typing import List
 
 import rdflib
 
-from pyrdf2vec.converters import rdflib_to_kg
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import AnonymousWalker
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])
+KG = KnowledgeGraph(
+    "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
+)
 
 
-def generate_entities():
+def generate_entities() -> List[rdflib.URIRef]:
     return [
         rdflib.URIRef(
             f"{LABEL_PREDICATE.split('#')[0] + '#'}{random.randint(0, 335)}"
@@ -20,7 +24,10 @@ def generate_entities():
 
 class TestAnonymousWalker:
     def test_extract(self):
-        canonical_walks = AnonymousWalker(4, float("inf")).extract(
-            KG, generate_entities()
+        canonical_walks = AnonymousWalker(2, 5, UniformSampler()).extract(
+            KG, str(generate_entities())
         )
         assert type(canonical_walks) == set
+
+
+TestAnonymousWalker().test_extract()

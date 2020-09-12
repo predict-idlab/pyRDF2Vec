@@ -4,7 +4,8 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -14,6 +15,10 @@ class HalkWalker(RandomWalker):
     Attributes:
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
+        freq_thresholds: The thresholds frequencies.
+            Default to [0.001].
 
     """
 
@@ -21,11 +26,11 @@ class HalkWalker(RandomWalker):
         self,
         depth: int,
         walks_per_graph: float,
+        sampler: UniformSampler = UniformSampler(),
         freq_thresholds: List[float] = [0.001],
     ):
-        super().__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph, sampler)
         self.freq_thresholds = freq_thresholds
-        # self.lb_freq_threshold = lb_freq_threshold
 
     def extract(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
@@ -48,19 +53,17 @@ class HalkWalker(RandomWalker):
         canonical_walks = set()
         all_walks = []
         for instance in instances:
-            walks = self.extract_random_walks(graph, Vertex(str(instance)))
+            walks = self.extract_random_walks(graph, str(instance))
             all_walks.extend(walks)
 
         freq = defaultdict(set)
         for i in range(len(all_walks)):
             for hop in all_walks[i]:  # type: ignore
-                freq[hop.name].add(i)
+                freq[str(hop)].add(i)
 
         for freq_threshold in self.freq_thresholds:
             uniformative_hops = set()
             for hop in freq:
-                # if len(freq[hop])/len(all_walks) > self.ub_freq_threshold:
-                #     uniformative_hops.add(hop)
                 if len(freq[hop]) / len(all_walks) < freq_threshold:
                     uniformative_hops.add(hop)
 
@@ -68,10 +71,10 @@ class HalkWalker(RandomWalker):
                 canonical_walk = []
                 for i, hop in enumerate(walk):  # type: ignore
                     if i == 0:
-                        canonical_walk.append(hop.name)
+                        canonical_walk.append(str(hop))
                     else:
-                        if hop.name not in uniformative_hops:
-                            digest = md5(hop.name.encode()).digest()[:8]
+                        if str(hop) not in uniformative_hops:
+                            digest = md5(str(hop).encode()).digest()[:8]
                             canonical_walk.append(str(digest))
                 canonical_walks.add(tuple(canonical_walk))
         return canonical_walks

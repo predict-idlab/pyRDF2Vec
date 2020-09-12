@@ -4,7 +4,8 @@ import rdflib
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
-from pyrdf2vec.graph import KnowledgeGraph
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
@@ -34,7 +35,9 @@ class RDF2VecTransformer:
     def __init__(
         self,
         vector_size: int = 500,
-        walkers: Sequence[Walker] = [RandomWalker(2, float("inf"))],
+        walkers: Sequence[Walker] = [
+            RandomWalker(2, float("inf"), UniformSampler())
+        ],
         n_jobs: int = 1,
         window: int = 5,
         sg: int = 1,
@@ -71,7 +74,7 @@ class RDF2VecTransformer:
             self.walks_ += list(walker.extract(graph, instances))
         print(
             f"Extracted {len(self.walks_)} walks"
-            + " for {len(instances)} instances!"
+            + f" for {len(instances)} instances!"
         )
         sentences = [list(map(str, x)) for x in self.walks_]
 
@@ -118,7 +121,7 @@ class RDF2VecTransformer:
         instances.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph
+            graph: The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
             instances: The instances to create the embedding.

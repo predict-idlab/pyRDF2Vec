@@ -3,11 +3,14 @@ import random
 import pytest
 import rdflib
 
-from pyrdf2vec.converters import rdflib_to_kg
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import Walker
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])
+KG = KnowledgeGraph(
+    "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
+)
 
 
 def generate_entities():
@@ -21,6 +24,6 @@ def generate_entities():
 
 class TestWalker:
     def test_extract_not_implemented(self):
-        walker = Walker(4, float("inf"))
+        walker = Walker(2, 5, UniformSampler())
         with pytest.raises(NotImplementedError):
             walker.extract(KG, generate_entities())

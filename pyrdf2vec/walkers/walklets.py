@@ -2,7 +2,8 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -12,11 +13,18 @@ class WalkletWalker(RandomWalker):
     Attributes:
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
 
     """
 
-    def __init__(self, depth: int, walks_per_graph: float):
-        super().__init__(depth, walks_per_graph)
+    def __init__(
+        self,
+        depth: int,
+        walks_per_graph: float,
+        sampler: UniformSampler = UniformSampler(),
+    ):
+        super().__init__(depth, walks_per_graph, sampler)
 
     def extract(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
@@ -38,10 +46,10 @@ class WalkletWalker(RandomWalker):
         """
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_walks(graph, Vertex(str(instance)))
+            walks = self.extract_random_walks(graph, str(instance))
             for walk in walks:
                 for n in range(1, len(walk)):  # type:ignore
                     canonical_walks.add(
-                        (walk[0].name, walk[n].name)  # type: ignore
+                        (str(walk[0]), str(walk[n]))  # type: ignore
                     )
         return canonical_walks  # type:ignore

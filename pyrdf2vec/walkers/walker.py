@@ -2,7 +2,8 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 
 
 class Walker:
@@ -11,12 +12,20 @@ class Walker:
     Attributes:
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
 
     """
 
-    def __init__(self, depth: int, walks_per_graph: float):
+    def __init__(
+        self,
+        depth: int,
+        walks_per_graph: float,
+        sampler: UniformSampler = UniformSampler(),
+    ):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
+        self.sampler = sampler
 
     def extract(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]

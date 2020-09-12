@@ -68,14 +68,6 @@ pyrdf2vec.walkers.weisfeiler\_lehman module
    :undoc-members:
    :show-inheritance:
 
-pyrdf2vec.walkers.wildcard module
----------------------------------
-
-.. automodule:: pyrdf2vec.walkers.wildcard
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

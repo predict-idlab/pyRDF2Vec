@@ -2,7 +2,8 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -10,13 +11,20 @@ class AnonymousWalker(RandomWalker):
     """Defines the anonymous walking strategy.
 
     Attributes:
-        depth (int): The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
+        depth: The depth per entity.
+        walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
 
     """
 
-    def __init__(self, depth, walks_per_graph):
-        super().__init__(depth, walks_per_graph)
+    def __init__(
+        self,
+        depth: int,
+        walks_per_graph: float,
+        sampler: UniformSampler = UniformSampler(),
+    ):
+        super().__init__(depth, walks_per_graph, sampler)
 
     def extract(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
@@ -38,14 +46,14 @@ class AnonymousWalker(RandomWalker):
         """
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_walks(graph, Vertex(str(instance)))
+            walks = self.extract_random_walks(graph, str(instance))
             for walk in walks:
                 canonical_walk = []
-                str_walk = [x.name for x in walk]  # type: ignore
+                str_walk = [str(x) for x in walk]  # type: ignore
                 for i, hop in enumerate(walk):  # type: ignore
                     if i == 0:
-                        canonical_walk.append(hop.name)
+                        canonical_walk.append(str(hop))
                     else:
-                        canonical_walk.append(str(str_walk.index(hop.name)))
+                        canonical_walk.append(str(str_walk.index(str(hop))))
                 canonical_walks.add(tuple(canonical_walk))
         return canonical_walks

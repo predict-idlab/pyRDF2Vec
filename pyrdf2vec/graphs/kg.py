@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import itertools
 from collections import defaultdict
-from typing import Optional, Set
+from typing import List, Optional, Set, Tuple
 
 import attr
 import matplotlib.pyplot as plt
 import networkx as nx
+import rdflib
 
 
 @attr.s(auto_attribs=True, frozen=True, slots=True, cmp=False)
@@ -50,22 +51,49 @@ class Vertex:
 
 
 class KnowledgeGraph:
-    """Represents a knowledge graph."""
+    """Represents a Knowledge Graph."""
 
-    def __init__(self):
+    def __init__(self, file_name, label_predicates, file_type=None):
+        self.file_name = file_name
+        self.file_type = file_type
+        self.label_predicates = label_predicates
+
         self._inv_transition_matrix = defaultdict(set)
         self._transition_matrix = defaultdict(set)
         self._vertices = set()
+
+        self._read_file()
+
+    def _read_file(self) -> None:
+        """Parses a file with rdflib"""
+        kg = rdflib.Graph()
+        try:
+            if self.file_type is None:
+                kg.parse(self.file_name, format=self.file_name.split(".")[-1])
+            else:
+                kg.parse(self.file_name, self.file_type)
+        except:
+            kg.parse(self.file_name)
+
+        for (s, p, o) in kg:
+            if p not in self.label_predicates:
+                s_v = Vertex(str(s))
+                o_v = Vertex(str(o))
+                p_v = Vertex(str(p), predicate=True, vprev=s_v, vnext=o_v)
+                self.add_vertex(s_v)
+                self.add_vertex(p_v)
+                self.add_vertex(o_v)
+                self.add_edge(s_v, p_v)
+                self.add_edge(p_v, o_v)
 
     def add_vertex(self, vertex: Vertex) -> None:
         """Adds a vertex to the knowledge graph.
 
         Args:
-            vertex (Vertex): The vertex
+            vertex: The vertex
 
         """
-        if vertex.predicate:
-            self._vertices.add(vertex)
+        self._vertices.add(vertex)
 
     def add_edge(self, v1: Vertex, v2: Vertex) -> None:
         """Adds a uni-directional edge.
@@ -78,28 +106,25 @@ class KnowledgeGraph:
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
 
-    def remove_edge(self, v1: str, v2: str):
-        """Removes the edge (v1 -> v2) if present.
+    def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
+        """Returns a hop (vertex -> predicate -> object)
 
         Args:
-            v1: The first vertex.
-            v2: The second vertex.
-
-        """
-        if v2 in self._transition_matrix[v1]:
-            self._transition_matrix[v1].remove(v2)
-
-    def get_neighbors(self, vertex: Vertex) -> Set[Vertex]:
-        """Gets the neighbors of a vertex.
-
-        Args:
-            vertex: The vertex.
+            vertex: The name of the vertex to get the hops.
 
         Returns:
-            The neighbors of a vertex.
+            The hops of a vertex in a (predicate, object) form.
 
         """
-        return self._transition_matrix[vertex]
+        if isinstance(vertex, str):
+            vertex = Vertex(vertex)  # type: ignore
+        hops = []
+        predicates = self._transition_matrix[vertex]
+        for pred in predicates:
+            assert len(self._transition_matrix[pred]) == 1
+            for obj in self._transition_matrix[pred]:
+                hops.append((pred, obj))
+        return hops
 
     def get_inv_neighbors(self, vertex: Vertex) -> Set[Vertex]:
         """Gets the reverse neighbors of a vertex.
@@ -111,7 +136,34 @@ class KnowledgeGraph:
             The reverse neighbors of a vertex.
 
         """
+        if isinstance(vertex, str):
+            vertex = Vertex(vertex)
         return self._inv_transition_matrix[vertex]
+
+    def get_neighbors(self, vertex: Vertex) -> Set[Vertex]:
+        """Gets the neighbors of a vertex.
+
+        Args:
+            vertex: The vertex.
+
+        Returns:
+            The neighbors of a vertex.
+
+        """
+        if isinstance(vertex, str):
+            vertex = Vertex(vertex)
+        return self._transition_matrix[vertex]
+
+    def remove_edge(self, v1: str, v2: str):
+        """Removes the edge (v1 -> v2) if present.
+
+        Args:
+            v1: The first vertex.
+            v2: The second vertex.
+
+        """
+        if v2 in self._transition_matrix[v1]:
+            self._transition_matrix[v1].remove(v2)
 
     def visualise(self) -> None:
         """Visualises the knowledge graph."""

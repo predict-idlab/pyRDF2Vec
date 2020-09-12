@@ -1,10 +1,10 @@
 from hashlib import md5
 from typing import Any, List, Set, Tuple
 
-import numpy as np
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KnowledgeGraph, Vertex
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import Walker
 
 
@@ -14,16 +14,56 @@ class RandomWalker(Walker):
     Attributes:
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
 
     """
 
-    def __init__(self, depth: int, walks_per_graph: float):
-        super().__init__(depth, walks_per_graph)
+    def __init__(
+        self,
+        depth: int,
+        walks_per_graph: float,
+        sampler: UniformSampler = UniformSampler(),
+    ):
+        super().__init__(depth, walks_per_graph, sampler)
+
+    def extract_random_walks_bfs(self, graph, root):
+        """Breadth-first search to extract all possible walks."""
+        walks = {(root,)}
+        for i in range(self.depth):
+            walks_copy = walks.copy()
+            for walk in walks_copy:
+                hops = graph.get_hops(walk[-1])
+                if len(hops) > 0:
+                    walks.remove(walk)
+                for (pred, obj) in hops:
+                    walks.add(walk + (pred, obj))
+        return list(walks)
+
+    def extract_random_walks_dfs(self, graph, root):
+        """Depth-first search to extract a limited number of walks."""
+        # TODO: Currently we are allowing duplicate walks in order
+        # TODO: to avoid infinite loops. Can we do this better?
+
+        self.sampler.initialize()
+
+        walks = []
+        while len(walks) < self.walks_per_graph:
+            new = (root,)
+            d = (len(new) - 1) // 2
+            while d // 2 < self.depth:
+                last = d == self.depth - 1
+                hop = self.sampler.sample_neighbor(graph, new, last)
+                if hop is None:
+                    break
+                new = new + (hop[0], hop[1])
+            walks.append(new)
+        return list(set(walks))
 
     def extract_random_walks(
-        self, graph: KnowledgeGraph, root: Vertex
+        self, graph: KnowledgeGraph, root: str
     ) -> List[Vertex]:
-        """Extracts random walks of depth - 1 hops rooted in root.
+        """Breadth-first search to extract all possible walks.
 
         Args:
             graph: The knowledge graph.
@@ -36,38 +76,14 @@ class RandomWalker(Walker):
             The list of the walks.
 
         """
-        # Initialize one walk of length 1 (the root)
-        walks = {(root,)}
-
-        for i in range(self.depth):
-            # In each iteration, iterate over the walks, grab the
-            # last hop, get all its neighbors and extend the walks
-            walks_copy = walks.copy()
-            for walk in walks_copy:
-                node = walk[-1]
-                neighbors = graph.get_neighbors(node)
-                if len(neighbors) > 0:
-                    walks.remove(walk)
-
-                for neighbor in neighbors:
-                    walks.add(walk + (neighbor,))  # type: ignore
-
-            # TODO: Should we prune in every iteration?
-            if self.walks_per_graph is not None:
-                n_walks = min(len(walks), self.walks_per_graph)
-                walks_ix = np.random.choice(
-                    range(len(walks)), replace=False, size=n_walks
-                )
-                if len(walks_ix) > 0:
-                    walks_list = list(walks)
-                    walks = {walks_list[ix] for ix in walks_ix}
-        return list(walks)  # type:ignore
+        if self.walks_per_graph is None:
+            return self.extract_random_walks_bfs(graph, root)
+        return self.extract_random_walks_dfs(graph, root)
 
     def extract(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
-        """Extracts walks rooted at the provided instances which are then each
-        transformed into a numerical representation.
+        """Extracts the walks and processes them for the embedding model.
 
         Args:
             graph: The knowledge graph.
@@ -80,16 +96,17 @@ class RandomWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
+        self.sampler.fit(graph)
         canonical_walks = set()
-        for instance in instances:
-            walks = self.extract_random_walks(graph, Vertex(str(instance)))
+        for i, instance in enumerate(instances):
+            walks = self.extract_random_walks(graph, instance)
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):  # type: ignore
                     if i == 0 or i % 2 == 1:
-                        canonical_walk.append(hop.name)
+                        canonical_walk.append(str(hop))
                     else:
-                        digest = md5(hop.name.encode()).digest()[:8]
+                        digest = md5(str(hop).encode()).digest()[:8]
                         canonical_walk.append(str(digest))
                 canonical_walks.add(tuple(canonical_walk))
         return canonical_walks

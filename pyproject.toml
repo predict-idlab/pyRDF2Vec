@@ -46,6 +46,7 @@ rdflib = "^5.0.0"
 scikit-learn = "^0.23.2"
 tomlkit = "^0.7.0"
 tqdm = "^4.48.2"
+SPARQLWrapper = "^1.8.5"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
@@ -120,7 +121,6 @@ envlist =
     lint
     tests
 isolated_build = True
-
 
 [testenv:changelog]
 description = Displays the news fragments of the CHANGELOG file

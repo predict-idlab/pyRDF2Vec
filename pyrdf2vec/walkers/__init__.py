@@ -10,7 +10,6 @@ from .halk import HalkWalker
 from .ngrams import NGramWalker
 from .walklets import WalkletWalker
 from .weisfeiler_lehman import WeisfeilerLehmanWalker
-from .wildcard import WildcardWalker
 
 __all__ = [
     "AnonymousWalker",
@@ -21,5 +20,4 @@ __all__ = [
     "Walker",
     "WalkletWalker",
     "WeisfeilerLehmanWalker",
-    "WildcardWalker",
 ]

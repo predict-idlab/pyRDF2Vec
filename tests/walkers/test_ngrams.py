@@ -2,11 +2,14 @@ import random
 
 import rdflib
 
-from pyrdf2vec.converters import rdflib_to_kg
+from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import NGramWalker
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])
+KG = KnowledgeGraph(
+    "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
+)
 
 
 def generate_entities():
@@ -20,7 +23,7 @@ def generate_entities():
 
 class TestNGramWalker:
     def test_extract(self):
-        canonical_walks = NGramWalker(4, float("inf")).extract(
+        canonical_walks = NGramWalker(2, 5, UniformSampler()).extract(
             KG, generate_entities()
         )
         assert type(canonical_walks) == set

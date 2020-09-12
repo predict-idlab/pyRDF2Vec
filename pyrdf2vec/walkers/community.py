@@ -9,7 +9,8 @@ import networkx as nx
 import numpy as np
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KnowledgeGraph, Vertex
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import Walker
 
 
@@ -29,9 +30,7 @@ def sample_from_iterable(x):
     return next(perms)
 
 
-np.random.permutation = lambda x: next(
-    itertools.permutations(x)
-)  # sample_from_iterable
+np.random.permutation = lambda x: next(itertools.permutations(x))
 
 
 class CommunityWalker(Walker):
@@ -40,6 +39,8 @@ class CommunityWalker(Walker):
     Attributes:
         depth: The depth per entity.
         walks_per_graph (float): The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
         hop_prob: The probability to hop.
             Defaults to 0.1.
         resolution: The resolution.
@@ -51,10 +52,11 @@ class CommunityWalker(Walker):
         self,
         depth: int,
         walks_per_graph: float,
+        sampler: UniformSampler = UniformSampler(),
         hop_prob: float = 0.1,
         resolution: int = 1,
     ):
-        super().__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph, sampler)
         self.hop_prob = hop_prob
         self.resolution = resolution
 
@@ -76,17 +78,17 @@ class CommunityWalker(Walker):
 
         for v in graph._vertices:
             if not v.predicate:
-                name = v.name
+                name = str(v)
                 nx_graph.add_node(name, vertex=v)
 
         for v in graph._vertices:
             if not v.predicate:
-                v_name = v.name
+                v_name = str(v)
                 # Neighbors are predicates
                 for pred in graph.get_neighbors(v):
-                    pred_name = pred.name
+                    pred_name = str(pred)
                     for obj in graph.get_neighbors(pred):
-                        obj_name = obj.name
+                        obj_name = str(obj)
                         nx_graph.add_edge(v_name, obj_name, name=pred_name)
 
         # This will create a dictionary that maps the URI on a community
@@ -104,8 +106,65 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
+    def extract_random_community_walks_bfs(self, graph, root):
+        """Extract random walks of depth - 1 hops rooted in root."""
+        # Initialize one walk of length 1 (the root)
+
+        walks = {(root,)}
+
+        for i in range(self.depth):
+            # In each iteration, iterate over the walks, grab the
+            # last hop, get all its neighbors and extend the walks
+            walks_copy = walks.copy()
+            for walk in walks_copy:
+                hops = graph.get_hops(walk[-1])
+                if len(hops) > 0:
+                    walks.remove(walk)
+                for (pred, obj) in hops:
+                    walks.add(walk + (pred, obj))
+                    if (
+                        hops in self.communities
+                        and np.random.random() < self.hop_prob
+                    ):
+                        community_nodes = self.labels_per_community[
+                            self.communities[hops]
+                        ]
+                        rand_jump = np.random.choice(community_nodes)
+                        walks.add(walk + (rand_jump,))
+
+        # Return a numpy array of these walks
+        return list(walks)
+
+    def extract_random_community_walks_dfs(self, graph, root):
+        """Extract random walks of depth - 1 hops rooted in root."""
+        # Initialize one walk of length 1 (the root)
+        self.sampler.initialize()
+
+        walks = []
+        while len(walks) < self.walks_per_graph:
+            new = (root,)
+            d = (len(new) - 1) // 2
+            while d // 2 < self.depth:
+                last = d == self.depth - 1
+                hop = self.sampler.sample_neighbor(graph, new, last)
+                if hop is None:
+                    break
+                if (
+                    hop in self.communities
+                    and np.random.random() < self.hop_prob
+                ):
+                    community_nodes = self.labels_per_community[
+                        self.communities[hop]
+                    ]
+                    rand_jump = np.random.choice(community_nodes)
+                    new = new + (rand_jump,)
+                else:
+                    new = new + (hop[0], hop[1])
+            walks.append(new)
+        return list(set(walks))
+
     def extract_random_community_walks(
-        self, graph: KnowledgeGraph, root: Vertex
+        self, graph: KnowledgeGraph, root: str
     ) -> List[Vertex]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
@@ -123,42 +182,9 @@ class CommunityWalker(Walker):
             The list of walks.
 
         """
-        # Initialize one walk of length 1 (the root)
-
-        walks = {(root,)}
-
-        for i in range(self.depth):
-            # In each iteration, iterate over the walks, grab the
-            # last hop, get all its neighbors and extend the walks
-            walks_copy = walks.copy()
-            for walk in walks_copy:
-                node = walk[-1]
-                neighbors = graph.get_neighbors(node)
-                if len(neighbors) > 0:
-                    walks.remove(walk)
-
-                for neighbor in neighbors:
-                    walks.add(walk + (neighbor,))  # type: ignore
-                    if (
-                        neighbor in self.communities
-                        and np.random.random() < self.hop_prob
-                    ):
-                        community_nodes = self.labels_per_community[
-                            self.communities[neighbor]
-                        ]
-                        rand_jump = np.random.choice(community_nodes)
-                        walks.add(walk + (rand_jump,))  # type: ignore
-
-            # TODO: Should we prune in every iteration?
-            if self.walks_per_graph is not None:
-                n_walks = min(len(walks), self.walks_per_graph)
-                walks_ix = np.random.choice(
-                    range(len(walks)), replace=False, size=n_walks
-                )
-                if len(walks_ix) > 0:
-                    walks_list = list(walks)
-                    walks = {walks_list[ix] for ix in walks_ix}
-        return list(walks)  # type: ignore
+        if self.walks_per_graph is None:
+            return self.extract_random_community_walks_bfs(graph, root)
+        return self.extract_random_community_walks_dfs(graph, root)
 
     def extract(
         self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
@@ -180,16 +206,14 @@ class CommunityWalker(Walker):
         self._community_detection(graph)
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_community_walks(
-                graph, Vertex(str(instance))
-            )
+            walks = self.extract_random_community_walks(graph, str(instance))
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):  # type: ignore
                     if i == 0 or i % 2 == 1:
-                        canonical_walk.append(hop.name)
+                        canonical_walk.append(str(hop))
                     else:
-                        digest = md5(hop.name.encode()).digest()[:8]
+                        digest = md5(str(hop).encode()).digest()[:8]
                         canonical_walk.append(str(digest))
                 canonical_walks.add(tuple(canonical_walk))
         return canonical_walks
