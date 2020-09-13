@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 import pytest
 import rdflib
@@ -13,7 +14,7 @@ KG = KnowledgeGraph(
 )
 
 
-def generate_entities():
+def generate_entities() -> List[rdflib.URIRef]:
     return [
         rdflib.URIRef(
             f"{LABEL_PREDICATE.split('#')[0] + '#'}{random.randint(0, 335)}"
