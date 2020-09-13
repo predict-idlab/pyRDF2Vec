@@ -35,9 +35,7 @@ class RDF2VecTransformer:
     def __init__(
         self,
         vector_size: int = 500,
-        walkers: Sequence[Walker] = [
-            RandomWalker(2, float("inf"), UniformSampler())
-        ],
+        walkers: Sequence[Walker] = [RandomWalker(2, None, UniformSampler())],
         n_jobs: int = 1,
         window: int = 5,
         sg: int = 1,
