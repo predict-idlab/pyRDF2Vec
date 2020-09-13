@@ -22,7 +22,7 @@ class RandomWalker(Walker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: float,
+        walks_per_graph,
         sampler: Sampler = UniformSampler(),
     ):
         super().__init__(depth, walks_per_graph, sampler)
