@@ -5,7 +5,7 @@ from typing import Any, DefaultDict, List, Set, Tuple
 import rdflib
 
 from pyrdf2vec.graphs import KnowledgeGraph, Vertex
-from pyrdf2vec.samplers import UniformSampler
+from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -26,7 +26,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         self,
         depth: int,
         walks_per_graph: float,
-        sampler: UniformSampler = UniformSampler(),
+        sampler: Sampler = UniformSampler(),
         wl_iterations: int = 4,
     ):
         super().__init__(depth, walks_per_graph, sampler)

@@ -3,7 +3,7 @@ from typing import Any, List, Set, Tuple
 import rdflib
 
 from pyrdf2vec.graphs import KnowledgeGraph
-from pyrdf2vec.samplers import UniformSampler
+from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
 class Walker:
@@ -21,7 +21,7 @@ class Walker:
         self,
         depth: int,
         walks_per_graph: float,
-        sampler: UniformSampler = UniformSampler(),
+        sampler: Sampler = UniformSampler(),
     ):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
