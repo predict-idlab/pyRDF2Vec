@@ -72,7 +72,7 @@ class KnowledgeGraph:
                 kg.parse(self.file_name, format=self.file_name.split(".")[-1])
             else:
                 kg.parse(self.file_name, self.file_type)
-        except:
+        except Exception:
             kg.parse(self.file_name)
 
         for (s, p, o) in kg:
