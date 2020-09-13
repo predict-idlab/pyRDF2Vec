@@ -1,21 +1,23 @@
-import os
 import random
 import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import rdflib
-from sklearn.manifold import TSNE
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.graphs import KnowledgeGraph
-from pyrdf2vec.samplers import (ObjFreqSampler, ObjPredFreqSampler,
-                                PageRankSampler, PredFreqSampler,
-                                UniformSampler)
 from pyrdf2vec.walkers import RandomWalker
+
+from pyrdf2vec.samplers import (  # isort: skip
+    ObjFreqSampler,
+    ObjPredFreqSampler,
+    PageRankSampler,
+    PredFreqSampler,
+    UniformSampler,
+)
 
 warnings.filterwarnings("ignore")
 

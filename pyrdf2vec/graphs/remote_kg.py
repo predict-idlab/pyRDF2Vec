@@ -1,6 +1,5 @@
 from typing import List, Tuple
 
-import rdflib
 from SPARQLWrapper import JSON, SPARQLWrapper
 
 

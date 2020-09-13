@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import rdflib
 from sklearn.manifold import TSNE
-from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.graphs import RemoteKnowledgeGraph
