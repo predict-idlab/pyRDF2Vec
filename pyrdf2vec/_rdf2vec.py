@@ -52,9 +52,7 @@ class RDF2VecTransformer:
         self.walkers = walkers
         self.window = window
 
-    def fit(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
-    ) -> None:
+    def fit(self, graph, instances: List[rdflib.URIRef]) -> None:
         """Fits the embedding network based on provided instances.
 
         Args:
@@ -88,9 +86,7 @@ class RDF2VecTransformer:
             seed=42,
         )
 
-    def transform(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
-    ) -> List[str]:
+    def transform(self, graph, instances: List[rdflib.URIRef]) -> List[str]:
         """Constructs a feature vector for the provided instances.
 
         Args:
@@ -113,7 +109,7 @@ class RDF2VecTransformer:
         return feature_vectors
 
     def fit_transform(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph, instances: List[rdflib.URIRef]
     ) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
