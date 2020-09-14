@@ -2,7 +2,7 @@ from typing import Any, Set
 
 import numpy as np
 
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 
 
 class Sampler:
@@ -20,11 +20,11 @@ class Sampler:
         self.inverse = inverse
         self.split = split
 
-    def fit(self, kg: KnowledgeGraph) -> None:
-        """Fits the embedding network based on provided knowledge graph.
+    def fit(self, kg: KG) -> None:
+        """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
         """
         if self.split:
@@ -42,7 +42,7 @@ class Sampler:
         """
         self.visited: Set[Any] = set()  #
 
-    def sample_neighbor(self, kg: KnowledgeGraph, walk, last):
+    def sample_neighbor(self, kg: KG, walk, last):
         not_tag_neighbors = [
             x
             for x in kg.get_hops(walk[-1])

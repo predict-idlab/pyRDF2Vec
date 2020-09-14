@@ -3,7 +3,7 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import Walker
 
@@ -60,9 +60,7 @@ class RandomWalker(Walker):
             walks.append(new)
         return list(set(walks))
 
-    def extract_random_walks(
-        self, graph: KnowledgeGraph, root: str
-    ) -> List[Vertex]:
+    def extract_random_walks(self, graph: KG, root: str) -> List[Vertex]:
         """Breadth-first search to extract all possible walks.
 
         Args:
@@ -81,7 +79,7 @@ class RandomWalker(Walker):
         return self.extract_random_walks_dfs(graph, root)
 
     def extract(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts the walks and processes them for the embedding model.
 

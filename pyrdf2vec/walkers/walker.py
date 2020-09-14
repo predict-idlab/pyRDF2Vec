@@ -2,7 +2,7 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
@@ -28,7 +28,7 @@ class Walker:
         self.sampler = sampler
 
     def extract(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
@@ -49,7 +49,7 @@ class Walker:
 
     def print_walks(
         self,
-        graph: KnowledgeGraph,
+        graph: KG,
         instances: List[rdflib.URIRef],
         file_name: str,
     ) -> None:

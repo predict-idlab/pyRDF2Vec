@@ -1,4 +1,4 @@
-from pyrdf2vec.graphs import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KG, Vertex
 
 a = Vertex("a")
 b = Vertex("b")
@@ -23,28 +23,28 @@ class TestVertex:
 
 
 LABEL_PREDICATE = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-KG = KnowledgeGraph(
+KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATE
 )
 
 
-class TestKnowledgeGraph:
+class TestKG:
     def test_visualise(self):
-        KG.visualise()
+        KNOWLEDGE_GRAPH.visualise()
         assert True
 
     def test_add_edge(self):
-        KG.add_edge(a, c)
+        KNOWLEDGE_GRAPH.add_edge(a, c)
         assert True
 
     def test_get_neighbors(self):
-        KG.get_neighbors(a)
+        KNOWLEDGE_GRAPH.get_neighbors(a)
         assert True
 
     def test_inv_get_neighbors(self):
-        KG.get_inv_neighbors(a)
+        KNOWLEDGE_GRAPH.get_inv_neighbors(a)
         assert True
 
     def test_remove_edge(self):
-        KG.remove_edge(a, c)
+        KNOWLEDGE_GRAPH.remove_edge(a, c)
         assert True

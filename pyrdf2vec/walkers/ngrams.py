@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
@@ -61,7 +61,7 @@ class NGramWalker(RandomWalker):
         return n_gram_walk  # type:ignore
 
     def extract(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Dict[Tuple[Any, ...], str], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.

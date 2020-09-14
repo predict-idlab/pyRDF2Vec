@@ -18,10 +18,10 @@ class UniformSampler(Sampler):
         super().__init__(inverse)
 
     def fit(self, kg) -> None:
-        """Fits the embedding network based on provided knowledge graph.
+        """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
         """
         pass

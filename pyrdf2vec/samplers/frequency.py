@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any, DefaultDict
 
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
@@ -23,11 +23,11 @@ class ObjFreqSampler(Sampler):
     def __init__(self, inverse=False, split=False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: KnowledgeGraph) -> None:
-        """Fits the embedding network based on provided knowledge graph.
+    def fit(self, kg: KG) -> None:
+        """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
         """
         super().fit(kg)
@@ -71,11 +71,11 @@ class PredFreqSampler(Sampler):
     def __init__(self, inverse: bool = False, split: bool = False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: KnowledgeGraph) -> None:
-        """Fits the embedding network based on provided knowledge graph.
+    def fit(self, kg: KG) -> None:
+        """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
         """
         super().fit(kg)
@@ -119,11 +119,11 @@ class ObjPredFreqSampler(Sampler):
     def __init__(self, inverse: bool = False, split: bool = False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: KnowledgeGraph) -> None:
-        """Fits the embedding network based on provided knowledge graph.
+    def fit(self, kg: KG) -> None:
+        """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
         """
         super().fit(kg)

@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 from pyrdf2vec.samplers import (  # isort: skip
@@ -42,9 +42,7 @@ all_labels = list(train_labels) + list(test_labels)
 label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 
 # Convert the rdflib to our KnowledgeGraph object
-kg = KnowledgeGraph(
-    "samples/mutag/mutag.owl", label_predicates=label_predicates
-)
+kg = KG("samples/mutag/mutag.owl", label_predicates=label_predicates)
 
 samplers = [
     ("Uniform", UniformSampler()),

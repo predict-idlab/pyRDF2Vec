@@ -2,7 +2,7 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
@@ -27,7 +27,7 @@ class AnonymousWalker(RandomWalker):
         super().__init__(depth, walks_per_graph, sampler)
 
     def extract(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.

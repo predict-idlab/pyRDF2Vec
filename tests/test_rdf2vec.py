@@ -8,7 +8,7 @@ import pytest
 import rdflib
 
 from pyrdf2vec._rdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 from pyrdf2vec.samplers import (  # isort: skip
@@ -34,7 +34,7 @@ test_entities = [rdflib.URIRef(x) for x in test_data["bond"]]
 entities = train_entities + test_entities
 
 LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-KG = KnowledgeGraph(
+KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES
 )
 
@@ -79,7 +79,7 @@ class TestRDF2Vec:
         transformer = RDF2VecTransformer(
             walkers=[walker(2, 5, sampler())], sg=0
         )
-        assert transformer.fit_transform(KG, entities)
+        assert transformer.fit_transform(KNOWLEDGE_GRAPH, entities)
 
     @pytest.mark.parametrize(
         "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
@@ -88,4 +88,4 @@ class TestRDF2Vec:
         transformer = RDF2VecTransformer(
             walkers=[walker(2, 5, sampler())], sg=1
         )
-        assert transformer.fit_transform(KG, entities)
+        assert transformer.fit_transform(KNOWLEDGE_GRAPH, entities)

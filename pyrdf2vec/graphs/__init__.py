@@ -1,8 +1,10 @@
-from .kg import KnowledgeGraph, Vertex
-from .remote_kg import RemoteKnowledgeGraph
+"""isort:skip_file"""
+
+from .kg import KG, Vertex
+from .remote_kg import RemoteKG
 
 __all__ = [
-    "KnowledgeGraph",
-    "RemoteKnowledgeGraph",
+    "KG",
+    "RemoteKG",
     "Vertex",
 ]

@@ -12,7 +12,7 @@ import rdflib
 
 @attr.s(auto_attribs=True, frozen=True, slots=True, cmp=False)
 class Vertex:
-    """Represents a vertex in a knowledge graph."""
+    """Represents a vertex in a Knowledge Graph."""
 
     name: str
     predicate: bool = False
@@ -50,7 +50,7 @@ class Vertex:
         return hash(self.name)
 
 
-class KnowledgeGraph:
+class KG:
     """Represents a Knowledge Graph."""
 
     def __init__(self, file_name, label_predicates, file_type=None):
@@ -87,7 +87,7 @@ class KnowledgeGraph:
                 self.add_edge(p_v, o_v)
 
     def add_vertex(self, vertex: Vertex) -> None:
-        """Adds a vertex to the knowledge graph.
+        """Adds a vertex to the Knowledge Graph.
 
         Args:
             vertex: The vertex
@@ -166,7 +166,7 @@ class KnowledgeGraph:
             self._transition_matrix[v1].remove(v2)
 
     def visualise(self) -> None:
-        """Visualises the knowledge graph."""
+        """Visualises the Knowledge Graph."""
         nx_graph = nx.DiGraph()
 
         for v in self._vertices:

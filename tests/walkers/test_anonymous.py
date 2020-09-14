@@ -3,12 +3,12 @@ from typing import List
 
 import rdflib
 
-from pyrdf2vec.graphs import KnowledgeGraph
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import AnonymousWalker
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = KnowledgeGraph(
+KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
 )
 
@@ -25,7 +25,7 @@ def generate_entities() -> List[rdflib.URIRef]:
 class TestAnonymousWalker:
     def test_extract(self):
         canonical_walks = AnonymousWalker(2, 5, UniformSampler()).extract(
-            KG, str(generate_entities())
+            KNOWLEDGE_GRAPH, str(generate_entities())
         )
         assert type(canonical_walks) == set
 

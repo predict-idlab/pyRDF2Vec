@@ -8,7 +8,7 @@ import rdflib
 from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import RemoteKnowledgeGraph
+from pyrdf2vec.graphs import RemoteKG
 from pyrdf2vec.walkers import RandomWalker
 
 warnings.filterwarnings("ignore")
@@ -26,13 +26,13 @@ labels = data["label"]
 # will be excluded from the graph
 label_predicates = ["www.w3.org/1999/02/22-rdf-syntax-ns#type"]
 
-# Convert the rdflib to our KnowledgeGraph object
-# kg = KnowledgeGraph(
+# Convert the rdflib to our KG object
+# kg = KG(
 #     "samples/countries-cities/countries.ttl",
 #     label_predicates=label_predicates,
 #     format="turtle",
 # )
-kg = RemoteKnowledgeGraph("https://dbpedia.org/sparql")
+kg = RemoteKG("https://dbpedia.org/sparql")
 
 # We'll all possible walks of depth 6 (3 hops)
 random_walker = RandomWalker(3, 250)

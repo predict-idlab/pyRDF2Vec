@@ -3,7 +3,7 @@ from typing import List, Tuple
 from SPARQLWrapper import JSON, SPARQLWrapper
 
 
-class RemoteKnowledgeGraph:
+class RemoteKG:
     """Represents a Knowledge Graph from a SPARQL endpoint."""
 
     def __init__(self, location):
