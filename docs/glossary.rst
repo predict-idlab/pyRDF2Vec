@@ -7,7 +7,7 @@ It's not always easy to understand all the notions used in ``pyRDF2Vec``. This
 glossary is here to help you to have an idea behind all these notions:
 
 Continuous Bag-of-Words (CBOW)
-   Model part of ``Word2vec``, that predicts target words from contextual words
+   Model, part of ``Word2vec``, that predicts target words from contextual words
    in a given window.
 
 depth
@@ -52,40 +52,36 @@ predicate
 RDF2Vec
    Creates vector representations of RDF graphs.
 
-sample
-   TODO
-
 sampling strategy
-   TODO
+   Select relevant neighbor entities.
 
 Skip-Gram (SG)
-   Model part of ``Word2vec``, that predicts the context words from the target
+   Model, part of ``Word2vec``, that predicts the context words from the target
    words in a given window.
 
+SPARQL Query Language (SPARQL)
+   Declarative Query Language (*e.g.,* SQL) for performing Data Manipulation
+   and Data Definition operations on Data represented as a collection of RDF
+   Language sentences/statements.
+
 SPARQL endpoint
-   TODO
+   Point of presence identified by a URL (SPARQL Endpoint URL) and located on
+   an HTTP network that is capable of receiving and processing requests under
+   the SPARQL protocol.
 
 subject
    Noun or pronoun used in a sentence and related to an action.
 
 transformer
-   TODO
-
-triple
-   TODO
+    Transform the Knowledge Graph into sequences of entities, which can be considered as sentences.
 
 Uniform Resource Identifier (URI)
    Unique character string that identifies a particular resource, using a
    predefined set of syntax rules.
 
-walk
-   TODO
-
-walker
-   TODO
-
 walking strategy
-   TODO
+   Generates graph walks for each vertex of a given knowledge graph, from a
+   certain depth.
 
 Word2vec
    Neural language modeling techniques (NLP), which takes sequences of words to
