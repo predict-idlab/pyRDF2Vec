@@ -23,6 +23,9 @@ embedding (or vector)
    Numerical representation of a word, regardless of where the words occurs in
    a sentence.
 
+entity
+   Specific type of node in a Knowledge Graph that is characterized by a URI.
+
 entities
    Sequences that allows unsupervised feature extraction using language
    modeling.
