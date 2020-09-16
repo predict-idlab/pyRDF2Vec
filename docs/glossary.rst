@@ -32,9 +32,9 @@ feature matrix
    Learning (ML) tasks.
 
 Knowledge Graph (KG)
-   Knowledge Base (KG) initiated by Google, which, through misuse of language,
-   refers to the collection of domain-specific knowledge given in a form usable
-   by a computer.
+   Initiated by Google, it unify information from various sources and enrich
+   classical data formats by explicitly encoding relations between different data
+   points in the form of edges.
 
 Knowledge Graph Embeddings (KGE)
    Contains a set of entities and relationships between these entities, where
@@ -50,7 +50,9 @@ predicate
    the subject concerned in that sentence.
 
 RDF2Vec
-   Creates vector representations of RDF graphs.
+   Unsupervised technique that can create task-agnostic numerical
+   representations of the nodes in a Knowledge Graph by extending successful
+   language modeling techniques.
 
 sampling strategy
    Select relevant neighbor entities.
