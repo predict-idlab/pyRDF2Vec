@@ -19,9 +19,10 @@ embedding technique
    compared to the dimension of the dataset, while keeping the most important
    information about them.
 
-embedding (or vector)
-   Numerical representation of a word, regardless of where the words occurs in
-   a sentence.
+embeddings (or latent representation/vectors)
+   Numerical representation of a node in a given Knowledge Graph, where
+   entities that are semantically related should be close to each other in the
+   embedded space.
 
 entity
    Specific type of node in a Knowledge Graph that is characterized by a URI.
@@ -57,6 +58,9 @@ RDF2Vec
    representations of the nodes in a Knowledge Graph by extending successful
    language modeling techniques.
 
+sampling
+   Gets a collection of biased walks after each iteration, according to metric.
+
 sampling strategy
    Select relevant neighbor entities.
 
@@ -78,15 +82,24 @@ subject
    Noun or pronoun used in a sentence and related to an action.
 
 transformer
-    Transform the Knowledge Graph into sequences of entities, which can be considered as sentences.
+   Transform the Knowledge Graph into sequences of entities, which can be
+   considered as sentences.
 
 Uniform Resource Identifier (URI)
    Unique character string that identifies a particular resource, using a
    predefined set of syntax rules.
 
+vertice
+   Node which can be one of the three following types: entity, blank or literal.
+
+walk
+   Sequence of vertices that can be found in the Knowledge Graph by browsing
+   the given directed links.
+
 walking strategy
    Generates graph walks for each vertex of a given knowledge graph, from a
-   certain depth.
+   certain depth according to a type of a strategy (type 1 for extraction or
+   type 2 for transformation).
 
 Word2vec
    Neural language modeling techniques (NLP), which takes sequences of words to
