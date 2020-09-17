@@ -6,12 +6,20 @@ Glossary
 It's not always easy to understand all the notions used in ``pyRDF2Vec``. This
 glossary is here to help you to have an idea behind all these notions:
 
+anonymous walks
+   Transformation walking strategy that transforms label information into
+   positional information.
+
 Continuous Bag-of-Words (CBOW)
    Model, part of ``Word2vec``, that predicts target words from contextual words
    in a given window.
 
 depth
    Refers to the number of hops needed to reach sub-trees.
+
+community hops
+   Extraction walk strategy that captures implicit relationships between nodes
+   that are not explicitly modeled in the given Knowledge Graph.
 
 embedding technique
    Technique used in machine learning to represent complex objects (*e.g.,*
@@ -35,6 +43,11 @@ feature matrix
    2D vector created from a Knowledge Graph for downstream Machine
    Learning (ML) tasks.
 
+Hierarchical Random Walk (HALK)
+   Transformation walk strategy that removes rare entities from random walks in
+   order to increase the quality of generated embedding while decreasing memory
+   usage.
+
 Knowledge Graph (KG)
    Initiated by Google, it unify information from various sources and enrich
    classical data formats by explicitly encoding relations between different data
@@ -45,9 +58,12 @@ Knowledge Graph Embeddings (KGE)
    all the facts in a Knowledge Graph are represented as triples (subject,
    predicate, object).
 
+N-Gram walks
+   The transformation walk strategy based on the fact that the predecessors of
+   a node that two different walks have in common can be different.
+
 object
    Noun or pronoun used in a sentence and which is acted upon by the subject.
-
 
 predicate
    Often associated with a large part of a sentence, designating something from
@@ -100,6 +116,10 @@ walking strategy
    Generates graph walks for each vertex of a given knowledge graph, from a
    certain depth according to a type of a strategy (type 1 for extraction or
    type 2 for transformation).
+
+walklets
+   Transformation walking strategy with walks of length two, consisting of the
+   root of the original walk and one of the hops.
 
 Word2vec
    Neural language modeling techniques (NLP), which takes sequences of words to
