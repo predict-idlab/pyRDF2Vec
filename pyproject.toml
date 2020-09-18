@@ -2,6 +2,11 @@
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
 [tool.poetry]
 name = "pyrdf2vec"
 version = "0.0.5"
@@ -10,7 +15,7 @@ license = "Ghent University and IMEC vzw"
 authors = [
     "Gilles Vandewiele <gilles.vandewiele@ugent.be>",
     "Bram Steenwinckel <bram.steenwinckel@ugent.be>",
-    "Michael Weyns <michael.weyns@ugent.be>"
+    "Michael Weyns <michael.weyns@ugent.be>",
 ]
 maintainers = ["Gilles Vandewiele <gilles.vandewiele@ugent.be>"]
 readme = "README.rst"
