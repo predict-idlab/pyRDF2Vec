@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import itertools
 from collections import defaultdict
 from typing import Optional, Set
@@ -9,44 +7,31 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True, cmp=False)
-class Vertex:
-    """Represents a vertex in a knowledge graph."""
+class Vertex(object):
+    vertex_counter = 0
+    
+    def __init__(self, name, predicate=False, vprev=None, vnext=None):
+        self.name = name
+        self.predicate = predicate
+        self.vprev = vprev
+        self.vnext = vnext
 
-    name: str
-    predicate: bool = False
-    _vprev: Optional[Vertex] = None
-    _vnext: Optional[Vertex] = None
-
-    _counter = itertools.count()
-    id: int = attr.ib(init=False, factory=lambda: next(Vertex._counter))
-
+        self.id = Vertex.vertex_counter
+        Vertex.vertex_counter += 1
+        
     def __eq__(self, other):
-        """Defines behavior for the equality operator, ==.
-
-        Args:
-            other (Vertex): The other vertex to test the equality.
-
-        Returns:
-            bool: True if the hash of the vertices are equal. False otherwise.
-
-        """
-        if other is not None:
-            return self.__hash__() == other.__hash__()
-        return False
-
+        if other is None: 
+            return False
+        return self.__hash__() == other.__hash__()
+    
     def __hash__(self):
-        """Defines behavior for when hash() is called on a vertex.
-
-        Returns:
-            int: The identifier and name of the vertex, as well as its previous
-                and next neighbor if the vertex has a predicate. The hash of
-                the name of the vertex otherwise.
-
-        """
         if self.predicate:
-            return hash((self.id, self._vprev, self._vnext, self.name))
-        return hash(self.name)
+            return hash((self.id, self.vprev, self.vnext, self.name))
+        else:
+            return hash(self.name)
+
+    def __lt__(self, other):
+        return self.name < other.name
 
 
 class KnowledgeGraph:
@@ -56,6 +41,7 @@ class KnowledgeGraph:
         self._inv_transition_matrix = defaultdict(set)
         self._transition_matrix = defaultdict(set)
         self._vertices = set()
+        self._entities = set()
 
     def add_vertex(self, vertex: Vertex) -> None:
         """Adds a vertex to the knowledge graph.
@@ -64,8 +50,9 @@ class KnowledgeGraph:
             vertex (Vertex): The vertex
 
         """
-        if vertex.predicate:
-            self._vertices.add(vertex)
+        self._vertices.add(vertex)
+        if not vertex.predicate:
+            self._entities.add(vertex)
 
     def add_edge(self, v1: Vertex, v2: Vertex) -> None:
         """Adds a uni-directional edge.

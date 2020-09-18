@@ -18,7 +18,7 @@ DATASET = {
     "train": ["samples/mutag-train.tsv", "bond", "label_mutagenic"],
 }
 LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-OUTPUT = "samples/mutag.owl"
+KG_PATH = "samples/mutag.owl"
 WALKERS = [RandomWalker(4, float("inf"))]
 
 PLOT_SAVE = "embeddings.png"
@@ -86,7 +86,7 @@ train_entities, train_labels = load_data(
 entities = train_entities + test_entities
 labels = train_labels + test_labels
 
-kg = rdflib_to_kg(OUTPUT, label_predicates=LABEL_PREDICATES)
+kg = rdflib_to_kg(KG_PATH, label_predicates=LABEL_PREDICATES)
 train_embeddings, test_embeddings = create_embeddings(
     kg, entities, len(train_entities), WALKERS
 )
