@@ -38,7 +38,7 @@
    readme
    glossary
    license
-   modules
+   API <api/pyrdf2vec>
 
 .. toctree::
    :maxdepth: 2
