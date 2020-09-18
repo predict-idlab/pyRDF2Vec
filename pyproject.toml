@@ -63,6 +63,7 @@ tox = "^3.19.0"
 yamllint = "^1.24.2"
 towncrier = "^19.2.0"
 sphinxcontrib-apidoc = "^0.3.0"
+sphinx-autodoc-typehints = "^1.11.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme"]

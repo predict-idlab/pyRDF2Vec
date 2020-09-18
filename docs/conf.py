@@ -37,6 +37,7 @@ exclude_patterns = ["_build"]
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
     "sphinx_rtd_theme",
     "sphinxcontrib.apidoc",
 ]
