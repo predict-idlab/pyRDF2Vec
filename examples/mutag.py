@@ -93,7 +93,6 @@ entities = train_entities + test_entities
 labels = train_labels + test_labels
 
 kg = KG("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
-
 train_embeddings, test_embeddings = create_embeddings(
     kg, entities, len(train_entities), WALKERS
 )
