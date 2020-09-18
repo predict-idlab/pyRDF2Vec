@@ -117,7 +117,7 @@ legacy_tox_ini = """
 [tox]
 envlist =
     docs
-    py{37,38}
+    py{36,37,38}
     lint
     tests
 isolated_build = True
