@@ -1,4 +1,5 @@
 from typing import Any, List, Set, Tuple
+import abc
 
 import rdflib
 
@@ -6,7 +7,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
-class Walker:
+class Walker(metaclass=abc.ABCMeta):
     """Base class for the walking strategies.
 
     Attributes:
@@ -27,6 +28,7 @@ class Walker:
         self.walks_per_graph = walks_per_graph
         self.sampler = sampler
 
+    @abc.abstractmethod
     def extract(
         self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
