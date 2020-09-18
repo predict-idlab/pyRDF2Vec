@@ -4,8 +4,9 @@ from typing import List
 import rdflib
 
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.samplers import UniformSampler
-from pyrdf2vec.walkers import CommunityWalker
+
+# from pyrdf2vec.samplers import UniformSampler
+# from pyrdf2vec.walkers import CommunityWalker
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
 KNOWLEDGE_GRAPH = KG(
