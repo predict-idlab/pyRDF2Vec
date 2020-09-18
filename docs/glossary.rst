@@ -15,11 +15,15 @@ Continuous Bag-of-Words (CBOW)
    in a given window.
 
 depth
-   Refers to the number of hops needed to reach sub-trees.
+   Refers to the number of hops in a walk.
 
 community hops
-   Extraction walk strategy that captures implicit relationships between nodes
-   that are not explicitly modeled in the given Knowledge Graph.
+   A hop to a node that is not a neighbor, but is rather part of the same
+   community, which is determined through community detection.
+
+community walks
+   An extraction walk strategy that allows for community hops with a certain
+   probability.
 
 embedding technique
    Technique used in machine learning to represent complex objects (*e.g.,*
@@ -35,50 +39,29 @@ embeddings (or latent representation/vectors)
 entity
    Specific type of node in a Knowledge Graph that is characterized by a URI.
 
-entities
-   Sequences that allows unsupervised feature extraction using language
-   modeling.
-
 feature matrix
-   2D vector created from a Knowledge Graph for downstream Machine
-   Learning (ML) tasks.
+   An NxK matrix where N is the number of entities and K the embedding size,
+   which can be used for further downstream Machine learning (ML) tasks.
 
-Hierarchical Random Walk (HALK)
-   Transformation walk strategy that removes rare entities from random walks in
-   order to increase the quality of generated embedding while decreasing memory
-   usage.
+Hierarchical Random Walks (HALK)
+   Transformation walk strategy that removes rare entities from random walks.
 
 Knowledge Graph (KG)
-   Initiated by Google, it unify information from various sources and enrich
-   classical data formats by explicitly encoding relations between different data
-   points in the form of edges.
-
-Knowledge Graph Embeddings (KGE)
-   Contains a set of entities and relationships between these entities, where
-   all the facts in a Knowledge Graph are represented as triples (subject,
-   predicate, object).
+   A graphical representation of (domain or expert) knowledge encoded as a
+   collection of triples having the form (subject, predicate, object).
 
 N-Gram walks
-   The transformation walk strategy based on the fact that the predecessors of
-   a node that two different walks have in common can be different.
-
-object
-   Noun or pronoun used in a sentence and which is acted upon by the subject.
-
-predicate
-   Often associated with a large part of a sentence, designating something from
-   the subject concerned in that sentence.
+   The transformation walk strategy based on that creates N-grams from N
+   consecutive hops in a walk, which are then relabeled.
 
 RDF2Vec
    Unsupervised technique that can create task-agnostic numerical
    representations of the nodes in a Knowledge Graph by extending successful
    language modeling techniques.
 
-sampling
-   Gets a collection of biased walks after each iteration, according to metric.
-
 sampling strategy
-   Select relevant neighbor entities.
+   A strategy to select the next neighbor in a walk. This can either be at
+   random or guided by some metric (biased walks).
 
 Skip-Gram (SG)
    Model, part of ``Word2vec``, that predicts the context words from the target
@@ -94,22 +77,16 @@ SPARQL endpoint
    an HTTP network that is capable of receiving and processing requests under
    the SPARQL protocol.
 
-subject
-   Noun or pronoun used in a sentence and related to an action.
-
-transformer
-   Transform the Knowledge Graph into sequences of entities, which can be
-   considered as sentences.
-
 Uniform Resource Identifier (URI)
    Unique character string that identifies a particular resource, using a
    predefined set of syntax rules.
 
-vertice
-   Node which can be one of the three following types: entity, blank or literal.
+vertex
+   Node in graph which can be one of the three following types: entity, blank
+   or literal.
 
 walk
-   Sequence of vertices that can be found in the Knowledge Graph by browsing
+   Sequence of vertices that can be found in the Knowledge Graph by traversing
    the given directed links.
 
 walking strategy
