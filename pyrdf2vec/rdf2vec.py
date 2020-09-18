@@ -4,11 +4,11 @@ import rdflib
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
-class RDF2VecTransformer():
+class RDF2VecTransformer:
     """Transforms nodes in a knowledge graph into an embedding.
 
     Attributes:
@@ -52,9 +52,11 @@ class RDF2VecTransformer():
         self.window = window
 
     def fit(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef],
-        verbose: bool = False
-    ) -> None:
+        self,
+        graph: KG,
+        instances: List[rdflib.URIRef],
+        verbose: bool = False,
+    ) -> "RDF2VecTransformer":
         """Fits the embedding network based on provided instances.
 
         Args:
@@ -67,9 +69,13 @@ class RDF2VecTransformer():
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         """
-        if not all([Vertex(str(instance)) in graph._vertices 
-                    for instance in instances]):
-            raise ValueError('The provided instances must be in the graph')
+        if not all(
+            [
+                Vertex(str(instance)) in graph._vertices
+                for instance in instances
+            ]
+        ):
+            raise ValueError("The provided instances must be in the graph")
 
         self.walks_ = []
         for walker in self.walkers:
@@ -96,9 +102,7 @@ class RDF2VecTransformer():
 
         return self
 
-    def transform(
-        self, instances: List[rdflib.URIRef]
-    ) -> List[str]:
+    def transform(self, instances: List[rdflib.URIRef]) -> List[str]:
         """Constructs a feature vector for the provided instances.
 
         Args:
@@ -113,9 +117,10 @@ class RDF2VecTransformer():
         """
         check_is_fitted(self, ["model_"])
         if not all([str(inst) in self.model_.wv for inst in instances]):
-            raise ValueError('The instances must have been provided to '
-                             'fit() first before they can be transformed '
-                             'into a numerical vector.')
+            raise ValueError(
+                "The instances must have been provided to fit() first "
+                "before they can be transformed into a numerical vector."
+            )
 
         feature_vectors = []
         for instance in instances:
@@ -123,13 +128,13 @@ class RDF2VecTransformer():
         return feature_vectors
 
     def fit_transform(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph: KG, instances: List[rdflib.URIRef]
     ) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
 
         Args:
-            graph (graph.KnowledgeGraph): The knowledge graph
+            graph (graph.KG): The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
             instances: The instances to create the embedding.
@@ -143,6 +148,3 @@ class RDF2VecTransformer():
         """
         self.fit(graph, instances)
         return self.transform(instances)
-
-    def _more_tags(self):
-        return {'X_types': ['string']}

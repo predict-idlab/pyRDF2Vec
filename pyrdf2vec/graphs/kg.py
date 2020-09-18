@@ -1,8 +1,6 @@
-import itertools
 from collections import defaultdict
-from typing import List, Optional, Set, Tuple
+from typing import List, Set, Tuple
 
-import attr
 import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
@@ -10,7 +8,7 @@ import rdflib
 
 class Vertex(object):
     vertex_counter = 0
-    
+
     def __init__(self, name, predicate=False, vprev=None, vnext=None):
         self.name = name
         self.predicate = predicate
@@ -19,12 +17,12 @@ class Vertex(object):
 
         self.id = Vertex.vertex_counter
         Vertex.vertex_counter += 1
-        
+
     def __eq__(self, other):
-        if other is None: 
+        if other is None:
             return False
         return self.__hash__() == other.__hash__()
-    
+
     def __hash__(self):
         if self.predicate:
             return hash((self.id, self.vprev, self.vnext, self.name))
