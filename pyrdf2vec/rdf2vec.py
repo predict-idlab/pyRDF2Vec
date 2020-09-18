@@ -4,11 +4,11 @@ import rdflib
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
-from pyrdf2vec.samplers import UniformSampler
+from pyrdf2vec.graph import KnowledgeGraph, Vertex
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
-class RDF2VecTransformer:
+class RDF2VecTransformer():
     """Transforms nodes in a knowledge graph into an embedding.
 
     Attributes:
@@ -34,7 +34,7 @@ class RDF2VecTransformer:
     def __init__(
         self,
         vector_size: int = 500,
-        walkers: Sequence[Walker] = [RandomWalker(2, None, UniformSampler())],
+        walkers: Sequence[Walker] = [RandomWalker(2, float("inf"))],
         n_jobs: int = 1,
         window: int = 5,
         sg: int = 1,
@@ -51,7 +51,10 @@ class RDF2VecTransformer:
         self.walkers = walkers
         self.window = window
 
-    def fit(self, graph, instances: List[rdflib.URIRef]) -> None:
+    def fit(
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef],
+        verbose: bool = False
+    ) -> None:
         """Fits the embedding network based on provided instances.
 
         Args:
@@ -64,14 +67,20 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         """
+        if not all([Vertex(str(instance)) in graph._vertices 
+                    for instance in instances]):
+            raise ValueError('The provided instances must be in the graph')
+
         self.walks_ = []
         for walker in self.walkers:
             self.walks_ += list(walker.extract(graph, instances))
-        print(
-            f"Extracted {len(self.walks_)} walks"
-            + f" for {len(instances)} instances!"
-        )
         sentences = [list(map(str, x)) for x in self.walks_]
+
+        if verbose:
+            print(
+                f"Extracted {len(self.walks_)} walks"
+                " for {len(instances)} instances!"
+            )
 
         self.model_ = Word2Vec(
             sentences,
@@ -85,13 +94,14 @@ class RDF2VecTransformer:
             seed=42,
         )
 
-    def transform(self, graph, instances: List[rdflib.URIRef]) -> List[str]:
+        return self
+
+    def transform(
+        self, instances: List[rdflib.URIRef]
+    ) -> List[str]:
         """Constructs a feature vector for the provided instances.
 
         Args:
-            graph: The knowledge graph
-                The graph from which we will extract neighborhoods for the
-                provided instances.
             instances: The instances to create the embedding.
                 The test instances should be passed to the fit method as well.
 
@@ -102,19 +112,24 @@ class RDF2VecTransformer:
 
         """
         check_is_fitted(self, ["model_"])
+        if not all([str(inst) in self.model_.wv for inst in instances]):
+            raise ValueError('The instances must have been provided to '
+                             'fit() first before they can be transformed '
+                             'into a numerical vector.')
+
         feature_vectors = []
         for instance in instances:
             feature_vectors.append(self.model_.wv.get_vector(str(instance)))
         return feature_vectors
 
     def fit_transform(
-        self, graph, instances: List[rdflib.URIRef]
+        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
     ) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
 
         Args:
-            graph: The knowledge graph
+            graph (graph.KnowledgeGraph): The knowledge graph
                 The graph from which we will extract neighborhoods for the
                 provided instances.
             instances: The instances to create the embedding.
@@ -127,4 +142,7 @@ class RDF2VecTransformer:
 
         """
         self.fit(graph, instances)
-        return self.transform(graph, instances)
+        return self.transform(instances)
+
+    def _more_tags(self):
+        return {'X_types': ['string']}
