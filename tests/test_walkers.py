@@ -1,18 +1,17 @@
-import pkgutil
 import inspect
-import pytest
+import pkgutil
 import random
 from operator import itemgetter
 
 import numpy as np
 import pandas as pd
+import pytest
 import rdflib
 
 import pyrdf2vec
-from pyrdf2vec.walkers import Walker
-from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.graphs import KG
-
+from pyrdf2vec.samplers import UniformSampler
+from pyrdf2vec.walkers import Walker
 
 np.random.seed(42)
 random.seed(42)
@@ -26,7 +25,7 @@ entities_subset = entities[:5]
 
 
 def is_abstract(c):
-    if not(hasattr(c, '__abstractmethods__')):
+    if not (hasattr(c, "__abstractmethods__")):
         return False
     if not len(c.__abstractmethods__):
         return False
@@ -38,8 +37,9 @@ def _get_all_classes():
     # add all the classes to a list
     all_classes = []
     base_path = pyrdf2vec.__path__
-    for _, name, _ in pkgutil.walk_packages(path=base_path,
-                                            prefix='pyrdf2vec.'):
+    for _, name, _ in pkgutil.walk_packages(
+        path=base_path, prefix="pyrdf2vec."
+    ):
         module = __import__(name, fromlist="dummy")
         all_classes.extend(inspect.getmembers(module, inspect.isclass))
     return all_classes
@@ -61,8 +61,8 @@ def check_walker(Walker):
     assert type(canonical_walks) == set
 
 
-@pytest.mark.parametrize('name, Walker', _get_walkers())
+@pytest.mark.parametrize("name, Walker", _get_walkers())
 def test_all_walkers(name, Walker):
     """Test all the estimators in tslearn."""
-    print(f'Testing {name}')
+    print(f"Testing {name}")
     check_walker(Walker)
