@@ -11,6 +11,14 @@ Subpackages
    pyrdf2vec.samplers
    pyrdf2vec.walkers
 
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pyrdf2vec.rdf2vec
+
 Module contents
 ---------------
 

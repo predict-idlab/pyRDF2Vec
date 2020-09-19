@@ -128,7 +128,7 @@ class RDF2VecTransformer:
         return feature_vectors
 
     def fit_transform(
-        self, graph: KG, instances: List[rdflib.URIRef]
+        self, graph, instances: List[rdflib.URIRef]
     ) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.

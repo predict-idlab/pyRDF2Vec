@@ -1,5 +1,3 @@
-import functools
-import itertools
 import random
 
 import numpy as np
@@ -10,6 +8,7 @@ from sklearn.exceptions import NotFittedError
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
+
 # from pyrdf2vec.walkers import RandomWalker
 
 # from pyrdf2vec.samplers import (  # isort: skip
@@ -79,13 +78,10 @@ class TestRDF2VecTransformer:
 
     def test_fit_transform(self):
         transformer = RDF2VecTransformer()
-
-        # Check if result of fit_transform() is the same as fit().transform()
-        walk_embeddings_1 = transformer.fit_transform(kg, entities_subset)
-        walk_embeddings_2 = transformer.fit(kg, entities_subset).transform(
-            entities_subset
+        np.testing.assert_array_equal(
+            transformer.fit_transform(kg, entities_subset),
+            transformer.fit(kg, entities_subset).transform(entities_subset),
         )
-        np.testing.assert_array_equal(walk_embeddings_1, walk_embeddings_2)
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
@@ -96,9 +92,8 @@ class TestRDF2VecTransformer:
 
         # Check if doesn't crash.
         transformer.fit(kg, entities_subset)
-        features_vectors = transformer.transform(entities_subset)
 
-        # Should return a list
+        features_vectors = transformer.transform(entities_subset)
         assert type(features_vectors) == list
 
     # # TODO: This should be moved to sampler/walker tests

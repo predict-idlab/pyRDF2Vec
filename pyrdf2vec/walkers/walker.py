@@ -1,5 +1,5 @@
-from typing import Any, List, Set, Tuple
 import abc
+from typing import Any, List, Set, Tuple
 
 import rdflib
 

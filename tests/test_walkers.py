@@ -1,8 +1,9 @@
 import inspect
+import os
 import pkgutil
 import random
 from operator import itemgetter
-from typing import List, Sequence, Tuple, TypeVar
+from typing import List, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -29,7 +30,7 @@ ENTITIES_SUBSET = ENTITIES[:5]
 T = TypeVar("T")
 
 
-def _get_classes() -> List[T]:
+def _get_classes() -> List[Tuple[str, T]]:
     """Gets the classes from a package.
 
     Returns:
@@ -37,7 +38,8 @@ def _get_classes() -> List[T]:
 
     """
     classes = []
-    base_path = pyrdf2vec.__path__
+    base_path = [os.path.dirname(pyrdf2vec.__file__)]
+    print(base_path)
     for _, name, _ in pkgutil.walk_packages(
         path=base_path, prefix="pyrdf2vec."
     ):
@@ -54,8 +56,10 @@ def _get_walkers() -> List[Tuple[str, T]]:
         The classes.
 
     """
-    classes = [c for c in set(_get_classes()) if issubclass(c[1], Walker)]
-    classes = filter(lambda c: not is_abstract(c[1]), classes)
+    classes = [  # type: ignore
+        c for c in set(_get_classes()) if issubclass(c[1], Walker)
+    ]
+    classes = filter(lambda c: not is_abstract(c[1]), classes)  # type: ignore
     return sorted(set(classes), key=itemgetter(0))
 
 
@@ -66,7 +70,7 @@ def check_walker(Walker):
     assert type(canonical_walks) == set
 
 
-def is_abstract(c: Sequence[T]) -> bool:
+def is_abstract(c) -> bool:
     """Tells whether a class is abstract or not.
 
     Args:
@@ -76,7 +80,9 @@ def is_abstract(c: Sequence[T]) -> bool:
         True if abstract class, False otherwise.
 
     """
-    return hasattr(c, "__abstractmethods__") and len(c.__abstractmethods__)
+    return (
+        hasattr(c, "__abstractmethods__") and len(c.__abstractmethods__) != 0
+    )
 
 
 @pytest.mark.parametrize("name, Walker", _get_walkers())
