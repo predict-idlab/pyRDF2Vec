@@ -1,3 +1,4 @@
+import abc
 from typing import Any, Set
 
 import numpy as np
@@ -5,7 +6,7 @@ import numpy as np
 from pyrdf2vec.graphs import KG
 
 
-class Sampler:
+class Sampler(metaclass=abc.ABCMeta):
     """Base class for the sampling strategies.
 
     Attributes:
@@ -20,6 +21,7 @@ class Sampler:
         self.inverse = inverse
         self.split = split
 
+    @abc.abstractmethod
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
@@ -72,6 +74,7 @@ class Sampler:
             self.visited.add((not_tag_neighbors[rand_ix], len(walk)))
         return not_tag_neighbors[rand_ix]
 
+    @abc.abstractmethod
     def get_weight(self, hop):
         """Gets the weights to the edge of the Knowledge Graph.
 
