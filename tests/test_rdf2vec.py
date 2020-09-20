@@ -9,58 +9,17 @@ from sklearn.exceptions import NotFittedError
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
 
-# from pyrdf2vec.walkers import RandomWalker
-
-# from pyrdf2vec.samplers import (  # isort: skip
-#     ObjPredFreqSampler,
-#     PredFreqSampler,
-#     UniformSampler,
-# )
-
-# To fix: ObjFreqSampler, PageRankSampler
-
-# To fix: AnonymousWalker, CommunityWalker, HalkWalker, NGramWalker,
-#         WeisfeilerLehmanWalker; WalkletWalker,
-
-# TODO: Can we use pytest.fixtures to create a transformer automatically?
-
 np.random.seed(42)
 random.seed(42)
 
-LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-kg = KG("samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE])
-LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=[])
-train_df = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-entities = [rdflib.URIRef(x) for x in train_df["bond"]]
-entities_subset = entities[:5]
+TEST_KG = KG(
+    "samples/mutag/mutag.owl",
+    label_predicates=["http://dl-learner.org/carcinogenesis#isMutagenic"],
+)
+TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
-# # TODO: This should be moved to sampler/walker tests
-# SAMPLER_CLASSES = {
-#     # ObjFreqSampler: "Object Frequency",
-#     ObjPredFreqSampler: "Predicate-Object Frequency",
-#     # PageRankSampler: "PageRank",
-#     PredFreqSampler: "Predicate Frequency",
-#     UniformSampler: "Uniform",
-# }
-# SAMPLER_CLASSES.update(
-#     {
-#         functools.partial(samp, inverse=True): (  # type: ignore
-#             "Inverse %s" % desc
-#         )
-#         for samp, desc in SAMPLER_CLASSES.items()
-#         if samp is not UniformSampler
-#     }
-# )
-
-# WALKER_CLASSES = {
-#     # AnonymousWalker: "Anonymous",
-#     # CommunityWalker: "Community",
-#     # HalkWalker: "HALK",
-#     # NGramWalker: "NGram",
-#     RandomWalker: "Random",
-#     # WalkletWalker: "Walklet",
-#     # WeisfeilerLehmanWalker: "Weisfeiler-Lehman",
-# }
+ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
+ENTITIES_SUBSET = ENTITIES[:5]
 
 
 class TestRDF2VecTransformer:
@@ -70,17 +29,19 @@ class TestRDF2VecTransformer:
         # The provided entities to fit() should be in the KG
         with pytest.raises(ValueError):
             non_existing_entities = ["does", "not", "exist"]
-            transformer.fit(kg, non_existing_entities)
+            transformer.fit(TEST_KG, non_existing_entities)
 
         # Check if the fit doesn't crash.
-        transformer.fit(kg, entities_subset)
+        transformer.fit(TEST_KG, ENTITIES_SUBSET)
         assert True
 
     def test_fit_transform(self):
         transformer = RDF2VecTransformer()
         np.testing.assert_array_equal(
-            transformer.fit_transform(kg, entities_subset),
-            transformer.fit(kg, entities_subset).transform(entities_subset),
+            transformer.fit_transform(TEST_KG, ENTITIES_SUBSET),
+            transformer.fit(TEST_KG, ENTITIES_SUBSET).transform(
+                ENTITIES_SUBSET
+            ),
         )
 
     def test_transform(self):
@@ -88,30 +49,10 @@ class TestRDF2VecTransformer:
 
         # fit() should be called first before calling transform()
         with pytest.raises(NotFittedError):
-            _ = transformer.transform(entities_subset)
+            _ = transformer.transform(ENTITIES_SUBSET)
 
         # Check if doesn't crash.
-        transformer.fit(kg, entities_subset)
+        transformer.fit(TEST_KG, ENTITIES_SUBSET)
 
-        features_vectors = transformer.transform(entities_subset)
+        features_vectors = transformer.transform(ENTITIES_SUBSET)
         assert type(features_vectors) == list
-
-    # # TODO: This should be moved to sampler/walker tests
-    # @pytest.mark.parametrize(
-    #     "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLER_CLASSES)
-    # )
-    # def test_fit_transform_with_cbow(self, walker, sampler):
-    #     transformer = RDF2VecTransformer(
-    #         walkers=[walker(2, 5, sampler())], sg=0
-    #     )
-    #     assert transformer.fit_transform(kg, entities_subset)
-
-    # # TODO: This should be moved to sampler/walker tests
-    # @pytest.mark.parametrize(
-    #     "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLER_CLASSES)
-    # )
-    # def test_fit_transform_with_skip_gram(self, walker, sampler):
-    #     transformer = RDF2VecTransformer(
-    #         walkers=[walker(2, 5, sampler())], sg=1
-    #     )
-    #     assert transformer.fit_transform(kg, entities_subset)
