@@ -25,13 +25,10 @@ ENTITIES_SUBSET = ENTITIES[:5]
 class TestRDF2VecTransformer:
     def test_fit(self):
         transformer = RDF2VecTransformer()
-
         # The provided entities to fit() should be in the KG
         with pytest.raises(ValueError):
             non_existing_entities = ["does", "not", "exist"]
             transformer.fit(TEST_KG, non_existing_entities)
-
-        # Check if the fit doesn't crash.
         transformer.fit(TEST_KG, ENTITIES_SUBSET)
         assert True
 
@@ -46,13 +43,8 @@ class TestRDF2VecTransformer:
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
-
-        # fit() should be called first before calling transform()
         with pytest.raises(NotFittedError):
-            _ = transformer.transform(ENTITIES_SUBSET)
-
-        # Check if doesn't crash.
+            transformer.transform(ENTITIES_SUBSET)
         transformer.fit(TEST_KG, ENTITIES_SUBSET)
-
         features_vectors = transformer.transform(ENTITIES_SUBSET)
         assert type(features_vectors) == list
