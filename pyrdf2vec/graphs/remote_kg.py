@@ -35,7 +35,7 @@ class RemoteKG:
         self.endpoint.setQuery(query)
         self.endpoint.setReturnFormat(JSON)
         results = self.endpoint.query().convert()
-        hops = []
-        for result in results["results"]["bindings"]:
-            hops.append((result["p"]["value"], result["o"]["value"]))
-        return hops
+        return [
+            (result["p"]["value"], result["o"]["value"])
+            for result in results["results"]["bindings"]
+        ]
