@@ -57,7 +57,7 @@ class RDF2VecTransformer:
 
     def fit(
         self,
-        graph: KG,
+        graph,
         instances: List[rdflib.URIRef],
         verbose: bool = False,
     ) -> "RDF2VecTransformer":
@@ -103,7 +103,6 @@ class RDF2VecTransformer:
             min_count=self.min_count,
             seed=42,
         )
-
         return self
 
     def transform(self, instances: List[rdflib.URIRef]) -> List[str]:
@@ -125,7 +124,6 @@ class RDF2VecTransformer:
                 "The instances must have been provided to fit() first "
                 "before they can be transformed into a numerical vector."
             )
-
         feature_vectors = []
         for instance in instances:
             feature_vectors.append(self.model_.wv.get_vector(str(instance)))
