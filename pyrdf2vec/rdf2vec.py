@@ -5,6 +5,7 @@ from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
@@ -15,7 +16,8 @@ class RDF2VecTransformer:
         vector_size: The dimension of the embeddings.
             Defaults to 500.
         walkers: The walking strategy.
-            Defaults to pyrdf2vec.walkers.RandomWalker(2, float("inf")).
+            Defaults to pyrdf2vec.walkers.RandomWalker(2, None,
+            UniformSampler(inverse=False)).
         n_jobs: The number of threads to train the model.
             Defaults to 1.
         sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
@@ -34,7 +36,9 @@ class RDF2VecTransformer:
     def __init__(
         self,
         vector_size: int = 500,
-        walkers: Sequence[Walker] = [RandomWalker(2, float("inf"))],
+        walkers: Sequence[Walker] = [
+            RandomWalker(2, None, UniformSampler(inverse=False))
+        ],
         n_jobs: int = 1,
         window: int = 5,
         sg: int = 1,
