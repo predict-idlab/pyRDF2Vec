@@ -69,7 +69,7 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         """
-        if not all(
+        if isinstance(graph, KG) and not all(
             [
                 Vertex(str(instance)) in graph._vertices
                 for instance in instances
