@@ -4,7 +4,7 @@ import rdflib
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
-from pyrdf2vec.graphs import RDFLoader, SPARQLLoader, Vertex
+from pyrdf2vec.graphs import RDFLoader, Vertex
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 

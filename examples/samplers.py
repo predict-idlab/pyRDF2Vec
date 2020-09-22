@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import KG, RDFLoader
+from pyrdf2vec.graphs import RDFLoader
 from pyrdf2vec.walkers import RandomWalker
 
 from pyrdf2vec.samplers import (  # isort: skip
