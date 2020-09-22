@@ -4,7 +4,7 @@ import rdflib
 from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import RDFLoader, SPARQLLoader, Vertex
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
@@ -57,14 +57,14 @@ class RDF2VecTransformer:
 
     def fit(
         self,
-        graph,
+        kg: RDFLoader,
         instances: List[rdflib.URIRef],
         verbose: bool = False,
     ) -> "RDF2VecTransformer":
         """Fits the embedding network based on provided instances.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to create the embedding.
@@ -73,17 +73,14 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         """
-        if isinstance(graph, KG) and not all(
-            [
-                Vertex(str(instance)) in graph._vertices
-                for instance in instances
-            ]
+        if isinstance(kg, RDFLoader) and not all(
+            [Vertex(str(instance)) in kg._vertices for instance in instances]
         ):
             raise ValueError("The provided instances must be in the graph")
 
         self.walks_ = []
         for walker in self.walkers:
-            self.walks_ += list(walker.extract(graph, instances))
+            self.walks_ += list(walker.extract(kg, instances))
         sentences = [list(map(str, x)) for x in self.walks_]
 
         if verbose:
@@ -129,14 +126,12 @@ class RDF2VecTransformer:
             feature_vectors.append(self.model_.wv.get_vector(str(instance)))
         return feature_vectors
 
-    def fit_transform(
-        self, graph, instances: List[rdflib.URIRef]
-    ) -> List[str]:
+    def fit_transform(self, kg, instances: List[rdflib.URIRef]) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         instances.
 
         Args:
-            graph (graph.KG): The knowledge graph
+            kg: The knowledge graph.
                 The graph from which we will extract neighborhoods for the
                 provided instances.
             instances: The instances to create the embedding.
@@ -148,5 +143,5 @@ class RDF2VecTransformer:
             The embeddings of the provided instances.
 
         """
-        self.fit(graph, instances)
+        self.fit(kg, instances)
         return self.transform(instances)

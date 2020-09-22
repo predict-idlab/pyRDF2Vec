@@ -8,7 +8,7 @@ import rdflib
 from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import RemoteKG
+from pyrdf2vec.graphs import SPARQLLoader
 from pyrdf2vec.walkers import RandomWalker
 
 warnings.filterwarnings("ignore")
@@ -32,7 +32,7 @@ label_predicates = ["www.w3.org/1999/02/22-rdf-syntax-ns#type"]
 #     label_predicates=label_predicates,
 #     format="turtle",
 # )
-kg = RemoteKG("https://dbpedia.org/sparql")
+kg = SPARQLLoader("https://dbpedia.org/sparql")
 
 # We'll all possible walks of depth 6 (3 hops)
 random_walker = RandomWalker(3, 250)

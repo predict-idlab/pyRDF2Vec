@@ -9,7 +9,7 @@ import networkx as nx
 import numpy as np
 import rdflib
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import RDFLoader, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import Walker
 
@@ -60,7 +60,7 @@ class CommunityWalker(Walker):
         self.hop_prob = hop_prob
         self.resolution = resolution
 
-    def _community_detection(self, graph: KG) -> None:
+    def _community_detection(self, kg: RDFLoader) -> None:
         """Converts the knowledge graph to a networkX graph.
 
         Note:
@@ -68,7 +68,7 @@ class CommunityWalker(Walker):
             `rdflib.Graph` object by using a converter method.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
@@ -76,18 +76,18 @@ class CommunityWalker(Walker):
         """
         nx_graph = nx.Graph()
 
-        for v in graph._vertices:
+        for v in kg._vertices:
             if not v.predicate:
                 name = str(v)
                 nx_graph.add_node(name, vertex=v)
 
-        for v in graph._vertices:
+        for v in kg._vertices:
             if not v.predicate:
                 v_name = str(v)
                 # Neighbors are predicates
-                for pred in graph.get_neighbors(v):
+                for pred in kg.get_neighbors(v):
                     pred_name = str(pred)
-                    for obj in graph.get_neighbors(pred):
+                    for obj in kg.get_neighbors(pred):
                         obj_name = str(obj)
                         nx_graph.add_edge(v_name, obj_name, name=pred_name)
 
@@ -106,7 +106,7 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
-    def extract_random_community_walks_bfs(self, graph, root):
+    def extract_random_community_walks_bfs(self, kg, root):
         """Extract random walks of depth - 1 hops rooted in root."""
         # Initialize one walk of length 1 (the root)
 
@@ -117,7 +117,7 @@ class CommunityWalker(Walker):
             # last hop, get all its neighbors and extend the walks
             walks_copy = walks.copy()
             for walk in walks_copy:
-                hops = graph.get_hops(walk[-1])
+                hops = kg.get_hops(walk[-1])
                 if len(hops) > 0:
                     walks.remove(walk)
                 for (pred, obj) in hops:
@@ -135,7 +135,7 @@ class CommunityWalker(Walker):
         # Return a numpy array of these walks
         return list(walks)
 
-    def extract_random_community_walks_dfs(self, graph, root):
+    def extract_random_community_walks_dfs(self, kg, root):
         """Extract random walks of depth - 1 hops rooted in root."""
         # Initialize one walk of length 1 (the root)
         self.sampler.initialize()
@@ -146,7 +146,7 @@ class CommunityWalker(Walker):
             d = (len(new) - 1) // 2
             while d // 2 < self.depth:
                 last = d == self.depth - 1
-                hop = self.sampler.sample_neighbor(graph, new, last)
+                hop = self.sampler.sample_neighbor(kg, new, last)
                 if hop is None:
                     break
                 if (
@@ -164,7 +164,7 @@ class CommunityWalker(Walker):
         return list(set(walks))
 
     def extract_random_community_walks(
-        self, graph: KG, root: str
+        self, kg: RDFLoader, root: str
     ) -> List[Vertex]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
@@ -173,7 +173,7 @@ class CommunityWalker(Walker):
             `rdflib.Graph` object by using a converter method.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             root: The root.
@@ -183,17 +183,17 @@ class CommunityWalker(Walker):
 
         """
         if self.walks_per_graph is None:
-            return self.extract_random_community_walks_bfs(graph, root)
-        return self.extract_random_community_walks_dfs(graph, root)
+            return self.extract_random_community_walks_bfs(kg, root)
+        return self.extract_random_community_walks_dfs(kg, root)
 
     def extract(
-        self, graph: KG, instances: List[rdflib.URIRef]
+        self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to extract the knowledge graph.
@@ -203,10 +203,10 @@ class CommunityWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        self._community_detection(graph)
+        self._community_detection(kg)
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_community_walks(graph, str(instance))
+            walks = self.extract_random_community_walks(kg, str(instance))
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):  # type: ignore

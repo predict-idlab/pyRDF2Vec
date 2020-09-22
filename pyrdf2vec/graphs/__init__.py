@@ -1,10 +1,12 @@
 """isort:skip_file"""
 
 from .kg import KG, Vertex
-from .remote_kg import RemoteKG
+from .sparql_loader import SPARQLLoader
+from .rdf_loader import RDFLoader
 
 __all__ = [
     "KG",
-    "RemoteKG",
+    "RDFLoader",
+    "SPARQLLoader",
     "Vertex",
 ]

@@ -4,7 +4,7 @@ from typing import Any, DefaultDict, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import RDFLoader, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
@@ -32,7 +32,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         super().__init__(depth, walks_per_graph, sampler)
         self.wl_iterations = wl_iterations
 
-    def _create_label(self, kg: KG, vertex: Vertex, n: int):
+    def _create_label(self, kg: RDFLoader, vertex: Vertex, n: int):
         """Creates a label.
 
         kg: The knowledge graph.
@@ -50,7 +50,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         suffix = "-".join(sorted(set(map(str, neighbor_names))))
         return self._label_map[vertex][n - 1] + "-" + suffix
 
-    def _weisfeiler_lehman(self, kg: KG) -> None:
+    def _weisfeiler_lehman(self, kg: RDFLoader) -> None:
         """Performs Weisfeiler-Lehman relabeling of the vertices.
 
         Note:
@@ -58,7 +58,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
             `rdflib.Graph` object by using a converter method.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
@@ -81,13 +81,13 @@ class WeisfeilerLehmanWalker(RandomWalker):
                 self._inv_label_map[vertex][val] = key
 
     def extract(
-        self, graph: KG, instances: List[rdflib.URIRef]
+        self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to extract the knowledge graph.
@@ -97,10 +97,10 @@ class WeisfeilerLehmanWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        self._weisfeiler_lehman(graph)
+        self._weisfeiler_lehman(kg)
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_walks(graph, str(instance))
+            walks = self.extract_random_walks(kg, str(instance))
             for n in range(self.wl_iterations + 1):
                 for walk in walks:
                     canonical_walk = []

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any, DefaultDict
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import RDFLoader
 from pyrdf2vec.samplers import Sampler
 
 
@@ -23,7 +23,7 @@ class ObjFreqSampler(Sampler):
     def __init__(self, inverse=False, split=False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: KG) -> None:
+    def fit(self, kg: RDFLoader) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
@@ -34,7 +34,7 @@ class ObjFreqSampler(Sampler):
         self.counts = {}
         for vertex in kg._vertices:
             if not vertex.predicate:
-                self.counts[str(vertex)] = len(kg.get_inv_neighbors(vertex))
+                self.counts[vertex.name] = len(kg.get_inv_neighbors(vertex))
 
     def get_weight(self, hop) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
@@ -50,7 +50,7 @@ class ObjFreqSampler(Sampler):
             The weights to the edge of the Knowledge Graph.
 
         """
-        return self.counts[str(hop[1])]
+        return self.counts[hop[1].name]
 
 
 class PredFreqSampler(Sampler):
@@ -71,7 +71,7 @@ class PredFreqSampler(Sampler):
     def __init__(self, inverse: bool = False, split: bool = False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: KG) -> None:
+    def fit(self, kg: RDFLoader) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
@@ -82,7 +82,7 @@ class PredFreqSampler(Sampler):
         self.counts: DefaultDict[Any, Any] = defaultdict(int)
         for vertex in kg._vertices:
             if vertex.predicate:
-                self.counts[str(vertex)] += 1
+                self.counts[vertex.name] += 1
 
     def get_weight(self, hop) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
@@ -98,7 +98,7 @@ class PredFreqSampler(Sampler):
             The weights to the edge of the Knowledge Graph.
 
         """
-        return self.counts[str(hop[0])]
+        return self.counts[hop[0].name]
 
 
 class ObjPredFreqSampler(Sampler):
@@ -119,7 +119,7 @@ class ObjPredFreqSampler(Sampler):
     def __init__(self, inverse: bool = False, split: bool = False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: KG) -> None:
+    def fit(self, kg: RDFLoader) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
@@ -132,7 +132,7 @@ class ObjPredFreqSampler(Sampler):
             if vertex.predicate:
                 # Always one object associated with this predicate
                 obj = list(kg.get_neighbors(vertex))[0]
-                self.counts[(str(vertex), str(obj))] += 1
+                self.counts[(vertex.name, obj.name)] += 1
 
     def get_weight(self, hop) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
@@ -148,4 +148,4 @@ class ObjPredFreqSampler(Sampler):
             The weights to the edge of the Knowledge Graph.
 
         """
-        return self.counts[(str(hop[0]), str(hop[1]))]
+        return self.counts[(hop[0].name, hop[1].name)]

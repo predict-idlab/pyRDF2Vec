@@ -3,7 +3,7 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import KG, RDFLoader, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import Walker
 
@@ -60,11 +60,11 @@ class RandomWalker(Walker):
             walks.append(new)
         return list(set(walks))
 
-    def extract_random_walks(self, graph: KG, root: str) -> List[Vertex]:
+    def extract_random_walks(self, kg: KG, root: str) -> List[Vertex]:
         """Breadth-first search to extract all possible walks.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
@@ -75,16 +75,16 @@ class RandomWalker(Walker):
 
         """
         if self.walks_per_graph is None:
-            return self.extract_random_walks_bfs(graph, root)
-        return self.extract_random_walks_dfs(graph, root)
+            return self.extract_random_walks_bfs(kg, root)
+        return self.extract_random_walks_dfs(kg, root)
 
     def extract(
-        self, graph: KG, instances: List[rdflib.URIRef]
+        self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts the walks and processes them for the embedding model.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to extract the knowledge graph.
@@ -94,10 +94,10 @@ class RandomWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        self.sampler.fit(graph)
+        self.sampler.fit(kg)
         canonical_walks = set()
         for i, instance in enumerate(instances):
-            walks = self.extract_random_walks(graph, instance)
+            walks = self.extract_random_walks(kg, instance)
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):  # type: ignore

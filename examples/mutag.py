@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import RDFLoader
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
@@ -34,7 +34,7 @@ random.seed(42)
 
 
 def create_embeddings(
-    kg: KG,
+    kg: RDFLoader,
     entities: List[rdflib.URIRef],
     split: int,
     walkers: Sequence[Walker],
@@ -92,7 +92,7 @@ train_entities, train_labels = load_data(
 entities = train_entities + test_entities
 labels = train_labels + test_labels
 
-kg = KG("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
+kg = RDFLoader("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
 train_embeddings, test_embeddings = create_embeddings(
     kg, entities, len(train_entities), WALKERS
 )

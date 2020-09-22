@@ -1,3 +1,4 @@
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
@@ -17,7 +18,7 @@ class UniformSampler(Sampler):
     def __init__(self, inverse=False):
         super().__init__(inverse)
 
-    def fit(self, kg) -> None:
+    def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:

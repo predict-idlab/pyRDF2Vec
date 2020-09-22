@@ -1,4 +1,4 @@
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import RDFLoader, Vertex
 
 a = Vertex("a")
 b = Vertex("b")
@@ -23,28 +23,26 @@ class TestVertex:
 
 
 LABEL_PREDICATE = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-KNOWLEDGE_GRAPH = KG(
-    "samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATE
-)
+KG = RDFLoader("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATE)
 
 
-class TestKG:
+class TestRDFLoader:
     def test_visualise(self):
-        KNOWLEDGE_GRAPH.visualise()
+        KG.visualise()
         assert True
 
     def test_add_edge(self):
-        KNOWLEDGE_GRAPH.add_edge(a, c)
+        KG.add_edge(a, c)
         assert True
 
     def test_get_neighbors(self):
-        KNOWLEDGE_GRAPH.get_neighbors(a)
+        KG.get_neighbors(a)
         assert True
 
     def test_inv_get_neighbors(self):
-        KNOWLEDGE_GRAPH.get_inv_neighbors(a)
+        KG.get_inv_neighbors(a)
         assert True
 
     def test_remove_edge(self):
-        KNOWLEDGE_GRAPH.remove_edge(a, c)
+        KG.remove_edge(a, c)
         assert True

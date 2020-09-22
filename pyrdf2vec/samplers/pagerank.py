@@ -2,7 +2,7 @@ from typing import Dict
 
 import networkx as nx
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import RDFLoader
 from pyrdf2vec.samplers import Sampler
 
 
@@ -29,7 +29,7 @@ class PageRankSampler(Sampler):
         super().__init__(inverse, split)
         self.alpha = alpha
 
-    def fit(self, kg: KG) -> None:
+    def fit(self, kg: RDFLoader) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
@@ -42,14 +42,10 @@ class PageRankSampler(Sampler):
         for vertex in kg._vertices:
             if not vertex.predicate:
                 nx_graph.add_node(vertex.name, vertex=vertex)
-
-        for vertex in kg._vertices:
-            if not vertex.predicate:
-                # Neighbors are predicates
-                for pred in kg.get_neighbors(vertex):
-                    for obj in kg.get_neighbors(pred):
+                for predicate in kg.get_neighbors(vertex):
+                    for obj in kg.get_neighbors(predicate):
                         nx_graph.add_edge(
-                            vertex.name, obj.name, name=pred.name
+                            vertex.name, obj.name, name=predicate.name
                         )
         self.pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
@@ -67,4 +63,4 @@ class PageRankSampler(Sampler):
             The weights to the edge of the Knowledge Graph.
 
         """
-        return self.pageranks[str(hop[1])]
+        return self.pageranks[hop[1].name]

@@ -2,8 +2,10 @@ from typing import List, Tuple
 
 from SPARQLWrapper import JSON, SPARQLWrapper
 
+from pyrdf2vec.graphs import KG
 
-class RemoteKG:
+
+class SPARQLLoader(KG):
     """Represents a Knowledge Graph from a SPARQL endpoint."""
 
     def __init__(self, location):
