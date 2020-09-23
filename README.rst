@@ -28,7 +28,10 @@
            <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=master&precision=2" alt="Coverage Status">
        </a>
        <a href="https://github.com/psf/black">
-           <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
+           <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
+       </a>
+       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
+           <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
        </a>
    </p>
    <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a Knowledge Graph</b> for downstream ML tasks.<p>
