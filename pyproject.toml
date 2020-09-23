@@ -2,6 +2,11 @@
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
 [tool.poetry]
 name = "pyrdf2vec"
 version = "0.0.5"
@@ -10,7 +15,7 @@ license = "Ghent University and IMEC vzw"
 authors = [
     "Gilles Vandewiele <gilles.vandewiele@ugent.be>",
     "Bram Steenwinckel <bram.steenwinckel@ugent.be>",
-    "Michael Weyns <michael.weyns@ugent.be>"
+    "Michael Weyns <michael.weyns@ugent.be>",
 ]
 maintainers = ["Gilles Vandewiele <gilles.vandewiele@ugent.be>"]
 readme = "README.rst"
@@ -21,7 +26,6 @@ classifiers=[
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Topic :: Software Development :: Build Tools"
@@ -34,13 +38,14 @@ include = [
 ]
 
 [tool.poetry.dependencies]
+SPARQLWrapper = "^1.8.5"
 attrs = "^20.1.0"
 gensim = "^3.8.3"
 matplotlib = "^3.3.1"
 networkx = "^2.5"
 numpy = "^1.19.1"
 pandas = "^1.1.1"
-python = "^3.8"
+python = "^3.7"
 python-louvain = "^0.14"
 rdflib = "^5.0.0"
 scikit-learn = "^0.23.2"
@@ -58,13 +63,15 @@ pre-commit = "^2.7.1"
 pytest = "^6.0.1"
 pytest-cov = "^2.10.1"
 sphinx = "^3.2.1"
+sphinx-autodoc-typehints = "^1.11.0"
 sphinx-rtd-theme = "^0.5.0"
+sphinxcontrib-apidoc = "^0.3.0"
+towncrier = "^19.2.0"
 tox = "^3.19.0"
 yamllint = "^1.24.2"
-towncrier = "^19.2.0"
 
 [tool.poetry.extras]
-docs = ["sphinx", "sphinx-rtd-theme"]
+docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
 lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
 tests = ["codecov", "pytest", "pytest-cov"]
 
@@ -116,11 +123,10 @@ legacy_tox_ini = """
 [tox]
 envlist =
     docs
-    py38
+    py{36,37,38}
     lint
     tests
 isolated_build = True
-
 
 [testenv:changelog]
 description = Displays the news fragments of the CHANGELOG file
@@ -132,11 +138,12 @@ commands = towncrier --draft
 description = Builds documentation (HTML) with Sphinx.
 deps =
     sphinx
+    sphinx-autodoc-typehints
     sphinx-rtd-theme
+    sphinxcontrib-apidoc
     tomlkit
 commands =
-    sphinx-apidoc -f -o docs pyrdf2vec
-    sphinx-build -n -T -W docs docs/_build/html
+    sphinx-build -n -T docs docs/_build/html
     python -m doctest README.rst
 
 [testenv:lint]

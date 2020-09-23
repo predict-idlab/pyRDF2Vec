@@ -1,7 +1,9 @@
+import random
 import warnings
 from typing import List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import rdflib
 from sklearn.manifold import TSNE
@@ -9,26 +11,30 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.converters import rdflib_to_kg
-from pyrdf2vec.graph import KnowledgeGraph
+from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 DATASET = {
-    "test": ["samples/mutag-test.tsv", "bond", "label_mutagenic"],
-    "train": ["samples/mutag-train.tsv", "bond", "label_mutagenic"],
+    "test": ["samples/mutag/test.tsv", "bond", "label_mutagenic"],
+    "train": ["samples/mutag/train.tsv", "bond", "label_mutagenic"],
 }
 LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-OUTPUT = "samples/mutag.owl"
-WALKERS = [RandomWalker(4, float("inf"))]
+OUTPUT = "samples/mutag/mutag.owl"
+# We'll extract all possible walks of depth 4 (2 hops)
+WALKERS = [RandomWalker(2, None, UniformSampler(inverse=False))]
 
 PLOT_SAVE = "embeddings.png"
 PLOT_TITLE = "pyRDF2Vec"
 
 warnings.filterwarnings("ignore")
 
+np.random.seed(42)
+random.seed(42)
+
 
 def create_embeddings(
-    kg: KnowledgeGraph,
+    kg: RDFLoader,
     entities: List[rdflib.URIRef],
     split: int,
     walkers: Sequence[Walker],
@@ -86,7 +92,7 @@ train_entities, train_labels = load_data(
 entities = train_entities + test_entities
 labels = train_labels + test_labels
 
-kg = rdflib_to_kg(OUTPUT, label_predicates=LABEL_PREDICATES)
+kg = RDFLoader("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
 train_embeddings, test_embeddings = create_embeddings(
     kg, entities, len(train_entities), WALKERS
 )
@@ -129,16 +135,25 @@ plt.scatter(
 )
 
 # Annotate a few points
-for i, ix in enumerate([25, 35]):
-    plt.annotate(
-        entities[ix].split("/")[-1],
-        xy=(X_walk_tsne[ix, 0], X_walk_tsne[ix, 1]),
-        xycoords="data",
-        xytext=(0.1 * i, 0.05 + 0.1 * i),
-        fontsize=8,
-        textcoords="axes fraction",
-        arrowprops=dict(arrowstyle="->", facecolor="black"),
-    )
+plt.annotate(
+    entities[25].split("/")[-1],
+    xy=(X_walk_tsne[25, 0], X_walk_tsne[25, 1]),
+    xycoords="data",
+    xytext=(0.01, 0.0),
+    fontsize=8,
+    textcoords="axes fraction",
+    arrowprops=dict(arrowstyle="->", facecolor="black"),
+)
+
+plt.annotate(
+    entities[35].split("/")[-1],
+    xy=(X_walk_tsne[35, 0], X_walk_tsne[35, 1]),
+    xycoords="data",
+    xytext=(0.4, 0.0),
+    fontsize=8,
+    textcoords="axes fraction",
+    arrowprops=dict(arrowstyle="->", facecolor="black"),
+)
 
 # Create a legend
 plt.scatter([], [], edgecolors="r", facecolors="r", label="train -")

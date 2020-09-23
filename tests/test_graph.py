@@ -1,5 +1,4 @@
-from pyrdf2vec.converters import rdflib_to_kg
-from pyrdf2vec.graph import Vertex
+from pyrdf2vec.graphs import RDFLoader, Vertex
 
 a = Vertex("a")
 b = Vertex("b")
@@ -23,11 +22,11 @@ class TestVertex:
         assert a != b
 
 
-LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = rdflib_to_kg("samples/mutag.owl", label_predicates=[LABEL_PREDICATE])
+LABEL_PREDICATE = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
+KG = RDFLoader("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATE)
 
 
-class TestKnowledgeGraph:
+class TestRDFLoader:
     def test_visualise(self):
         KG.visualise()
         assert True

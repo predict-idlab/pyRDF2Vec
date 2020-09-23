@@ -3,7 +3,8 @@ from typing import Any, Dict, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph, Vertex
+from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -13,6 +14,8 @@ class NGramWalker(RandomWalker):
     Attributes:
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
         grams: The number of grams.
             Defaults to 3.
         wildcards: the wild cards.
@@ -24,10 +27,11 @@ class NGramWalker(RandomWalker):
         self,
         depth: int,
         walks_per_graph: float,
+        sampler: Sampler = UniformSampler(),
         grams: int = 3,
         wildcards: list = None,
     ):
-        super().__init__(depth, walks_per_graph)
+        super().__init__(depth, walks_per_graph, sampler)
         self.grams = grams
         self.n_gram_map = {}  # type: Dict[Tuple, str]
         self.wildcards = wildcards
@@ -45,10 +49,10 @@ class NGramWalker(RandomWalker):
         n_gram_walk = []
         for i, hop in enumerate(walks):
             if i == 0 or i % 2 == 1 or i < self.grams:
-                n_gram_walk.append(hop.name)
+                n_gram_walk.append(str(hop))
             else:
                 n_gram = tuple(
-                    walks[j].name
+                    str(walks[j])
                     for j in range(max(0, i - (self.grams - 1)), i + 1)
                 )
                 if n_gram not in self.n_gram_map:
@@ -57,7 +61,7 @@ class NGramWalker(RandomWalker):
         return n_gram_walk  # type:ignore
 
     def extract(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Dict[Tuple[Any, ...], str], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
@@ -76,7 +80,7 @@ class NGramWalker(RandomWalker):
         """
         canonical_walks = set()
         for instance in instances:
-            walks = self.extract_random_walks(graph, Vertex(str(instance)))
+            walks = self.extract_random_walks(graph, str(instance))
             for walk in walks:
                 canonical_walks.add(
                     tuple(self._take_n_grams(walk))  # type:ignore

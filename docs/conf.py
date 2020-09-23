@@ -37,7 +37,9 @@ exclude_patterns = ["_build"]
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
     "sphinx_rtd_theme",
+    "sphinxcontrib.apidoc",
 ]
 intersphinx_mapping = {
     "rdflib": ("http://rdflib.readthedocs.org/en/latest/", None),
@@ -51,3 +53,7 @@ html_theme_options = {
     "sticky_navigation": False,
     "display_version": True,
 }
+
+apidoc_module_dir = "../pyrdf2vec"
+apidoc_excluded_paths = ["tests"]
+apidoc_separate_modules = True

@@ -1,25 +1,36 @@
+import abc
 from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graph import KnowledgeGraph
+from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
-class Walker:
+class Walker(metaclass=abc.ABCMeta):
     """Base class for the walking strategies.
 
     Attributes:
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
+        sampler: The sampling strategy.
+            Default to UniformSampler().
 
     """
 
-    def __init__(self, depth: int, walks_per_graph: float):
+    def __init__(
+        self,
+        depth: int,
+        walks_per_graph: float,
+        sampler: Sampler = UniformSampler(),
+    ):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
+        self.sampler = sampler
 
+    @abc.abstractmethod
     def extract(
-        self, graph: KnowledgeGraph, instances: List[rdflib.URIRef]
+        self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
@@ -40,14 +51,14 @@ class Walker:
 
     def print_walks(
         self,
-        graph: KnowledgeGraph,
+        kg: RDFLoader,
         instances: List[rdflib.URIRef],
         file_name: str,
     ) -> None:
         """Prints the walks of a knowledge graph.
 
         Args:
-            graph: The knowledge graph.
+            kg: The knowledge graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
@@ -55,7 +66,7 @@ class Walker:
             file_name: The filename that contains the rdflib.Graph
 
         """
-        walks = self.extract(graph, instances)
+        walks = self.extract(kg, instances)
         walk_strs = []
         for _, walk in enumerate(walks):
             s = ""

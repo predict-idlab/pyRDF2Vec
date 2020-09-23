@@ -1,0 +1,11 @@
+location	id	label
+http://dbpedia.org/resource/Belgium	1.0	1.0
+http://dbpedia.org/resource/France	2.0	1.0
+http://dbpedia.org/resource/Germany	3.0	1.0
+http://dbpedia.org/resource/Australia	4.0	1.0
+http://dbpedia.org/resource/New_Zealand	5.0	1.0
+http://dbpedia.org/resource/Brussels	6.0	0.0
+http://dbpedia.org/resource/Paris	7.0	0.0
+http://dbpedia.org/resource/Berlin	8.0	0.0
+http://dbpedia.org/resource/Canberra	9.0	0.0
+http://dbpedia.org/resource/Wellington	10.0	0.0
