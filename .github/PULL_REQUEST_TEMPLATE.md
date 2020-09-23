@@ -9,9 +9,10 @@ If an item doesn't apply to your pull request, **check it anyway** to make it
 apparent that there's nothing left to do.  If your pull request is a
 documentation fix or a trivial typo, feel free to delete the whole thing.
 
-- [ ] Added **tests** for changed code.
-- [ ] Updated **documentation** for changed code.
-- [ ] Documentation in `.rst` files is written using [semantic
+For this pull request:
+- [ ] I added **tests** for changed code.
+- [ ] I updated **documentation** for changed code.
+- [ ] I wrote the documentation as `.rst` files and using [semantic
       newlines](https://rhodesmill.org/brandon/2012/one-sentence-per-line/).
 
 If you have *any* questions to *any* of the points above, just **submit and
