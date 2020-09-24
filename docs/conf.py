@@ -35,6 +35,7 @@ version = find("version")
 
 exclude_patterns = ["_build"]
 extensions = [
+    "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
@@ -44,14 +45,24 @@ extensions = [
 intersphinx_mapping = {
     "rdflib": ("http://rdflib.readthedocs.org/en/latest/", None),
 }
+nitpick_ignore = [
+    ("py:data", "typing.Any"),
+    ("py:data", "typing.Dict"),
+    ("py:data", "typing.Iterable"),
+    ("py:data", "typing.List"),
+    ("py:data", "typing.Optional"),
+    ("py:data", "typing.Sequence"),
+    ("py:data", "typing.Tuple"),
+    ("py:data", "typing.Union"),
+]
 pygments_style = "sphinx"
 templates_path = ["_templates"]
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "collapse_navigation": False,
-    "sticky_navigation": False,
     "display_version": True,
+    "sticky_navigation": False,
 }
 
 apidoc_module_dir = "../pyrdf2vec"

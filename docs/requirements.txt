@@ -1,3 +1,5 @@
 sphinx
+sphinx-autodoc-typehints
 sphinx-rtd-theme
 sphinxcontrib-napoleon
+sphinxcontrib-apidoc

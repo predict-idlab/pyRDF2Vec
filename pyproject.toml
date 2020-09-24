@@ -71,7 +71,7 @@ tox = "^3.19.0"
 yamllint = "^1.24.2"
 
 [tool.poetry.extras]
-docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
+docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
 lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
 tests = ["codecov", "pytest", "pytest-cov"]
 
