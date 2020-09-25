@@ -16,6 +16,9 @@
        <a href="https://pypi.org/project/pyrdf2vec">
            <img src="https://img.shields.io/pypi/dm/pyrdf2vec.svg?logo=pypi&color=1082C2" alt="Version">
        </a>
+       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
+           <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
+       </a>
    </p>
    <p align="center">
        <a href="https://github.com/IBCNServices/pyRDF2Vec/actions">
@@ -29,9 +32,6 @@
        </a>
        <a href="https://github.com/psf/black">
            <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
-       </a>
-       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
-           <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
        </a>
    </p>
    <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a Knowledge Graph</b> for downstream ML tasks.<p>
