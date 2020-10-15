@@ -32,7 +32,7 @@ class HalkWalker(RandomWalker):
         super().__init__(depth, walks_per_graph, sampler)
         self.freq_thresholds = freq_thresholds
 
-    def extract(
+    def _extract(
         self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each

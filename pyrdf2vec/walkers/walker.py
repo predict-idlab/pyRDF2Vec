@@ -28,8 +28,30 @@ class Walker(metaclass=abc.ABCMeta):
         self.walks_per_graph = walks_per_graph
         self.sampler = sampler
 
-    @abc.abstractmethod
     def extract(
+        self, kg: RDFLoader, instances: List[rdflib.URIRef]
+    ) -> Set[Tuple[Any, ...]]:
+        """Fits the provided sampling strategy and then calls the
+        private _extract method that is implemented for each of the 
+        walking strategies.
+
+        Args:
+            graph: The knowledge graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances: The instances to extract the knowledge graph.
+
+        Returns:
+            The 2D matrix with its number of rows equal to the number of
+            provided instances; number of column equal to the embedding size.
+
+        """
+        self.sampler.fit(kg)
+        return self._extract(kg, instances)
+
+    @abc.abstractmethod
+    def _extract(
         self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each

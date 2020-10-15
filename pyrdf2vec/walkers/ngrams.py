@@ -60,7 +60,7 @@ class NGramWalker(RandomWalker):
                 n_gram_walk.append(self.n_gram_map[n_gram])
         return n_gram_walk  # type:ignore
 
-    def extract(
+    def _extract(
         self, graph: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Dict[Tuple[Any, ...], str], ...]]:
         """Extracts walks rooted at the provided instances which are then each

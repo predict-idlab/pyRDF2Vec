@@ -80,7 +80,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
             for key, val in self._label_map[vertex].items():
                 self._inv_label_map[vertex][val] = key
 
-    def extract(
+    def _extract(
         self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
