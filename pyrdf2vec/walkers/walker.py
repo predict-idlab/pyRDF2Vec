@@ -72,10 +72,7 @@ class Walker(metaclass=abc.ABCMeta):
         raise NotImplementedError("This must be implemented!")
 
     def print_walks(
-        self,
-        kg: RDFLoader,
-        instances: List[rdflib.URIRef],
-        file_name: str,
+        self, kg: RDFLoader, instances: List[rdflib.URIRef], file_name: str,
     ) -> None:
         """Prints the walks of a knowledge graph.
 
