@@ -16,6 +16,9 @@
        <a href="https://pypi.org/project/pyrdf2vec">
            <img src="https://img.shields.io/pypi/dm/pyrdf2vec.svg?logo=pypi&color=1082C2" alt="Version">
        </a>
+       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
+           <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
+       </a>
    </p>
    <p align="center">
        <a href="https://github.com/IBCNServices/pyRDF2Vec/actions">
@@ -29,9 +32,6 @@
        </a>
        <a href="https://github.com/psf/black">
            <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
-       </a>
-       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
-           <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
        </a>
    </p>
    <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a Knowledge Graph</b> for downstream ML tasks.<p>
@@ -106,12 +106,13 @@ file:
 Create a Knowledge Graph object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To create a Knowledge Graph object, you can initialize it in several
-ways:
+To create a Knowledge Graph object, you can initialize it in two ways.
+
+1. **from RDFLib**:
 
 .. code:: python
 
-   from pyrdf2vec.converters import endpoint_to_kg, rdflib_to_kg
+   from pyrdf2vec.graphs import RDFLoader
 
    # Define the label predicates, all triples with these predicates
    # will be excluded from the graph
@@ -119,27 +120,37 @@ ways:
        "http://dl-learner.org/carcinogenesis#isMutagenic"
    ]
 
-   # Create a Knowledge Graph from rdflib
-   kg = rdflib_to_kg("samples/mutag.owl", label_predicates=label_predicates)
+   kg = RDFLoader("samples/mutag/mutag.owl", label_predicates=label_predicates)"
 
-   # Create a Knowledge Graph from a SPARQL endpoint
-   kg = endpoint_to_kg("http://localhost:5820/db/query?query=", label_predicates=label_predicates)
-
-Define a walking strategy
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To define a walking strategy, start by choosing one available on the
-`Wiki
-page <https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies>`__.
-
-For example, the definition of the Random walking strategy with a depth
-of 4 is implemented as follows:
+2. **from SPARQL**:
 
 .. code:: python
 
+   from pyrdf2vec.graphs import SPARQLLoader
+
+   kg = SPARQLLoader("https://dbpedia.org/sparql")
+
+Define walking strategies with their sampling strategy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To define walking strategies, start by choosing the available on the
+`Wiki
+page <https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies>`__.
+
+For best performance with large Knoweldge Graphs, please indicate the sampling
+strategy (also available on the `Wiki page
+<https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__) used
+for your walking strategy.
+
+For example, a Random walking strategy with a depth of 4 and an Uniform
+sampling strategy, is implemented as follows:
+
+.. code:: python
+
+   from pyrdf2vec.samplers import UniformSampler
    from pyrdf2vec.walkers import RandomWalker
 
-   random_walker = RandomWalker(4, float("inf"))
+   walkers = [RandomWalker(4, None, UniformSampler(inverse=False))]
 
 Create embeddings
 ~~~~~~~~~~~~~~~~~
@@ -151,7 +162,7 @@ like this:
 
    from pyrdf2vec import RDF2VecTransformer
 
-   transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
+   transformer = RDF2VecTransformer(walkers=[walkers], sg=1)
    # Entities should be a list of URIs that can be found in the Knowledge Graph
    embeddings = transformer.fit_transform(kg, entities)
 

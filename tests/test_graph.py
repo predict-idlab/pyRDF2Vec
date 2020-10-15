@@ -22,8 +22,10 @@ class TestVertex:
         assert a != b
 
 
-LABEL_PREDICATE = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-KG = RDFLoader("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATE)
+KG = RDFLoader(
+    "samples/mutag/mutag.owl",
+    label_predicates=["http://dl-learner.org/carcinogenesis#isMutagenic"],
+)
 
 
 class TestRDFLoader:

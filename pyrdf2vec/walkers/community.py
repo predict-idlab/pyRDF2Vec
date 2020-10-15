@@ -186,7 +186,7 @@ class CommunityWalker(Walker):
             return self.extract_random_community_walks_bfs(kg, root)
         return self.extract_random_community_walks_dfs(kg, root)
 
-    def extract(
+    def _extract(
         self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each

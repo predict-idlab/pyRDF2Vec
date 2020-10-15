@@ -78,7 +78,7 @@ class RandomWalker(Walker):
             return self.extract_random_walks_bfs(kg, root)
         return self.extract_random_walks_dfs(kg, root)
 
-    def extract(
+    def _extract(
         self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts the walks and processes them for the embedding model.
@@ -94,7 +94,6 @@ class RandomWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        self.sampler.fit(kg)
         canonical_walks = set()
         for i, instance in enumerate(instances):
             walks = self.extract_random_walks(kg, instance)
