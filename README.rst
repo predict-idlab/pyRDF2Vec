@@ -146,7 +146,7 @@ according to a certain metric.
 
 For example, if one wants to extract a maximum of 5 walks of depth 4 for each
 entity using the Random walking strategy and Uniform sampling strategy (**SEE:**
-`Wiki page
+the `Wiki page
 <https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__ for
 other sampling strategies), the following code snippet can be used:
 
