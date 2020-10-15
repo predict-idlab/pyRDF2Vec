@@ -137,7 +137,7 @@ To define walking strategies, start by choosing the available on the
 `Wiki
 page <https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies>`__.
 
-For best performance with large Knoweldge Graphs, please indicate the sampling
+For best performance with large Knowledge Graphs, please indicate the sampling
 strategy (also available on the `Wiki page
 <https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__) used
 for your walking strategy.
