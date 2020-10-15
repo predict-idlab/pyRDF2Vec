@@ -133,24 +133,23 @@ To create a Knowledge Graph object, you can initialize it in two ways.
 Define walking strategies with their sampling strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To define walking strategies, start by choosing the available on the
+All supported walking strategies can be found on the
 `Wiki
 page <https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies>`__.
 
-For best performance with large Knowledge Graphs, please indicate the sampling
-strategy (also available on the `Wiki page
-<https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__) used
-for your walking strategy.
+As the number of walks grows exponentially in function of the depth, exhaustively
+extracting all walks quickly becomes infeasible for larger Knowledge Graphs. In order to
+circumvent this issue, [sampling strategies](https://dl.acm.org/doi/pdf/10.1145/3102254.3102279?casa_token=C4xYCV13964AAAAA:f3Iz_gY962rCNkPEjGli84djwnZPMLrwqy-_N6H3aGmO6C8k7OTepxUntiQoN1_GMBdv-xr6pNo) can be applied. These will extract a fixed maximum number
+of walks per entity. The walks are sampled according to a certain metric.
 
-For example, a Random walking strategy with a depth of 4 and an Uniform
-sampling strategy, is implemented as follows:
+For example, if one wants to extract a maximum of 5 walks of depth 4 for each entity using the Random walking strategy and Uniform sampling strategy, the following code snippet can be used:
 
 .. code:: python
 
    from pyrdf2vec.samplers import UniformSampler
    from pyrdf2vec.walkers import RandomWalker
 
-   walkers = [RandomWalker(4, None, UniformSampler(inverse=False))]
+   walkers = [RandomWalker(4, 5, UniformSampler())]
 
 Create embeddings
 ~~~~~~~~~~~~~~~~~
