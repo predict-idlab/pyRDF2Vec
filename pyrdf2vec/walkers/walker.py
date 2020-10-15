@@ -32,7 +32,7 @@ class Walker(metaclass=abc.ABCMeta):
         self, kg: RDFLoader, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Fits the provided sampling strategy and then calls the
-        private _extract method that is implemented for each of the 
+        private _extract method that is implemented for each of the
         walking strategies.
 
         Args:
@@ -72,7 +72,10 @@ class Walker(metaclass=abc.ABCMeta):
         raise NotImplementedError("This must be implemented!")
 
     def print_walks(
-        self, kg: RDFLoader, instances: List[rdflib.URIRef], file_name: str,
+        self,
+        kg: RDFLoader,
+        instances: List[rdflib.URIRef],
+        file_name: str,
     ) -> None:
         """Prints the walks of a knowledge graph.
 
