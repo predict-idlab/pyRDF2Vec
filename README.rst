@@ -139,7 +139,7 @@ page <https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies>`__.
 
 For best performance with large Knoweldge Graphs, please indicate the sampling
 strategy (also available on the `Wiki page
-<https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__.) used
+<https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__) used
 for your walking strategy.
 
 For example, a Random walking strategy with a depth of 4 and an Uniform
