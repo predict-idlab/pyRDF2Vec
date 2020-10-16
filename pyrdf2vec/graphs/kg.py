@@ -28,6 +28,9 @@ class Vertex(object):
     def __lt__(self, other):
         return self.name < other.name
 
+    def __str__(self):
+        return self.name
+
 
 class KG(metaclass=abc.ABCMeta):
     """Represents a Knowledge Graph."""
