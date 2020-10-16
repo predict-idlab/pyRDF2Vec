@@ -77,7 +77,9 @@ class RDFLoader(KG):
             The hops of a vertex in a (predicate, object) form.
 
         """
-        if isinstance(vertex, str):
+        if isinstance(vertex, rdflib.term.URIRef):
+            vertex = Vertex(str(vertex))  # type: ignore
+        elif isinstance(vertex, str):
             vertex = Vertex(vertex)  # type: ignore
         hops = []
         predicates = self._transition_matrix[vertex]
@@ -115,7 +117,7 @@ class RDFLoader(KG):
             vertex = Vertex(vertex)
         return self._transition_matrix[vertex]
 
-    def remove_edge(self, v1: str, v2: str):
+    def remove_edge(self, v1: str, v2: str) -> None:
         """Removes the edge (v1 -> v2) if present.
 
         Args:
