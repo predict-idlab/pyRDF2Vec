@@ -52,6 +52,7 @@ class RDF2VecTransformer:
         self.negative = negative
         self.sg = sg
         self.vector_size = vector_size
+        self.walks_ = []
         self.walkers = walkers
         self.window = window
 
@@ -78,7 +79,6 @@ class RDF2VecTransformer:
         ):
             raise ValueError("The provided instances must be in the graph")
 
-        self.walks_ = []
         for walker in self.walkers:
             self.walks_ += list(walker.extract(kg, instances))
         sentences = [list(map(str, x)) for x in self.walks_]
