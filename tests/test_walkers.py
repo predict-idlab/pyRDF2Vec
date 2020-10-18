@@ -88,6 +88,6 @@ def is_abstract(c) -> bool:
 
 @pytest.mark.parametrize("name, Walker", _get_walkers())
 def test_walkers(name: str, Walker: T):
-    """Tests the estimators in tslearn."""
+    """Tests the walkers."""
     print(f"Testing {name}")
     check_walker(Walker)
