@@ -64,11 +64,18 @@ def _get_walkers() -> List[Tuple[str, T]]:
     return sorted(set(classes), key=itemgetter(0))
 
 
-def check_walker(Walker):
-    canonical_walks = Walker(2, 5, UniformSampler()).extract(
+def check_walker(Walker, name):
+    walks_per_graph = 5
+    canonical_walks = Walker(2, walks_per_graph, UniformSampler()).extract(
         KG, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
+    if name == "WeisfeilerLehmanWalker":
+        assert len(canonical_walks) == len(
+            ENTITIES_SUBSET * walks_per_graph * 5
+        )
+    else:
+        assert len(canonical_walks) == len(ENTITIES_SUBSET * walks_per_graph)
 
 
 def is_abstract(c) -> bool:
@@ -90,4 +97,4 @@ def is_abstract(c) -> bool:
 def test_walkers(name: str, Walker: T):
     """Tests the walkers."""
     print(f"Testing {name}")
-    check_walker(Walker)
+    check_walker(Walker, name)
