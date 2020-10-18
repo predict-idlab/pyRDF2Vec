@@ -64,10 +64,12 @@ def _get_samplers() -> List[Tuple[str, T]]:
 
 
 def check_sampler(Sampler):
-    canonical_walks = RandomWalker(2, 5, Sampler()).extract(
+    walks_per_graph = 5
+    canonical_walks = RandomWalker(2, walks_per_graph, Sampler()).extract(
         KG, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
+    assert len(canonical_walks) == len(ENTITIES_SUBSET * walks_per_graph)
 
 
 def is_abstract(c) -> bool:
