@@ -87,6 +87,6 @@ def is_abstract(c) -> bool:
 
 @pytest.mark.parametrize("name, Sampler", _get_samplers())
 def test_samplers(name: str, Sampler: T):
-    """Tests the estimators in tslearn."""
+    """Tests the samplers."""
     print(f"Testing {name}")
     check_sampler(Sampler)
