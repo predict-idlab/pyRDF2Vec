@@ -20,11 +20,11 @@ from pyrdf2vec.walkers import (  # isort: skip
     WeisfeilerLehmanWalker,
 )
 from pyrdf2vec.samplers import (  # isort: skip
+    ObjFreqSampler,
     ObjPredFreqSampler,
+    PageRankSampler,
     PredFreqSampler,
     UniformSampler,
-    ObjFreqSampler,
-    PageRankSampler,
 )
 
 
@@ -76,16 +76,12 @@ class TestRDF2Vec:
         "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
     )
     def test_fit_transform_with_cbow(self, walker, sampler):
-        transformer = RDF2VecTransformer(
-            walkers=[walker(2, 5, sampler())], sg=0
-        )
+        transformer = RDF2VecTransformer(walkers=[walker(2, 5, sampler())])
         assert transformer.fit_transform(KG, ENTITIES_SUBSET)
 
     @pytest.mark.parametrize(
         "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
     )
     def test_fit_transform_with_skip_gram(self, walker, sampler):
-        transformer = RDF2VecTransformer(
-            walkers=[walker(2, 5, sampler())], sg=1
-        )
+        transformer = RDF2VecTransformer(walkers=[walker(2, 5, sampler())])
         assert transformer.fit_transform(KG, ENTITIES_SUBSET)
