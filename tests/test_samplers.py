@@ -69,7 +69,7 @@ def check_sampler(Sampler):
         KG, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
-    assert len(canonical_walks) == len(ENTITIES_SUBSET * walks_per_graph)
+    assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
 
 
 def is_abstract(c) -> bool:

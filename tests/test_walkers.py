@@ -71,11 +71,11 @@ def check_walker(Walker, name):
     )
     assert type(canonical_walks) == set
     if name == "WeisfeilerLehmanWalker":
-        assert len(canonical_walks) == len(
+        assert len(canonical_walks) <= len(
             ENTITIES_SUBSET * walks_per_graph * 5
         )
     else:
-        assert len(canonical_walks) == len(ENTITIES_SUBSET * walks_per_graph)
+        assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
 
 
 def is_abstract(c) -> bool:
