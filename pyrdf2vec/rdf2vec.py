@@ -1,147 +1,113 @@
 from typing import List, Sequence
 
 import rdflib
-from gensim.models.word2vec import Word2Vec
 from sklearn.utils.validation import check_is_fitted
 
+from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import RDFLoader, Vertex
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
 class RDF2VecTransformer:
-    """Transforms nodes in a knowledge graph into an embedding.
+    """Transforms nodes in a Knowledge Graph into an embedding.
 
     Attributes:
-        vector_size: The dimension of the embeddings.
-            Defaults to 500.
+        embedder: The embedding technique.
+            Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None,
             UniformSampler(inverse=False)).
-        n_jobs: The number of threads to train the model.
-            Defaults to 1.
-        sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
-            Defaults to 1.
-        epochs: The number of iterations over the corpus.
-            Defaults to 10.
-        negative: The negative sampling.
-            If > 0, the negative sampling will be used. Otherwise no negative
-            sampling is used.
-            Defaults to 25.
-        min_count: The total frequency to ignores all words.
-            Defaults to 1.
 
     """
 
     def __init__(
         self,
-        vector_size: int = 500,
+        embedder: Embedder = Word2Vec(),
         walkers: Sequence[Walker] = [
             RandomWalker(2, None, UniformSampler(inverse=False))
         ],
-        n_jobs: int = 1,
-        window: int = 5,
-        sg: int = 1,
-        epochs: int = 10,
-        negative: int = 25,
-        min_count: int = 1,
     ):
-        self.epochs = epochs
-        self.min_count = min_count
-        self.n_jobs = n_jobs
-        self.negative = negative
-        self.sg = sg
-        self.vector_size = vector_size
+        self.embedder = embedder
         self.walks_ = []
         self.walkers = walkers
-        self.window = window
 
     def fit(
         self,
         kg: RDFLoader,
-        instances: List[rdflib.URIRef],
+        entities: List[rdflib.URIRef],
         verbose: bool = False,
     ) -> "RDF2VecTransformer":
-        """Fits the embedding network based on provided instances.
+        """Fits the embedding network based on provided entities.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to create the embedding.
-                The test instances should be passed to the fit method as well.
+                provided entities.
+            entities: The entities to create the embedding.
+                The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         """
         if isinstance(kg, RDFLoader) and not all(
-            [Vertex(str(instance)) in kg._vertices for instance in instances]
+            [Vertex(str(entity)) in kg._vertices for entity in entities]
         ):
-            raise ValueError("The provided instances must be in the graph")
+            raise ValueError(
+                "The provided entities must be in the Knowledge Graph."
+            )
 
         for walker in self.walkers:
-            self.walks_ += list(walker.extract(kg, instances))
+            self.walks_ += list(walker.extract(kg, entities))
         sentences = [list(map(str, x)) for x in self.walks_]
 
         if verbose:
             print(
-                f"Extracted {len(self.walks_)} walks"
-                " for {len(instances)} instances!"
+                f"Extracted {len(self.walks_)} walks "
+                + f"for {len(entities)} entities!"
             )
 
-        self.model_ = Word2Vec(
-            sentences,
-            size=self.vector_size,
-            window=self.window,
-            workers=self.n_jobs,
-            sg=self.sg,
-            iter=self.epochs,
-            negative=self.negative,
-            min_count=self.min_count,
-            seed=42,
-        )
+        if isinstance(self.embedder, Word2Vec):
+            self.model_ = self.embedder.fit(sentences)
         return self
 
-    def transform(self, instances: List[rdflib.URIRef]) -> List[str]:
-        """Constructs a feature vector for the provided instances.
+    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
+        """Constructs a feature vector for the provided entities.
 
         Args:
-            instances: The instances to create the embedding.
-                The test instances should be passed to the fit method as well.
+            entities: The entities to create the embedding.
+                The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         Returns:
-            The embeddings of the provided instances.
+            The embeddings of the provided entities.
 
         """
         check_is_fitted(self, ["model_"])
-        if not all([str(inst) in self.model_.wv for inst in instances]):
+        if not all([str(entity) in self.model_.wv for entity in entities]):
             raise ValueError(
-                "The instances must have been provided to fit() first "
+                "The entities must have been provided to fit() first "
                 "before they can be transformed into a numerical vector."
             )
-        feature_vectors = []
-        for instance in instances:
-            feature_vectors.append(self.model_.wv.get_vector(str(instance)))
-        return feature_vectors
+        return [self.model_.wv.get_vector(str(entity)) for entity in entities]
 
-    def fit_transform(self, kg, instances: List[rdflib.URIRef]) -> List[str]:
+    def fit_transform(self, kg, entities: List[rdflib.URIRef]) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
-        instances.
+        entities.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
                 The graph from which we will extract neighborhoods for the
                 provided instances.
-            instances: The instances to create the embedding.
-                The test instances should be passed to the fit method as well.
+            entities: The entities to create the embedding.
+                The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         Returns:
-            The embeddings of the provided instances.
+            The embeddings of the provided entities.
 
         """
-        self.fit(kg, instances)
-        return self.transform(instances)
+        self.fit(kg, entities)
+        return self.transform(entities)

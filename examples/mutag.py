@@ -11,6 +11,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
+from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import RDFLoader
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
@@ -57,7 +58,7 @@ def create_embeddings(
         The embeddings of the provided instances.
 
     """
-    transformer = RDF2VecTransformer(walkers=walkers, sg=sg)
+    transformer = RDF2VecTransformer(Word2Vec(sg=sg), walkers=walkers)
     walk_embeddings = transformer.fit_transform(kg, entities)
     return walk_embeddings[:split], walk_embeddings[split:]
 

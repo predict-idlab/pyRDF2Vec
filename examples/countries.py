@@ -38,7 +38,7 @@ kg = SPARQLLoader("https://dbpedia.org/sparql")
 random_walker = RandomWalker(3, 250)
 
 # Create embeddings with random walks
-transformer = RDF2VecTransformer(walkers=[random_walker], sg=1)
+transformer = RDF2VecTransformer(walkers=[random_walker])
 walk_embeddings = transformer.fit_transform(kg, all_entities)
 
 # Create t-SNE embeddings from RDF2Vec embeddings (dimensionality reduction)
