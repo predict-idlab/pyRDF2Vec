@@ -8,5 +8,9 @@ class Embedder(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def fit(self, sentences):
+    def fit(self, corpus):
+        raise NotImplementedError("This has to be implemented")
+
+    @abc.abstractmethod
+    def transform(self, entities):
         raise NotImplementedError("This has to be implemented")

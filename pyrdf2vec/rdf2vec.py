@@ -1,7 +1,6 @@
 from typing import List, Sequence
 
 import rdflib
-from sklearn.utils.validation import check_is_fitted
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import RDFLoader, Vertex
@@ -59,7 +58,7 @@ class RDF2VecTransformer:
 
         for walker in self.walkers:
             self.walks_ += list(walker.extract(kg, entities))
-        sentences = [list(map(str, x)) for x in self.walks_]
+        corpus = [list(map(str, x)) for x in self.walks_]
 
         if verbose:
             print(
@@ -68,7 +67,7 @@ class RDF2VecTransformer:
             )
 
         if isinstance(self.embedder, Word2Vec):
-            self.model_ = self.embedder.fit(sentences)
+            self.model_ = self.embedder.fit(corpus)
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
@@ -84,13 +83,7 @@ class RDF2VecTransformer:
             The embeddings of the provided entities.
 
         """
-        check_is_fitted(self, ["model_"])
-        if not all([str(entity) in self.model_.wv for entity in entities]):
-            raise ValueError(
-                "The entities must have been provided to fit() first "
-                "before they can be transformed into a numerical vector."
-            )
-        return [self.model_.wv.get_vector(str(entity)) for entity in entities]
+        return self.embedder.transform(entities)
 
     def fit_transform(self, kg, entities: List[rdflib.URIRef]) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided

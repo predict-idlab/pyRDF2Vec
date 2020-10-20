@@ -1,6 +1,8 @@
-from typing import List, Tuple
+from typing import List
 
+import rdflib
 from gensim.models.word2vec import Word2Vec as W2V
+from sklearn.utils.validation import check_is_fitted
 
 from pyrdf2vec.embedders import Embedder
 
@@ -47,9 +49,9 @@ class Word2Vec(Embedder):
         self.negative = negative
         self.min_count = min_count
 
-    def fit(self, sentences):
-        return W2V(
-            sentences,
+    def fit(self, corpus):
+        self.model_ = W2V(
+            corpus,
             size=self.vector_size,
             window=self.window,
             workers=self.n_jobs,
@@ -59,3 +61,25 @@ class Word2Vec(Embedder):
             min_count=self.min_count,
             seed=42,
         )
+        return self.model_
+
+    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
+        """Constructs a feature vector for the provided entities.
+
+        Args:
+            entities: The entities to create the embedding.
+                The test entities should be passed to the fit method as well.
+
+                Due to RDF2Vec being unsupervised, there is no label leakage.
+
+        Returns:
+            The embeddings of the provided entities.
+
+        """
+        check_is_fitted(self, ["model_"])
+        if not all([str(entity) in self.model_.wv for entity in entities]):
+            raise ValueError(
+                "The entities must have been provided to fit() first "
+                "before they can be transformed into a numerical vector."
+            )
+        return [self.model_.wv.get_vector(str(entity)) for entity in entities]
