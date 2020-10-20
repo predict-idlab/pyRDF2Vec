@@ -22,7 +22,7 @@ class RDF2VecTransformer:
             Defaults to 1.
         sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
             Defaults to 1.
-        max_iter: The number of iterations (epochs) over the corpus.
+        epochs: The number of iterations over the corpus.
             Defaults to 10.
         negative: The negative sampling.
             If > 0, the negative sampling will be used. Otherwise no negative
@@ -42,11 +42,11 @@ class RDF2VecTransformer:
         n_jobs: int = 1,
         window: int = 5,
         sg: int = 1,
-        max_iter: int = 10,
+        epochs: int = 10,
         negative: int = 25,
         min_count: int = 1,
     ):
-        self.max_iter = max_iter
+        self.epochs = epochs
         self.min_count = min_count
         self.n_jobs = n_jobs
         self.negative = negative
@@ -95,7 +95,7 @@ class RDF2VecTransformer:
             window=self.window,
             workers=self.n_jobs,
             sg=self.sg,
-            iter=self.max_iter,
+            iter=self.epochs,
             negative=self.negative,
             min_count=self.min_count,
             seed=42,
