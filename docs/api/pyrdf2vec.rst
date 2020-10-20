@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   pyrdf2vec.embedders
    pyrdf2vec.graphs
    pyrdf2vec.samplers
    pyrdf2vec.walkers

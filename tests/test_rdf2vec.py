@@ -1,5 +1,6 @@
 import random
 from collections import defaultdict
+from typing import DefaultDict
 
 import numpy as np
 import pandas as pd
@@ -25,7 +26,7 @@ TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
 ENTITIES_SUBSET = ENTITIES[:5]
 
-WALKS = defaultdict(list)
+WALKS: DefaultDict[rdflib.URIRef, rdflib.URIRef] = defaultdict(list)
 
 
 class TestRDF2VecTransformer:

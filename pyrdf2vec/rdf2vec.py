@@ -28,7 +28,7 @@ class RDF2VecTransformer:
         ],
     ):
         self.embedder = embedder
-        self.walks_ = []
+        self.walks_: List[rdflib.URIRef] = []
         self.walkers = walkers
 
     def fit(
