@@ -28,7 +28,7 @@ class Word2Vec(Embedder):
 
         """
         self.model_ = W2V(corpus, **self.kwargs)
-        return self.model_
+        return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
         """Constructs a features vector for the provided entities.

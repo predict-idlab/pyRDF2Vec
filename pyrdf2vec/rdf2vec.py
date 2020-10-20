@@ -70,7 +70,7 @@ class RDF2VecTransformer:
             )
 
         if isinstance(self.embedder, Word2Vec) and not hasattr(self, "model_"):
-            self.model_ = self.embedder.fit(corpus)
+            self.embedder.fit(corpus)
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
