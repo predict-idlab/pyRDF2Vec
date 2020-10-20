@@ -75,13 +75,6 @@ class TestRDF2Vec:
     @pytest.mark.parametrize(
         "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
     )
-    def test_fit_transform_with_cbow(self, walker, sampler):
-        transformer = RDF2VecTransformer(walkers=[walker(2, 5, sampler())])
-        assert transformer.fit_transform(KG, ENTITIES_SUBSET)
-
-    @pytest.mark.parametrize(
-        "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
-    )
-    def test_fit_transform_with_skip_gram(self, walker, sampler):
+    def test_fit_transform(self, walker, sampler):
         transformer = RDF2VecTransformer(walkers=[walker(2, 5, sampler())])
         assert transformer.fit_transform(KG, ENTITIES_SUBSET)
