@@ -34,7 +34,7 @@ class Word2Vec(Embedder):
         """Constructs a features vector for the provided entities.
 
         Args:
-            entities: The entities to create the embedding.
+            entities: The entities to create the embeddings.
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
