@@ -39,9 +39,6 @@ class TestRDF2VecTransformer:
             non_existing_entities = ["does", "not", "exist"]
             transformer.fit(KG, non_existing_entities)
         transformer.fit(KG, ENTITIES_SUBSET)
-        for walks in transformer.walks_:
-            WALKS[walks[0]].append(walks)
-        assert len(WALKS["http://dl-learner.org/carcinogenesis#d133"]) == 5
 
     def test_fit_transform(self):
         transformer = RDF2VecTransformer()
