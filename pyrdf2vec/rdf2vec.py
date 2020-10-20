@@ -48,6 +48,9 @@ class RDF2VecTransformer:
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
+        Returns:
+            RDF2VecTransformer: The RDF2VecTransformer itself.
+
         """
         if isinstance(kg, RDFLoader) and not all(
             [Vertex(str(entity)) in kg._vertices for entity in entities]
