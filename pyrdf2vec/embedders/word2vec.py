@@ -15,6 +15,7 @@ class Word2Vec(Embedder):
     """
 
     def __init__(self, **kwargs):
+        kwargs.setdefault("min_count", 0)
         self.kwargs = kwargs
 
     def fit(self, corpus):
@@ -27,7 +28,7 @@ class Word2Vec(Embedder):
             The fitted Word2Vec model.
 
         """
-        self.model_ = W2V(corpus, min_count=0, **self.kwargs)
+        self.model_ = W2V(corpus, **self.kwargs)
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
