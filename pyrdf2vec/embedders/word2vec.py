@@ -27,7 +27,7 @@ class Word2Vec(Embedder):
             The fitted Word2Vec model.
 
         """
-        self.model_ = W2V(corpus, min_count=1, **self.kwargs)
+        self.model_ = W2V(corpus, min_count=0, **self.kwargs)
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
