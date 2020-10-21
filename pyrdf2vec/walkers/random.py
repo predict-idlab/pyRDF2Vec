@@ -50,13 +50,14 @@ class RandomWalker(Walker):
         walks = []
         while len(walks) < self.walks_per_graph:
             new = (root,)
-            d = (len(new) - 1) // 2
+            d = 1
             while d // 2 < self.depth:
-                last = d == self.depth - 1
+                last = d // 2 == self.depth - 1
                 hop = self.sampler.sample_neighbor(graph, new, last)
                 if hop is None:
                     break
                 new = new + (hop[0], hop[1])
+                d = len(new) - 1
             walks.append(new)
         return list(set(walks))
 
