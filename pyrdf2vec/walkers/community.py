@@ -123,11 +123,11 @@ class CommunityWalker(Walker):
                 for (pred, obj) in hops:
                     walks.add(walk + (pred, obj))
                     if (
-                        hops in self.communities
+                        obj in self.communities
                         and np.random.random() < self.hop_prob
                     ):
                         community_nodes = self.labels_per_community[
-                            self.communities[hops]
+                            self.communities[obj]
                         ]
                         rand_jump = np.random.choice(community_nodes)
                         walks.add(walk + (rand_jump,))
@@ -143,23 +143,24 @@ class CommunityWalker(Walker):
         walks = []
         while len(walks) < self.walks_per_graph:
             new = (root,)
-            d = (len(new) - 1) // 2
+            d = 1
             while d // 2 < self.depth:
-                last = d == self.depth - 1
+                last = d // 2 == self.depth - 1
                 hop = self.sampler.sample_neighbor(kg, new, last)
                 if hop is None:
                     break
                 if (
-                    hop in self.communities
+                    hop[1] in self.communities
                     and np.random.random() < self.hop_prob
                 ):
                     community_nodes = self.labels_per_community[
-                        self.communities[hop]
+                        self.communities[hop[1]]
                     ]
                     rand_jump = np.random.choice(community_nodes)
-                    new = new + (rand_jump,)
+                    new = new + (hop[0], rand_jump)
                 else:
                     new = new + (hop[0], hop[1])
+                d = len(new) - 1
             walks.append(new)
         return list(set(walks))
 
