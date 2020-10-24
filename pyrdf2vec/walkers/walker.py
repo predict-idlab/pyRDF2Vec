@@ -3,7 +3,7 @@ from typing import Any, List, Set, Tuple
 
 import rdflib
 
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
@@ -29,7 +29,7 @@ class Walker(metaclass=abc.ABCMeta):
         self.sampler = sampler
 
     def extract(
-        self, kg: RDFLoader, instances: List[rdflib.URIRef]
+        self, kg: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
@@ -52,7 +52,7 @@ class Walker(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _extract(
-        self, kg: RDFLoader, instances: List[rdflib.URIRef]
+        self, kg: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
@@ -73,7 +73,7 @@ class Walker(metaclass=abc.ABCMeta):
 
     def print_walks(
         self,
-        kg: RDFLoader,
+        kg: KG,
         instances: List[rdflib.URIRef],
         file_name: str,
     ) -> None:

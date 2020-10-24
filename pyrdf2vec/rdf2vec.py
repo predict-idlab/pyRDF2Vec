@@ -3,7 +3,7 @@ from typing import List, Sequence
 import rdflib
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
-from pyrdf2vec.graphs import RDFLoader, Vertex
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
@@ -33,7 +33,7 @@ class RDF2VecTransformer:
 
     def fit(
         self,
-        kg: RDFLoader,
+        kg: KG,
         entities: List[rdflib.URIRef],
         verbose: bool = False,
     ) -> "RDF2VecTransformer":
@@ -52,7 +52,7 @@ class RDF2VecTransformer:
             RDF2VecTransformer: The RDF2VecTransformer itself.
 
         """
-        if isinstance(kg, RDFLoader) and not all(
+        if kg.is_remote == False and not all(
             [Vertex(str(entity)) in kg._vertices for entity in entities]
         ):
             raise ValueError(
@@ -87,7 +87,9 @@ class RDF2VecTransformer:
         """
         return self.embedder.transform(entities)
 
-    def fit_transform(self, kg, entities: List[rdflib.URIRef]) -> List[str]:
+    def fit_transform(
+        self, kg: KG, entities: List[rdflib.URIRef]
+    ) -> List[str]:
         """Creates a Word2Vec model and generate embeddings for the provided
         entities.
 

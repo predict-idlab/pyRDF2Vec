@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any, DefaultDict
 
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
@@ -23,7 +23,7 @@ class ObjFreqSampler(Sampler):
     def __init__(self, inverse=False, split=False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: RDFLoader) -> None:
+    def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
@@ -71,7 +71,7 @@ class PredFreqSampler(Sampler):
     def __init__(self, inverse: bool = False, split: bool = False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: RDFLoader) -> None:
+    def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:
@@ -119,7 +119,7 @@ class ObjPredFreqSampler(Sampler):
     def __init__(self, inverse: bool = False, split: bool = False):
         super().__init__(inverse, split)
 
-    def fit(self, kg: RDFLoader) -> None:
+    def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:

@@ -2,7 +2,7 @@ from typing import Dict
 
 import networkx as nx
 
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
@@ -29,7 +29,7 @@ class PageRankSampler(Sampler):
         super().__init__(inverse, split)
         self.alpha = alpha
 
-    def fit(self, kg: RDFLoader) -> None:
+    def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:

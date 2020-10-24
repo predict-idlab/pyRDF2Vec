@@ -3,7 +3,7 @@ from typing import Any, Set
 
 import numpy as np
 
-from pyrdf2vec.graphs import KG, RDFLoader
+from pyrdf2vec.graphs import KG
 
 
 class Sampler(metaclass=abc.ABCMeta):
@@ -22,7 +22,7 @@ class Sampler(metaclass=abc.ABCMeta):
         self.split = split
 
     @abc.abstractmethod
-    def fit(self, kg: RDFLoader) -> None:
+    def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
         Args:

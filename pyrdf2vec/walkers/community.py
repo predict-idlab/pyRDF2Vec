@@ -9,7 +9,7 @@ import networkx as nx
 import numpy as np
 import rdflib
 
-from pyrdf2vec.graphs import RDFLoader, Vertex
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import Walker
 
@@ -60,7 +60,7 @@ class CommunityWalker(Walker):
         self.hop_prob = hop_prob
         self.resolution = resolution
 
-    def _community_detection(self, kg: RDFLoader) -> None:
+    def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.
 
         Note:
@@ -165,7 +165,7 @@ class CommunityWalker(Walker):
         return list(set(walks))
 
     def extract_random_community_walks(
-        self, kg: RDFLoader, root: str
+        self, kg: KG, root: str
     ) -> List[Vertex]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
@@ -188,7 +188,7 @@ class CommunityWalker(Walker):
         return self.extract_random_community_walks_dfs(kg, root)
 
     def _extract(
-        self, kg: RDFLoader, instances: List[rdflib.URIRef]
+        self, kg: KG, instances: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
