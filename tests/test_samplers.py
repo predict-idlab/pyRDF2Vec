@@ -11,7 +11,7 @@ import pytest
 import rdflib
 
 import pyrdf2vec
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 from pyrdf2vec.walkers import RandomWalker
 
@@ -19,8 +19,10 @@ np.random.seed(42)
 random.seed(42)
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = RDFLoader("samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE])
-LEAKY_KG = RDFLoader("samples/mutag/mutag.owl", label_predicates=[])
+KNOWLEDGE_GRAPH = KG(
+    "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
+)
+LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=[])
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
 ENTITIES_SUBSET = ENTITIES[:5]
@@ -66,7 +68,7 @@ def _get_samplers() -> List[Tuple[str, T]]:
 def check_sampler(Sampler):
     walks_per_graph = 5
     canonical_walks = RandomWalker(2, walks_per_graph, Sampler()).extract(
-        KG, ENTITIES_SUBSET
+        KNOWLEDGE_GRAPH, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
     assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)

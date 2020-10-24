@@ -52,7 +52,7 @@ class RDF2VecTransformer:
             RDF2VecTransformer: The RDF2VecTransformer itself.
 
         """
-        if kg.is_remote == False and not all(
+        if kg.is_remote is False and not all(
             [Vertex(str(entity)) in kg._vertices for entity in entities]
         ):
             raise ValueError(

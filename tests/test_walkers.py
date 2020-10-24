@@ -11,7 +11,7 @@ import pytest
 import rdflib
 
 import pyrdf2vec
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import Walker
 
@@ -19,7 +19,9 @@ np.random.seed(42)
 random.seed(42)
 
 LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
-KG = RDFLoader("samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE])
+KNOWLEDGE_GRAPH = KG(
+    "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
+)
 
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
@@ -67,7 +69,7 @@ def _get_walkers() -> List[Tuple[str, T]]:
 def check_walker(Walker, name):
     walks_per_graph = 5
     canonical_walks = Walker(2, walks_per_graph, UniformSampler()).extract(
-        KG, ENTITIES_SUBSET
+        KNOWLEDGE_GRAPH, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
     if name == "WeisfeilerLehmanWalker":

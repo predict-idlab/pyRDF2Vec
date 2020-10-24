@@ -48,9 +48,9 @@ class WalkletWalker(RandomWalker):
         for instance in instances:
             walks = self.extract_random_walks(graph, str(instance))
             for walk in walks:
-                if len(walk) == 1:
-                   canonical_walks.add((str(walk[0]),))
-                
+                if len(walk) == 1:  # type:ignore
+                    canonical_walks.add((str(walk[0]),))  # type:ignore
+
                 for n in range(1, len(walk)):  # type:ignore
                     canonical_walks.add(
                         (str(walk[0]), str(walk[n]))  # type: ignore

@@ -1,6 +1,6 @@
 import random
 import warnings
-from typing import List, Sequence, Tuple
+from typing import List, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,7 +32,7 @@ def create_embeddings(
     entities: List[rdflib.URIRef],
     walkers: Sequence[Walker],
     sg: int = 1,
-) -> Tuple[List[str], List[str]]:
+) -> List[str]:
     """Creates embeddings for a list of entities according to a knowledge
     graphs and a walking strategy.
 

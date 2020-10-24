@@ -8,13 +8,13 @@ import pytest
 import rdflib
 from sklearn.exceptions import NotFittedError
 
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
 
 np.random.seed(42)
 random.seed(42)
 
-KG = RDFLoader(
+KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
     label_predicates=["http://dl-learner.org/carcinogenesis#isMutagenic"],
 )
@@ -31,20 +31,22 @@ class TestRDF2VecTransformer:
     def test_fit(self):
         transformer = RDF2VecTransformer()
         with pytest.raises(ValueError):
-            transformer.fit(KG, ["does", "not", "exist"])
-        transformer.fit(KG, ENTITIES_SUBSET)
+            transformer.fit(KNOWLEDGE_GRAPH, ["does", "not", "exist"])
+        transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
 
     def test_fit_transform(self):
         transformer = RDF2VecTransformer()
         np.testing.assert_array_equal(
-            transformer.fit_transform(KG, ENTITIES_SUBSET),
-            transformer.fit(KG, ENTITIES_SUBSET).transform(ENTITIES_SUBSET),
+            transformer.fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET),
+            transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET).transform(
+                ENTITIES_SUBSET
+            ),
         )
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
         with pytest.raises(NotFittedError):
             transformer.transform(ENTITIES_SUBSET)
-        transformer.fit(KG, ENTITIES_SUBSET)
+        transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
         features = transformer.transform(ENTITIES_SUBSET)
         assert type(features) == list
