@@ -97,17 +97,16 @@ class KG:
         """
         if not vertex.startswith("http://"):
             return []
-
-        query = (
+        self.endpoint.setQuery(
             """
-            SELECT ?p ?o WHERE {
-                <"""
-            + vertex
+        SELECT ?p ?o WHERE {
+            <"""
+            + str(vertex)
             + """> ?p ?o .
-            }
+        }
         """
         )
-        self.endpoint.setQuery(query)
+
         self.endpoint.setReturnFormat(JSON)
         results = self.endpoint.query().convert()
         neighbors = []
