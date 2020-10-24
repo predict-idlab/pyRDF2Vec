@@ -112,9 +112,9 @@ class KG:
         results = self.endpoint.query().convert()
         neighbors = []
         for result in results["results"]["bindings"]:
-            p, o = result["p"]["value"], result["o"]["value"]
-            if p not in self.label_predicates:
-                neighbors.append((p, o))
+            predicate, obj = result["p"]["value"], result["o"]["value"]
+            if predicate not in self.label_predicates:
+                neighbors.append((predicate, obj))
         return neighbors
 
     def add_vertex(self, vertex: Vertex) -> None:
