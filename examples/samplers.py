@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import RDFLoader
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 from pyrdf2vec.samplers import (  # isort: skip
@@ -19,10 +19,12 @@ from pyrdf2vec.samplers import (  # isort: skip
     UniformSampler,
 )
 
-warnings.filterwarnings("ignore")
-
 np.random.seed(42)
 random.seed(42)
+
+warnings.filterwarnings("ignore")
+
+LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 
 # Load our train & test instances and labels
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
@@ -34,15 +36,10 @@ train_labels = train_data["label_mutagenic"]
 test_entities = [rdflib.URIRef(x) for x in test_data["bond"]]
 test_labels = test_data["label_mutagenic"]
 
-all_entities = train_entities + test_entities
-all_labels = list(train_labels) + list(test_labels)
-
-# Define the label predicates, all triples with these predicates
-# will be excluded from the graph
-label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
+entities = train_entities + test_entities
 
 # Convert the rdflib to our KnowledgeGraph object
-kg = RDFLoader("samples/mutag/mutag.owl", label_predicates=label_predicates)
+kg = KG("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
 
 samplers = [
     ("Uniform", UniformSampler()),
@@ -65,7 +62,7 @@ samplers = [
 for name, sampler in samplers:
     # Create embeddings with random walks
     transformer = RDF2VecTransformer(walkers=[RandomWalker(2, 50, sampler)])
-    walk_embeddings = transformer.fit_transform(kg, all_entities)
+    walk_embeddings = transformer.fit_transform(kg, entities)
 
     # Split into train and test embeddings
     train_embeddings = walk_embeddings[: len(train_entities)]

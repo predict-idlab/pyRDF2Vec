@@ -1,5 +1,6 @@
 import random
 import warnings
+from typing import List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,42 +9,66 @@ import rdflib
 from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.graphs import SPARQLLoader
-from pyrdf2vec.walkers import RandomWalker
+from pyrdf2vec.embedders import Word2Vec
+from pyrdf2vec.graphs import KG
+from pyrdf2vec.walkers import RandomWalker, Walker
 
 warnings.filterwarnings("ignore")
 
 np.random.seed(42)
 random.seed(42)
 
-# Load our train & test instances and labels
-data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
+FILE = "samples/countries-cities/entities.tsv"
+SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
+LABEL_PREDICATES = ["www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+# We'll extract all possible walks of depth 6 (3 hops)
+WALKERS = [RandomWalker(3, 250)]
 
-all_entities = [rdflib.URIRef(x) for x in data["location"]]
+PLOT_TITLE = "pyRDF2Vec"
+
+
+def create_embeddings(
+    kg: KG,
+    entities: List[rdflib.URIRef],
+    walkers: Sequence[Walker],
+    sg: int = 1,
+) -> Tuple[List[str], List[str]]:
+    """Creates embeddings for a list of entities according to a knowledge
+    graphs and a walking strategy.
+
+    Args:
+        kg: The knowledge graph.
+            The graph from which the neighborhoods are extracted for the
+            provided instances.
+        entities: The train and test instances to create the embedding.
+        walker: The list of walkers strategies.
+        sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
+            Defaults to 1.
+
+    Returns:
+        The embeddings of the provided instances.
+
+    """
+    transformer = RDF2VecTransformer(Word2Vec(sg=sg), walkers=walkers)
+    return transformer.fit_transform(kg, entities)
+
+
+# Load our train & test instances and labels
+data = pd.read_csv(FILE, sep="\t")
+
+entities = [rdflib.URIRef(x) for x in data["location"]]
 labels = data["label"]
 
-# Define the label predicates, all triples with these predicates
-# will be excluded from the graph
-label_predicates = ["www.w3.org/1999/02/22-rdf-syntax-ns#type"]
-
-# Convert the rdflib to our KG object
-# kg = KG(
-#     "samples/countries-cities/countries.ttl",
-#     label_predicates=label_predicates,
-#     format="turtle",
-# )
-kg = SPARQLLoader("https://dbpedia.org/sparql")
-
-# We'll all possible walks of depth 6 (3 hops)
-random_walker = RandomWalker(3, 250)
-
-# Create embeddings with random walks
-transformer = RDF2VecTransformer(walkers=[random_walker])
-walk_embeddings = transformer.fit_transform(kg, all_entities)
+kg = KG(
+    SPARQL_ENDPOINT,
+    label_predicates=LABEL_PREDICATES,
+    is_remote=True,
+)
 
 # Create t-SNE embeddings from RDF2Vec embeddings (dimensionality reduction)
-walk_tsne = TSNE(random_state=42)
-X_walk_tsne = walk_tsne.fit_transform(walk_embeddings)
+X_walk_tsne = TSNE(random_state=42).fit_transform(
+    create_embeddings(kg, entities, WALKERS)
+)
 
 # Define a color map
 colors = ["r", "g"]
@@ -51,8 +76,9 @@ color_map = {}
 for i, label in enumerate(set(labels)):
     color_map[label] = colors[i]
 
-# Plot the train embeddings
 plt.figure(figsize=(10, 4))
+
+# Plot the train embeddings
 plt.scatter(
     X_walk_tsne[:, 0],
     X_walk_tsne[:, 1],
@@ -60,11 +86,10 @@ plt.scatter(
     facecolors=[color_map[i] for i in labels],
 )
 
-for x, y, t in zip(X_walk_tsne[:, 0], X_walk_tsne[:, 1], all_entities):
+for x, y, t in zip(X_walk_tsne[:, 0], X_walk_tsne[:, 1], entities):
     plt.annotate(t.split("/")[-1], (x, y))
 
-
 # Show & save the figure
-plt.title("pyRDF2Vec", fontsize=32)
+plt.title(PLOT_TITLE, fontsize=32)
 plt.axis("off")
 plt.show()

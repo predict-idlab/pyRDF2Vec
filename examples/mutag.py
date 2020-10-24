@@ -108,8 +108,9 @@ print(
 print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
 # Create t-SNE embeddings from RDF2Vec embeddings (dimensionality reduction)
-walk_tsne = TSNE(random_state=42)
-X_walk_tsne = walk_tsne.fit_transform(train_embeddings + test_embeddings)
+X_walk_tsne = TSNE(random_state=42).fit_transform(
+    train_embeddings + test_embeddings
+)
 
 # Define the color map
 colors = ["r", "g"]
