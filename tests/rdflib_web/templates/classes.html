@@ -1,0 +1,13 @@
+{% extends "lodpage.html" %}
+
+{% block special %}
+
+{% if classes %}
+<h2>Class Hierarchy</h2>
+
+{% import 'utils.html' as utils %}
+{{ utils.tree(classes) }}
+
+{% endif %}
+
+{% endblock %}

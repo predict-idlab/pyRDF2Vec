@@ -1,0 +1,261 @@
+div, html, body { 
+border: 0; padding: 0; margin: 0;
+}
+
+body { 
+	margin: 0;
+	margin-bottom: 1cm; 
+
+	padding-top: 0;
+	color: #333333;
+	font: 13px/1.4 Helvetica,arial,freesans,clean,sans-serif;
+}
+
+table { border-collapse: collapse; }
+thead tr { border-bottom: 2px solid #aaa; cursor: pointer ; }
+th, td { text-align: left; padding: 10px; color: #333; }
+tbody tr { border-bottom: 1px solid #ccc; }
+tbody tr.even { background-color: #fafafa; }
+
+thead tr .headerSortUp {
+    text-decoration: underline;
+}
+thead tr .headerSortUp:after {
+    content: '  \2227';
+}
+thead tr .headerSortDown { 
+    text-decoration: underline;
+}
+ thead tr .headerSortDown:after {
+    content: '  \2228';
+}
+
+
+
+.pagenav {
+    border-bottom: 1px solid #DDDDDD;
+    min-height: 35px;
+	height: 35px;
+    margin: 10px 0;
+	position: relative;
+	padding: 0;
+}
+
+.pagenav .pagenav-tabs {
+    display: inline-block;
+	margin: 0; 
+	padding: 0;
+}
+
+.pagenav .pagenav-tabs > li {
+    display: inline-block;
+	padding: 0; 
+	margin: 0;
+}
+
+.pagenav .pagenav-tabs li img { 
+	height: 13px; }
+
+.pagenav-tab {
+   -moz-border-bottom-colors: none;
+   -moz-border-left-colors: none;
+   -moz-border-right-colors: none;
+   -moz-border-top-colors: none;
+   border-color: #eee;
+   border-image: none;
+   border-style: solid solid none;
+   border-width: 1px 1px 0;
+   border-radius: 3px 3px 0 0;
+   color: #666666;
+   display: inline-block;
+   font-size: 14px;
+   margin-bottom: -1px;
+   padding: 8px 12px;
+   text-decoration: none;
+   outline: 0;
+}
+
+.picker img { height: 12px; }
+
+.pagenav-tab.selected {
+    background-color: #FFFFFF;
+    border-color: #DDDDDD;
+    border-radius: 3px 3px 0 0;
+    color: #333333;
+    font-weight: bold;
+}
+
+
+.pagenav ul li {
+    padding-top: 8px;
+    margin: 0 0 0 5px;
+}
+
+.pagenav ul li > li, ul.resources > li {
+    border: medium none;
+    border-radius: 0 0 0 0;
+    position: relative;
+    list-style-type: none;
+    margin: 0 0 10px;
+    overflow: hidden;
+}
+
+.pagenav ul li h3 {
+    font-size: 20px;
+    height: 32px;
+    letter-spacing: -1px;
+    line-height: 32px;
+    margin-bottom: 1px;
+}
+
+.pagenav ul li h3 a {
+    display: inline-block;
+    line-height: 32px;
+    position: relative;
+    top: -5px;
+}
+
+
+.clearfix:after {
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+
+.clearfix {
+    display: block;
+}
+
+
+
+#header { 
+	padding: 10px; 
+
+	margin-top: 0;
+	border-bottom: 1px solid #cacaca;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#header .heading {
+    padding: 9px 0 0;
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16pt;
+}
+
+#header .heading a { 
+	text-decoration: none; 
+	color: #000; 
+}
+
+.container { 
+	margin: 0 auto; 
+	width: 920px;
+}
+
+
+
+#query { 
+    padding: 10px; 
+    display: inline-block;
+}
+
+a { 
+    color: #335599;
+}
+
+h1 { 
+	margin-top: 1cm;
+    font-size: 1.5em; clear: both;
+}
+h2 { 
+    font-size: 1.2em;
+}
+h3 { 
+	font-size: 1em;
+}
+
+h1 .url {
+    display: block; 
+    font-size: 0.5em;
+    color: #aaa;
+}
+
+
+
+.comment { 
+    padding: 5px; 
+    padding-left: 10px;
+    color: #555;
+    background: #fafafa; 
+    border: 1px solid #eee;
+    margin-left: 10px; 
+    margin-right: auto;
+    margin-top: 10px;
+    width: 650px;
+}
+
+#versions { 
+    font-size: 0.7em;
+} 
+#footer {
+	margin-top: 10px;
+	background-color: #F8F8F8;
+    border-bottom: 1px solid #E0E0E0;
+    border-top: 1px solid #E0E0E0;
+    box-shadow: 0 -1px 0 #FFFFFF inset;
+	min-height: 160px;
+	padding: 10px;
+}
+
+hr { 
+    border-color: #ddd;
+}
+
+#footermenu { 
+	margin-top: 1cm;
+}
+
+#versions, #footermenu { color: #555; }
+#versions a, #footermenu a { color: #6285cb; }
+#footermenu img { height: 16px; }
+
+#classmenu { 
+	margin-top: -10px;
+	float: right; 
+	width: 400px; 
+	max-height: 500px; 
+	overflow-y: scroll;
+	border-left: 1px solid #ddd; 
+	border-bottom: 1px solid #ddd; 
+	background: #eee;
+	padding-left: 10px;
+}
+
+.termtype { 
+	color: #444;
+	font-size: 80%;
+}
+
+.termtype a { 
+	color: #445;
+}
+
+.inlinelist ul li { 
+    float: left; 
+    display: block; 
+    margin-left: 5px;
+}
+
+.external:after { 
+	content: " \021f2;" ;
+	vertical-align: super;
+	font-size: 50%;
+}
+
+#search {
+	float: right; 
+}

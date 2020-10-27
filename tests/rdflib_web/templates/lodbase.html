@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block header %}
+<div class="heading">
+<a href="{{url_for('index')}}">{{config["dbname"]}}</a>
+<div id="search">
+  <form action="{{url_for('lod.search')}}">
+	<input type="text" name="searchterm" value="{{searchterm}}"/>
+	<input type="submit" value="search" />
+  </form>
+</div>
+
+</div>
+{% endblock %}
+
+
+{% block body %}
+{{ super() }}
+
+ <div class="pagenav">
+   <ul class="pagenav-tabs">
+
+     <li>
+	   <a class="pagenav-tab {{'selected' if request.path=='/' else ''}}" href="{{url_for('index')}}">
+		 /
+	   </a>
+	 </li>
+
+     <li>
+	   <a class="pagenav-tab {{'selected' if request.path=='/instances' else ''}}" href="{{url_for('lod.instances')}}">
+		 Instances
+	   </a>
+	 </li>
+     <li>
+	   <a class="pagenav-tab {{'selected' if request.path=='/page/Class/Class' else ''}}" href="{{url_for('lod.resource', type_='Class', label='Class')}}">
+		 Classes
+	   </a>
+	 </li>
+     <li>
+	   <a class="pagenav-tab {{'selected' if request.path=='/page/Class/Property' else ''}}" href="{{url_for('lod.resource', type_='Class', label='Property')}}">
+		 Properties
+	   </a>
+	 </li>
+     <li><a class="pagenav-tab" href="{{url_for('lod.picked')}}"><img src="{{url_for('static', filename='star_active.png')}}" /> resources</a></li>
+
+   </ul>
+ </div>
+
+ <div class='clearfix'></div>
+{% endblock %}

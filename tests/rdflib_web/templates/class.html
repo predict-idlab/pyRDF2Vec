@@ -1,0 +1,60 @@
+{% extends "classes.html" %}
+{% import 'utils.html' as utils %}
+
+{% block special %}
+{{super()}}
+
+{% if classinprops or classoutprops%} 
+<h2>Class Properties</h2>
+{% if classoutprops %}
+<h3>&rArr; properties</h3>
+<table>
+<thead>
+  <tr><th></th><th>property</th><th>range</th></tr>
+</thead>
+{% for p,r in classoutprops %}
+<tr class="{{ loop.cycle('odd', 'even') }}">
+  {% if loop.first %}<td rowspan='{{classoutprops|count}}'>{{label}}</td>{% endif %}
+  <td>{{utils.term(p)}}</td>
+  <td>{{utils.term(r) if r else "(any)"}}</td>
+</tr>
+
+{% endfor %}
+</table>
+<br/>
+{% endif %}
+
+
+{% if classinprops %}
+<h3>&lArr; properties</h3>
+<table>
+<thead>
+  <tr><th>domain</th><th>property</th><th></th></tr>
+</thead>
+{% for d,p in classinprops %}
+<tr class="{{ loop.cycle('odd', 'even') }}">
+  <td>{{utils.term(d) if d else "(any)" }}</td>
+  <td>{{utils.term(p)}}</td>
+  {% if loop.first %}<td rowspan='{{classinprops|count}}'>{{label}}</td>{% endif %}
+
+</tr>
+{% endfor %}
+
+
+
+</table>
+{% endif %}
+
+
+{% endif %}
+
+{% if instances %}
+<h2>Instances</h2>
+<ul>
+{% for x in instances %}
+<li>{{utils.term(x)}}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}

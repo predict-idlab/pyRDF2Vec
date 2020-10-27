@@ -1,0 +1,30 @@
+{% extends "lodbase.html" %}
+{% import 'utils.html' as utils %}
+{% block body %}
+{{super()}}
+<h1>Search for '{{searchterm}}'</h1>
+
+{% if not results %}
+<h2>no (more) results</h2>
+{% else %}
+(results {{offset}} to {{offset+10}})
+<table>
+<thead>
+  <tr><td>resource</td></tr>
+</thead>
+{% for x in results %}
+<tr class="{{ loop.cycle('odd', 'even') }}">
+  <td>{{utils.term(x, withclass=True)}}</td>
+</tr>
+{% endfor %}
+</table>
+<div>
+{% if offset>0 %}
+<a href="{{url_for('lod.search', offset=offset-10, searchterm=searchterm)}}">&lt; &lt; previous</a>
+{% endif %}
+<a href="{{url_for('lod.search', offset=offset+10, searchterm=searchterm)}}">next &gt;&gt;</a>
+</div>
+{% endif %}
+
+
+{% endblock %}

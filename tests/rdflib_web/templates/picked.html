@@ -1,0 +1,58 @@
+{% extends "lodbase.html" %}
+{% import 'utils.html' as utils %}
+{% block body %}
+{{super()}}
+<h1>Picked resources:</h1>
+
+<p>Starring resources lets you export or graph several resources as once, click the star icon next to labels of a few things, then come here and export or graph them together.
+<br/>
+Click the stars in the list below to deselect individual resources.
+</p>
+
+<ul>
+{% if things %}
+{% for r in things %}
+<li>
+{{utils.term(r)}}</li>
+{% endfor %}
+{% else %}
+<li>Nothing picked</li>
+{% endif %}
+</ul>
+
+<a href="{{url_for('lod.picked', action='clear')}}"><img src="{{url_for('static', filename='star_inactive.png')}}" />clear all</a>
+<a href="{{url_for('lod.picked', action='all')}}"><img src="{{url_for('static', filename='star_active.png')}}" />select all</a>
+
+
+<div class='inlinelist'><h2>Download as:</h2>
+<ul class='inlinelist'>
+{% for f in ("xml", "turtle", "nt") %}
+  <li><a href="{{url_for('lod.picked', action='download', format_=f)}}">{{f}}</a></li>
+{% endfor %}
+</ul>
+<br />
+</div>
+
+  <div class='inlinelist'><h2>RDF Graph:</h2>
+    <p>Draw the RDF graph.</p>
+<ul class='inlinelist'>
+{% for f in ("png","svg","pdf","dot") %}
+  <li><a href="{{url_for('lod.picked', action='rdfgraph', format_=f)}}">{{f}}</a></li>
+{% endfor %}
+</ul>
+<br />
+</div>
+
+  <div class='inlinelist'><h2>RDFSchema Graph:</h2>
+    <p>Draw the a diagram of the RDFS Classes and Properties, if you did not select any - the graph may be empty!</p>
+<ul class='inlinelist'>
+{% for f in ("png","svg","pdf","dot") %}
+  <li><a href="{{url_for('lod.picked', action='rdfsgraph', format_=f)}}">{{f}}</a></li>
+{% endfor %}
+</ul>
+<br />
+</div>
+
+<br/>
+
+{% endblock %}

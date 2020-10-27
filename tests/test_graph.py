@@ -1,6 +1,3 @@
-import sys
-sys.path.append("..")
-
 import os
 import time
 import multiprocessing
@@ -89,7 +86,7 @@ class TestKG:
     #     assert True
 
     def test_get_neighbors(self):
-        for graph in [LOCAL_KNOWLEDGE_GRAPH]:
+        for graph in [LOCAL_KNOWLEDGE_GRAPH, REMOTE_KNOWLEDGE_GRAPH]:
             neighbors = graph.get_hops("http://pyRDF2Vec#Alice")
             predicates = [x[0] for x in neighbors]
 
@@ -106,9 +103,6 @@ class TestKG:
     # def test_remove_edge(self):
     #     KNOWLEDGE_GRAPH.remove_edge(a, c)
     #     assert True
-
-testing = TestKG()
-testing.test_get_neighbors()
 
 # Closing the server and removing the temporary rdf file
 proc.terminate()

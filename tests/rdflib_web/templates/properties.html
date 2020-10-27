@@ -1,0 +1,15 @@
+{% extends "classes.html" %}
+
+{% block special %}
+
+{{ super() }}
+
+{% if properties %}
+<h2>Property Hierarchy</h2>
+
+{% import 'utils.html' as utils %}
+{{ utils.tree(properties) }}
+
+{% endif %}
+
+{% endblock %}
