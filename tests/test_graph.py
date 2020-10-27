@@ -1,11 +1,12 @@
-import os
-import time
 import multiprocessing
+import os
+import sys
+import time
 
 import rdflib
-from rdflib_web.lod import serve
 
 from pyrdf2vec.graphs import KG, Vertex
+from tests.rdflib_web.lod import serve
 
 # The tests for our Vertex object
 a = Vertex("a")
@@ -29,28 +30,32 @@ class TestVertex:
     def test_neq(self):
         assert a != b
 
-"""
-Creating a small, artificial graph in rdflib.Graph
-Alice -(knows)-> Bob -(knows)-> Casper
-      -(knows)-> Dean
-"""
 
+# Creating a small, artificial graph in rdflib.Graph
+# Alice -(knows)-> Bob -(knows)-> Casper
+#       -(knows)-> Dean
 g = rdflib.Graph()
-g.add((
-    rdflib.URIRef("http://pyRDF2Vec#Alice"), 
-    rdflib.URIRef("http://pyRDF2Vec#knows"), 
-    rdflib.URIRef("http://pyRDF2Vec#Bob")
-))
-g.add((
-    rdflib.URIRef("http://pyRDF2Vec#Alice"), 
-    rdflib.URIRef("http://pyRDF2Vec#knows"), 
-    rdflib.URIRef("http://pyRDF2Vec#Dean")
-))
-g.add((
-    rdflib.URIRef("http://pyRDF2Vec#Bob"), 
-    rdflib.URIRef("http://pyRDF2Vec#knows"), 
-    rdflib.URIRef("http://pyRDF2Vec#Casper")
-))
+g.add(
+    (
+        rdflib.URIRef("http://pyRDF2Vec#Alice"),
+        rdflib.URIRef("http://pyRDF2Vec#knows"),
+        rdflib.URIRef("http://pyRDF2Vec#Bob"),
+    )
+)
+g.add(
+    (
+        rdflib.URIRef("http://pyRDF2Vec#Alice"),
+        rdflib.URIRef("http://pyRDF2Vec#knows"),
+        rdflib.URIRef("http://pyRDF2Vec#Dean"),
+    )
+)
+g.add(
+    (
+        rdflib.URIRef("http://pyRDF2Vec#Bob"),
+        rdflib.URIRef("http://pyRDF2Vec#knows"),
+        rdflib.URIRef("http://pyRDF2Vec#Casper"),
+    )
+)
 
 # Serialize the graph
 g.serialize("tmp.ttl", format="turtle")
@@ -58,23 +63,20 @@ g.serialize("tmp.ttl", format="turtle")
 # Host a local endpoint
 old_stdout = sys.stdout
 old_stderr = sys.stderr
-sys.stdout = open(os.devnull, 'w')
-sys.stderr = open(os.devnull, 'w')
+sys.stdout = open(os.devnull, "w")
+sys.stderr = open(os.devnull, "w")
 proc = multiprocessing.Process(target=serve, daemon=True, args=(g,))
 proc.start()
 time.sleep(3)
 sys.stdout = old_stdout
 sys.stderr = old_stderr
 
-LOCAL_KNOWLEDGE_GRAPH = KG(
-    location="tmp.ttl", 
-    file_type="turtle"
-)
+LOCAL_KNOWLEDGE_GRAPH = KG(location="tmp.ttl", file_type="turtle")
 
 REMOTE_KNOWLEDGE_GRAPH = KG(
-    location="http://localhost:5000/sparql", 
-    is_remote=True
+    location="http://localhost:5000/sparql", is_remote=True
 )
+
 
 class TestKG:
     # def test_visualise(self):
@@ -103,6 +105,7 @@ class TestKG:
     # def test_remove_edge(self):
     #     KNOWLEDGE_GRAPH.remove_edge(a, c)
     #     assert True
+
 
 # Closing the server and removing the temporary rdf file
 proc.terminate()
