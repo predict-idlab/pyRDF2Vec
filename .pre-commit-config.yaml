@@ -27,7 +27,6 @@ repos:
     rev: v0.782
     hooks:
       - id: mypy
-        exclude: rdflib_web
 
   - repo: https://github.com/PyCQA/doc8
     rev: 0.8.1rc2

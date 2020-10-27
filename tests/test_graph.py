@@ -6,7 +6,7 @@ import time
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
-from tests.rdflib_web.lod import serve
+from rdflib_web.lod import serve
 
 # The tests for our Vertex object
 a = Vertex("a")
