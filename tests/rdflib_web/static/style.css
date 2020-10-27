@@ -1,10 +1,10 @@
-div, html, body { 
+div, html, body {
 border: 0; padding: 0; margin: 0;
 }
 
-body { 
+body {
 	margin: 0;
-	margin-bottom: 1cm; 
+	margin-bottom: 1cm;
 
 	padding-top: 0;
 	color: #333333;
@@ -23,7 +23,7 @@ thead tr .headerSortUp {
 thead tr .headerSortUp:after {
     content: '  \2227';
 }
-thead tr .headerSortDown { 
+thead tr .headerSortDown {
     text-decoration: underline;
 }
  thead tr .headerSortDown:after {
@@ -43,17 +43,17 @@ thead tr .headerSortDown {
 
 .pagenav .pagenav-tabs {
     display: inline-block;
-	margin: 0; 
+	margin: 0;
 	padding: 0;
 }
 
 .pagenav .pagenav-tabs > li {
     display: inline-block;
-	padding: 0; 
+	padding: 0;
 	margin: 0;
 }
 
-.pagenav .pagenav-tabs li img { 
+.pagenav .pagenav-tabs li img {
 	height: 13px; }
 
 .pagenav-tab {
@@ -130,8 +130,8 @@ thead tr .headerSortDown {
 
 
 
-#header { 
-	padding: 10px; 
+#header {
+	padding: 10px;
 
 	margin-top: 0;
 	border-bottom: 1px solid #cacaca;
@@ -146,61 +146,61 @@ thead tr .headerSortDown {
     font-size: 16pt;
 }
 
-#header .heading a { 
-	text-decoration: none; 
-	color: #000; 
+#header .heading a {
+	text-decoration: none;
+	color: #000;
 }
 
-.container { 
-	margin: 0 auto; 
+.container {
+	margin: 0 auto;
 	width: 920px;
 }
 
 
 
-#query { 
-    padding: 10px; 
+#query {
+    padding: 10px;
     display: inline-block;
 }
 
-a { 
+a {
     color: #335599;
 }
 
-h1 { 
+h1 {
 	margin-top: 1cm;
     font-size: 1.5em; clear: both;
 }
-h2 { 
+h2 {
     font-size: 1.2em;
 }
-h3 { 
+h3 {
 	font-size: 1em;
 }
 
 h1 .url {
-    display: block; 
+    display: block;
     font-size: 0.5em;
     color: #aaa;
 }
 
 
 
-.comment { 
-    padding: 5px; 
+.comment {
+    padding: 5px;
     padding-left: 10px;
     color: #555;
-    background: #fafafa; 
+    background: #fafafa;
     border: 1px solid #eee;
-    margin-left: 10px; 
+    margin-left: 10px;
     margin-right: auto;
     margin-top: 10px;
     width: 650px;
 }
 
-#versions { 
+#versions {
     font-size: 0.7em;
-} 
+}
 #footer {
 	margin-top: 10px;
 	background-color: #F8F8F8;
@@ -211,11 +211,11 @@ h1 .url {
 	padding: 10px;
 }
 
-hr { 
+hr {
     border-color: #ddd;
 }
 
-#footermenu { 
+#footermenu {
 	margin-top: 1cm;
 }
 
@@ -223,39 +223,39 @@ hr {
 #versions a, #footermenu a { color: #6285cb; }
 #footermenu img { height: 16px; }
 
-#classmenu { 
+#classmenu {
 	margin-top: -10px;
-	float: right; 
-	width: 400px; 
-	max-height: 500px; 
+	float: right;
+	width: 400px;
+	max-height: 500px;
 	overflow-y: scroll;
-	border-left: 1px solid #ddd; 
-	border-bottom: 1px solid #ddd; 
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
 	background: #eee;
 	padding-left: 10px;
 }
 
-.termtype { 
+.termtype {
 	color: #444;
 	font-size: 80%;
 }
 
-.termtype a { 
+.termtype a {
 	color: #445;
 }
 
-.inlinelist ul li { 
-    float: left; 
-    display: block; 
+.inlinelist ul li {
+    float: left;
+    display: block;
     margin-left: 5px;
 }
 
-.external:after { 
+.external:after {
 	content: " \021f2;" ;
 	vertical-align: super;
 	font-size: 50%;
 }
 
 #search {
-	float: right; 
+	float: right;
 }

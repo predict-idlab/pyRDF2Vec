@@ -47,7 +47,7 @@ class GenericEndpoint:
         :argument:method: 'PUT', 'POST', 'DELETE', or 'GET'
         :argument:graph_identifier: rdflib.URIRef of the graph against
         which the request is made. It must be None for indirect requests. The
-        special value GenericEndpoint.DEFAULT denotes the default graph. 
+        special value GenericEndpoint.DEFAULT denotes the default graph.
         :argument:args: A dict containing all URL parameters
         :argument:body: The request body as list of dicts if the
         content-type is multipart/form-data, otherwise a string.
@@ -184,4 +184,3 @@ class GenericEndpoint:
             response = (400, dict(), "Named graphs not supported")
 
         return response
-
