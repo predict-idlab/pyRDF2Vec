@@ -66,11 +66,13 @@ time.sleep(3)
 sys.stdout = old_stdout
 sys.stderr = old_stderr
 
+# Load a local knowledge graph from a RDF file
 LOCAL_KNOWLEDGE_GRAPH = KG(
     location="tmp.ttl", 
     file_type="turtle"
 )
 
+# Load a remote knowledge graph using a SPARQL endpoint
 REMOTE_KNOWLEDGE_GRAPH = KG(
     location="http://localhost:5000/sparql", 
     is_remote=True
