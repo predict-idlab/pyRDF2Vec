@@ -47,7 +47,10 @@ class KG:
         is_remote=False,
     ):
         self.file_type = file_type
-        self.label_predicates = label_predicates
+        if label_predicates is None:
+            self.label_predicates = []
+        else:
+            self.label_predicates = label_predicates
         self.location = location
         self.is_remote = is_remote
 
@@ -179,7 +182,7 @@ class KG:
                     self.location, format=self.location.split(".")[-1]
                 )
             else:
-                self.graph.parse(self.location, self.file_type)
+                self.graph.parse(self.location, format=self.file_type)
         except Exception:
             self.graph.parse(self.location)
 
