@@ -42,6 +42,7 @@ SPARQLWrapper = "^1.8.5"
 attrs = "^20.1.0"
 gensim = "^3.8.3"
 matplotlib = "^3.3.1"
+mimeparse = "^0.1.3"
 networkx = "^2.5"
 numpy = "^1.19.1"
 pandas = "^1.1.1"
@@ -70,6 +71,7 @@ sphinxcontrib-apidoc = "^0.3.0"
 towncrier = "^19.2.0"
 tox = "^3.19.0"
 yamllint = "^1.24.2"
+mimeparse = "^0.1.3"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
