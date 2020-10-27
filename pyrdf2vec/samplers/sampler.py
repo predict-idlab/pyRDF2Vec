@@ -31,7 +31,7 @@ class Sampler(metaclass=abc.ABCMeta):
 
         """
         if kg.is_remote and not self.remote_supported:
-            raise ValueError('This sampler is not supported for remote KGs.')
+            raise ValueError("This sampler is not supported for remote KGs.")
         if self.split:
             self.degrees = {}
             for vertex in kg._vertices:
