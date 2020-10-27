@@ -17,6 +17,7 @@ class UniformSampler(Sampler):
 
     def __init__(self, inverse=False):
         super().__init__(inverse)
+        self.remote_supported = True
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
