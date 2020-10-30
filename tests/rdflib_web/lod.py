@@ -51,10 +51,10 @@ from werkzeug.urls import url_quote
 
 from jinja2 import contextfilter, Markup
 
-from rdflib_web.endpoint import endpoint
-from rdflib_web import mimeutils
+from tests.rdflib_web.endpoint import endpoint
+from tests.rdflib_web import mimeutils
 
-from rdflib_web.caches import lfu_cache
+from tests.rdflib_web.caches import lfu_cache
 
 __all__ = ['lod', 'get', 'serve' ]
 
