@@ -86,6 +86,7 @@ class TestKG:
             assert Vertex("http://pyRDF2Vec#Bob") in objects
             assert Vertex("http://pyRDF2Vec#Dean") in objects
 
+
 # Closing the server and removing the temporary RDF file
 proc.terminate()
 proc.join()
