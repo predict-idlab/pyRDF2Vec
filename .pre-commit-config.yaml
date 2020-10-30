@@ -6,12 +6,14 @@ repos:
       - id: black
         name: Check code formatting (black)
         language_version: python3
+        exclude: rdflib_web
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:
       - id: flake8
         name: Check code formatting (flake8)
+        exclude: rdflib_web
 
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.4.2
@@ -19,6 +21,7 @@ repos:
       - id: isort
         name: Check the order of your imports (isort)
         additional_dependencies: [toml]
+        exclude: rdflib_web
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.782
@@ -31,6 +34,7 @@ repos:
       - id: doc8
         name: Checks the style of the documentation (doc8)
         args: [--max-line-length, "100"]
+        exclude: rdflib_web
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.24.2
@@ -46,6 +50,7 @@ repos:
         name: Check whether files parse a valid Python (check-ast)
       - id: check-docstring-first
         name: Check the docstring placement (check-docstring-first)
+        exclude: rdflib_web
       - id: check-toml
         name: Check the TOML syntax (check-toml)
       - id: check-yaml

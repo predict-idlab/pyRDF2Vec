@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
     <title>{% block title %}{% endblock %}</title>
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css" />
 	<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='jquery.tablesorter.min.js') }}"></script>
@@ -39,7 +39,7 @@
 	  </div>
 	</div>
 
-	<div id="footer"> 
+	<div id="footer">
 	  <div class="container">
     {% block footer %}
 
@@ -47,6 +47,6 @@
     {% endblock %}
 	  </div>
 	</div>
-    
+
   </body>
 </html>

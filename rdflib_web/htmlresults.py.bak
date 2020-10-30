@@ -1,6 +1,6 @@
 """
 
-SPARQL Result Serializer and RDF Serializer 
+SPARQL Result Serializer and RDF Serializer
 for nice human readable HTML tables
 
 >>> from rdflib import RDF, RDFS, XSD, Graph, Literal
@@ -32,24 +32,24 @@ nm.bind('xsd',rdflib.XSD)
 
 def qname(ctx, t):
     try:
-        if "graph" in ctx: 
+        if "graph" in ctx:
             l=ctx["graph"].namespace_manager.compute_qname(t, False)
-        else: 
+        else:
             l=nm.compute_qname(t, False)
-        return '%s:%s'%(l[0],l[2])
-    except: 
+        return u'%s:%s'%(l[0],l[2])
+    except:
         return t
 
 
 @contextfilter
-def term_to_string(ctx, t): 
+def term_to_string(ctx, t):
     if isinstance(t, rdflib.URIRef):
         l=qname(ctx,t)
-        return Markup("<a href='%s'>%s</a>"%(t,l))
-    elif isinstance(t, rdflib.Literal): 
-        if t.language: 
+        return Markup(u"<a href='%s'>%s</a>"%(t,l))
+    elif isinstance(t, rdflib.Literal):
+        if t.language:
             return '"%s"@%s'%(t,t.language)
-        elif t.datatype: 
+        elif t.datatype:
             return '"%s"^^&lt;%s&gt;'%(t,qname(ctx,t.datatype))
         else:
             return '"%s"'%t
@@ -59,7 +59,7 @@ env=Environment()
 env.filters["term_to_string"]=term_to_string
 
 
-GRAPH_TEMPLATE="""
+GRAPH_TEMPLATE=u"""
 <table>
 <thead>
  <tr>
@@ -81,7 +81,7 @@ GRAPH_TEMPLATE="""
 
 """
 
-SELECT_TEMPLATE="""
+SELECT_TEMPLATE=u"""
 <table>
 <thead>
  <tr>
@@ -106,7 +106,7 @@ SELECT_TEMPLATE="""
 
 class HTMLResultSerializer(ResultSerializer):
 
-    def __init__(self, result): 
+    def __init__(self, result):
         ResultSerializer.__init__(self, result)
 
     def serialize(self, stream, encoding="utf-8"):
@@ -118,7 +118,7 @@ class HTMLResultSerializer(ResultSerializer):
             stream.write(template.render(result=self.result))
 
 
-            
+
 
 
 
@@ -136,7 +136,7 @@ class HTMLSerializer(Serializer):
         template = env.from_string(GRAPH_TEMPLATE)
         res=template.render(graph=self.store)
         if not encoding: encoding="utf-8"
-        
+
         res=res.encode(encoding)
         stream.write(res)
 
@@ -150,4 +150,3 @@ if __name__=='__main__':
     g.add((rdflib.RDF.Property, rdflib.RDFS.label, rdflib.Literal('Eigenschaft', lang='de')))
 
     s=g.query('select * where { ?s ?p ?o . }').serialize(format='html')
-
