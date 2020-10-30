@@ -69,7 +69,6 @@ jobs:
 
       - name: Run unit tests (pytest)
         run: |
-          python -m rdflib_web.endpoint
           poetry run tox -e tests
 
       - name: Build the documentation (sphinx)
