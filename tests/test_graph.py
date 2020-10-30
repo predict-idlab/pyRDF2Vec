@@ -4,8 +4,8 @@ import sys
 import time
 
 import rdflib
-from rdflib_web.lod import serve
 
+from tests.rdflib_web.lod import serve
 from pyrdf2vec.graphs import KG, Vertex
 
 # The tests for our Vertex object
