@@ -1,15 +1,12 @@
-import sys
-sys.path.append('..')
-
 import multiprocessing
 import os
 import sys
 import time
 
 import rdflib
+from rdflib_web.lod import serve
 
 from pyrdf2vec.graphs import KG, Vertex
-from rdflib_web.lod import serve
 
 # The tests for our Vertex object
 a = Vertex("a")
@@ -74,6 +71,7 @@ LOCAL_KG = KG(location="tmp.ttl", file_type="turtle")
 # Load a remote knowledge graph using a SPARQL endpoint
 REMOTE_KG = KG(location="http://localhost:5000/sparql", is_remote=True)
 
+
 class TestKG:
     def test_get_neighbors(self):
         for graph in [LOCAL_KG, REMOTE_KG]:
@@ -87,10 +85,6 @@ class TestKG:
             objects = [x[1] for x in neighbors]
             assert Vertex("http://pyRDF2Vec#Bob") in objects
             assert Vertex("http://pyRDF2Vec#Dean") in objects
-
-
-testing = TestKG()
-testing.test_get_neighbors()
 
 # Closing the server and removing the temporary RDF file
 proc.terminate()
