@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 import rdflib
 
@@ -22,8 +22,8 @@ class RDF2VecTransformer:
 
     def __init__(
         self,
-        embedder: Embedder = None,
-        walkers: Sequence[Walker] = None,
+        embedder: Optional[Embedder] = None, 
+        walkers: Optional[Sequence[Walker]] = None,
     ):
         if embedder is None:
             self.embedder = Word2Vec()

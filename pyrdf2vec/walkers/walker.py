@@ -1,5 +1,5 @@
 import abc
-from typing import Any, List, Set, Tuple
+from typing import Any, List, Optional, Set, Tuple
 
 import rdflib
 
@@ -22,7 +22,7 @@ class Walker(metaclass=abc.ABCMeta):
         self,
         depth: int,
         walks_per_graph: float,
-        sampler: Sampler = None,
+        sampler: Optional[Sampler] = None,
     ):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
