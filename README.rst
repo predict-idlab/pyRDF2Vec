@@ -120,7 +120,8 @@ To create a Knowledge Graph object, you can initialize it in two ways.
        "http://dl-learner.org/carcinogenesis#isMutagenic"
    ]
 
-   kg = KG(location="samples/mutag/mutag.owl")
+   kg = KG(location="samples/mutag/mutag.owl", 
+           label_predicates=label_predicates)
 
 2. **from a server using SPARQL**:
 

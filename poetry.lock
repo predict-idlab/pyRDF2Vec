@@ -1157,7 +1157,7 @@ tests = []
 
 [metadata]
 lock-version = "1.0"
-python-versions = "^3.7"
+python-versions = "^3.6"
 content-hash = "2768589c7032d0e1c12838f3a8029ece3ea005c34006d1461316645feeaf783a"
 
 [metadata.files]
