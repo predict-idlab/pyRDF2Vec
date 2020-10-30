@@ -108,11 +108,11 @@ Create a Knowledge Graph object
 
 To create a Knowledge Graph object, you can initialize it in two ways.
 
-1. **from RDFLib**:
+1. **from a file using RDFlib**:
 
 .. code:: python
 
-   from pyrdf2vec.graphs import RDFLoader
+   from pyrdf2vec.graphs import KG
 
    # Define the label predicates, all triples with these predicates
    # will be excluded from the graph
@@ -120,15 +120,16 @@ To create a Knowledge Graph object, you can initialize it in two ways.
        "http://dl-learner.org/carcinogenesis#isMutagenic"
    ]
 
-   kg = RDFLoader("samples/mutag/mutag.owl", label_predicates=label_predicates)"
+   kg = KG(location="samples/mutag/mutag.owl")
 
-2. **from SPARQL**:
+2. **from a server using SPARQL**:
 
 .. code:: python
 
-   from pyrdf2vec.graphs import SPARQLLoader
+   from pyrdf2vec.graphs import KG
 
-   kg = SPARQLLoader("https://dbpedia.org/sparql")
+   kg = KG(location="https://dbpedia.org/sparql",
+           is_remote=True)
 
 Define walking strategies with their sampling strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
