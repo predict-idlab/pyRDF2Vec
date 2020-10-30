@@ -8,8 +8,6 @@ Submodules
    :maxdepth: 4
 
    pyrdf2vec.graphs.kg
-   pyrdf2vec.graphs.rdf_loader
-   pyrdf2vec.graphs.sparql_loader
 
 Module contents
 ---------------
