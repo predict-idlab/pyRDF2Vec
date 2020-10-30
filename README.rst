@@ -116,12 +116,8 @@ To create a Knowledge Graph object, you can initialize it in two ways.
 
    # Define the label predicates, all triples with these predicates
    # will be excluded from the graph
-   label_predicates = [
-       "http://dl-learner.org/carcinogenesis#isMutagenic"
-   ]
-
-   kg = KG(location="samples/mutag/mutag.owl",
-           label_predicates=label_predicates)
+   label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
+   kg = KG(location="samples/mutag/mutag.owl", label_predicates=label_predicates)
 
 2. **from a server using SPARQL**:
 
@@ -129,8 +125,7 @@ To create a Knowledge Graph object, you can initialize it in two ways.
 
    from pyrdf2vec.graphs import KG
 
-   kg = KG(location="https://dbpedia.org/sparql",
-           is_remote=True)
+   kg = KG(location="https://dbpedia.org/sparql", is_remote=True)
 
 Define walking strategies with their sampling strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
