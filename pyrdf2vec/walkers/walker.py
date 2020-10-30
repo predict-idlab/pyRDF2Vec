@@ -1,5 +1,5 @@
 import abc
-from typing import Any, List, Optional, Set, Tuple
+from typing import Any, List, Set, Tuple
 
 import rdflib
 
@@ -22,14 +22,14 @@ class Walker(metaclass=abc.ABCMeta):
         self,
         depth: int,
         walks_per_graph: float,
-        sampler: Optional[Sampler] = None,
+        sampler: Sampler = None,
     ):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
-        if sampler is None:
-            self.sampler = UniformSampler()
-        else:
+        if sampler is not None:
             self.sampler = sampler
+        else:
+            self.sampler = UniformSampler()
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef]
