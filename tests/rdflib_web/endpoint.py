@@ -37,9 +37,9 @@ import traceback
 
 from . import mimeutils
 
-from rdflib_web import htmlresults
-from rdflib_web import __version__
-from rdflib_web import generic_endpoint
+from tests.rdflib_web import htmlresults
+from tests.rdflib_web import __version__
+from tests.rdflib_web import generic_endpoint
 __all__ = [ 'endpoint', 'get', 'serve' ]
 
 

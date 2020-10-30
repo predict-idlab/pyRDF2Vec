@@ -3,6 +3,7 @@ import os
 import sys
 import time
 
+import pytest
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
@@ -58,13 +59,21 @@ g.add(
 g.serialize("tmp.ttl", format="turtle")
 
 # Host a local endpoint
-old_stderr, old_stdout = sys.stderr, sys.stdout
-sys.stderr, sys.stdout = open(os.devnull, "w"), open(os.devnull, "w")
-proc = multiprocessing.Process(target=serve, daemon=True, args=(g,))
-proc.start()
-time.sleep(3)
-sys.stdout = old_stdout
-sys.stderr = old_stderr
+@pytest.fixture(autouse=True, scope="session")
+def start_server():
+    old_stderr, old_stdout = sys.stderr, sys.stdout
+    sys.stderr, sys.stdout = open(os.devnull, "w"), open(os.devnull, "w")
+    proc = multiprocessing.Process(target=serve, daemon=True, args=(g,))
+    proc.start()
+    time.sleep(3)
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+
+    yield
+
+    proc.terminate()
+    proc.join()
+
 
 # Load a local knowledge graph from a RDF file
 LOCAL_KG = KG(location="tmp.ttl", file_type="turtle")
@@ -88,6 +97,4 @@ class TestKG:
 
 
 # Closing the server and removing the temporary RDF file
-proc.terminate()
-proc.join()
 os.remove("tmp.ttl")
