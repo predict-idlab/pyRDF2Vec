@@ -22,11 +22,14 @@ class Walker(metaclass=abc.ABCMeta):
         self,
         depth: int,
         walks_per_graph: float,
-        sampler: Sampler = UniformSampler(),
+        sampler: Sampler = None,
     ):
         self.depth = depth
         self.walks_per_graph = walks_per_graph
-        self.sampler = sampler
+        if sampler is None:
+            self.sampler = UniformSampler()
+        else:
+            self.sampler = sampler
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef]

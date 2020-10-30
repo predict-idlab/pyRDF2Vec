@@ -40,7 +40,6 @@ def _get_classes() -> List[Tuple[str, T]]:
     """
     classes = []
     base_path = [os.path.dirname(pyrdf2vec.__file__)]
-    print(base_path)
     for _, name, _ in pkgutil.walk_packages(
         path=base_path, prefix="pyrdf2vec."
     ):
@@ -68,13 +67,18 @@ def _get_walkers() -> List[Tuple[str, T]]:
 
 def check_walker(Walker, name):
     walks_per_graph = 5
-    canonical_walks = Walker(2, walks_per_graph, UniformSampler()).extract(
+    depth = 2
+    canonical_walks = Walker(depth, walks_per_graph, UniformSampler()).extract(
         KNOWLEDGE_GRAPH, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
     if name == "WeisfeilerLehmanWalker":
         assert len(canonical_walks) <= len(
             ENTITIES_SUBSET * walks_per_graph * 5
+        )
+    elif name == "WalkletWalker":
+        assert len(canonical_walks) <= len(
+            ENTITIES_SUBSET * walks_per_graph * (depth + 1)
         )
     else:
         assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)

@@ -35,10 +35,9 @@ class TestRDF2VecTransformer:
         transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
 
     def test_fit_transform(self):
-        transformer = RDF2VecTransformer()
         np.testing.assert_array_equal(
-            transformer.fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET),
-            transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET).transform(
+            RDF2VecTransformer().fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET),
+            RDF2VecTransformer().fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET).transform(
                 ENTITIES_SUBSET
             ),
         )

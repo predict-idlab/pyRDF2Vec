@@ -39,7 +39,6 @@ def _get_classes() -> List[Tuple[str, T]]:
     """
     classes = []
     base_path = [os.path.dirname(pyrdf2vec.__file__)]
-    print(base_path)
     for _, name, _ in pkgutil.walk_packages(
         path=base_path, prefix="pyrdf2vec."
     ):

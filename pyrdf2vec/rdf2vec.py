@@ -22,14 +22,20 @@ class RDF2VecTransformer:
 
     def __init__(
         self,
-        embedder: Embedder = Word2Vec(),
-        walkers: Sequence[Walker] = [
-            RandomWalker(2, None, UniformSampler(inverse=False))
-        ],
+        embedder: Embedder = None,
+        walkers: Sequence[Walker] = None,
     ):
-        self.embedder = embedder
+        if embedder is None:
+            self.embedder = Word2Vec()
+        else:
+            self.embedder = embedder
         self.walks_: List[rdflib.URIRef] = []
-        self.walkers = walkers
+        if walkers is None:
+            self.walkers = [
+                RandomWalker(2, None, UniformSampler(inverse=False))
+            ]
+        else:
+            self.walkers = walkers
 
     def fit(
         self,
