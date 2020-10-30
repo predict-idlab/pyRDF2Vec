@@ -22,7 +22,7 @@ FILE = "samples/countries-cities/entities.tsv"
 SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
 LABEL_PREDICATES = ["www.w3.org/1999/02/22-rdf-syntax-ns#type"]
 # We'll extract all possible walks of depth 6 (3 hops)
-WALKERS = [RandomWalker(3, 5)]
+WALKERS = [RandomWalker(4, 25)]
 
 PLOT_TITLE = "pyRDF2Vec"
 
