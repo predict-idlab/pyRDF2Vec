@@ -55,7 +55,7 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
 
         Returns:
-            RDF2VecTransformer: The RDF2VecTransformer itself.
+            The RDF2VecTransformer.
 
         """
         if kg.is_remote is False and not all(
