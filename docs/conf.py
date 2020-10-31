@@ -33,7 +33,7 @@ project = find("name")
 source_suffix = [".rst"]
 version = find("version")
 
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "api/modules.rst"]
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
