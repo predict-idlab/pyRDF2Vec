@@ -53,6 +53,8 @@ class RDF2VecTransformer:
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
+            verbose: If true, display the number of extracted walks for the
+                number of entities. Defaults to false.
 
         Returns:
             The RDF2VecTransformer.
