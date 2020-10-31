@@ -70,6 +70,8 @@ class RDF2VecTransformer:
         for walker in self.walkers:
             self.walks_ += list(walker.extract(kg, entities))
         corpus = [list(map(str, x)) for x in self.walks_]
+        print(corpus)
+        print(type(corpus))
 
         if verbose:
             print(
