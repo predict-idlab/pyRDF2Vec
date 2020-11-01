@@ -329,7 +329,7 @@ pyRDF2Vec <https://pyrdf2vec.readthedocs.io/en/latest/>`__ is hosted on
 documentation, we use:
 
 - `Sphinx <https://www.sphinx-doc.org/en/master/>`__ as a Python documentation generator ;
--  `Google style
+-  `Google Style
    docstrings <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html>`__:
    as a docstring writing convention.
 - ``mypy``: as a optional static typing for Python.
