@@ -190,9 +190,10 @@ to ``pyRDF2Vec``:
 
 .. code:: python3
 
-   from typing import List, Set
+   from typing import List
 
    import rdflib
+
    from pyrdf2vec.embedders import Embedder
 
    class FooEmbedder(Embedder):
@@ -246,7 +247,7 @@ request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
 Add a new walking strategy
 --------------------------
 
-{To add your own sampling strategy, the steps are almost similar to those for
+To add your own sampling strategy, the steps are almost similar to those for
 adding an embedding technique:
 
 1. **Install the dependencies:** before you can install the dependencies of
@@ -552,7 +553,7 @@ With ``poetry`` installed, you can now install the dependencies related to
 
    tox
 
-**NOTE:** this may take some time (between 5-10 minutes), do this step when
+**NOTE:** this may take some time (between 10-15 minutes), do this step when
 your code works.
 
 Everything ok? Make a `pull
