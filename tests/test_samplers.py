@@ -58,7 +58,9 @@ def _get_samplers() -> List[Tuple[str, T]]:
 
     """
     classes = [  # type: ignore
-        cls for cls in set(_get_classes()) if issubclass(cls[1], Sampler)
+        cls  # type: ignore
+        for cls in set(_get_classes())  # type: ignore
+        if issubclass(cls[1], Sampler)  # type: ignore
     ]
     classes = filter(lambda c: not is_abstract(c[1]), classes)  # type: ignore
     return sorted(set(classes), key=itemgetter(0))
