@@ -103,7 +103,7 @@ file:
 
 **NOTE:** the ``PYTHONHASHSEED`` (*e.g.,* 42) is to ensure determinism.
 
-Create a Knowledge Graph object
+Create a Knowledge Graph Object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To create a Knowledge Graph object, you can initialize it in two ways.
@@ -127,7 +127,7 @@ To create a Knowledge Graph object, you can initialize it in two ways.
 
    kg = KG(location="https://dbpedia.org/sparql", is_remote=True)
 
-Define walking strategies with their sampling strategy
+Define Walking Strategies With Their Sampling Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All supported walking strategies can be found on the
@@ -154,7 +154,7 @@ other sampling strategies), the following code snippet can be used:
 
    walkers = [RandomWalker(4, 5, UniformSampler())]
 
-Create embeddings
+Create Embeddings
 ~~~~~~~~~~~~~~~~~
 
 Finally, the creation of embeddings for a list of entities simply goes
