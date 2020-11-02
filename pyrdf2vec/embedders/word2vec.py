@@ -18,7 +18,7 @@ class Word2Vec(Embedder):
         kwargs.setdefault("min_count", 0)
         self.kwargs = kwargs
 
-    def fit(self, corpus):
+    def fit(self, corpus: List[List[str]]) -> "Word2Vec":
         """Fits the Word2Vec model based on provided corpus.
 
         Args:

@@ -53,9 +53,11 @@ class RDF2VecTransformer:
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
+            verbose: If true, display the number of extracted walks for the
+                number of entities. Defaults to false.
 
         Returns:
-            RDF2VecTransformer: The RDF2VecTransformer itself.
+            The RDF2VecTransformer.
 
         """
         if kg.is_remote is False and not all(
@@ -68,6 +70,8 @@ class RDF2VecTransformer:
         for walker in self.walkers:
             self.walks_ += list(walker.extract(kg, entities))
         corpus = [list(map(str, x)) for x in self.walks_]
+        print(corpus)
+        print(type(corpus))
 
         if verbose:
             print(

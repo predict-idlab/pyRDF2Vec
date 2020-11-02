@@ -3,7 +3,7 @@ import os
 import pkgutil
 import random
 from operator import itemgetter
-from typing import List, Tuple, TypeVar
+from typing import Any, List, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -57,25 +57,28 @@ def _get_walkers() -> List[Tuple[str, T]]:
 
     """
     classes = [  # type: ignore
-        c  # type: ignore
-        for c in set(_get_classes())  # type: ignore
-        if issubclass(c[1], Walker)  # type: ignore
+        cls for cls in set(_get_classes()) if issubclass(cls[1], Walker)
     ]
     classes = filter(lambda c: not is_abstract(c[1]), classes)  # type: ignore
     return sorted(set(classes), key=itemgetter(0))
 
 
-def check_walker(Walker, name):
+def check_walker(name, Walker):
     walks_per_graph = 5
     depth = 2
+
     canonical_walks = Walker(depth, walks_per_graph, UniformSampler()).extract(
         KNOWLEDGE_GRAPH, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
+
     if name == "WeisfeilerLehmanWalker":
         assert len(canonical_walks) <= len(
             ENTITIES_SUBSET * walks_per_graph * 5
         )
+
+    # Sometimes, WalkletWalker returns one more walks than the ones specified.
+    # We need to fix that.
     elif name == "WalkletWalker":
         assert len(canonical_walks) <= len(
             ENTITIES_SUBSET * walks_per_graph * (depth + 1)
@@ -84,23 +87,30 @@ def check_walker(Walker, name):
         assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
 
 
-def is_abstract(c) -> bool:
+def is_abstract(cls: Any) -> bool:
     """Tells whether a class is abstract or not.
 
     Args:
-        c: The class has to determine if it is abstract or not.
+        cls: The class has to determine if it is abstract or not.
 
     Returns:
         True if abstract class, False otherwise.
 
     """
     return (
-        hasattr(c, "__abstractmethods__") and len(c.__abstractmethods__) != 0
+        hasattr(cls, "__abstractmethods__")
+        and len(cls.__abstractmethods__) != 0
     )
 
 
 @pytest.mark.parametrize("name, Walker", _get_walkers())
 def test_walkers(name: str, Walker: T):
-    """Tests the walkers."""
-    print(f"Testing {name}")
-    check_walker(Walker, name)
+    """Tests the walkers.
+
+    Args:
+        name: The name of the walker.
+        Walker: The class of the walker.
+
+    """
+    print(f"Testing the Walker: {name}")
+    check_walker(name, Walker)
