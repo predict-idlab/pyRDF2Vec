@@ -3,7 +3,7 @@ import os
 import pkgutil
 import random
 from operator import itemgetter
-from typing import List, Tuple, TypeVar
+from typing import Any, List, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -22,8 +22,10 @@ LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
 )
+
 LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=[])
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
+
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
 ENTITIES_SUBSET = ENTITIES[:5]
 
@@ -56,9 +58,7 @@ def _get_samplers() -> List[Tuple[str, T]]:
 
     """
     classes = [  # type: ignore
-        c  # type: ignore
-        for c in set(_get_classes())  # type: ignore
-        if issubclass(c[1], Sampler)  # type: ignore
+        cls for cls in set(_get_classes()) if issubclass(cls[1], Sampler)
     ]
     classes = filter(lambda c: not is_abstract(c[1]), classes)  # type: ignore
     return sorted(set(classes), key=itemgetter(0))
@@ -73,7 +73,7 @@ def check_sampler(Sampler):
     assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
 
 
-def is_abstract(c) -> bool:
+def is_abstract(cls: Any) -> bool:
     """Tells whether a class is abstract or not.
 
     Args:
@@ -84,12 +84,19 @@ def is_abstract(c) -> bool:
 
     """
     return (
-        hasattr(c, "__abstractmethods__") and len(c.__abstractmethods__) != 0
+        hasattr(cls, "__abstractmethods__")
+        and len(cls.__abstractmethods__) != 0
     )
 
 
 @pytest.mark.parametrize("name, Sampler", _get_samplers())
 def test_samplers(name: str, Sampler: T):
-    """Tests the samplers."""
-    print(f"Testing {name}")
+    """Tests the samplers.
+
+    Args:
+        name: The name of the sampler.
+        Walker: The class of the sampler.
+
+    """
+    print(f"Testing the Sampler: {name}")
     check_sampler(Sampler)
