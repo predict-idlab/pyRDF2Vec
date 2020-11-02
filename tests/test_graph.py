@@ -9,7 +9,6 @@ import rdflib
 from pyrdf2vec.graphs import KG, Vertex
 from tests.rdflib_web.lod import serve
 
-# The tests for our Vertex object
 a = Vertex("a")
 b = Vertex("b")
 c = Vertex("c", predicate=True, vprev=a, vnext=b)
@@ -32,35 +31,26 @@ class TestVertex:
         assert a != b
 
 
-# Alice -(knows)-> Bob -(knows)-> Casper
-#       -(knows)-> Dean
+SPARQL_ENDPOINT = "http://localhost:5000/sparql"
+GRAPH = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Casper"],
+]
+URL = "http://pyRDF2Vec"
+
 g = rdflib.Graph()
-g.add(
-    (
-        rdflib.URIRef("http://pyRDF2Vec#Alice"),
-        rdflib.URIRef("http://pyRDF2Vec#knows"),
-        rdflib.URIRef("http://pyRDF2Vec#Bob"),
-    )
-)
-g.add(
-    (
-        rdflib.URIRef("http://pyRDF2Vec#Alice"),
-        rdflib.URIRef("http://pyRDF2Vec#knows"),
-        rdflib.URIRef("http://pyRDF2Vec#Dean"),
-    )
-)
-g.add(
-    (
-        rdflib.URIRef("http://pyRDF2Vec#Bob"),
-        rdflib.URIRef("http://pyRDF2Vec#knows"),
-        rdflib.URIRef("http://pyRDF2Vec#Casper"),
-    )
-)
+for t in GRAPH:
+    triple: rdflib.URIRef = tuple()
+    for entity in t:
+        triple = triple + (rdflib.URIRef(f"{URL}#{entity}"),)
+    g.add(triple)
 g.serialize("tmp.ttl", format="turtle")
 
-# Host a local endpoint
+
 @pytest.fixture(autouse=True, scope="session")
 def start_server():
+    """Hosts a local endpoint."""
     old_stderr, old_stdout = sys.stderr, sys.stdout
     sys.stderr, sys.stdout = open(os.devnull, "w"), open(os.devnull, "w")
     proc = multiprocessing.Process(target=serve, daemon=True, args=(g,))
@@ -75,25 +65,23 @@ def start_server():
     proc.join()
 
 
-# Load a local knowledge graph from a RDF file
 LOCAL_KG = KG(location="tmp.ttl", file_type="turtle")
-# Load a remote knowledge graph using a SPARQL endpoint
-REMOTE_KG = KG(location="http://localhost:5000/sparql", is_remote=True)
+REMOTE_KG = KG(location=SPARQL_ENDPOINT, is_remote=True)
 
 
 class TestKG:
     def test_get_neighbors(self):
         for graph in [LOCAL_KG, REMOTE_KG]:
-            neighbors = graph.get_hops("http://pyRDF2Vec#Alice")
+            neighbors = graph.get_hops(f"{URL}#Alice")
 
-            predicates = [x[0] for x in neighbors]
+            predicates = [neighbor[0] for neighbor in neighbors]
             assert {str(predicate) for predicate in predicates} == {
-                "http://pyRDF2Vec#knows"
+                f"{URL}#knows"
             }
 
-            objects = [x[1] for x in neighbors]
-            assert Vertex("http://pyRDF2Vec#Bob") in objects
-            assert Vertex("http://pyRDF2Vec#Dean") in objects
+            objects = [neighbor[1] for neighbor in neighbors]
+            assert Vertex(f"{URL}#Bob") in objects
+            assert Vertex(f"{URL}#Dean") in objects
 
 
 # Closing the server and removing the temporary RDF file
