@@ -1,3 +1,4 @@
+import pickle
 from typing import List, Optional, Sequence
 
 import rdflib
@@ -114,3 +115,25 @@ class RDF2VecTransformer:
         """
         self.fit(kg, entities)
         return self.transform(entities)
+
+    def load(self, file_name: str = "transformer_data") -> None:
+        """Loads a RDF2VecTransformer object.
+
+        Args:
+            file_name: The binary file to load the RDF2VecTransformer
+            object.
+
+        """
+        with open(file_name, "rb") as f:
+            self = pickle.load(f)
+
+    def save(self, file_name: str = "transformer_data") -> None:
+        """Saves a RDF2VecTransformer object.
+
+        Args:
+            file_name: The binary file to safe the RDF2VecTransformer
+            object.
+
+        """
+        with open(file_name, "wb") as f:
+            pickle.dump(self, f)
