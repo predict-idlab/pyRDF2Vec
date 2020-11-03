@@ -78,7 +78,7 @@ class RDF2VecTransformer:
         self.embedder.fit(corpus)
         return self
 
-    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
+    def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:
         """Constructs a feature vector for the provided entities.
 
         Args:
