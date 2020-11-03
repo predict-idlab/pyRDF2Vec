@@ -57,6 +57,8 @@ class TestRDF2VecTransformer:
         ).save()
         transformer = RDF2VecTransformer.load()
         assert len(transformer.walkers) == 2
+        assert isinstance(transformer.walkers[0], RandomWalker)
+        assert isinstance(transformer.walkers[1], WeisfeilerLehmanWalker)
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
