@@ -9,6 +9,18 @@ from SPARQLWrapper import JSON, SPARQLWrapper
 
 
 class Vertex(object):
+    """Represents a vertex in a Knowledge Graph.
+
+    Attributes:
+        name: The name of the vertex.
+        predicate: The predicate of the vertex.
+            Defaults to False.
+        vprev: The previous Vertex.
+            Defaults to None
+        vnext: The next Vertex.
+            Defaults to None.
+
+    """
 
     vertex_counter = itertools.count()
 
@@ -19,12 +31,29 @@ class Vertex(object):
         self.vnext = vnext
         self.id = next(self.vertex_counter)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        """Defines behavior for the equality operator, ==.
+
+        Args:
+            other: The other vertex to test the equality.
+
+        Returns:
+            True if the hash of the vertices are equal. False otherwise.
+
+        """
         if other is None:
             return False
         return self.__hash__() == other.__hash__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        """Defines behavior for when hash() is called on a vertex.
+
+        Returns:
+            The identifier and name of the vertex, as well as its previous
+            and next neighbor if the vertex has a predicate. The hash of
+            the name of the vertex otherwise.
+
+        """
         if self.predicate:
             return hash((self.id, self.vprev, self.vnext, self.name))
         return hash(self.name)
@@ -37,7 +66,19 @@ class Vertex(object):
 
 
 class KG:
-    """Represents a Knowledge Graph."""
+    """Represents a Knowledge Graph.
+
+    Attributes:
+        location: The location of the file to load.
+            Defaults to None.
+        file_type: The type of the file to load.
+            Defaults to None.
+        label_predicates: The label predicates.
+            Defaults to None.
+        is_remote: True if the file is in a SPARQL endpoint.
+            False otherwise. Defaults to False.
+
+    """
 
     def __init__(
         self,
@@ -141,6 +182,15 @@ class KG:
         self._inv_transition_matrix[v2].add(v1)
 
     def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
+        """Returns a hop (vertex -> predicate -> object)
+
+        Args:
+            vertex: The name of the vertex to get the hops.
+
+        Returns:
+            The hops of a vertex in a (predicate, object) form.
+
+        """
         if self.is_remote:
             return self._get_shops(vertex)
         return self._get_rhops(vertex)
