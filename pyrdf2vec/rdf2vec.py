@@ -116,17 +116,6 @@ class RDF2VecTransformer:
         self.fit(kg, entities)
         return self.transform(entities)
 
-    def load(self, file_name: str = "transformer_data") -> None:
-        """Loads a RDF2VecTransformer object.
-
-        Args:
-            file_name: The binary file to load the RDF2VecTransformer
-            object.
-
-        """
-        with open(file_name, "rb") as f:
-            self = pickle.load(f)
-
     def save(self, file_name: str = "transformer_data") -> None:
         """Saves a RDF2VecTransformer object.
 
@@ -137,3 +126,18 @@ class RDF2VecTransformer:
         """
         with open(file_name, "wb") as f:
             pickle.dump(self, f)
+
+    @staticmethod
+    def load(file_name: str = "transformer_data") -> None:
+        """Loads a RDF2VecTransformer object.
+
+        Args:
+            file_name: The binary file to load the RDF2VecTransformer
+            object.
+
+        """
+        with open(file_name, "rb") as f:
+            transformer = pickle.load(f)
+            if not isinstance(transformer, RDF2VecTransformer):
+                raise Exception("Failed to load the RDF2VecTransformer object")
+            return transformer
