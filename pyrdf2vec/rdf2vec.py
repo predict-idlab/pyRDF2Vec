@@ -139,5 +139,7 @@ class RDF2VecTransformer:
         with open(file_name, "rb") as f:
             transformer = pickle.load(f)
             if not isinstance(transformer, RDF2VecTransformer):
-                raise Exception("Failed to load the RDF2VecTransformer object")
+                raise ValueError(
+                    "Failed to load the RDF2VecTransformer object"
+                )
             return transformer
