@@ -95,7 +95,7 @@ class RDF2VecTransformer:
 
     def fit_transform(
         self, kg: KG, entities: List[rdflib.URIRef]
-    ) -> List[str]:
+    ) -> List[rdflib.URIRef]:
         """Creates a Word2Vec model and generate embeddings for the provided
         entities.
 
