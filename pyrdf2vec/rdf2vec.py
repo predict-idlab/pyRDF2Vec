@@ -103,7 +103,7 @@ class RDF2VecTransformer:
             kg: The Knowledge Graph.
                 The graph from which we will extract neighborhoods for the
                 provided instances.
-            entities: The entities to create the embedding.
+            entities: The entities to create the embeddings.
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
