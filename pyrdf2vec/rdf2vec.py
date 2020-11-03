@@ -4,7 +4,6 @@ import rdflib
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
@@ -16,7 +15,7 @@ class RDF2VecTransformer:
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None,
-            UniformSampler(inverse=False)).
+            UniformSampler()).
 
     """
 
@@ -29,13 +28,12 @@ class RDF2VecTransformer:
             self.embedder = embedder
         else:
             self.embedder = Word2Vec()
-        self.walks_: List[rdflib.URIRef] = []
+
         if walkers is not None:
             self.walkers = walkers
         else:
-            self.walkers = [
-                RandomWalker(2, None, UniformSampler(inverse=False))
-            ]
+            self.walkers = [RandomWalker(2, None)]
+        self.walks_: List[rdflib.URIRef] = []
 
     def fit(
         self,
