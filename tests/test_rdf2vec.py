@@ -1,3 +1,4 @@
+import os
 import pickle
 import random
 from collections import defaultdict
@@ -34,6 +35,7 @@ class TestRDF2VecTransformer:
         pickle.dump([0, 1, 2], open("tmp", "wb"))
         with pytest.raises(ValueError):
             RDF2VecTransformer.load("tmp")
+        os.remove("tmp")
 
     def test_fit(self):
         transformer = RDF2VecTransformer()
@@ -59,6 +61,7 @@ class TestRDF2VecTransformer:
         assert len(transformer.walkers) == 2
         assert isinstance(transformer.walkers[0], RandomWalker)
         assert isinstance(transformer.walkers[1], WeisfeilerLehmanWalker)
+        os.remove("transformer_data")
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
