@@ -1,10 +1,13 @@
 import itertools
+import os
+import sys
 from collections import defaultdict
 from typing import List, Set, Tuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
+import requests
 from SPARQLWrapper import JSON, SPARQLWrapper
 
 
@@ -101,7 +104,10 @@ class KG:
         self._entities = set()
 
         if is_remote:
-            self.endpoint = SPARQLWrapper(location)
+            if is_valid_url(location):
+                self.endpoint = SPARQLWrapper(location)
+            else:
+                raise ValueError(f"Invalid URL: {location}")
         else:
             self.read_file()
 
@@ -224,7 +230,12 @@ class KG:
         return self._transition_matrix[vertex]
 
     def read_file(self) -> None:
-        """Parses a file with rdflib"""
+        """Parses a file with rdflib."""
+        if not os.path.exists(self.location) or not os.path.isfile(
+            self.location
+        ):
+            raise FileNotFoundError(self.location)
+
         self.graph = rdflib.Graph()
         try:
             if self.file_type is None:
@@ -284,3 +295,19 @@ class KG:
         nx.draw_networkx_labels(nx_graph, pos=_pos)
         names = nx.get_edge_attributes(nx_graph, "name")
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
+
+
+def is_valid_url(url):
+    """Checks if a URL is valid.
+
+    Args:
+        url: The URL to validate.
+
+    Returns:
+        True if the URL is valid. False otherwise.
+    """
+    try:
+        requests.get(url)
+    except requests.exceptions.RequestException as e:
+        return False
+    return True

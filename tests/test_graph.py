@@ -5,6 +5,7 @@ import time
 
 import pytest
 import rdflib
+import requests
 
 from pyrdf2vec.graphs import KG, Vertex
 from tests.rdflib_web.lod import serve
@@ -65,13 +66,14 @@ def start_server():
     proc.join()
 
 
+LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
 LOCAL_KG = KG(location="tmp.ttl", file_type="turtle")
-REMOTE_KG = KG(location=SPARQL_ENDPOINT, is_remote=True)
 
 
 class TestKG:
     def test_get_neighbors(self):
-        for graph in [LOCAL_KG, REMOTE_KG]:
+        remote_kg = KG(location=SPARQL_ENDPOINT, is_remote=True)
+        for graph in [LOCAL_KG, remote_kg]:
             neighbors = graph.get_hops(f"{URL}#Alice")
 
             predicates = [neighbor[0] for neighbor in neighbors]
@@ -82,6 +84,39 @@ class TestKG:
             objects = [neighbor[1] for neighbor in neighbors]
             assert Vertex(f"{URL}#Bob") in objects
             assert Vertex(f"{URL}#Dean") in objects
+
+    def test_invalid_file(self):
+        with pytest.raises(FileNotFoundError):
+            KG(
+                "foo",
+                label_predicates=LABEL_PREDICATES,
+            )
+
+        with pytest.raises(FileNotFoundError):
+            KG(
+                "samples/mutag/",
+                label_predicates=LABEL_PREDICATES,
+            )
+
+    def test_valid_url(self):
+        KG(
+            "foo",
+            label_predicates=LABEL_PREDICATES,
+            is_remote=True,
+        )
+
+    def test_valid_file(self):
+        assert KG(
+            "samples/mutag/mutag.owl",
+            label_predicates=LABEL_PREDICATES,
+        )
+
+    def test_valid_url(self):
+        KG(
+            "https://dbpedia.org/sparql",
+            label_predicates=LABEL_PREDICATES,
+            is_remote=True,
+        )
 
 
 # Closing the server and removing the temporary RDF file
