@@ -1,6 +1,5 @@
 import itertools
 import os
-import sys
 from collections import defaultdict
 from typing import List, Set, Tuple
 
@@ -297,7 +296,7 @@ class KG:
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
 
 
-def is_valid_url(url):
+def is_valid_url(url: str) -> None:
     """Checks if a URL is valid.
 
     Args:
@@ -305,6 +304,7 @@ def is_valid_url(url):
 
     Returns:
         True if the URL is valid. False otherwise.
+
     """
     try:
         requests.get(url)
