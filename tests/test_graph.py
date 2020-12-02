@@ -98,11 +98,12 @@ class TestKG:
             )
 
     def test_invalid_url(self):
-        KG(
-            "foo",
-            label_predicates=LABEL_PREDICATES,
-            is_remote=True,
-        )
+        with pytest.raises(ValueError):
+            KG(
+                "foo",
+                label_predicates=LABEL_PREDICATES,
+                is_remote=True,
+            )
 
     def test_valid_file(self):
         assert KG(
