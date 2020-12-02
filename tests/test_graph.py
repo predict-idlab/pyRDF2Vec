@@ -5,7 +5,6 @@ import time
 
 import pytest
 import rdflib
-import requests
 
 from pyrdf2vec.graphs import KG, Vertex
 from tests.rdflib_web.lod import serve
@@ -98,7 +97,7 @@ class TestKG:
                 label_predicates=LABEL_PREDICATES,
             )
 
-    def test_valid_url(self):
+    def test_invalid_url(self):
         KG(
             "foo",
             label_predicates=LABEL_PREDICATES,

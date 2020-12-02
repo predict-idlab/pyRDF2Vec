@@ -296,7 +296,7 @@ class KG:
         nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
 
 
-def is_valid_url(url: str) -> None:
+def is_valid_url(url: str) -> bool:
     """Checks if a URL is valid.
 
     Args:
@@ -308,6 +308,6 @@ def is_valid_url(url: str) -> None:
     """
     try:
         requests.get(url)
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         return False
     return True

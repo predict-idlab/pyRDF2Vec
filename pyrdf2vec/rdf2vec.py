@@ -128,7 +128,7 @@ class RDF2VecTransformer:
             pickle.dump(self, f)
 
     @staticmethod
-    def load(file_name: str = "transformer_data") -> None:
+    def load(file_name: str = "transformer_data") -> "RDF2VecTransformer":
         """Loads a RDF2VecTransformer object.
 
         Args:
