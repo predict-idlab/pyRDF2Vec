@@ -1,5 +1,6 @@
 import itertools
 from collections import defaultdict
+from functools import lru_cache
 from typing import List, Set, Tuple
 
 import matplotlib.pyplot as plt
@@ -87,6 +88,7 @@ class KG:
                 hops.append((pred, obj))
         return hops
 
+    @lru_cache(maxsize=1000)
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
         """Returns a hop (vertex -> predicate -> object)
 
