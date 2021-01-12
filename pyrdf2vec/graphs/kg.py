@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 from SPARQLWrapper import JSON, SPARQLWrapper
-
+from functools import lru_cache
 
 class Vertex(object):
 
@@ -86,7 +86,8 @@ class KG:
             for obj in self._transition_matrix[pred]:
                 hops.append((pred, obj))
         return hops
-
+    
+    @lru_cache(maxsize=1000)
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
         """Returns a hop (vertex -> predicate -> object)
 
