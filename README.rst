@@ -67,6 +67,8 @@ code] <http://data.dws.informatik.uni-mannheim.de/rdf2vec/>`__).
 Getting Started
 ---------------
 
+We provide a blog post with a tutorial on how to use pyRDF2Vec [here](https://towardsdatascience.com/how-to-create-representations-of-entities-in-a-knowledge-graph-using-pyrdf2vec-82e44dad1a0). Below is a short overview of the different functionalities.
+
 Installation
 ~~~~~~~~~~~~
 
@@ -188,6 +190,11 @@ better understand how you can help either through pull requests and/or issues,
 please take a look at the `CONTRIBUTING
 <https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst>`__
 file.
+
+FAQ: I cannot load my large KG into memory or the public endpoint I use is very slow
+------------------------------------------------------------------------------------
+
+Loading large RDF files into memory will cause memory issues as the code is not optimized for larger files. We welcome any PRs that better optimize the memory usage! Remote KGs serve as a solution for larger KGs, but using a public endpoint will be **very** slow due to overhead caused by HTTP requests. For that reason, it is better to set-up your own local server and use that for your "Remote" KG. Please find a guide [on our wiki](https://github.com/IBCNServices/pyRDF2Vec/wiki/Fast-generation-of-RDF2Vec-embeddings-with-a-SPARQL-endpoint).
 
 Referencing
 -----------
