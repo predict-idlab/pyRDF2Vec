@@ -166,7 +166,7 @@ like this:
 
    from pyrdf2vec import RDF2VecTransformer
 
-   transformer = RDF2VecTransformer(walkers=[walkers], sg=1)
+   transformer = RDF2VecTransformer(walkers=walkers)
    # Entities should be a list of URIs that can be found in the Knowledge Graph
    embeddings = transformer.fit_transform(kg, entities)
 
