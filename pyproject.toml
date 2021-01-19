@@ -163,5 +163,5 @@ deps =
     codecov
     pytest
     pytest-cov
-commands = pytest --cov=pyrdf2vec tests
+commands = pytest --cov=pyrdf2vec --cov-report=xml tests
 """
