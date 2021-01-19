@@ -68,8 +68,7 @@ jobs:
         run: poetry run pre-commit run trailing-whitespace --all-files
 
       - name: Run unit tests (pytest)
-        run: |
-          poetry run tox -e tests
+        run: poetry run tox -e tests
 
       - name: Build the documentation (sphinx)
         run: poetry run tox -e docs
