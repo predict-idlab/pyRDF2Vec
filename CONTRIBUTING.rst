@@ -91,7 +91,7 @@ Two scenarios exist for your pull request:
 If you are not sure what issue type to use, don't hesitate to ask in your pull
 request.
 
-``towncrier`` preserves multiple paragraphs and formatting (*e.g.,* code
+``towncrier`` preserves multiple paragraphs and formatting (e.g., code
 blocks, lists), but for entries other than ``feature`` it is usually better to
 stick to a single paragraph to keep it concise.
 
@@ -168,7 +168,7 @@ to ``pyRDF2Vec``:
 
    poetry install
 
-2. **Create your embedder** (*e.g.,* ``foo.py``) in ``pyrdf2vec/embedders``.
+2. **Create your embedder** (e.g., ``foo.py``) in ``pyrdf2vec/embedders``.
 3. **Import your embedder** in the ``pyrdf2vec/embedders/__init__.py`` file and
    in the ``__all__`` list:
 
@@ -265,7 +265,7 @@ to ``pyRDF2Vec``:
 
    poetry install
 
-2. **Create your walker** (*e.g.,* ``foo.py``) in ``pyrdf2vec/walkers``.
+2. **Create your walker** (e.g., ``foo.py``) in ``pyrdf2vec/walkers``.
 3. **Import your walker** in the ``pyrdf2vec/walkers/__init__.py`` file and in
    the ``__all__`` list:
 
@@ -378,7 +378,7 @@ to ``pyRDF2Vec``:
 
    poetry install
 
-2. **Create your sampler** (*e.g.,* ``Foo.py``) in ``pyrdf2vec/samplers``.
+2. **Create your sampler** (e.g., ``Foo.py``) in ``pyrdf2vec/samplers``.
 3. **Import your sampler** in the ``pyrdf2vec/samplers/__init__.py`` file and
    in the ``__all__`` list:
 
