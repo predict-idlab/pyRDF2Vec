@@ -24,7 +24,7 @@ random.seed(42)
 
 warnings.filterwarnings("ignore")
 
-LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
+LABEL_PREDICATES = set("http://dl-learner.org/carcinogenesis#isMutagenic")
 
 # Load our train & test instances and labels
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")

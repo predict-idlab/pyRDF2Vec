@@ -18,12 +18,12 @@ from pyrdf2vec.walkers import RandomWalker
 np.random.seed(42)
 random.seed(42)
 
-LABEL_PREDICATE = "http://dl-learner.org/carcinogenesis#isMutagenic"
 KNOWLEDGE_GRAPH = KG(
-    "samples/mutag/mutag.owl", label_predicates=[LABEL_PREDICATE]
+    "samples/mutag/mutag.owl",
+    label_predicates=set("http://dl-learner.org/carcinogenesis#isMutagenic"),
 )
 
-LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=[])
+LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=set())
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]

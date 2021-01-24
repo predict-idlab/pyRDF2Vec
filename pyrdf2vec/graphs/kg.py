@@ -49,7 +49,7 @@ class KG:
     ):
         self.file_type = file_type
         if label_predicates is None:
-            self.label_predicates = []
+            self.label_predicates = set()
         else:
             self.label_predicates = label_predicates
         self.location = location

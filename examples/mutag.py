@@ -20,7 +20,7 @@ DATASET = {
     "test": ["samples/mutag/test.tsv", "bond", "label_mutagenic"],
     "train": ["samples/mutag/train.tsv", "bond", "label_mutagenic"],
 }
-LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
+LABEL_PREDICATES = set("http://dl-learner.org/carcinogenesis#isMutagenic")
 OUTPUT = "samples/mutag/mutag.owl"
 # We'll extract all possible walks of depth 4 (2 hops)
 WALKERS = [RandomWalker(2, None, UniformSampler(inverse=False))]
