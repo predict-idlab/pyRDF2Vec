@@ -67,8 +67,8 @@ code] <http://data.dws.informatik.uni-mannheim.de/rdf2vec/>`__).
 Getting Started
 ---------------
 
-We provide a blog post with a tutorial on how to use ``pyRDF2Vec`` here
-<https://towardsdatascience.com/how-to-create-representations-of-entities-in-a-knowledge-graph-using-pyrdf2vec-82e44dad1a0>`__. Below
+We provide a blog post with a tutorial on how to use ``pyRDF2Vec``
+`here <https://towardsdatascience.com/how-to-create-representations-of-entities-in-a-knowledge-graph-using-pyrdf2vec-82e44dad1a0>`__. Below
 is a short overview of the different functionalities.
 
 Installation
