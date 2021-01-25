@@ -129,7 +129,7 @@ To create a Knowledge Graph object, you can initialize it in two ways.
 
    from pyrdf2vec.graphs import KG
 
-   kg = KG(location="https://dbpedia.org/sparql", is_remote=True)
+   kg = KG("https://dbpedia.org/sparql", is_remote=True)
 
 Define Walking Strategies With Their Sampling Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
