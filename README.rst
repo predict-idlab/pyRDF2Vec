@@ -119,7 +119,7 @@ To create a Knowledge Graph object, you can initialize it in two ways.
    # Define the label predicates, all triples with these predicates
    # will be excluded from the graph
    label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-   kg = KG(location="samples/mutag/mutag.owl", label_predicates=label_predicates)
+   kg = KG("samples/mutag/mutag.owl", label_predicates=label_predicates)
 
 2. **from a server using SPARQL**:
 
