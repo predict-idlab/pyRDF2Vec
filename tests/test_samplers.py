@@ -23,7 +23,7 @@ KNOWLEDGE_GRAPH = KG(
     label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
 
-LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates={})
+LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=set())
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
