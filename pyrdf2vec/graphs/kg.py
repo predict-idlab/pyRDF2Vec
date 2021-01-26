@@ -51,7 +51,7 @@ class KG:
         if label_predicates is None:
             self.label_predicates = set()
         else:
-            self.label_predicates = label_predicates
+            self.label_predicates = set(label_predicates)
         self.location = location
         self.is_remote = is_remote
 

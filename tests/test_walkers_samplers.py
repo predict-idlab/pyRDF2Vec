@@ -32,7 +32,7 @@ random.seed(42)
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
-    label_predicates=set("http://dl-learner.org/carcinogenesis#isMutagenic"),
+    label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
