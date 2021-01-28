@@ -65,13 +65,13 @@ def start_server():
     proc.join()
 
 
-LABEL_PREDICATES = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-LOCAL_KG = KG(location="tmp.ttl", file_type="turtle")
+LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
+LOCAL_KG = KG("tmp.ttl", file_type="turtle")
 
 
 class TestKG:
     def test_get_neighbors(self):
-        remote_kg = KG(location=SPARQL_ENDPOINT, is_remote=True)
+        remote_kg = KG(SPARQL_ENDPOINT, is_remote=True)
         for graph in [LOCAL_KG, remote_kg]:
             neighbors = graph.get_hops(f"{URL}#Alice")
 
