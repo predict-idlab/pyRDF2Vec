@@ -1,10 +1,10 @@
+import pickle
 from typing import List, Optional, Sequence
 
 import rdflib
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
@@ -16,7 +16,7 @@ class RDF2VecTransformer:
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None,
-            UniformSampler(inverse=False)).
+            UniformSampler()).
 
     """
 
@@ -29,13 +29,12 @@ class RDF2VecTransformer:
             self.embedder = embedder
         else:
             self.embedder = Word2Vec()
-        self.walks_: List[rdflib.URIRef] = []
+
         if walkers is not None:
             self.walkers = walkers
         else:
-            self.walkers = [
-                RandomWalker(2, None, UniformSampler(inverse=False))
-            ]
+            self.walkers = [RandomWalker(2, None)]
+        self.walks_: List[rdflib.URIRef] = []
 
     def fit(
         self,
@@ -60,7 +59,7 @@ class RDF2VecTransformer:
             The RDF2VecTransformer.
 
         """
-        if kg.is_remote is False and not all(
+        if not kg.is_remote and not all(
             [Vertex(str(entity)) in kg._vertices for entity in entities]
         ):
             raise ValueError(
@@ -80,11 +79,11 @@ class RDF2VecTransformer:
         self.embedder.fit(corpus)
         return self
 
-    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
+    def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:
         """Constructs a feature vector for the provided entities.
 
         Args:
-            entities: The entities to create the embedding.
+            entities: The entities to create the embeddings.
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
@@ -97,7 +96,7 @@ class RDF2VecTransformer:
 
     def fit_transform(
         self, kg: KG, entities: List[rdflib.URIRef]
-    ) -> List[str]:
+    ) -> List[rdflib.URIRef]:
         """Creates a Word2Vec model and generate embeddings for the provided
         entities.
 
@@ -105,7 +104,7 @@ class RDF2VecTransformer:
             kg: The Knowledge Graph.
                 The graph from which we will extract neighborhoods for the
                 provided instances.
-            entities: The entities to create the embedding.
+            entities: The entities to create the embeddings.
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
@@ -116,3 +115,31 @@ class RDF2VecTransformer:
         """
         self.fit(kg, entities)
         return self.transform(entities)
+
+    def save(self, file_name: str = "transformer_data") -> None:
+        """Saves a RDF2VecTransformer object.
+
+        Args:
+            file_name: The binary file to safe the RDF2VecTransformer
+            object.
+
+        """
+        with open(file_name, "wb") as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def load(file_name: str = "transformer_data") -> "RDF2VecTransformer":
+        """Loads a RDF2VecTransformer object.
+
+        Args:
+            file_name: The binary file to load the RDF2VecTransformer
+            object.
+
+        """
+        with open(file_name, "rb") as f:
+            transformer = pickle.load(f)
+            if not isinstance(transformer, RDF2VecTransformer):
+                raise ValueError(
+                    "Failed to load the RDF2VecTransformer object"
+                )
+            return transformer

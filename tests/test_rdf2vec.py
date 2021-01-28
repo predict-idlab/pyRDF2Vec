@@ -1,3 +1,5 @@
+import os
+import pickle
 import random
 from collections import defaultdict
 from typing import DefaultDict
@@ -10,6 +12,7 @@ from sklearn.exceptions import NotFittedError
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
+from pyrdf2vec.walkers import RandomWalker, WeisfeilerLehmanWalker
 
 np.random.seed(42)
 random.seed(42)
@@ -28,6 +31,12 @@ WALKS: DefaultDict[rdflib.URIRef, rdflib.URIRef] = defaultdict(list)
 
 
 class TestRDF2VecTransformer:
+    def test_fail_load_transformer(self):
+        pickle.dump([0, 1, 2], open("tmp", "wb"))
+        with pytest.raises(ValueError):
+            RDF2VecTransformer.load("tmp")
+        os.remove("tmp")
+
     def test_fit(self):
         transformer = RDF2VecTransformer()
         with pytest.raises(ValueError):
@@ -43,6 +52,16 @@ class TestRDF2VecTransformer:
             .fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
             .transform(ENTITIES_SUBSET),
         )
+
+    def test_load_save_transformer(self):
+        RDF2VecTransformer(
+            walkers=[RandomWalker(2, None), WeisfeilerLehmanWalker(2, 2)]
+        ).save()
+        transformer = RDF2VecTransformer.load()
+        assert len(transformer.walkers) == 2
+        assert isinstance(transformer.walkers[0], RandomWalker)
+        assert isinstance(transformer.walkers[1], WeisfeilerLehmanWalker)
+        os.remove("transformer_data")
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
