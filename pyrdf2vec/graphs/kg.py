@@ -134,7 +134,7 @@ class KG:
                 hops.append((pred, obj))
         return hops
 
-    @lru_cache(maxsize=1000)
+    @lru_cache(maxsize=1024)
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
         """Returns a hop (vertex -> predicate -> object)
 
