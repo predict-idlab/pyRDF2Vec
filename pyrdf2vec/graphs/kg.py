@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 import requests
-from SPARQLWrapper import JSON, SPARQLWrapper
+from SPARQLWrapper import JSON, SPARQLWrapper2
 
 
 class Vertex(object):
@@ -105,7 +105,7 @@ class KG:
 
         if is_remote:
             if is_valid_url(location):
-                self.endpoint = SPARQLWrapper(location)
+                self.endpoint = SPARQLWrapper2(location)
             else:
                 raise ValueError(f"Invalid URL: {location}")
         else:
@@ -149,22 +149,18 @@ class KG:
             return []
         self.endpoint.setQuery(
             """
-        SELECT ?p ?o WHERE {
+        SELECT ?predicate ?object WHERE {
             <"""
             + str(vertex)
-            + """> ?p ?o .
+            + """> ?predicate ?object .
         }
         """
         )
-
-        self.endpoint.setReturnFormat(JSON)
-        results = self.endpoint.query().convert()
-        neighbors = []
-        for result in results["results"]["bindings"]:
-            predicate, obj = result["p"]["value"], result["o"]["value"]
-            if predicate not in self.label_predicates:
-                neighbors.append((predicate, obj))
-        return neighbors
+        return [
+            (result["predicate"].value, result["object"].value)
+            for result in self.endpoint.query().bindings
+            if result["predicate"].value not in self.label_predicates
+        ]
 
     def add_vertex(self, vertex: Vertex) -> None:
         """Adds a vertex to the Knowledge Graph.
