@@ -149,17 +149,17 @@ class KG:
             return []
         self.endpoint.setQuery(
             """
-        SELECT ?predicate ?object WHERE {
+        SELECT ?p ?o WHERE {
             <"""
             + str(vertex)
-            + """> ?predicate ?object .
+            + """> ?p ?o .
         }
         """
         )
         return [
-            (result["predicate"].value, result["object"].value)
+            (result["p"].value, result["o"].value)
             for result in self.endpoint.query().bindings
-            if result["predicate"].value not in self.label_predicates
+            if result["p"].value not in self.label_predicates
         ]
 
     def add_vertex(self, vertex: Vertex) -> None:
