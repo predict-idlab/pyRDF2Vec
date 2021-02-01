@@ -265,6 +265,7 @@ class KG:
         """
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)
+            self._inv_transition_matrix[v2].remove(v1)
 
     def visualise(self) -> None:
         """Visualises the Knowledge Graph."""
