@@ -184,7 +184,7 @@ class KG:
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
 
-    def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
+    def get_hops(self, vertex: str, verbose=False) -> List[Tuple[str, str]]:
         """Returns a hop (vertex -> predicate -> object)
 
         Args:
@@ -195,6 +195,8 @@ class KG:
 
         """
         if self.is_remote:
+            if verbose:
+                print(self._get_shops.cache_info())
             return self._get_shops(vertex)
         return self._get_rhops(vertex)
 
