@@ -435,7 +435,7 @@ python-versions = "*"
 name = "memcache"
 version = "0.2.0"
 description = ""
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6,<4.0"
 
@@ -1162,7 +1162,7 @@ tests = []
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "971c2c8e5e41708ac10a0bb138a5041e3a9cadbefd8ac566cb8401026d2a5385"
+content-hash = "e500388b6731ced8d7b9f66b22b20afc51fb5e6cb25b5e34a5455d73102e8bcc"
 
 [metadata.files]
 alabaster = [
