@@ -1,15 +1,19 @@
 import itertools
+import json
 import operator
 import os
 from collections import defaultdict
 from typing import List, Set, Tuple
+from urllib import parse
 
+import faster_than_requests as ftr
 import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 import requests
 from cachetools import TTLCache, cachedmethod
-from SPARQLWrapper import SPARQLWrapper2
+
+ftr.set_headers(headers=[("Accept", "application/sparql-results+json")])
 
 
 class Vertex(object):
@@ -108,7 +112,7 @@ class KG:
 
         if is_remote:
             if is_valid_url(location):
-                self.endpoint = SPARQLWrapper2(location)
+                self.endpoint = location
             else:
                 raise ValueError(f"Invalid URL: {location}")
         else:
@@ -150,19 +154,14 @@ class KG:
         """
         if not vertex.startswith("http://"):
             return []
-        self.endpoint.setQuery(
-            """
-        SELECT ?p ?o WHERE {
-            <"""
-            + str(vertex)
-            + """> ?p ?o .
-        }
-        """
+        query = parse.quote(
+            "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
         )
+        req = ftr.get2str(self.endpoint + "/query?query=" + query)
         return [
-            (result["p"].value, result["o"].value)
-            for result in self.endpoint.query().bindings
-            if result["p"].value not in self.label_predicates
+            (result["p"]["value"], result["o"]["value"])
+            for result in json.loads(req)["results"]["bindings"]
+            if result["p"]["value"] not in self.label_predicates
         ]
 
     def add_vertex(self, vertex: Vertex) -> None:
