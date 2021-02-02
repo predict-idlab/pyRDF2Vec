@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 import requests
-from SPARQLWrapper import JSON, SPARQLWrapper2
+from SPARQLWrapper import SPARQLWrapper2
 
 
 class Vertex(object):
