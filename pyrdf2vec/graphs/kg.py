@@ -1,13 +1,14 @@
 import itertools
+import operator
 import os
 from collections import defaultdict
-from functools import lru_cache
 from typing import List, Set, Tuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 import requests
+from cachetools import TTLCache, cachedmethod
 from SPARQLWrapper import SPARQLWrapper2
 
 
@@ -89,14 +90,16 @@ class KG:
         file_type=None,
         label_predicates=None,
         is_remote=False,
+        cache=TTLCache(maxsize=1024, ttl=1200),
     ):
+        self.cache = cache
         self.file_type = file_type
         if label_predicates is None:
             self.label_predicates = set()
         else:
             self.label_predicates = set(label_predicates)
-        self.location = location
         self.is_remote = is_remote
+        self.location = location
 
         self._inv_transition_matrix = defaultdict(set)
         self._transition_matrix = defaultdict(set)
@@ -134,7 +137,7 @@ class KG:
                 hops.append((pred, obj))
         return hops
 
-    @lru_cache(maxsize=1024)
+    @cachedmethod(operator.attrgetter("cache"))
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
         """Returns a hop (vertex -> predicate -> object)
 
@@ -184,7 +187,7 @@ class KG:
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
 
-    def get_hops(self, vertex: str, verbose=False) -> List[Tuple[str, str]]:
+    def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
         """Returns a hop (vertex -> predicate -> object)
 
         Args:
@@ -195,8 +198,6 @@ class KG:
 
         """
         if self.is_remote:
-            if verbose:
-                print(self._get_shops.cache_info())
             return self._get_shops(vertex)
         return self._get_rhops(vertex)
 

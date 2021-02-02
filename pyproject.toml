@@ -74,6 +74,7 @@ sphinxcontrib-apidoc = "^0.3.0"
 towncrier = "^19.2.0"
 tox = "^3.19.0"
 yamllint = "^1.24.2"
+memcache = "^0.2.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]

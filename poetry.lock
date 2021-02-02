@@ -432,6 +432,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "memcache"
+version = "0.2.0"
+description = ""
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "mimeparse"
 version = "0.1.3"
 description = "A module provides basic functions for parsing mime-type names and matching them against a list of media-ranges."
@@ -1154,7 +1162,7 @@ tests = []
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "f2b3ffd3f0b50f2d8ffe25a846f9c28ce2064c16d7ab7e6b4801563d5faced6d"
+content-hash = "971c2c8e5e41708ac10a0bb138a5041e3a9cadbefd8ac566cb8401026d2a5385"
 
 [metadata.files]
 alabaster = [
@@ -1487,6 +1495,10 @@ matplotlib = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+memcache = [
+    {file = "memcache-0.2.0-py3-none-any.whl", hash = "sha256:3f658f15c24cf41c1a18758f541fd4b45be4470a39bb3126dc4752d7239b2a3a"},
+    {file = "memcache-0.2.0.tar.gz", hash = "sha256:d9baa1877f4372afe10d06f6af75dd559995c68af9309bf262630551a50f0201"},
 ]
 mimeparse = [
     {file = "mimeparse-0.1.3.tar.gz", hash = "sha256:534ff6feefe1cd03984f444e6415aacc79c0a85f3b868ec41a2fd5003004c31e"},
