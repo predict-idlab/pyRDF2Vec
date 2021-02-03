@@ -1,4 +1,5 @@
 import pickle
+import time
 from typing import List, Optional, Sequence
 
 import rdflib
@@ -22,25 +23,15 @@ class RDF2VecTransformer:
 
     def __init__(
         self,
-        embedder: Optional[Embedder] = None,
-        walkers: Optional[Sequence[Walker]] = None,
+        embedder: Optional[Embedder] = Word2Vec(),
+        walkers: Optional[Sequence[Walker]] = [RandomWalker(2, None)],
     ):
-        if embedder is not None:
-            self.embedder = embedder
-        else:
-            self.embedder = Word2Vec()
-
-        if walkers is not None:
-            self.walkers = walkers
-        else:
-            self.walkers = [RandomWalker(2, None)]
+        self.embedder = Word2Vec()
         self.walks_: List[rdflib.URIRef] = []
+        self.walkers = walkers
 
     def fit(
-        self,
-        kg: KG,
-        entities: List[rdflib.URIRef],
-        verbose: bool = False,
+        self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
     ) -> "RDF2VecTransformer":
         """Fits the embedding network based on provided entities.
 
@@ -52,8 +43,9 @@ class RDF2VecTransformer:
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
-            verbose: If true, display the number of extracted walks for the
-                number of entities. Defaults to false.
+            verbose: If true, display a progress bar for the extraction of the
+                walks and display the number of these extracted walks for the
+                number of entities with the extraction time. Defaults to False.
 
         Returns:
             The RDF2VecTransformer.
@@ -66,14 +58,16 @@ class RDF2VecTransformer:
                 "The provided entities must be in the Knowledge Graph."
             )
 
-        for walker in self.walkers:
-            self.walks_ += list(walker.extract(kg, entities))
+        tic = time.perf_counter()
+        for walker in self.walkers:  # type:ignore
+            self.walks_ += list(walker.extract(kg, entities, verbose))
+        toc = time.perf_counter()
         corpus = [list(map(str, x)) for x in self.walks_]
 
         if verbose:
             print(
                 f"Extracted {len(self.walks_)} walks "
-                + f"for {len(entities)} entities!"
+                + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
             )
 
         self.embedder.fit(corpus)
@@ -95,7 +89,7 @@ class RDF2VecTransformer:
         return self.embedder.transform(entities)
 
     def fit_transform(
-        self, kg: KG, entities: List[rdflib.URIRef]
+        self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
     ) -> List[rdflib.URIRef]:
         """Creates a Word2Vec model and generate embeddings for the provided
         entities.
@@ -108,12 +102,15 @@ class RDF2VecTransformer:
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
+            verbose: If true, display a progress bar for the extraction of the
+                walks and display the number of these extracted walks for the
+                number of entities with the extraction time. Defaults to False.
 
         Returns:
             The embeddings of the provided entities.
 
         """
-        self.fit(kg, entities)
+        self.fit(kg, entities, verbose)
         return self.transform(entities)
 
     def save(self, file_name: str = "transformer_data") -> None:

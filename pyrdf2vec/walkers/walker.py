@@ -1,7 +1,9 @@
 import abc
-from typing import Any, List, Set, Tuple
+from multiprocessing import Pool
+from typing import Any, Dict, List, Set, Tuple
 
 import rdflib
+from tqdm import tqdm
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler, UniformSampler
@@ -14,7 +16,9 @@ class Walker(metaclass=abc.ABCMeta):
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Default to UniformSampler().
+            Defaults to UniformSampler().
+        n_jobs: The number of process to use for multiprocessing.
+            Defaults to 1.
 
     """
 
@@ -22,28 +26,27 @@ class Walker(metaclass=abc.ABCMeta):
         self,
         depth: int,
         walks_per_graph: float,
-        sampler: Sampler = None,
+        sampler: Sampler = UniformSampler(),
+        n_jobs: int = 1,
     ):
         self.depth = depth
+        self.n_jobs = n_jobs
+        self.sampler = sampler
         self.walks_per_graph = walks_per_graph
-        if sampler is not None:
-            self.sampler = sampler
-        else:
-            self.sampler = UniformSampler()
 
     def extract(
-        self, kg: KG, instances: List[rdflib.URIRef]
+        self, kg: KG, instances: List[rdflib.URIRef], verbose=False
     ) -> Set[Tuple[Any, ...]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
 
         Args:
-            graph: The knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
+            verbose: If true, display a progress bar for the extraction of the
+                walks.
 
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -51,21 +54,34 @@ class Walker(metaclass=abc.ABCMeta):
 
         """
         self.sampler.fit(kg)
-        return self._extract(kg, instances)
+        canonical_walks = set()
+        seq = [(kg, instance) for _, instance in enumerate(instances)]
+        with Pool(self.n_jobs) as pool:
+            res = list(
+                tqdm(
+                    pool.imap_unordered(self._proc, seq),
+                    total=len(seq),
+                    disable=not verbose,
+                )
+            )
+        res = {
+            k: v for element in res for k, v in element.items()
+        }  # type: ignore
+
+        for instance in instances:
+            canonical_walks.update(res[instance])
+        return canonical_walks
 
     @abc.abstractmethod
     def _extract(
-        self, kg: KG, instances: List[rdflib.URIRef]
-    ) -> Set[Tuple[Any, ...]]:
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph: The knowledge graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -80,14 +96,14 @@ class Walker(metaclass=abc.ABCMeta):
         instances: List[rdflib.URIRef],
         file_name: str,
     ) -> None:
-        """Prints the walks of a knowledge graph.
+        """Prints the walks of a Knowledge Graph.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            instances: The instances to extract the knowledge graph.
+            instances: The instances to be extracted from the Knowledge Graph.
             file_name: The filename that contains the rdflib.Graph
 
         """
@@ -105,3 +121,18 @@ class Walker(metaclass=abc.ABCMeta):
             for s in walk_strs:
                 f.write(s)
                 f.write("\n\n")
+
+    def _proc(
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        """Executed by each process.
+
+        Args:
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
+
+        Returns:
+            The extraction of walk by the process.
+
+        """
+        return self._extract(seq)

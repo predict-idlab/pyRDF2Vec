@@ -1,6 +1,6 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, DefaultDict, List, Set, Tuple
+from typing import Any, DefaultDict, Dict, Tuple
 
 import rdflib
 
@@ -16,9 +16,11 @@ class WeisfeilerLehmanWalker(RandomWalker):
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Default to UniformSampler().
+            Defaults to UniformSampler().
         wl_iterations: The Weisfeiler Lehman's iteration.
-            Default to 4.
+            Defaults to 4.
+        n_jobs: The number of process to use for multiprocessing.
+            Defaults to 1.
 
     """
 
@@ -28,14 +30,15 @@ class WeisfeilerLehmanWalker(RandomWalker):
         walks_per_graph: float,
         sampler: Sampler = UniformSampler(),
         wl_iterations: int = 4,
+        n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler)
+        super().__init__(depth, walks_per_graph, sampler, n_jobs)
         self.wl_iterations = wl_iterations
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):
         """Creates a label.
 
-        kg: The knowledge graph.
+        kg: The Knowledge Graph.
 
             The graph from which the neighborhoods are extracted for the
             provided instances.
@@ -58,7 +61,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
             `rdflib.Graph` object by using a converter method.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
@@ -81,33 +84,34 @@ class WeisfeilerLehmanWalker(RandomWalker):
                 self._inv_label_map[vertex][val] = key
 
     def _extract(
-        self, kg: KG, instances: List[rdflib.URIRef]
-    ) -> Set[Tuple[Any, ...]]:
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            kg: The knowledge graph.
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
 
         """
-        self._weisfeiler_lehman(kg)
+        kg, instance = seq
         canonical_walks = set()
-        for instance in instances:
-            walks = self.extract_random_walks(kg, str(instance))
-            for n in range(self.wl_iterations + 1):
-                for walk in walks:
-                    canonical_walk = []
-                    for i, hop in enumerate(walk):  # type: ignore
-                        if i == 0 or i % 2 == 1:
-                            canonical_walk.append(str(hop))
-                        else:
-                            canonical_walk.append(self._label_map[hop][n])
-                    canonical_walks.add(tuple(canonical_walk))
-        return canonical_walks
+        walks = self.extract_random_walks(kg, str(instance))
+        for walk in walks:
+            kg.get_hops(walk[-1])  # type: ignore
+
+        self._weisfeiler_lehman(kg)
+        for n in range(self.wl_iterations + 1):
+            for walk in walks:
+                canonical_walk = []
+                for i, hop in enumerate(walk):  # type: ignore
+                    if i == 0 or i % 2 == 1:
+                        canonical_walk.append(str(hop))
+                    else:
+                        canonical_walk.append(self._label_map[hop][n])
+                canonical_walks.add(tuple(canonical_walk))
+        return {instance: tuple(canonical_walks)}

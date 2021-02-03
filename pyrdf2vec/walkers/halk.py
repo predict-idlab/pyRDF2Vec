@@ -1,6 +1,6 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, List, Set, Tuple
+from typing import Any, Dict, List, Tuple
 
 import rdflib
 
@@ -16,9 +16,11 @@ class HalkWalker(RandomWalker):
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Default to UniformSampler().
+            Defaults to UniformSampler().
         freq_thresholds: The thresholds frequencies.
-            Default to [0.001].
+            Defaults to [0.001].
+        n_jobs: The number of process to use for multiprocessing.
+            Defaults to 1.
 
     """
 
@@ -28,53 +30,50 @@ class HalkWalker(RandomWalker):
         walks_per_graph: float,
         sampler: Sampler = UniformSampler(),
         freq_thresholds: List[float] = [0.001],
+        n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler)
+        super().__init__(depth, walks_per_graph, sampler, n_jobs)
         self.freq_thresholds = freq_thresholds
 
     def _extract(
-        self, graph: KG, instances: List[rdflib.URIRef]
-    ) -> Set[Tuple[Any, ...]]:
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph: The knowledge graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
 
         """
+        kg, instance = seq
         canonical_walks = set()
-        all_walks = []
-        for instance in instances:
-            walks = self.extract_random_walks(graph, str(instance))
-            all_walks.extend(walks)
+        walks = self.extract_random_walks(kg, str(instance))
 
         freq = defaultdict(set)
-        for i in range(len(all_walks)):
-            for hop in all_walks[i]:  # type: ignore
+        for i in range(len(walks)):
+            for hop in walks[i]:  # type: ignore
                 freq[str(hop)].add(i)
 
         for freq_threshold in self.freq_thresholds:
             uniformative_hops = set()
             for hop in freq:
-                if len(freq[hop]) / len(all_walks) < freq_threshold:
+                if len(freq[hop]) / len(walks) < freq_threshold:
                     uniformative_hops.add(hop)
 
-            for walk in all_walks:
+            for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):  # type: ignore
                     if i == 0:
                         canonical_walk.append(str(hop))
                     else:
                         if str(hop) not in uniformative_hops:
-                            digest = md5(str(hop).encode()).digest()[:8]
-                            canonical_walk.append(str(digest))
+                            canonical_walk.append(
+                                str(md5(str(hop).encode()).digest()[:8])
+                            )
                 canonical_walks.add(tuple(canonical_walk))
-        return canonical_walks
+        return {instance: tuple(canonical_walks)}

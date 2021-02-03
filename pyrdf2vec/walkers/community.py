@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, List, Set, Tuple
+from typing import Any, Dict, List, Tuple
 
 import community
 import networkx as nx
@@ -40,10 +40,12 @@ class CommunityWalker(Walker):
         depth: The depth per entity.
         walks_per_graph (float): The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Default to UniformSampler().
+            Defaults to UniformSampler().
         hop_prob: The probability to hop.
             Defaults to 0.1.
         resolution: The resolution.
+            Defaults to 1.
+        n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
 
     """
@@ -55,8 +57,9 @@ class CommunityWalker(Walker):
         sampler: Sampler = UniformSampler(),
         hop_prob: float = 0.1,
         resolution: int = 1,
+        n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler)
+        super().__init__(depth, walks_per_graph, sampler, n_jobs)
         self.hop_prob = hop_prob
         self.resolution = resolution
 
@@ -68,7 +71,7 @@ class CommunityWalker(Walker):
             `rdflib.Graph` object by using a converter method.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
@@ -188,33 +191,31 @@ class CommunityWalker(Walker):
         return self.extract_random_community_walks_dfs(kg, root)
 
     def _extract(
-        self, kg: KG, instances: List[rdflib.URIRef]
-    ) -> Set[Tuple[Any, ...]]:
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            kg: The knowledge graph.
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
 
         """
-        self._community_detection(kg)
+        kg, instance = seq
         canonical_walks = set()
-        for instance in instances:
-            walks = self.extract_random_community_walks(kg, str(instance))
-            for walk in walks:
-                canonical_walk = []
-                for i, hop in enumerate(walk):  # type: ignore
-                    if i == 0 or i % 2 == 1:
-                        canonical_walk.append(str(hop))
-                    else:
-                        digest = md5(str(hop).encode()).digest()[:8]
-                        canonical_walk.append(str(digest))
+        self._community_detection(kg)
+        for walk in self.extract_random_community_walks(kg, str(instance)):
+            canonical_walk = []
+            for i, hop in enumerate(walk):  # type: ignore
+                if i == 0 or i % 2 == 1:
+                    canonical_walk.append(str(hop))
+                else:
+                    canonical_walk.append(
+                        str(md5(str(hop).encode()).digest()[:8])
+                    )
                 canonical_walks.add(tuple(canonical_walk))
-        return canonical_walks
+        return {instance: tuple(canonical_walks)}

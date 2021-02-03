@@ -1,5 +1,5 @@
 from hashlib import md5
-from typing import Any, List, Set, Tuple
+from typing import Any, Dict, List, Tuple
 
 import rdflib
 
@@ -15,7 +15,9 @@ class RandomWalker(Walker):
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Default to UniformSampler().
+            Defaults to UniformSampler().
+        n_jobs: The number of process to use for multiprocessing.
+            Defaults to 1.
 
     """
 
@@ -24,52 +26,64 @@ class RandomWalker(Walker):
         depth: int,
         walks_per_graph,
         sampler: Sampler = UniformSampler(),
+        n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler)
+        super().__init__(depth, walks_per_graph, sampler, n_jobs)
 
-    def extract_random_walks_bfs(self, graph, root):
-        """Breadth-first search to extract all possible walks."""
+    def extract_random_walks_bfs(self, kg: KG, root: str):
+        """Breadth-first search to extract all possible walks.
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            root: The root node.
+
+        Returns:
+            The list of the walks.
+
+        """
         walks = {(root,)}
         for i in range(self.depth):
-            walks_copy = walks.copy()
-            for walk in walks_copy:
-                hops = graph.get_hops(walk[-1])
+            for walk in walks.copy():
+                hops = kg.get_hops(walk[-1])
                 if len(hops) > 0:
                     walks.remove(walk)
                 for (pred, obj) in hops:
-                    walks.add(walk + (pred, obj))
+                    walks.add(walk + (pred, obj))  # type: ignore
         return list(walks)
 
-    def extract_random_walks_dfs(self, graph, root):
+    def extract_random_walks_dfs(self, kg: KG, root: str):
         """Depth-first search to extract a limited number of walks."""
         # TODO: Currently we are allowing duplicate walks in order
         # TODO: to avoid infinite loops. Can we do this better?
 
         self.sampler.initialize()
 
-        walks = []
+        walks: List[Tuple[Any, ...]] = []
         while len(walks) < self.walks_per_graph:
             new = (root,)
-            d = 1
+            d = 1  # type: ignore
             while d // 2 < self.depth:
                 last = d // 2 == self.depth - 1
-                hop = self.sampler.sample_neighbor(graph, new, last)
+                hop = self.sampler.sample_neighbor(kg, new, last)
                 if hop is None:
                     break
-                new = new + (hop[0], hop[1])
+                new = new + (hop[0], hop[1])  # type:ignore
                 d = len(new) - 1
             walks.append(new)
         return list(set(walks))
 
     def extract_random_walks(self, kg: KG, root: str) -> List[Vertex]:
-        """Breadth-first search to extract all possible walks.
+        """Extract all possible walks.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            root: The root.
+            root: The root node.
 
         Returns:
             The list of the walks.
@@ -80,31 +94,30 @@ class RandomWalker(Walker):
         return self.extract_random_walks_dfs(kg, root)
 
     def _extract(
-        self, kg: KG, instances: List[rdflib.URIRef]
-    ) -> Set[Tuple[Any, ...]]:
-        """Extracts the walks and processes them for the embedding model.
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        """Extracts walks rooted at the provided instances which are then each
+        transformed into a numerical representation.
 
         Args:
-            kg: The knowledge graph.
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
 
         """
+        kg, instance = seq
         canonical_walks = set()
-        for i, instance in enumerate(instances):
-            walks = self.extract_random_walks(kg, instance)
-            for walk in walks:
-                canonical_walk = []
-                for i, hop in enumerate(walk):  # type: ignore
-                    if i == 0 or i % 2 == 1:
-                        canonical_walk.append(str(hop))
-                    else:
-                        digest = md5(str(hop).encode()).digest()[:8]
-                        canonical_walk.append(str(digest))
-                canonical_walks.add(tuple(canonical_walk))
-        return canonical_walks
+        for walk in self.extract_random_walks(kg, instance):
+            canonical_walk = []
+            for i, hop in enumerate(walk):  # type: ignore
+                if i == 0 or i % 2 == 1:
+                    canonical_walk.append(str(hop))
+                else:
+                    canonical_walk.append(
+                        str(md5(str(hop).encode()).digest()[:8])
+                    )
+            canonical_walks.add(tuple(canonical_walk))
+        return {instance: tuple(canonical_walks)}

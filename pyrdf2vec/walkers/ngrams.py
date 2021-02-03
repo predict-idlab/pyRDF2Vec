@@ -1,5 +1,5 @@
 import itertools
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Tuple
 
 import rdflib
 
@@ -15,12 +15,13 @@ class NGramWalker(RandomWalker):
         depth: The depth per entity.
         walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Default to UniformSampler().
+            Defaults to UniformSampler().
         grams: The number of grams.
             Defaults to 3.
         wildcards: the wild cards.
             Defaults to None.
-
+        n_jobs: The number of process to use for multiprocessing.
+            Defaults to 1.
     """
 
     def __init__(
@@ -30,8 +31,9 @@ class NGramWalker(RandomWalker):
         sampler: Sampler = UniformSampler(),
         grams: int = 3,
         wildcards: list = None,
+        n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler)
+        super().__init__(depth, walks_per_graph, sampler, n_jobs)
         self.grams = grams
         self.n_gram_map = {}  # type: Dict[Tuple, str]
         self.wildcards = wildcards
@@ -61,43 +63,37 @@ class NGramWalker(RandomWalker):
         return n_gram_walk  # type:ignore
 
     def _extract(
-        self, graph: KG, instances: List[rdflib.URIRef]
-    ) -> Set[Tuple[Dict[Tuple[Any, ...], str], ...]]:
+        self, seq: Tuple[KG, rdflib.URIRef]
+    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            graph: The knowledge graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+            seq: The sequence composed of the Knowledge Graph and instances,
+            given to each process.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
 
         """
+        kg, instance = seq
         canonical_walks = set()
-        for instance in instances:
-            walks = self.extract_random_walks(graph, str(instance))
-            for walk in walks:
-                canonical_walks.add(
-                    tuple(self._take_n_grams(walk))  # type:ignore
-                )
+        for walk in self.extract_random_walks(kg, str(instance)):
+            canonical_walks.add(
+                tuple(self._take_n_grams(walk))  # type:ignore
+            )
 
-                # Introduce wild-cards and re-calculate n-grams
-                if self.wildcards is None:
-                    continue
+            # Introduce wild-cards and re-calculate n-grams
+            if self.wildcards is None:
+                continue
 
-                for wildcard in self.wildcards:
-                    for idx in itertools.combinations(
-                        range(1, len(walk)), wildcard  # type: ignore
-                    ):
-                        new_walk = list(walk).copy()  # type: ignore
-                        for ix in idx:
-                            new_walk[ix] = Vertex("*")
-                        canonical_walks.add(
-                            tuple(self._take_n_grams(new_walk))
-                        )
-        return canonical_walks
+            for wildcard in self.wildcards:
+                for idx in itertools.combinations(
+                    range(1, len(walk)), wildcard  # type: ignore
+                ):
+                    new_walk = list(walk).copy()  # type: ignore
+                    for ix in idx:
+                        new_walk[ix] = Vertex("*")
+                    canonical_walks.add(tuple(self._take_n_grams(new_walk)))
+        return {instance: tuple(canonical_walks)}  # type:ignore
