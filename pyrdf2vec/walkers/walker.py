@@ -1,5 +1,5 @@
 import abc
-from multiprocessing import Pool
+import multiprocessing
 from typing import Any, Dict, List, Set, Tuple
 
 import rdflib
@@ -17,7 +17,9 @@ class Walker(metaclass=abc.ABCMeta):
         walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        n_jobs: The number of process to use for multiprocessing.
+        n_jobs: The number of processes to use for multiprocessing. Use -1 to
+            allocate as many processes as there are CPU cores available in the
+            machine.
             Defaults to 1.
 
     """
@@ -30,7 +32,10 @@ class Walker(metaclass=abc.ABCMeta):
         n_jobs: int = 1,
     ):
         self.depth = depth
-        self.n_jobs = n_jobs
+        if n_jobs == -1:
+            self.n_jobs = multiprocessing.cpu_count()
+        else:
+            self.n_jobs = n_jobs
         self.sampler = sampler
         self.walks_per_graph = walks_per_graph
 
@@ -56,7 +61,7 @@ class Walker(metaclass=abc.ABCMeta):
         self.sampler.fit(kg)
         canonical_walks = set()
         seq = [(kg, instance) for _, instance in enumerate(instances)]
-        with Pool(self.n_jobs) as pool:
+        with multiprocessing.Pool(self.n_jobs) as pool:
             res = list(
                 tqdm(
                     pool.imap_unordered(self._proc, seq),
