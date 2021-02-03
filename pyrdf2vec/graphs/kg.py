@@ -143,7 +143,7 @@ class KG:
 
     @cachedmethod(operator.attrgetter("cache"))
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
-        """Returns a hop (vertex -> predicate -> object)
+        """Returns a hop (vertex -> predicate -> object).
 
         Args:
             vertex: The name of the vertex to get the hops.
