@@ -18,7 +18,9 @@ class RandomWalker(Walker):
             Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
-
+        is_support_remote: If true, indicate that the walking strategy can be
+            used to retrieve walks via a SPARQL endpoint server.
+            Defaults to False.
     """
 
     def __init__(
@@ -27,8 +29,11 @@ class RandomWalker(Walker):
         walks_per_graph,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
+        is_support_remote=True,
     ):
-        super().__init__(depth, walks_per_graph, sampler, n_jobs)
+        super().__init__(
+            depth, walks_per_graph, sampler, n_jobs, is_support_remote
+        )
 
     def extract_random_walks_bfs(self, kg: KG, root: str):
         """Breadth-first search to extract all possible walks.

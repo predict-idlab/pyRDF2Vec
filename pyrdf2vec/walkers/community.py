@@ -59,7 +59,7 @@ class CommunityWalker(Walker):
         resolution: int = 1,
         n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler, n_jobs)
+        super().__init__(depth, walks_per_graph, sampler, n_jobs, False)
         self.hop_prob = hop_prob
         self.resolution = resolution
 

@@ -9,6 +9,15 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
+class RemoteNotSupported(Exception):
+    """Base exception class for the lack of support of a walking strategy for
+    the extraction of walks via a SPARQL endpoint server.
+
+    """
+
+    pass
+
+
 class Walker(metaclass=abc.ABCMeta):
     """Base class for the walking strategies.
 
@@ -21,6 +30,9 @@ class Walker(metaclass=abc.ABCMeta):
             allocate as many processes as there are CPU cores available in the
             machine.
             Defaults to 1.
+        is_support_remote: If true, indicate that the walking strategy can be
+            used to retrieve walks via a SPARQL endpoint server.
+            Defaults to False.
 
     """
 
@@ -30,8 +42,10 @@ class Walker(metaclass=abc.ABCMeta):
         walks_per_graph: float,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
+        is_support_remote=True,
     ):
         self.depth = depth
+        self.is_support_remote = is_support_remote
         if n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
         else:
@@ -51,7 +65,6 @@ class Walker(metaclass=abc.ABCMeta):
             given to each process.
             verbose: If true, display a progress bar for the extraction of the
                 walks.
-
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -140,4 +153,9 @@ class Walker(metaclass=abc.ABCMeta):
             The extraction of walk by the process.
 
         """
+        if not self.is_support_remote:
+            raise RemoteNotSupported(
+                "Invalid walking strategy. Please, choose a walking strategy "
+                + "that can retrieve walks via a SPARQL endpoint server."
+            )
         return self._extract(seq)

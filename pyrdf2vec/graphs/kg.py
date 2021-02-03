@@ -83,8 +83,9 @@ class KG:
             Defaults to None.
         label_predicates: The label predicates.
             Defaults to None.
-        is_remote: True if the file is in a SPARQL endpoint.
-            False otherwise. Defaults to False.
+        is_remote: True if the file is in a SPARQL endpoint server.
+            False otherwise.
+            Defaults to False.
 
     """
 
