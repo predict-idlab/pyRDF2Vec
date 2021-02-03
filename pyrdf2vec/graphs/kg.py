@@ -158,11 +158,20 @@ class KG:
             "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
         )
         req = ftr.get2str(self.endpoint + "/query?query=" + query)
-        return [
-            (result["p"]["value"], result["o"]["value"])
-            for result in json.loads(req)["results"]["bindings"]
-            if result["p"]["value"] not in self.label_predicates
-        ]
+        hops = []
+        for result in json.loads(req)["results"]["bindings"]:
+            pred, obj = result["p"]["value"], result["o"]["value"]
+            if obj not in self.label_predicates:
+                hops.append((pred, obj))
+                s_v = Vertex(str(vertex))
+                o_v = Vertex(str(obj))
+                p_v = Vertex(str(pred), predicate=True, vprev=s_v, vnext=o_v)
+                self.add_vertex(s_v)
+                self.add_vertex(o_v)
+                self.add_vertex(p_v)
+                self.add_edge(s_v, p_v)
+                self.add_edge(p_v, o_v)
+        return hops
 
     def add_vertex(self, vertex: Vertex) -> None:
         """Adds a vertex to the Knowledge Graph.
