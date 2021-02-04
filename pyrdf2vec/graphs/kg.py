@@ -340,6 +340,6 @@ def is_valid_url(url: str) -> bool:
     """
     try:
         ftr.get(url) if is_ftr else requests.get(url)
-    except requests.exceptions.RequestException:
+    except Exception:
         return False
     return True
