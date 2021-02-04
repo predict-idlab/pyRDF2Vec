@@ -22,8 +22,11 @@ DATASET = {
 }
 LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
 OUTPUT = "samples/mutag/mutag.owl"
+
 # We'll extract all possible walks of depth 2 with 4 processes.
 WALKERS = [RandomWalker(2, None, n_jobs=4)]
+# We'll extract all possible walks of depth 2 (without multi-processing)
+# WALKERS = [RandomWalker(2, None)]
 
 PLOT_SAVE = "embeddings.png"
 PLOT_TITLE = "pyRDF2Vec"
