@@ -36,21 +36,23 @@ class HalkWalker(RandomWalker):
         self.freq_thresholds = freq_thresholds
 
     def _extract(
-        self, seq: Tuple[KG, rdflib.URIRef]
+        self, kg: KG, instance: rdflib.URIRef
     ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
-            seq: The sequence composed of the Knowledge Graph and instances,
-            given to each process.
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
 
         """
-        kg, instance = seq
         canonical_walks = set()
         walks = self.extract_random_walks(kg, str(instance))
 
