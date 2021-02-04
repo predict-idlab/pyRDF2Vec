@@ -79,7 +79,7 @@ yamllint = "^1.24.2"
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
 lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
-tests = ["codecov", "pytest", "pytest-cov"]
+tests = ["faster-than-requests", "codecov", "pytest", "pytest-cov"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/IBCNServices/pyRDF2Vec/issues"
