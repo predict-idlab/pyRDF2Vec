@@ -84,6 +84,11 @@ class Walker(metaclass=abc.ABCMeta):
             )
         self.sampler.fit(kg)
         canonical_walks = set()
+
+        # To avoid circular imports
+        if "CommunityWalker" in str(self):
+            self._community_detection(kg)
+
         with multiprocessing.Pool(
             self.n_jobs, self._init_worker, [kg]
         ) as pool:
@@ -124,13 +129,27 @@ class Walker(metaclass=abc.ABCMeta):
         raise NotImplementedError("This must be implemented!")
 
     def _init_worker(self, init_kg):
-        """Initialization function for each worker process.
+        """Initializes each worker process.
 
         Args:
             init_kg: The Knowledge Graph to provide to each worker process.
         """
         global kg
         kg = init_kg
+
+    def info(self):
+        """Gets informations related to a Walker.
+
+        Returns:
+            A friendly display of the Walker.
+
+        """
+        return (
+            f"{type(self).__name__}(depth={self.depth},"
+            + f"walks_per_graph={self.walks_per_graph},"
+            + f"sampler={type(self.sampler).__name__},"
+            + f"n_jobs={self.n_jobs},is_support_remote={self.is_support_remote})"
+        )
 
     def print_walks(
         self,

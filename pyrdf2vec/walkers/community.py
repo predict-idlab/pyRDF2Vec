@@ -209,7 +209,6 @@ class CommunityWalker(Walker):
 
         """
         canonical_walks = set()
-        self._community_detection(kg)
         for walk in self.extract_random_community_walks(kg, str(instance)):
             canonical_walk = []
             for i, hop in enumerate(walk):  # type: ignore
@@ -219,5 +218,5 @@ class CommunityWalker(Walker):
                     canonical_walk.append(
                         str(md5(str(hop).encode()).digest()[:8])
                     )
-                canonical_walks.add(tuple(canonical_walk))
+            canonical_walks.add(tuple(canonical_walk))
         return {instance: tuple(canonical_walks)}
