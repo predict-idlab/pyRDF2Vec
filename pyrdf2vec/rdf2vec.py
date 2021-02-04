@@ -59,10 +59,10 @@ class RDF2VecTransformer:
             )
 
         if verbose:
-            print(self.walkers[0].info())
+            print(self.walkers[0].info())  # type: ignore
 
         tic = time.perf_counter()
-        for walker in self.walkers:  # type:ignore
+        for walker in self.walkers:  # type: ignore
             self.walks_ += list(walker.extract(kg, entities, verbose))
         toc = time.perf_counter()
         corpus = [list(map(str, x)) for x in self.walks_]

@@ -87,7 +87,7 @@ class Walker(metaclass=abc.ABCMeta):
 
         # To avoid circular imports
         if "CommunityWalker" in str(self):
-            self._community_detection(kg)
+            self._community_detection(kg)  # type: ignore
 
         with multiprocessing.Pool(
             self.n_jobs, self._init_worker, [kg]
