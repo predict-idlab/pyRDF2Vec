@@ -148,7 +148,8 @@ class Walker(metaclass=abc.ABCMeta):
             f"{type(self).__name__}(depth={self.depth},"
             + f"walks_per_graph={self.walks_per_graph},"
             + f"sampler={type(self.sampler).__name__},"
-            + f"n_jobs={self.n_jobs},is_support_remote={self.is_support_remote})"
+            + f"n_jobs={self.n_jobs},"
+            + f"is_support_remote={self.is_support_remote})"
         )
 
     def print_walks(
