@@ -18,7 +18,6 @@ try:
     ftr.set_headers(headers=[("Accept", "application/sparql-results+json")])
     is_ftr = True
 except ModuleNotFoundError:
-
     from requests.adapters import HTTPAdapter
 
     is_ftr = False
