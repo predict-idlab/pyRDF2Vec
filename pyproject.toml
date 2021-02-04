@@ -86,7 +86,7 @@ tests = ["codecov", "pytest", "pytest-cov"]
 
 [tool.black]
 line-length = 79
-target-version = ['py39']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 /(
