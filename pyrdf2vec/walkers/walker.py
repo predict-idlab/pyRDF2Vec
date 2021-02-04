@@ -71,6 +71,11 @@ class Walker(metaclass=abc.ABCMeta):
             provided instances; number of column equal to the embedding size.
 
         """
+        if kg.is_remote and not self.is_support_remote:
+            raise RemoteNotSupported(
+                "Invalid walking strategy. Please, choose a walking strategy "
+                + "that can retrieve walks via a SPARQL endpoint server."
+            )
         self.sampler.fit(kg)
         canonical_walks = set()
         seq = [(kg, instance) for _, instance in enumerate(instances)]
@@ -151,9 +156,4 @@ class Walker(metaclass=abc.ABCMeta):
             The extraction of walk by the process.
 
         """
-        if not self.is_support_remote:
-            raise RemoteNotSupported(
-                "Invalid walking strategy. Please, choose a walking strategy "
-                + "that can retrieve walks via a SPARQL endpoint server."
-            )
         return self._extract(seq)
