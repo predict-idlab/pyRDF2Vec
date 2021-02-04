@@ -86,7 +86,7 @@ tests = ["codecov", "pytest", "pytest-cov"]
 
 [tool.black]
 line-length = 79
-target-version = ['py38']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -129,7 +129,7 @@ legacy_tox_ini = """
 [tox]
 envlist =
     docs
-    py{36,37,38}
+    py{36,37,38,39}
     lint
     tests
 isolated_build = True
