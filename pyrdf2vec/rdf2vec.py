@@ -58,6 +58,9 @@ class RDF2VecTransformer:
                 "The provided entities must be in the Knowledge Graph."
             )
 
+        if verbose:
+            print(self.walkers[0].info())
+
         tic = time.perf_counter()
         for walker in self.walkers:  # type:ignore
             self.walks_ += list(walker.extract(kg, entities, verbose))
