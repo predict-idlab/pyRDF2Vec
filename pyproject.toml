@@ -79,7 +79,7 @@ yamllint = "^1.24.2"
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
 lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
-tests = ["faster-than-requests", "codecov", "pytest", "pytest-cov"]
+tests = ["codecov", "gensim", "numpy", "pandas", "pytest", "pytest-cov", "rdflib"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/IBCNServices/pyRDF2Vec/issues"
@@ -162,7 +162,11 @@ commands = pre-commit run --all-files
 description = Runs unit tests and performs coverage.
 deps =
     codecov
+    gensim
+    numpy
+    pandas
     pytest
     pytest-cov
+    rdflib
 commands = pytest --cov=pyrdf2vec --cov-report=xml tests
 """

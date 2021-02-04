@@ -1153,12 +1153,12 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [extras]
 docs = []
 lint = []
-tests = []
+tests = ["numpy", "rdflib"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "03412b32cc1215257c9aa4aec6a0d9844f2756c456accf3560a259eefd316ca0"
+content-hash = "be53c01b808b88f05e848eb9978348be9702e3561b89788fa22dbb2a85943305"
 
 [metadata.files]
 alabaster = [
