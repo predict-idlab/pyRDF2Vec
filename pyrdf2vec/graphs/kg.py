@@ -6,14 +6,23 @@ from collections import defaultdict
 from typing import List, Set, Tuple
 from urllib import parse
 
-import faster_than_requests as ftr
 import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 import requests
 from cachetools import TTLCache, cachedmethod
 
-ftr.set_headers(headers=[("Accept", "application/sparql-results+json")])
+try:
+    import faster_than_requests as ftr
+
+    ftr.set_headers(headers=[("Accept", "application/sparql-results+json")])
+    is_ftr = True
+except ModuleNotFoundError:
+
+    from requests.adapters import HTTPAdapter
+
+    is_ftr = False
+    pass
 
 
 class Vertex(object):
@@ -111,6 +120,10 @@ class KG:
         self._vertices = set()
         self._entities = set()
 
+        if not is_ftr:
+            self.session = requests.Session()
+            self.session.mount("http://", HTTPAdapter())
+
         if is_remote:
             if is_valid_url(location):
                 self.endpoint = location
@@ -158,7 +171,16 @@ class KG:
         query = parse.quote(
             "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
         )
-        req = ftr.get2str(self.endpoint + "/query?query=" + query)
+
+        url = self.endpoint + "/query?query=" + query
+
+        if is_ftr:
+            req = ftr.get2str(url)
+        else:
+            req = self.session.get(
+                url, headers={"Accept": "application/sparql-results+json"}
+            ).text
+
         hops = []
         for result in json.loads(req)["results"]["bindings"]:
             pred, obj = result["p"]["value"], result["o"]["value"]
@@ -318,7 +340,7 @@ def is_valid_url(url: str) -> bool:
 
     """
     try:
-        requests.get(url)
+        ftr.get(url) if is_ftr else requests.get(url)
     except requests.exceptions.RequestException:
         return False
     return True
