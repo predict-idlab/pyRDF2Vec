@@ -21,8 +21,14 @@ random.seed(42)
 FILE = "samples/countries-cities/entities.tsv"
 SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
 LABEL_PREDICATES = {"www.w3.org/1999/02/22-rdf-syntax-ns#type"}
-# We'll extract all possible walks of depth 6 (3 hops)
+
+# We'll extract all possible walks of depth 4 (with 25 hops)
 WALKERS = [RandomWalker(4, 25)]
+# We'll extract all possible walks of depth 4 (with 25 hops) with
+# multi-processing. Using multi-processing improves the speed of
+# extraction of walks, but this may conflict with the policy of the SPARQL
+# endpoint server.
+# WALKERS = [RandomWalker(4, 25, n_jobs=2)]
 
 PLOT_TITLE = "pyRDF2Vec"
 
