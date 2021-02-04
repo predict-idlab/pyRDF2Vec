@@ -83,8 +83,8 @@ class Walker(metaclass=abc.ABCMeta):
                 )
             )
         res = {
-            k: v for element in res for k, v in element.items()
-        }  # type: ignore
+            k: v for element in res for k, v in element.items()  # type: ignore
+        }
 
         for instance in instances:
             canonical_walks.update(res[instance])
