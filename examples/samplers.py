@@ -62,7 +62,7 @@ samplers = [
 for name, sampler in samplers:
     # Create embeddings with random walks
     transformer = RDF2VecTransformer(walkers=[RandomWalker(4, 100, sampler)])
-    walk_embeddings = transformer.fit_transform(kg, entities)
+    walk_embeddings = transformer.fit_transform(kg, entities, verbose=True)
 
     # Split into train and test embeddings
     train_embeddings = walk_embeddings[: len(train_entities)]

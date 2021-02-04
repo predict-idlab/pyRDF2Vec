@@ -59,7 +59,7 @@ def create_embeddings(
 
     """
     transformer = RDF2VecTransformer(Word2Vec(sg=sg), walkers=walkers)
-    walk_embeddings = transformer.fit_transform(kg, entities)
+    walk_embeddings = transformer.fit_transform(kg, entities, verbose=True)
     return walk_embeddings[:split], walk_embeddings[split:]
 
 

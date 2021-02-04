@@ -50,7 +50,7 @@ def create_embeddings(
 
     """
     transformer = RDF2VecTransformer(Word2Vec(sg=sg), walkers=walkers)
-    return transformer.fit_transform(kg, entities)
+    return transformer.fit_transform(kg, entities, verbose=True)
 
 
 # Load our train & test instances and labels
