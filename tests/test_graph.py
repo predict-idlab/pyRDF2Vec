@@ -1,13 +1,9 @@
-import multiprocessing
 import os
-import sys
-import time
 
 import pytest
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
-from tests.rdflib_web.lod import serve
 
 a = Vertex("a")
 b = Vertex("b")
@@ -31,9 +27,8 @@ class TestVertex:
         assert a != b
 
 
-# rdflib_web only works for SPARQLWrapper, but _get_shops
-# doesn't use anymore a proper query for SPARQLWrapper.
-SPARQL_ENDPOINT = "http://localhost:5000/sparql"
+SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
+
 GRAPH = [
     ["Alice", "knows", "Bob"],
     ["Alice", "knows", "Dean"],
@@ -48,24 +43,6 @@ for t in GRAPH:
         triple = triple + (rdflib.URIRef(f"{URL}#{entity}"),)
     g.add(triple)
 g.serialize("tmp.ttl", format="turtle")
-
-
-@pytest.fixture(autouse=True, scope="session")
-def start_server():
-    """Hosts a local endpoint."""
-    old_stderr, old_stdout = sys.stderr, sys.stdout
-    sys.stderr, sys.stdout = open(os.devnull, "w"), open(os.devnull, "w")
-    proc = multiprocessing.Process(target=serve, daemon=True, args=(g,))
-    proc.start()
-    time.sleep(3)
-    sys.stdout = old_stdout
-    sys.stderr = old_stderr
-
-    yield
-
-    proc.terminate()
-    proc.join()
-
 
 LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
 LOCAL_KG = KG("tmp.ttl", file_type="turtle")
@@ -121,5 +98,4 @@ class TestKG:
         )
 
 
-# Closing the server and removing the temporary RDF file
 os.remove("tmp.ttl")
