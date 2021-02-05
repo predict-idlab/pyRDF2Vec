@@ -31,6 +31,8 @@ class TestVertex:
         assert a != b
 
 
+# rdflib_web only works for SPARQLWrapper, but _get_shops
+# doesn't use anymore a proper query for SPARQLWrapper.
 SPARQL_ENDPOINT = "http://localhost:5000/sparql"
 GRAPH = [
     ["Alice", "knows", "Bob"],
@@ -71,8 +73,8 @@ LOCAL_KG = KG("tmp.ttl", file_type="turtle")
 
 class TestKG:
     def test_get_neighbors(self):
-        remote_kg = KG(SPARQL_ENDPOINT, is_remote=True)
-        for graph in [LOCAL_KG, remote_kg]:
+        # remote_kg = KG(SPARQL_ENDPOINT, is_remote=True)
+        for graph in [LOCAL_KG]:
             neighbors = graph.get_hops(f"{URL}#Alice")
 
             predicates = [neighbor[0] for neighbor in neighbors]
