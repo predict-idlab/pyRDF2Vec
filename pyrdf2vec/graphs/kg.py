@@ -1,4 +1,3 @@
-import asyncio
 import itertools
 import json
 import operator
@@ -15,6 +14,8 @@ from cachetools import Cache, TTLCache, cachedmethod
 from requests.adapters import HTTPAdapter
 
 try:
+    import asyncio
+
     import aiohttp
 
     is_aiohttp = True
