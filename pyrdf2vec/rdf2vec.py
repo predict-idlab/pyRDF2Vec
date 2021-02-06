@@ -30,7 +30,7 @@ class RDF2VecTransformer:
         if walkers is not None:
             self.walkers = walkers
         else:
-            self.walkers = [RandomWalker(2, None)]
+            self.walkers = [RandomWalker(2)]
 
     def fit(
         self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
