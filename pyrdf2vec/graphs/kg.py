@@ -17,9 +17,10 @@ from requests.adapters import HTTPAdapter
 try:
     import aiohttp
 
-    is_aiohttp = True
-except ModuleNotFoundError:
     is_aiohttp = False
+except ModuleNotFoundError:
+    is_aiohttp = True
+    print("KOKOKO")
 
 
 class Vertex(object):
@@ -164,10 +165,13 @@ class KG:
 
         url = self.endpoint + "/query?query=" + query
 
-        req = self.session.get(url, headers=self._headers).text
+        res = self.session.get(url, headers=self._headers)
+        if res.status_code != 200:
+            res.raise_for_status()
+        res = res.text
 
         hops = []
-        for result in json.loads(req)["results"]["bindings"]:
+        for result in json.loads(res)["results"]["bindings"]:
             pred, obj = result["p"]["value"], result["o"]["value"]
             if obj not in self.label_predicates:
                 hops.append((pred, obj))
@@ -204,12 +208,12 @@ class KG:
         ]
 
         entity_hops = {}
-        for vertex, req in zip(
+        for vertex, res in zip(
             vertices,
             await asyncio.gather(*(self.fetch(session, url) for url in urls)),
         ):
             hops = []
-            for result in json.loads(req)["results"]["bindings"]:
+            for result in json.loads(res)["results"]["bindings"]:
                 pred, obj = result["p"]["value"], result["o"]["value"]
                 if obj not in self.label_predicates:
                     hops.append((pred, obj))
@@ -233,12 +237,11 @@ class KG:
             vertices: The vertices to get the hops.
 
         """
-
         if is_aiohttp:
             async with aiohttp.ClientSession() as session:
                 self.entity_hops = await self.fetch_ehops(session, vertices)
         else:
-            self.entity_hops = await self.fetch_ehops(self.session, vertices)
+            self.entity_hops = {}
 
     def _get_rhops(self, vertex: str) -> List[Tuple[str, str]]:
         """Gets the hops for a vertex.
