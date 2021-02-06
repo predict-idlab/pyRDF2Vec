@@ -156,7 +156,7 @@ class Walker(metaclass=abc.ABCMeta):
         self,
         kg: KG,
         instances: List[rdflib.URIRef],
-        file_name: str,
+        filename: str,
     ) -> None:
         """Prints the walks of a Knowledge Graph.
 
@@ -166,7 +166,7 @@ class Walker(metaclass=abc.ABCMeta):
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to be extracted from the Knowledge Graph.
-            file_name: The filename that contains the rdflib.Graph
+            filename: The filename that contains the rdflib.Graph
 
         """
         walks = self.extract(kg, instances)
@@ -179,7 +179,7 @@ class Walker(metaclass=abc.ABCMeta):
                     s += "--> "
             walk_strs.append(s)
 
-        with open(file_name, "w+") as f:
+        with open(filename, "w+") as f:
             for s in walk_strs:
                 f.write(s)
                 f.write("\n\n")

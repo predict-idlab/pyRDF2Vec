@@ -120,27 +120,27 @@ class RDF2VecTransformer:
         self.fit(kg, entities, verbose)
         return self.transform(entities)
 
-    def save(self, file_name: str = "transformer_data") -> None:
+    def save(self, filename: str = "transformer_data") -> None:
         """Saves a RDF2VecTransformer object.
 
         Args:
-            file_name: The binary file to save the RDF2VecTransformer
+            filename: The binary file to save the RDF2VecTransformer
             object.
 
         """
-        with open(file_name, "wb") as f:
+        with open(filename, "wb") as f:
             pickle.dump(self, f)
 
     @staticmethod
-    def load(file_name: str = "transformer_data") -> "RDF2VecTransformer":
+    def load(filename: str = "transformer_data") -> "RDF2VecTransformer":
         """Loads a RDF2VecTransformer object.
 
         Args:
-            file_name: The binary file to load the RDF2VecTransformer
+            filename: The binary file to load the RDF2VecTransformer
             object.
 
         """
-        with open(file_name, "rb") as f:
+        with open(filename, "rb") as f:
             transformer = pickle.load(f)
             if not isinstance(transformer, RDF2VecTransformer):
                 raise ValueError(

@@ -66,12 +66,12 @@ def create_embeddings(
 
 
 def load_data(
-    file_name: str, col_entity: str, col_label: str, sep: str = "\t"
+    filename: str, col_entity: str, col_label: str, sep: str = "\t"
 ) -> Tuple[List[rdflib.URIRef], List[str]]:
     """Loads entities and labels from a file.
 
     Args:
-        file_name: The file name.
+        filename: The file name.
         col_entity: The name of the column header related to the entities.
         col_label: The name of the column header related to the labels.
         sep: The delimiter to use.
@@ -81,7 +81,7 @@ def load_data(
         The URIs of the entities with their labels.
 
     """
-    data = pd.read_csv(file_name, sep=sep, header=0)
+    data = pd.read_csv(filename, sep=sep, header=0)
     return [rdflib.URIRef(x) for x in data[col_entity]], list(data[col_label])
 
 
