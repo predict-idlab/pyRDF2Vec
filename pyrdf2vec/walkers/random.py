@@ -20,7 +20,7 @@ class RandomWalker(Walker):
             Defaults to 1.
         is_support_remote: If true, indicate that the walking strategy can be
             used to retrieve walks via a SPARQL endpoint server.
-            Defaults to False.
+            Defaults to True.
     """
 
     def __init__(

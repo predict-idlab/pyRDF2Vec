@@ -1,4 +1,5 @@
 import abc
+import asyncio
 import multiprocessing
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -89,18 +90,19 @@ class Walker(metaclass=abc.ABCMeta):
         if "CommunityWalker" in str(self):
             self._community_detection(kg)  # type: ignore
 
+        if kg.is_remote:
+            asyncio.run(kg._fill_entity_hops(instances))
+
         with multiprocessing.Pool(
             self.n_jobs, self._init_worker, [kg]
         ) as pool:
             res = list(
                 tqdm(
-                    # chunkfile = 10?
                     pool.imap_unordered(self._proc, instances),
                     total=len(instances),
                     disable=not verbose,
                 )
             )
-
         res = {k: v for elm in res for k, v in elm.items()}  # type: ignore
 
         for instance in instances:
@@ -133,6 +135,7 @@ class Walker(metaclass=abc.ABCMeta):
 
         Args:
             init_kg: The Knowledge Graph to provide to each worker process.
+
         """
         global kg
         kg = init_kg

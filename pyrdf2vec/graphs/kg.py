@@ -1,9 +1,10 @@
+import asyncio
 import itertools
 import json
 import operator
 import os
 from collections import defaultdict
-from typing import List, Set, Tuple
+from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
 from urllib import parse
 
 import matplotlib.pyplot as plt
@@ -11,17 +12,14 @@ import networkx as nx
 import rdflib
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
+from requests.adapters import HTTPAdapter
 
 try:
-    import faster_than_requests as ftr
+    import aiohttp
 
-    ftr.set_headers(headers=[("Accept", "application/sparql-results+json")])
-    is_ftr = True
+    is_aiohttp = True
 except ModuleNotFoundError:
-    from requests.adapters import HTTPAdapter
-
-    is_ftr = False
-    pass
+    is_aiohttp = False
 
 
 class Vertex(object):
@@ -101,8 +99,8 @@ class KG:
 
     def __init__(
         self,
-        location: str = None,
-        file_type: str = None,
+        location: str,
+        file_type: Optional[str] = None,
         label_predicates=None,
         is_remote: bool = False,
         cache: Cache = TTLCache(maxsize=1024, ttl=1200),
@@ -116,25 +114,134 @@ class KG:
         self.is_remote = is_remote
         self.location = location
 
-        self._inv_transition_matrix = defaultdict(set)
-        self._transition_matrix = defaultdict(set)
-        self._entities = set()
-        self._vertices = set()
-
-        if not is_ftr:
-            self.session = requests.Session()
-            self.session.mount("http://", HTTPAdapter())
+        self._inv_transition_matrix: DefaultDict[Any, Any] = defaultdict(set)
+        self._transition_matrix: DefaultDict[Any, Any] = defaultdict(set)
+        self._entities: Set[Vertex] = set()
+        self._vertices: Set[Vertex] = set()
 
         if is_remote:
             if is_valid_url(location):
+                self.session = requests.Session()
+                self.session.mount("http://", HTTPAdapter())
+                self._headers = {"Accept": "application/sparql-results+json"}
                 self.endpoint = location
             else:
                 raise ValueError(f"Invalid URL: {location}")
         else:
             self.read_file()
 
+    async def fetch(self, session, url: str):
+        """Fetchs the hops for a URL
+
+        Args:
+            session: The session.
+            url: The URL that contains the query.
+
+        Returns:
+            The hops of a URL.
+
+        """
+        async with session.get(
+            url,
+            headers=self._headers,
+            raise_for_status=True,
+        ) as response:
+            return await response.text()
+
+    @cachedmethod(operator.attrgetter("cache"))
+    def fetch_hops(self, vertex: str):
+        """Fetchs the hops of the vertex.
+
+        Args:
+            vertex: The vertex to get the hops.
+
+        """
+        if not vertex.startswith("http://"):
+            return []
+        query = parse.quote(
+            "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
+        )
+
+        url = self.endpoint + "/query?query=" + query
+
+        req = self.session.get(url, headers=self._headers).text
+
+        hops = []
+        for result in json.loads(req)["results"]["bindings"]:
+            pred, obj = result["p"]["value"], result["o"]["value"]
+            if obj not in self.label_predicates:
+                hops.append((pred, obj))
+                s_v = Vertex(str(vertex))
+                o_v = Vertex(str(obj))
+                p_v = Vertex(str(pred), predicate=True, vprev=s_v, vnext=o_v)
+                self.add_vertex(s_v)
+                self.add_vertex(o_v)
+                self.add_vertex(p_v)
+                self.add_edge(s_v, p_v)
+                self.add_edge(p_v, o_v)
+        return hops
+
+    async def fetch_ehops(
+        self, session: requests.Session, vertices: List[str]
+    ) -> Dict[str, List[Tuple[Any, Any]]]:
+        """Fetchs the hops of the vertices according to a session.
+
+        Args:
+            session: The session.
+            vertices: The vertices to get the hops.
+
+        Returns:
+            The hops of the vertices.
+
+        """
+        urls = [
+            self.endpoint
+            + "/query?query="
+            + parse.quote(
+                "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
+            )
+            for vertex in vertices
+        ]
+
+        entity_hops = {}
+        for vertex, req in zip(
+            vertices,
+            await asyncio.gather(*(self.fetch(session, url) for url in urls)),
+        ):
+            hops = []
+            for result in json.loads(req)["results"]["bindings"]:
+                pred, obj = result["p"]["value"], result["o"]["value"]
+                if obj not in self.label_predicates:
+                    hops.append((pred, obj))
+                    s_v = Vertex(str(vertex))
+                    o_v = Vertex(str(obj))
+                    p_v = Vertex(
+                        str(pred), predicate=True, vprev=s_v, vnext=o_v
+                    )
+                    self.add_vertex(s_v)
+                    self.add_vertex(o_v)
+                    self.add_vertex(p_v)
+                    self.add_edge(s_v, p_v)
+                    self.add_edge(p_v, o_v)
+            entity_hops.update({str(vertex): hops})
+        return entity_hops
+
+    async def _fill_entity_hops(self, vertices):
+        """Fills the entity hops.
+
+        Args:
+            vertices: The vertices to get the hops.
+
+        """
+
+        if is_aiohttp:
+            async with aiohttp.ClientSession() as session:
+                self.entity_hops = await self.fetch_ehops(session, vertices)
+        else:
+            self.entity_hops = await self.fetch_ehops(self.session, vertices)
+
     def _get_rhops(self, vertex: str) -> List[Tuple[str, str]]:
-        """Returns a hop (vertex -> predicate -> object)
+        """Gets the hops for a vertex.
 
         Args:
             vertex: The name of the vertex to get the hops.
@@ -156,46 +263,10 @@ class KG:
                 hops.append((pred, obj))
         return hops
 
-    @cachedmethod(operator.attrgetter("cache"))
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
-        """Returns a hop (vertex -> predicate -> object).
-
-        Args:
-            vertex: The name of the vertex to get the hops.
-
-        Returns:
-            The hops of a vertex in a (predicate, object) form.
-
-        """
-        if not vertex.startswith("http://"):
-            return []
-        query = parse.quote(
-            "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
-        )
-
-        url = self.endpoint + "/query?query=" + query
-
-        if is_ftr:
-            req = ftr.get2str(url)
-        else:
-            req = self.session.get(
-                url, headers={"Accept": "application/sparql-results+json"}
-            ).text
-
-        hops = []
-        for result in json.loads(req)["results"]["bindings"]:
-            pred, obj = result["p"]["value"], result["o"]["value"]
-            if obj not in self.label_predicates:
-                hops.append((pred, obj))
-                s_v = Vertex(str(vertex))
-                o_v = Vertex(str(obj))
-                p_v = Vertex(str(pred), predicate=True, vprev=s_v, vnext=o_v)
-                self.add_vertex(s_v)
-                self.add_vertex(o_v)
-                self.add_vertex(p_v)
-                self.add_edge(s_v, p_v)
-                self.add_edge(p_v, o_v)
-        return hops
+        if str(vertex) in self.entity_hops:
+            return self.entity_hops[str(vertex)]
+        return self.fetch_hops(vertex)
 
     def add_edge(self, v1: Vertex, v2: Vertex) -> None:
         """Adds a uni-directional edge.
@@ -341,7 +412,7 @@ def is_valid_url(url: str) -> bool:
 
     """
     try:
-        ftr.get(url) if is_ftr else requests.get(url)
+        requests.get(url)
     except Exception:
         return False
     return True
