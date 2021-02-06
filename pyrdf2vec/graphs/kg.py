@@ -17,10 +17,9 @@ from requests.adapters import HTTPAdapter
 try:
     import aiohttp
 
-    is_aiohttp = False
-except ModuleNotFoundError:
     is_aiohttp = True
-    print("KOKOKO")
+except ModuleNotFoundError:
+    is_aiohttp = False
 
 
 class Vertex(object):
