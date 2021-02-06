@@ -168,10 +168,9 @@ class KG:
         res = self.session.get(url, headers=self._headers)
         if res.status_code != 200:
             res.raise_for_status()
-        res = res.text
 
         hops = []
-        for result in json.loads(res)["results"]["bindings"]:
+        for result in json.loads(res.text)["results"]["bindings"]:
             pred, obj = result["p"]["value"], result["o"]["value"]
             if obj not in self.label_predicates:
                 hops.append((pred, obj))

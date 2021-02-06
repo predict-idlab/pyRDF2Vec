@@ -91,7 +91,7 @@ class Walker(metaclass=abc.ABCMeta):
             self._community_detection(kg)  # type: ignore
 
         if kg.is_remote:
-            asyncio.run(kg._fill_entity_hops(instances))
+            asyncio.run(kg._fill_entity_hops(instances))  # type: ignore
 
         with multiprocessing.Pool(
             self.n_jobs, self._init_worker, [kg]
