@@ -1,6 +1,6 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import rdflib
 
@@ -27,7 +27,7 @@ class HalkWalker(RandomWalker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: float,
+        walks_per_graph: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         freq_thresholds: List[float] = [0.001],
         n_jobs: int = 1,

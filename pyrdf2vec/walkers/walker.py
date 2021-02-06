@@ -1,6 +1,6 @@
 import abc
 import multiprocessing
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import rdflib
 from tqdm import tqdm
@@ -42,10 +42,10 @@ class Walker(metaclass=abc.ABCMeta):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: float,
+        walks_per_graph: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
-        is_support_remote=True,
+        is_support_remote: bool = True,
     ):
         self.depth = depth
         self.is_support_remote = is_support_remote

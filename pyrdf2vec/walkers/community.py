@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import community
 import networkx as nx
@@ -38,7 +38,7 @@ class CommunityWalker(Walker):
 
     Attributes:
         depth: The depth per entity.
-        walks_per_graph (float): The maximum number of walks per entity.
+        walks_per_graph: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
         hop_prob: The probability to hop.
@@ -53,7 +53,7 @@ class CommunityWalker(Walker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: float,
+        walks_per_graph: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         hop_prob: float = 0.1,
         resolution: int = 1,

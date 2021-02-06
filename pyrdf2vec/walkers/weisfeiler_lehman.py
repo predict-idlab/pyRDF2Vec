@@ -1,6 +1,6 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, DefaultDict, Dict, Tuple
+from typing import Any, DefaultDict, Dict, Optional, Tuple
 
 import rdflib
 
@@ -27,7 +27,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: float,
+        walks_per_graph: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         wl_iterations: int = 4,
         n_jobs: int = 1,

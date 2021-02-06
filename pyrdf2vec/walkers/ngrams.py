@@ -1,5 +1,5 @@
 import itertools
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import rdflib
 
@@ -27,7 +27,7 @@ class NGramWalker(RandomWalker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: float,
+        walks_per_graph: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         grams: int = 3,
         wildcards: list = None,

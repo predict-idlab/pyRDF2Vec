@@ -1,5 +1,5 @@
 from hashlib import md5
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import rdflib
 
@@ -26,10 +26,10 @@ class RandomWalker(Walker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph,
+        walks_per_graph: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
-        is_support_remote=True,
+        is_support_remote: bool = True,
     ):
         super().__init__(
             depth, walks_per_graph, sampler, n_jobs, is_support_remote
@@ -67,7 +67,7 @@ class RandomWalker(Walker):
         self.sampler.initialize()
 
         walks: List[Tuple[Any, ...]] = []
-        while len(walks) < self.walks_per_graph:
+        while len(walks) < self.walks_per_graph:  # type:ignore
             new = (root,)
             d = 1  # type: ignore
             while d // 2 < self.depth:
