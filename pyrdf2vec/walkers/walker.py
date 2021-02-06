@@ -190,7 +190,7 @@ class Walker(metaclass=abc.ABCMeta):
         """Executed by each process.
 
         Args:
-            instances: The instance to be extracted from the Knowledge Graph.
+            instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
             The extraction of walk by the process.

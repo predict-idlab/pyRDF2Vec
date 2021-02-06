@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
 import requests
-from cachetools import TTLCache, cachedmethod
+from cachetools import Cache, TTLCache, cachedmethod
 
 try:
     import faster_than_requests as ftr
@@ -94,16 +94,18 @@ class KG:
         is_remote: True if the file is in a SPARQL endpoint server.
             False otherwise.
             Defaults to False.
+        cache: The cache policy to use for remote Knowledge Graphs.
+            Defaults to TTLCache(maxsize=1024, ttl=1200)
 
     """
 
     def __init__(
         self,
-        location=None,
-        file_type=None,
+        location: str = None,
+        file_type: str = None,
         label_predicates=None,
-        is_remote=False,
-        cache=TTLCache(maxsize=1024, ttl=1200),
+        is_remote: bool = False,
+        cache: Cache = TTLCache(maxsize=1024, ttl=1200),
     ):
         self.cache = cache
         self.file_type = file_type
@@ -116,8 +118,8 @@ class KG:
 
         self._inv_transition_matrix = defaultdict(set)
         self._transition_matrix = defaultdict(set)
-        self._vertices = set()
         self._entities = set()
+        self._vertices = set()
 
         if not is_ftr:
             self.session = requests.Session()
@@ -195,17 +197,6 @@ class KG:
                 self.add_edge(p_v, o_v)
         return hops
 
-    def add_vertex(self, vertex: Vertex) -> None:
-        """Adds a vertex to the Knowledge Graph.
-
-        Args:
-            vertex: The vertex
-
-        """
-        self._vertices.add(vertex)
-        if not vertex.predicate:
-            self._entities.add(vertex)
-
     def add_edge(self, v1: Vertex, v2: Vertex) -> None:
         """Adds a uni-directional edge.
 
@@ -217,8 +208,19 @@ class KG:
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
 
+    def add_vertex(self, vertex: Vertex) -> None:
+        """Adds a vertex to the Knowledge Graph.
+
+        Args:
+            vertex: The vertex
+
+        """
+        self._vertices.add(vertex)
+        if not vertex.predicate:
+            self._entities.add(vertex)
+
     def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
-        """Returns a hop (vertex -> predicate -> object)
+        """Returns the hops of a vertex.
 
         Args:
             vertex: The name of the vertex to get the hops.

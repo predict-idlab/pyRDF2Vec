@@ -16,19 +16,21 @@ class RDF2VecTransformer:
         embedder: The embedding technique.
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
-            Defaults to pyrdf2vec.walkers.RandomWalker(2, None,
-            UniformSampler()).
+            Defaults to pyrdf2vec.walkers.RandomWalker(2, None).
 
     """
 
     def __init__(
         self,
-        embedder: Optional[Embedder] = Word2Vec(),
-        walkers: Optional[Sequence[Walker]] = [RandomWalker(2, None)],
+        embedder: Embedder = Word2Vec(),
+        walkers: Optional[Sequence[Walker]] = None,
     ):
-        self.embedder = Word2Vec()
+        self.embedder = embedder
         self.walks_: List[rdflib.URIRef] = []
-        self.walkers = walkers
+        if walkers is not None:
+            self.walkers = walkers
+        else:
+            self.walkers = [RandomWalker(2, None)]
 
     def fit(
         self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
@@ -45,7 +47,8 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
             verbose: If true, display a progress bar for the extraction of the
                 walks and display the number of these extracted walks for the
-                number of entities with the extraction time. Defaults to False.
+                number of entities with the extraction time.
+                Defaults to False.
 
         Returns:
             The RDF2VecTransformer.
@@ -65,7 +68,7 @@ class RDF2VecTransformer:
         for walker in self.walkers:  # type: ignore
             self.walks_ += list(walker.extract(kg, entities, verbose))
         toc = time.perf_counter()
-        corpus = [list(map(str, x)) for x in self.walks_]
+        corpus = [list(map(str, walk)) for walk in self.walks_]
 
         if verbose:
             print(
@@ -94,7 +97,7 @@ class RDF2VecTransformer:
     def fit_transform(
         self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
     ) -> List[rdflib.URIRef]:
-        """Creates a Word2Vec model and generate embeddings for the provided
+        """Creates a Word2Vec model and generates embeddings for the provided
         entities.
 
         Args:
@@ -107,7 +110,8 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
             verbose: If true, display a progress bar for the extraction of the
                 walks and display the number of these extracted walks for the
-                number of entities with the extraction time. Defaults to False.
+                number of entities with the extraction time.
+                Defaults to False.
 
         Returns:
             The embeddings of the provided entities.
@@ -120,7 +124,7 @@ class RDF2VecTransformer:
         """Saves a RDF2VecTransformer object.
 
         Args:
-            file_name: The binary file to safe the RDF2VecTransformer
+            file_name: The binary file to save the RDF2VecTransformer
             object.
 
         """
