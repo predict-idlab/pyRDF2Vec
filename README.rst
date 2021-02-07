@@ -213,7 +213,7 @@ that reason, it is better to set-up your own local server and use that for your
 How to ensure the generation of similar embeddings?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-pyRDF2Vec's walking strategies and sampling strategies work with randomness. To
+``pyRDF2Vec``'s walking strategies and sampling strategies work with randomness. To
 get reproducible embeddings, you have to use a seed to ensure determinism:
 
 .. code:: bash
@@ -221,10 +221,11 @@ get reproducible embeddings, you have to use a seed to ensure determinism:
    PYTHONHASHSEED=42 python foo.py
 
 However, you **must also fix** the randomness of the sampler after importing
-``numpy`, by adding the following code:
+``numpy``, by adding the following code:
 
 .. code:: python
 
+   import numpy as np
    np.random.seed(42)
 
 This will ensure the ``np.random`` calls in ``pyRDF2Vec`` are seeded.
