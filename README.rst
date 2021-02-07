@@ -106,7 +106,7 @@ file:
 
 .. code:: bash
 
-   PYTHONHASHSEED=42 python3 example.py
+   PYTHONHASHSEED=42 python example.py
 
 **NOTE:** the ``PYTHONHASHSEED`` (e.g., 42) is to ensure determinism.
 
@@ -196,8 +196,11 @@ please take a look at the `CONTRIBUTING
 <https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst>`__
 file.
 
-FAQ: I cannot load my large KG into memory or the public endpoint I use is very slow
-------------------------------------------------------------------------------------
+FAQ
+---
+
+How can I load my large KG in memory and avoid the slowness of the SPARQL endpoint server?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Loading large RDF files into memory will cause memory issues as the code is not
 optimized for larger files. We welcome any PRs that better optimize the memory
@@ -206,6 +209,25 @@ endpoint will be **very** slow due to overhead caused by HTTP requests. For
 that reason, it is better to set-up your own local server and use that for your
 "Remote" KG. Please find a guide `on our wiki
 <https://github.com/IBCNServices/pyRDF2Vec/wiki/Fast-generation-of-RDF2Vec-embeddings-with-a-SPARQL-endpoint>`__.
+
+How to ensure the generation of similar embeddings?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+pyRDF2Vec's walking strategies and sampling strategies work with randomness. To
+get reproducible embeddings, you have to use a seed to ensure determinism:
+
+.. code:: bash
+
+   PYTHONHASHSEED=42 python foo.py
+
+However, you **must also fix** the randomness of the sampler after importing
+``numpy`, by adding the following code:
+
+.. code:: python
+
+   np.random.seed(42)
+
+This will ensure the ``np.random`` calls in ``pyRDF2Vec`` are seeded.
 
 Referencing
 -----------
