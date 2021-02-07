@@ -23,7 +23,7 @@ except ModuleNotFoundError:
     is_aiohttp = False
 
 
-class Vertex(object):
+class Vertex:
     """Represents a vertex in a Knowledge Graph.
 
     Attributes:
@@ -39,14 +39,20 @@ class Vertex(object):
 
     vertex_counter = itertools.count()
 
-    def __init__(self, name, predicate=False, vprev=None, vnext=None):
+    def __init__(
+        self,
+        name: str,
+        predicate: bool = False,
+        vprev: Optional["Vertex"] = None,
+        vnext: Optional["Vertex"] = None,
+    ):
         self.name = name
         self.predicate = predicate
         self.vprev = vprev
         self.vnext = vnext
         self.id = next(self.vertex_counter)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Defines behavior for the equality operator, ==.
 
         Args:
@@ -73,10 +79,10 @@ class Vertex(object):
             return hash((self.id, self.vprev, self.vnext, self.name))
         return hash(self.name)
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Vertex") -> bool:
         return self.name < other.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
