@@ -40,7 +40,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-aiohttp = { version = "^20.11.4", python = "^3.7" }
+aiohttp = { version = "^3.7.3", python = "^3.7" }
 cachetools = "^4.2.1"
 flask = "^1.1.2"
 gensim = "^3.8.3"
