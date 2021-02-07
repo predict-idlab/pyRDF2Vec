@@ -191,7 +191,7 @@ class KG:
         return hops
 
     async def fetch_ehops(
-        self, session: requests.Session, vertices: List[str]
+        self, session, vertices: List[str]
     ) -> Dict[str, List[Tuple[Any, Any]]]:
         """Fetchs the hops of the vertices according to a session.
 
