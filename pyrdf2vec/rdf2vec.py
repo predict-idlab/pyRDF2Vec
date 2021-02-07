@@ -22,11 +22,17 @@ class RDF2VecTransformer:
 
     def __init__(
         self,
-        embedder: Embedder = Word2Vec(),
+        embedder: Optional[Embedder] = None,
         walkers: Optional[Sequence[Walker]] = None,
     ):
-        self.embedder = embedder
+
         self.walks_: List[rdflib.URIRef] = []
+
+        if embedder is not None:
+            self.embedder = embedder
+        else:
+            self.embedder = Word2Vec()
+
         if walkers is not None:
             self.walkers = walkers
         else:
