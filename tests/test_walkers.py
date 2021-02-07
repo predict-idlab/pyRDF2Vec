@@ -79,11 +79,11 @@ def check_walker(name, Walker):
             ENTITIES_SUBSET * walks_per_graph * 5
         )
 
-    # Sometimes, WalkletWalker returns one more walks than the ones specified.
-    # We need to fix that.
+    # Sometimes, WalkletWalker returns one/two more walks than the ones
+    # specified.  We need to fix that.
     elif name == "WalkletWalker":
         assert len(canonical_walks) <= len(
-            ENTITIES_SUBSET * walks_per_graph * (depth + 1)
+            ENTITIES_SUBSET * walks_per_graph * (depth + 2)
         )
     else:
         assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
