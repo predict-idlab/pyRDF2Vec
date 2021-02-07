@@ -10,6 +10,9 @@
        </a>
    </p>
    <p align="center">
+       <a href="https://pypi.org/project/pyrdf2vec/">
+           <img src="https://img.shields.io/pypi/pyversions/pyrdf2vec.svg" alt="Python Versions">
+       </a>
        <a href="https://pypi.org/project/pyrdf2vec">
            <img src="https://img.shields.io/pypi/v/pyrdf2vec?logo=pypi&color=1082C2" alt="Downloads">
        </a>
