@@ -24,7 +24,7 @@ class Walker(metaclass=abc.ABCMeta):
 
     Attributes:
         depth: The depth per entity.
-        walks_per_graph: The maximum number of walks per entity.
+        max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
         n_jobs: The number of processes to use for multiprocessing. Use -1 to
@@ -43,8 +43,8 @@ class Walker(metaclass=abc.ABCMeta):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
+        max_walks: Optional[int] = None,
+        sampler: Optional[Sampler] = None,
         n_jobs: int = 1,
         is_support_remote: bool = True,
     ):
@@ -54,8 +54,11 @@ class Walker(metaclass=abc.ABCMeta):
             self.n_jobs = multiprocessing.cpu_count()
         else:
             self.n_jobs = n_jobs
-        self.sampler = sampler
-        self.walks_per_graph = walks_per_graph
+        self.max_walks = max_walks
+        if sampler is not None:
+            self.sampler = sampler
+        else:
+            self.sampler = UniformSampler()
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef], verbose=False

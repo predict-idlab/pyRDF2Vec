@@ -13,7 +13,7 @@ class NGramWalker(RandomWalker):
 
     Attributes:
         depth: The depth per entity.
-        walks_per_graph: The maximum number of walks per entity.
+        max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
         grams: The number of grams.
@@ -27,13 +27,13 @@ class NGramWalker(RandomWalker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: Optional[int] = None,
+        max_walks: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         grams: int = 3,
         wildcards: list = None,
         n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler, n_jobs)
+        super().__init__(depth, max_walks, sampler, n_jobs)
         self.grams = grams
         self.n_gram_map = {}  # type: Dict[Tuple, str]
         self.wildcards = wildcards

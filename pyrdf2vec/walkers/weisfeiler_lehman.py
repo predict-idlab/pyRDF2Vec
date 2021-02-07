@@ -14,7 +14,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
     Attributes:
         depth: The depth per entity.
-        walks_per_graph: The maximum number of walks per entity.
+        max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
         wl_iterations: The Weisfeiler Lehman's iteration.
@@ -27,12 +27,12 @@ class WeisfeilerLehmanWalker(RandomWalker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: Optional[int] = None,
+        max_walks: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         wl_iterations: int = 4,
         n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler, n_jobs, False)
+        super().__init__(depth, max_walks, sampler, n_jobs, False)
         self.wl_iterations = wl_iterations
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):

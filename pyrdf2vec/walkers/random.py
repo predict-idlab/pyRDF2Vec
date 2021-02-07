@@ -13,7 +13,7 @@ class RandomWalker(Walker):
 
     Attributes:
         depth: The depth per entity.
-        walks_per_graph: The maximum number of walks per entity.
+        max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
@@ -26,14 +26,12 @@ class RandomWalker(Walker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: Optional[int] = None,
+        max_walks: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
         is_support_remote: bool = True,
     ):
-        super().__init__(
-            depth, walks_per_graph, sampler, n_jobs, is_support_remote
-        )
+        super().__init__(depth, max_walks, sampler, n_jobs, is_support_remote)
 
     def extract_random_walks_bfs(self, kg: KG, root: str):
         """Breadth-first search to extract all possible walks.
@@ -67,7 +65,7 @@ class RandomWalker(Walker):
         self.sampler.initialize()
 
         walks: List[Tuple[Any, ...]] = []
-        while len(walks) < self.walks_per_graph:  # type:ignore
+        while len(walks) < self.max_walks:  # type:ignore
             new = (root,)
             d = 1  # type: ignore
             while d // 2 < self.depth:
@@ -94,7 +92,7 @@ class RandomWalker(Walker):
             The list of the walks.
 
         """
-        if self.walks_per_graph is None:
+        if self.max_walks is None:
             return self.extract_random_walks_bfs(kg, root)
         return self.extract_random_walks_dfs(kg, root)
 

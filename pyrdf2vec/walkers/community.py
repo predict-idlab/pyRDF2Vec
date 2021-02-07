@@ -38,7 +38,7 @@ class CommunityWalker(Walker):
 
     Attributes:
         depth: The depth per entity.
-        walks_per_graph: The maximum number of walks per entity.
+        max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
         hop_prob: The probability to hop.
@@ -53,13 +53,13 @@ class CommunityWalker(Walker):
     def __init__(
         self,
         depth: int,
-        walks_per_graph: Optional[int] = None,
+        max_walks: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         hop_prob: float = 0.1,
         resolution: int = 1,
         n_jobs: int = 1,
     ):
-        super().__init__(depth, walks_per_graph, sampler, n_jobs, False)
+        super().__init__(depth, max_walks, sampler, n_jobs, False)
         self.hop_prob = hop_prob
         self.resolution = resolution
 
@@ -144,7 +144,7 @@ class CommunityWalker(Walker):
         self.sampler.initialize()
 
         walks = []
-        while len(walks) < self.walks_per_graph:
+        while len(walks) < self.max_walks:
             new = (root,)
             d = 1
             while d // 2 < self.depth:
@@ -186,7 +186,7 @@ class CommunityWalker(Walker):
             The list of walks.
 
         """
-        if self.walks_per_graph is None:
+        if self.max_walks is None:
             return self.extract_random_community_walks_bfs(kg, root)
         return self.extract_random_community_walks_dfs(kg, root)
 
