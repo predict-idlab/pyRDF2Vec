@@ -152,7 +152,7 @@ class Walker(metaclass=abc.ABCMeta):
         """
         return (
             f"{type(self).__name__}(depth={self.depth},"
-            + f"walks_per_graph={self.walks_per_graph},"
+            + f"max_walks={self.max_walks},"
             + f"sampler={type(self.sampler).__name__},"
             + f"n_jobs={self.n_jobs},"
             + f"is_support_remote={self.is_support_remote})"

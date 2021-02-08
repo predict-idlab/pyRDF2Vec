@@ -38,8 +38,14 @@ class RDF2VecTransformer:
         else:
             self.walkers = [RandomWalker(2)]
 
+        self.entities_ = []
+
     def fit(
-        self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
+        self,
+        kg: KG,
+        entities: List[rdflib.URIRef],
+        is_update: bool = False,
+        verbose: bool = False,
     ) -> "RDF2VecTransformer":
         """Fits the embedding network based on provided entities.
 
@@ -51,6 +57,8 @@ class RDF2VecTransformer:
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
+            is_update: If true, the new corpus will be added to old model's
+                corpus.
             verbose: If true, display a progress bar for the extraction of the
                 walks and display the number of these extracted walks for the
                 number of entities with the extraction time.
@@ -70,6 +78,8 @@ class RDF2VecTransformer:
         if verbose:
             print(self.walkers[0].info())  # type: ignore
 
+        self.entities_.extend(entities)
+
         tic = time.perf_counter()
         for walker in self.walkers:  # type: ignore
             self.walks_ += list(walker.extract(kg, entities, verbose))
@@ -81,8 +91,7 @@ class RDF2VecTransformer:
                 f"Extracted {len(self.walks_)} walks "
                 + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
             )
-
-        self.embedder.fit(corpus)
+        self.embedder.fit(corpus, is_update=is_update)
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:
@@ -101,7 +110,11 @@ class RDF2VecTransformer:
         return self.embedder.transform(entities)
 
     def fit_transform(
-        self, kg: KG, entities: List[rdflib.URIRef], verbose: bool = False
+        self,
+        kg: KG,
+        entities: List[rdflib.URIRef],
+        is_update: bool = False,
+        verbose: bool = False,
     ) -> List[rdflib.URIRef]:
         """Creates a Word2Vec model and generates embeddings for the provided
         entities.
@@ -114,6 +127,8 @@ class RDF2VecTransformer:
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
+            is_update: If true, the new corpus will be added to old model's
+                corpus.
             verbose: If true, display a progress bar for the extraction of the
                 walks and display the number of these extracted walks for the
                 number of entities with the extraction time.
@@ -123,8 +138,8 @@ class RDF2VecTransformer:
             The embeddings of the provided entities.
 
         """
-        self.fit(kg, entities, verbose)
-        return self.transform(entities)
+        self.fit(kg, entities, is_update, verbose)
+        return self.transform(self.entities_)
 
     def save(self, filename: str = "transformer_data") -> None:
         """Saves a RDF2VecTransformer object.
