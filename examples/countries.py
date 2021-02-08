@@ -8,7 +8,7 @@ from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.walkers import RandomWalker, Walker
+from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number
 # generator.
@@ -17,8 +17,8 @@ random.seed(42)
 
 data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 
-# Train and save the Word2Vec model according to the Knowledge Graph (KG), the entities, and a
-# walking strategy that uses 2 processes.
+# Train and save the Word2Vec model according to the Knowledge Graph (KG), the
+# entities, and a walking strategy that uses 2 processes.
 transformer = RDF2VecTransformer(walkers=[RandomWalker(4, 25, n_jobs=2)])
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.

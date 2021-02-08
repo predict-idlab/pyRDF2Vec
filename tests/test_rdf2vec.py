@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import pytest
 import rdflib
-from sklearn.exceptions import NotFittedError
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer

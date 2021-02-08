@@ -9,9 +9,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.walkers import RandomWalker, Walker
+from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number
 # generator.

@@ -38,7 +38,7 @@ class RDF2VecTransformer:
         else:
             self.walkers = [RandomWalker(2)]
 
-        self.entities_ = []
+        self.entities_: List[rdflib.URIRef] = []
 
     def fit(
         self,
@@ -76,12 +76,12 @@ class RDF2VecTransformer:
             )
 
         if verbose:
-            print(self.walkers[0].info())  # type: ignore
+            print(self.walkers[0].info())
 
         self.entities_.extend(entities)
 
         tic = time.perf_counter()
-        for walker in self.walkers:  # type: ignore
+        for walker in self.walkers:
             self.walks_ += list(walker.extract(kg, entities, verbose))
         toc = time.perf_counter()
         corpus = [list(map(str, walk)) for walk in self.walks_]
@@ -91,7 +91,8 @@ class RDF2VecTransformer:
                 f"Extracted {len(self.walks_)} walks "
                 + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
             )
-        self.embedder.fit(corpus, is_update=is_update)
+
+            self.embedder.fit(corpus, is_update)  # type:ignore
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:

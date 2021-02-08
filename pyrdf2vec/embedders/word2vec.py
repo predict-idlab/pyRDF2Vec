@@ -1,8 +1,7 @@
-from typing import List, Optional
+from typing import List
 
 import rdflib
 from gensim.models.word2vec import Word2Vec as W2V
-from sklearn.utils.validation import check_is_fitted
 
 from pyrdf2vec.embedders import Embedder
 
@@ -19,7 +18,9 @@ class Word2Vec(Embedder):
         self.kwargs = kwargs
         self.model_ = W2V(**self.kwargs)
 
-    def fit(self, corpus: List[List[str]], is_update=False) -> "Word2Vec":
+    def fit(
+        self, corpus: List[List[str]], is_update: bool = False
+    ) -> "Word2Vec":
         """Fits the Word2Vec model based on provided corpus.
 
         Args:

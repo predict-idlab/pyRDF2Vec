@@ -17,8 +17,8 @@ random.seed(42)
 
 data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 
-# Defined that the Knowledge Graph (KG) is remotely located, as well as a set of
-# predicates to exclude from this KG.
+# Defined that the Knowledge Graph (KG) is remotely located, as well as a set
+# of predicates to exclude from this KG.
 kg = KG(
     "https://dbpedia.org/sparql",
     label_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
