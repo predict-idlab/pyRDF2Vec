@@ -32,6 +32,11 @@ class Word2Vec(Embedder):
 
         """
         self.model_.build_vocab(corpus, update=is_update)
+        self.model_.train(
+            corpus,
+            total_examples=self.model_.corpus_count,
+            epochs=self.model_.epochs,
+        )
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
