@@ -65,8 +65,6 @@ class TestRDF2VecTransformer:
 
     def test_transform(self):
         transformer = RDF2VecTransformer()
-        with pytest.raises(NotFittedError):
-            transformer.transform(ENTITIES_SUBSET)
         transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
         features = transformer.transform(ENTITIES_SUBSET)
         assert type(features) == list

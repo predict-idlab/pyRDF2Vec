@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import rdflib
 from gensim.models.word2vec import Word2Vec as W2V
@@ -17,18 +17,26 @@ class Word2Vec(Embedder):
     def __init__(self, **kwargs):
         kwargs.setdefault("min_count", 0)
         self.kwargs = kwargs
+        self.model_ = W2V(**self.kwargs)
 
-    def fit(self, corpus: List[List[str]]) -> "Word2Vec":
+    def fit(self, corpus: List[List[str]], is_update=False) -> "Word2Vec":
         """Fits the Word2Vec model based on provided corpus.
 
         Args:
             corpus: The corpus.
+            is_update: If true, the new corpus will be added to old model's
+                corpus.
 
         Returns:
             The fitted Word2Vec model.
 
         """
-        self.model_ = W2V(corpus, **self.kwargs)
+        self.model_.build_vocab(corpus, update=is_update)
+        self.model_.train(
+            corpus,
+            total_examples=self.model_.corpus_count,
+            epochs=self.model_.epochs,
+        )
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
@@ -44,7 +52,6 @@ class Word2Vec(Embedder):
             The embeddings of the provided entities.
 
         """
-        check_is_fitted(self, ["model_"])
         if not all([str(entity) in self.model_.wv for entity in entities]):
             raise ValueError(
                 "The entities must have been provided to fit() first "
