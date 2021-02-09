@@ -35,10 +35,10 @@ class NGramWalker(RandomWalker):
     ):
         super().__init__(depth, max_walks, sampler, n_jobs)
         self.grams = grams
-        self.n_gram_map = {}  # type: Dict[Tuple, str]
+        self.n_gram_map: Dict[Tuple, str] = {}
         self.wildcards = wildcards
 
-    def _take_n_grams(self, walks: List[Vertex]) -> List[Dict[Tuple, str]]:
+    def _take_n_grams(self, walks: List[Vertex]) -> List[str]:
         """Takes the N-Grams.
 
         Args:
@@ -60,7 +60,7 @@ class NGramWalker(RandomWalker):
                 if n_gram not in self.n_gram_map:
                     self.n_gram_map[n_gram] = str(len(self.n_gram_map))
                 n_gram_walk.append(self.n_gram_map[n_gram])
-        return n_gram_walk  # type:ignore
+        return n_gram_walk
 
     def _extract(
         self, kg: KG, instance: rdflib.URIRef
@@ -98,4 +98,4 @@ class NGramWalker(RandomWalker):
                     for ix in idx:
                         new_walk[ix] = Vertex("*")
                     canonical_walks.add(tuple(self._take_n_grams(new_walk)))
-        return {instance: tuple(canonical_walks)}  # type:ignore
+        return {instance: tuple(canonical_walks)}
