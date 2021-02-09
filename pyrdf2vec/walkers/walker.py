@@ -31,9 +31,6 @@ class Walker(metaclass=abc.ABCMeta):
             allocate as many processes as there are CPU cores available in the
             machine.
             Defaults to 1.
-        is_support_remote: If true, indicate that the walking strategy can be
-            used to retrieve walks via a SPARQL endpoint server.
-            Defaults to False.
 
     """
 
@@ -46,10 +43,8 @@ class Walker(metaclass=abc.ABCMeta):
         max_walks: Optional[int] = None,
         sampler: Optional[Sampler] = None,
         n_jobs: int = 1,
-        is_support_remote: bool = True,
     ):
         self.depth = depth
-        self.is_support_remote = is_support_remote
         if n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
         else:
@@ -59,6 +54,7 @@ class Walker(metaclass=abc.ABCMeta):
             self.sampler = sampler
         else:
             self.sampler = UniformSampler()
+        self.is_support_remote = True
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef], verbose=False

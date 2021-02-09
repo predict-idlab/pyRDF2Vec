@@ -34,6 +34,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
     ):
         super().__init__(depth, max_walks, sampler, n_jobs, False)
         self.wl_iterations = wl_iterations
+        self.is_support_remote = False
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):
         """Creates a label.
