@@ -9,6 +9,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
+from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
@@ -30,8 +31,10 @@ entities = train_entities + test_entities
 labels = train_labels + test_labels
 
 embeddings = RDF2VecTransformer(
-    # Extract all possible walks of depth 2 with 4 processes.
-    walkers=[RandomWalker(2, None, n_jobs=4)]
+    # To also ensure determinism for Word2Vec.
+    Word2Vec(workers=1),
+    # Extract all possible walks of depth 2.
+    walkers=[RandomWalker(2, None)],
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
