@@ -92,7 +92,7 @@ class RDF2VecTransformer:
                 + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
             )
 
-            self.embedder.fit(corpus, is_update)  # type:ignore
+        self.embedder.fit(corpus, is_update)  # type:ignore
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:
