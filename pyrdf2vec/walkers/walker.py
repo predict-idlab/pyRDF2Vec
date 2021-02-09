@@ -54,7 +54,7 @@ class Walker(metaclass=abc.ABCMeta):
             self.sampler = sampler
         else:
             self.sampler = UniformSampler()
-        self.is_support_remote = True
+        self.is_support_remote_ = True
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef], verbose=False
@@ -77,7 +77,7 @@ class Walker(metaclass=abc.ABCMeta):
             provided instances; number of column equal to the embedding size.
 
         """
-        if kg.is_remote and not self.is_support_remote:
+        if kg.is_remote and not self.is_support_remote_:
             raise RemoteNotSupported(
                 "Invalid walking strategy. Please, choose a walking strategy "
                 + "that can retrieve walks via a SPARQL endpoint server."
@@ -151,7 +151,7 @@ class Walker(metaclass=abc.ABCMeta):
             + f"max_walks={self.max_walks},"
             + f"sampler={type(self.sampler).__name__},"
             + f"n_jobs={self.n_jobs},"
-            + f"is_support_remote={self.is_support_remote})"
+            + f"is_support_remote={self.is_support_remote_})"
         )
 
     def print_walks(

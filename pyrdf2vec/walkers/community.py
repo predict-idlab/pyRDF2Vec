@@ -62,7 +62,7 @@ class CommunityWalker(Walker):
         super().__init__(depth, max_walks, sampler, n_jobs)
         self.hop_prob = hop_prob
         self.resolution = resolution
-        self.is_support_remote = False
+        self.is_support_remote_ = False
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.
