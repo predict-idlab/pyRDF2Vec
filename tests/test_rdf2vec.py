@@ -1,8 +1,6 @@
 import os
 import pickle
 import random
-from collections import defaultdict
-from typing import DefaultDict
 
 import numpy as np
 import pandas as pd
@@ -25,8 +23,6 @@ TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
 ENTITIES_SUBSET = ENTITIES[:5]
-
-WALKS: DefaultDict[rdflib.URIRef, rdflib.URIRef] = defaultdict(list)
 
 
 class TestRDF2VecTransformer:
@@ -63,7 +59,11 @@ class TestRDF2VecTransformer:
         os.remove("transformer_data")
 
     def test_transform(self):
-        transformer = RDF2VecTransformer()
-        transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
-        features = transformer.transform(ENTITIES_SUBSET)
-        assert type(features) == list
+        assert (
+            type(
+                RDF2VecTransformer()
+                .fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
+                .transform(ENTITIES_SUBSET)
+            )
+            == list
+        )

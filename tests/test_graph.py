@@ -27,8 +27,6 @@ class TestVertex:
         assert a != b
 
 
-SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
-
 GRAPH = [
     ["Alice", "knows", "Bob"],
     ["Alice", "knows", "Dean"],
@@ -50,7 +48,7 @@ LOCAL_KG = KG("tmp.ttl", file_type="turtle")
 
 class TestKG:
     def test_get_neighbors(self):
-        # remote_kg = KG(SPARQL_ENDPOINT, is_remote=True)
+        # remote_kg = KG("https://dbpedia.org/sparql", is_remote=True)
         for graph in [LOCAL_KG]:
             neighbors = graph.get_hops(f"{URL}#Alice")
 

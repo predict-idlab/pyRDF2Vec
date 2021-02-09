@@ -77,5 +77,6 @@ class TestRDF2Vec:
         "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
     )
     def test_fit_transform(self, walker, sampler):
-        transformer = RDF2VecTransformer(walkers=[walker(2, 5, sampler())])
-        assert transformer.fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
+        assert RDF2VecTransformer(
+            walkers=[walker(2, 5, sampler())]
+        ).fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
