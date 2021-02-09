@@ -1,3 +1,4 @@
+import os
 import random
 
 import matplotlib.pyplot as plt
@@ -66,3 +67,6 @@ for x, y, t in zip(X_tsne[:, 0], X_tsne[:, 1], transformer.entities_):
 plt.title("Countries (Online Training)", fontsize=16)
 plt.axis("off")
 plt.show()
+
+# Remove the binary file related to the RDF2VecTransformer.
+os.remove("countries")
