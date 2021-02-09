@@ -59,7 +59,7 @@ class CommunityWalker(Walker):
         resolution: int = 1,
         n_jobs: int = 1,
     ):
-        super().__init__(depth, max_walks, sampler, n_jobs, False)
+        super().__init__(depth, max_walks, sampler, n_jobs)
         self.hop_prob = hop_prob
         self.resolution = resolution
         self.is_support_remote = False

@@ -32,7 +32,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
         wl_iterations: int = 4,
         n_jobs: int = 1,
     ):
-        super().__init__(depth, max_walks, sampler, n_jobs, False)
+        super().__init__(depth, max_walks, sampler, n_jobs)
         self.wl_iterations = wl_iterations
         self.is_support_remote = False
 
