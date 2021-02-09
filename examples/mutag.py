@@ -14,7 +14,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number
-# generator.
+# generator to ensure to get the same walks for entities.
 np.random.seed(42)
 random.seed(42)
 
@@ -31,7 +31,8 @@ entities = train_entities + test_entities
 labels = train_labels + test_labels
 
 embeddings = RDF2VecTransformer(
-    # To also ensure determinism for Word2Vec.
+    # Ensure random determinism for Word2Vec.
+    # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
     # Extract all possible walks of depth 2.
     walkers=[RandomWalker(2, None)],
