@@ -121,12 +121,14 @@ class CommunityWalker(Walker):
                     walks.add(walk + (pred, obj))
                     if (
                         obj in self.communities
-                        and self.seed.random() < self.hop_prob
+                        and np.random.RandomState(self.seed) < self.hop_prob
                     ):
                         community_nodes = self.labels_per_community[
                             self.communities[obj]
                         ]
-                        rand_jump = self.seed.choice(community_nodes)
+                        rand_jump = np.random.RandomState(self.seed).choice(
+                            community_nodes
+                        )
                         walks.add(walk + (rand_jump,))
 
         # Return a numpy array of these walks
@@ -148,12 +150,15 @@ class CommunityWalker(Walker):
                     break
                 if (
                     hop[1] in self.communities
-                    and self.seed.random() < self.hop_prob
+                    and np.random.RandomState(self.seed).random()
+                    < self.hop_prob
                 ):
                     community_nodes = self.labels_per_community[
                         self.communities[hop[1]]
                     ]
-                    rand_jump = self.seed.choice(community_nodes)
+                    rand_jump = np.random.RandomState(self.seed).choice(
+                        community_nodes
+                    )
                     new = new + (hop[0], rand_jump)
                 else:
                     new = new + (hop[0], hop[1])
