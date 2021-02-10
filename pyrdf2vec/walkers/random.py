@@ -34,8 +34,8 @@ class RandomWalker(Walker):
     ):
         super().__init__(depth, max_walks, sampler, n_jobs, seed)
 
-    def extract_random_walks_bfs(self, kg: KG, root: str):
-        """Breadth-first search to extract all possible walks.
+    def extract_walks_bfs(self, kg: KG, root: str):
+        """Extracts walks with Breadth-first search.
 
         Args:
             kg: The Knowledge Graph.
@@ -45,7 +45,7 @@ class RandomWalker(Walker):
             root: The root node.
 
         Returns:
-            The list of the walks.
+            The list of walks for the root node.
 
         """
         walks = {(root,)}
@@ -58,8 +58,20 @@ class RandomWalker(Walker):
                     walks.add(walk + (pred, obj))  # type: ignore
         return list(walks)
 
-    def extract_random_walks_dfs(self, kg: KG, root: str):
-        """Depth-first search to extract a limited number of walks."""
+    def extract_walks_dfs(self, kg: KG, root: str):
+        """Extracts a limited number of walks with Depth-first search
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            root: The root node.
+
+        Returns:
+            The list of limited  walks for the root node.
+
+        """
         # TODO: Currently we are allowing duplicate walks in order
         # TODO: to avoid infinite loops. Can we do this better?
 
@@ -79,8 +91,8 @@ class RandomWalker(Walker):
             walks.append(new)
         return list(set(walks))
 
-    def extract_random_walks(self, kg: KG, root: str) -> List[Vertex]:
-        """Extract all possible walks.
+    def extract_walks(self, kg: KG, root: str) -> List[Vertex]:
+        """Extracts all possible walks.
 
         Args:
             kg: The Knowledge Graph.
@@ -94,8 +106,8 @@ class RandomWalker(Walker):
 
         """
         if self.max_walks is None:
-            return self.extract_random_walks_bfs(kg, root)
-        return self.extract_random_walks_dfs(kg, root)
+            return self.extract_walks_bfs(kg, root)
+        return self.extract_walks_dfs(kg, root)
 
     def _extract(
         self, kg: KG, instance: rdflib.URIRef
@@ -116,7 +128,7 @@ class RandomWalker(Walker):
 
         """
         canonical_walks = set()
-        for walk in self.extract_random_walks(kg, instance):
+        for walk in self.extract_walks(kg, instance):
             canonical_walk = []
             for i, hop in enumerate(walk):  # type: ignore
                 if i == 0 or i % 2 == 1:

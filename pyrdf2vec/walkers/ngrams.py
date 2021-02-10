@@ -86,7 +86,7 @@ class NGramWalker(RandomWalker):
 
         """
         canonical_walks = set()
-        for walk in self.extract_random_walks(kg, str(instance)):
+        for walk in self.extract_walks(kg, str(instance)):
             canonical_walks.add(
                 tuple(self._take_n_grams(walk))  # type:ignore
             )

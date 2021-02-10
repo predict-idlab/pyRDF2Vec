@@ -58,7 +58,7 @@ class HalkWalker(RandomWalker):
 
         """
         canonical_walks = set()
-        walks = self.extract_random_walks(kg, str(instance))
+        walks = self.extract_walks(kg, str(instance))
 
         freq = defaultdict(set)
         for i in range(len(walks)):

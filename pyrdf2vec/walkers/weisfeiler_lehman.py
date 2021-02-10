@@ -107,7 +107,7 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
         """
         canonical_walks = set()
-        walks = self.extract_random_walks(kg, str(instance))
+        walks = self.extract_walks(kg, str(instance))
         for walk in walks:
             kg.get_hops(walk[-1])  # type: ignore
 

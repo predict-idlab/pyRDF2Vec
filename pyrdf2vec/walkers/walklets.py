@@ -52,7 +52,7 @@ class WalkletWalker(RandomWalker):
 
         """
         canonical_walks = set()
-        walks = self.extract_random_walks(kg, str(instance))
+        walks = self.extract_walks(kg, str(instance))
         for walk in walks:
             if len(walk) == 1:  # type:ignore
                 canonical_walks.add((str(walk[0]),))  # type:ignore

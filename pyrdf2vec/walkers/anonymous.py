@@ -52,7 +52,7 @@ class AnonymousWalker(RandomWalker):
 
         """
         canonical_walks = set()
-        for walk in self.extract_random_walks(kg, instance):
+        for walk in self.extract_walks(kg, instance):
             canonical_walk = []
             str_walk = [str(x) for x in walk]  # type: ignore
             for i, hop in enumerate(walk):  # type: ignore
