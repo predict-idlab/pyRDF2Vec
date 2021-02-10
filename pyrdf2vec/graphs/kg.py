@@ -112,6 +112,7 @@ class KG:
     location: str = attr.ib()
     file_type: Optional[str] = attr.ib(default=None)
     skip_predicates = attr.ib(default=None)
+    is_mul_req: bool = attr.ib(default=True)
     is_remote: bool = attr.ib(default=False)
     cache: Cache = attr.ib(default=TTLCache(maxsize=1024, ttl=1200))
 
@@ -277,7 +278,7 @@ class KG:
         return hops
 
     def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
-        if str(vertex) in self.entity_hops:
+        if self.is_mul_req and str(vertex) in self.entity_hops:
             return self.entity_hops[str(vertex)]
         return self.fetch_hops(vertex)
 

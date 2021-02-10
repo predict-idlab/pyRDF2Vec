@@ -87,7 +87,7 @@ class Walker(metaclass=abc.ABCMeta):
         if "CommunityWalker" in str(self):
             self._community_detection(kg)  # type: ignore
 
-        if kg.is_remote:
+        if kg.is_remote and kg.is_mul_req:
             asyncio.run(kg._fill_entity_hops(instances))  # type: ignore
 
         with multiprocessing.Pool(
