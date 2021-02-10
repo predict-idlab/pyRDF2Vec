@@ -15,10 +15,10 @@ from pyrdf2vec.walkers import RandomWalker
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
-    label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
+    skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
 
-LEAKY_KG = KG("samples/mutag/mutag.owl", label_predicates=set())
+LEAKY_KG = KG("samples/mutag/mutag.owl", skip_predicates=set())
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
@@ -67,7 +67,7 @@ def check_sampler(Sampler):
         KNOWLEDGE_GRAPH, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set
-    assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
+    assert len(canonical_walks) <= len(ENTITIES_SUBSET * max_walks)
 
 
 def is_abstract(cls: Any) -> bool:

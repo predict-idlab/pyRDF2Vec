@@ -30,7 +30,7 @@ X_tsne = TSNE(random_state=SEED).fit_transform(
         # predicates to exclude from this KG.
         KG(
             "https://dbpedia.org/sparql",
-            label_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+            skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
             is_remote=True,
         ),
         [entity for entity in data["bond"]],

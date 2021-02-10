@@ -101,7 +101,7 @@ class KG:
             Defaults to None.
         file_type: The type of the file to load.
             Defaults to None.
-        label_predicates: The label predicates.
+        skip_predicates: The label predicates to skip from the KG.
             Defaults to None.
         is_remote: True if the file is in a SPARQL endpoint server.
             False otherwise.
@@ -115,16 +115,16 @@ class KG:
         self,
         location: str,
         file_type: Optional[str] = None,
-        label_predicates=None,
+        skip_predicates=None,
         is_remote: bool = False,
         cache: Cache = TTLCache(maxsize=1024, ttl=1200),
     ):
         self.cache = cache
         self.file_type = file_type
-        if label_predicates is None:
-            self.label_predicates = set()
+        if skip_predicates is None:
+            self.skip_predicates = set()
         else:
-            self.label_predicates = set(label_predicates)
+            self.skip_predicates = set(skip_predicates)
         self.is_remote = is_remote
         self.location = location
 
@@ -185,7 +185,7 @@ class KG:
         hops = []
         for result in json.loads(res.text)["results"]["bindings"]:
             pred, obj = result["p"]["value"], result["o"]["value"]
-            if obj not in self.label_predicates:
+            if obj not in self.skip_predicates:
                 hops.append((pred, obj))
                 s_v = Vertex(str(vertex))
                 o_v = Vertex(str(obj))
@@ -227,7 +227,7 @@ class KG:
             hops = []
             for result in json.loads(res)["results"]["bindings"]:
                 pred, obj = result["p"]["value"], result["o"]["value"]
-                if obj not in self.label_predicates:
+                if obj not in self.skip_predicates:
                     hops.append((pred, obj))
                     s_v = Vertex(str(vertex))
                     o_v = Vertex(str(obj))
@@ -366,7 +366,7 @@ class KG:
             self.graph.parse(self.location)
 
         for (s, p, o) in self.graph:
-            if p not in self.label_predicates:
+            if p not in self.skip_predicates:
                 s_v = Vertex(str(s))
                 o_v = Vertex(str(o))
                 p_v = Vertex(str(p), predicate=True, vprev=s_v, vnext=o_v)

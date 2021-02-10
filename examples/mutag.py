@@ -34,7 +34,7 @@ embeddings = RDF2VecTransformer(
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
-        label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
+        skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
     ),
     entities,
     verbose=True,

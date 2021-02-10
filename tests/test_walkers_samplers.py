@@ -27,7 +27,7 @@ from pyrdf2vec.samplers import (  # isort: skip
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
-    label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
+    skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]

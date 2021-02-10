@@ -42,7 +42,7 @@ for t in GRAPH:
     g.add(triple)
 g.serialize("tmp.ttl", format="turtle")
 
-LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
+SKIP_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
 LOCAL_KG = KG("tmp.ttl", file_type="turtle")
 
 
@@ -65,33 +65,33 @@ class TestKG:
         with pytest.raises(FileNotFoundError):
             KG(
                 "foo",
-                label_predicates=LABEL_PREDICATES,
+                skip_predicates=SKIP_PREDICATES,
             )
 
         with pytest.raises(FileNotFoundError):
             KG(
                 "samples/mutag/",
-                label_predicates=LABEL_PREDICATES,
+                skip_predicates=SKIP_PREDICATES,
             )
 
     def test_invalid_url(self):
         with pytest.raises(ValueError):
             KG(
                 "foo",
-                label_predicates=LABEL_PREDICATES,
+                skip_predicates=SKIP_PREDICATES,
                 is_remote=True,
             )
 
     def test_valid_file(self):
         assert KG(
             "samples/mutag/mutag.owl",
-            label_predicates=LABEL_PREDICATES,
+            skip_predicates=SKIP_PREDICATES,
         )
 
     def test_valid_url(self):
         KG(
             "https://dbpedia.org/sparql",
-            label_predicates=LABEL_PREDICATES,
+            skip_predicates=SKIP_PREDICATES,
             is_remote=True,
         )
 

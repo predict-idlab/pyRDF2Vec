@@ -18,7 +18,7 @@ data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 # of predicates to exclude from this KG.
 kg = KG(
     "https://dbpedia.org/sparql",
-    label_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+    skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
     is_remote=True,
 )
 
