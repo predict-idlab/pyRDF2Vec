@@ -347,6 +347,21 @@ class KG:
             vertex = Vertex(vertex)
         return self._transition_matrix[vertex]
 
+    def info(self):
+        """Gets informations related to a Walker.
+
+        Returns:
+            A friendly display of the Walker.
+
+        """
+        return (
+            f"{type(self).__name__}(location={self.location},"
+            + f"file_type={self.file_type},"
+            + f"skip_predicates={self.skip_predicates},"
+            + f"is_remote={self.is_remote},"
+            + f"cache={self.cache})"
+        )
+
     def read_file(self) -> None:
         """Parses a file with rdflib."""
         if not os.path.exists(self.location) or not os.path.isfile(

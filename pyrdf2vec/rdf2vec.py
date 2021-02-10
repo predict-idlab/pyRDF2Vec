@@ -74,7 +74,9 @@ class RDF2VecTransformer:
             )
 
         if verbose:
+            print(kg.info())
             print(self.walkers[0].info())
+            print(self.walkers[0].sampler.info())
 
         self.entities_.extend(entities)
 
