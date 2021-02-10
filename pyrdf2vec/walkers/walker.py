@@ -57,8 +57,8 @@ class Walker(metaclass=abc.ABCMeta):
         if sampler is not None:
             self.sampler = sampler
         else:
-            self.sampler = UniformSampler()
         self.is_support_remote_ = True
+            self.sampler = UniformSampler(seed=seed)
         self.seed = seed
 
     def extract(
