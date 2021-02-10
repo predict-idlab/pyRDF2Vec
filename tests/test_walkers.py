@@ -60,7 +60,7 @@ def _get_walkers() -> List[Tuple[str, T]]:
 
 
 def check_walker(name, Walker):
-    walks_per_graph = 5
+    max_walks = 5
     depth = 2
 
     canonical_walks = Walker(depth, max_walks, seed=42).extract(
@@ -69,18 +69,16 @@ def check_walker(name, Walker):
     assert type(canonical_walks) == set
 
     if name == "WeisfeilerLehmanWalker":
-        assert len(canonical_walks) <= len(
-            ENTITIES_SUBSET * walks_per_graph * 5
-        )
+        assert len(canonical_walks) <= len(ENTITIES_SUBSET * max_walks * 5)
 
     # Sometimes, WalkletWalker returns one/two more walks than the ones
     # specified.  We need to fix that.
     elif name == "WalkletWalker":
         assert len(canonical_walks) <= len(
-            ENTITIES_SUBSET * walks_per_graph * (depth + 2)
+            ENTITIES_SUBSET * max_walks * (depth + 2)
         )
     else:
-        assert len(canonical_walks) <= len(ENTITIES_SUBSET * walks_per_graph)
+        assert len(canonical_walks) <= len(ENTITIES_SUBSET * max_walks)
 
 
 def is_abstract(cls: Any) -> bool:
