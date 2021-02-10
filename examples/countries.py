@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import rdflib
 from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
@@ -34,7 +33,7 @@ X_tsne = TSNE(random_state=SEED).fit_transform(
             label_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
             is_remote=True,
         ),
-        [rdflib.URIRef(x) for x in data["location"]],
+        [entity for entity in data["bond"]],
         verbose=True,
     )
 )

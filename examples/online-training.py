@@ -2,7 +2,6 @@ import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import rdflib
 from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
@@ -36,7 +35,7 @@ transformer = RDF2VecTransformer(
 )
 transformer.fit_transform(
     kg,
-    [rdflib.URIRef(x) for x in data["location"]],
+    [entity for entity in data["location"]],
     verbose=True,
 )
 transformer.save("countries")
@@ -54,7 +53,7 @@ data = pd.DataFrame(
 transformer = RDF2VecTransformer().load("countries")
 embeddings = transformer.fit_transform(
     kg,
-    [rdflib.URIRef(x) for x in data["location"]],
+    [entity for entity in data["location"]],
     is_update=True,
     verbose=True,
 )
