@@ -1,4 +1,5 @@
 import abc
+import random
 from typing import Any, Optional, Set
 
 import numpy as np
@@ -31,6 +32,8 @@ class Sampler(metaclass=abc.ABCMeta):
         self.inverse = inverse
         self.is_support_remote_ = False
         self.seed = seed
+        if seed is not None:
+            random.seed(seed)
         self.split = split
 
     @abc.abstractmethod
