@@ -49,7 +49,7 @@ clf.fit(train_embeddings, train_labels)
 
 # Evaluate the Support Vector Machine on test embeddings.
 print(
-    f"Accuracy={accuracy_score(test_labels, clf.predict(test_embeddings))}:.4f"
+    f"Accuracy={accuracy_score(test_labels, clf.predict(test_embeddings)):.4f}"
 )
 print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
