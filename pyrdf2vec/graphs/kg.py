@@ -115,15 +115,15 @@ class KG:
     is_remote: bool = attr.ib(default=False)
     cache: Cache = attr.ib(default=TTLCache(maxsize=1024, ttl=1200))
 
-    _is_support_remote: bool = attr.ib(init=False, default=False)
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
-        init=False, default=defaultdict(set)
+        init=False, repr=False, default=defaultdict(set)
     )
     _transition_matrix: DefaultDict[Any, Any] = attr.ib(
-        init=False, default=defaultdict(set)
+        init=False, repr=False, default=defaultdict(set)
     )
-    _entities: Set[Vertex] = attr.ib(init=False, default=set())
-    _vertices: Set[Vertex] = attr.ib(init=False, default=set())
+    _entities: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
+    _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
 
     def __attrs_post_init__(self):
         if self.skip_predicates is None:

@@ -28,7 +28,7 @@ class Sampler(metaclass=abc.ABCMeta):
     inverse: bool = attr.ib(default=False)
     split: bool = attr.ib(default=False)
     seed: Optional[int] = attr.ib(kw_only=True, default=None)
-    _is_support_remote: bool = attr.ib(init=False, default=False)
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
 
     def __attrs_post_init__(self):
         if self.seed is not None:

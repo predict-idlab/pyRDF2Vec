@@ -70,6 +70,7 @@ class RDF2VecTransformer:
         assert self.walkers is not None
 
         if verbose:
+            print(kg)
             print(self.walkers[0])
 
         self._entities.extend(entities)

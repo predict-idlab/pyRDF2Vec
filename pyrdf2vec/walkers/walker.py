@@ -47,7 +47,7 @@ class Walker(metaclass=abc.ABCMeta):
     sampler: Sampler = attr.ib(factory=UniformSampler)
     n_jobs: int = attr.ib(default=1)
     seed: Optional[int] = attr.ib(kw_only=True, default=None)
-    _is_support_remote: bool = attr.ib(init=False, default=True)
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     def __attrs_post_init__(self):
         if self.n_jobs == -1:
