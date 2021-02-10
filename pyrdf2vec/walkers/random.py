@@ -26,7 +26,7 @@ class RandomWalker(Walker):
     """
 
     def extract_walks_bfs(self, kg: KG, root: str):
-        """Extracts walks with Breadth-first search.
+        """Extracts random walks with Breadth-first search.
 
         Args:
             kg: The Knowledge Graph.
@@ -50,7 +50,7 @@ class RandomWalker(Walker):
         return list(walks)
 
     def extract_walks_dfs(self, kg: KG, root: str):
-        """Extracts a limited number of walks with Depth-first search
+        """Extracts a random limited number of walks with Depth-first search.
 
         Args:
             kg: The Knowledge Graph.

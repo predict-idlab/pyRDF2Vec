@@ -73,22 +73,20 @@ class CommunityWalker(Walker):
         """
         nx_graph = nx.Graph()
 
-        for v in kg._vertices:
-            if not v.predicate:
-                name = str(v)
-                nx_graph.add_node(name, vertex=v)
+        for vertex in kg._vertices:
+            if not vertex.predicate:
+                nx_graph.add_node(str(vertex), vertex=vertex)
 
-        for v in kg._vertices:
-            if not v.predicate:
-                v_name = str(v)
+        for vertex in kg._vertices:
+            if not vertex.predicate:
                 # Neighbors are predicates
-                for pred in kg.get_neighbors(v):
-                    pred_name = str(pred)
+                for pred in kg.get_neighbors(vertex):
                     for obj in kg.get_neighbors(pred):
-                        obj_name = str(obj)
-                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
+                        nx_graph.add_edge(
+                            str(vertex), str(obj), name=str(pred)
+                        )
 
-        # This will create a dictionary that maps the URI on a community
+        # Create a dictionary that maps the URI on a community
         partition = community.best_partition(
             nx_graph, resolution=self.resolution
         )
@@ -103,10 +101,21 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
-    def extract_random_community_walks_bfs(self, kg, root):
-        """Extract random walks of depth - 1 hops rooted in root."""
-        # Initialize one walk of length 1 (the root)
+    def extract_walks_bfs(self, kg: KG, root: str):
+        """Extracts random walks of depth - 1 hops rooted in root with
+        Breadth-first search.
 
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            root: The root node.
+
+        Returns:
+            The list of walks for the root node.
+
+        """
         walks = {(root,)}
 
         for i in range(self.depth):
@@ -134,8 +143,21 @@ class CommunityWalker(Walker):
         # Return a numpy array of these walks
         return list(walks)
 
-    def extract_random_community_walks_dfs(self, kg, root):
-        """Extract random walks of depth - 1 hops rooted in root."""
+    def extract_walks_dfs(self, kg: KG, root: str):
+        """Extracts a random limited number of walks of depth - 1 hops rooted
+        in root with Depth-first search.
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            root: The root node.
+
+        Returns:
+            The list of limited  walks for the root node.
+
+        """
         # Initialize one walk of length 1 (the root)
         self.sampler.initialize()
 
@@ -186,8 +208,8 @@ class CommunityWalker(Walker):
 
         """
         if self.max_walks is None:
-            return self.extract_random_community_walks_bfs(kg, root)
-        return self.extract_random_community_walks_dfs(kg, root)
+            return self.extract_walks_bfs(kg, root)
+        return self.extract_walks_dfs(kg, root)
 
     def _extract(
         self, kg: KG, instance: rdflib.URIRef
