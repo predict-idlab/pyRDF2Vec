@@ -28,7 +28,7 @@ class PageRankSampler(Sampler):
 
     """
 
-    alpha: float = attr.ib(default=0.85),
+    alpha: float = attr.ib(default=0.85)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
