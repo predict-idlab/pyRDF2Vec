@@ -52,7 +52,7 @@ class Vertex:
         self.vnext = vnext
         self.id = next(self.vertex_counter)
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other) -> bool:
         """Defines behavior for the equality operator, ==.
 
         Args:
@@ -64,7 +64,14 @@ class Vertex:
         """
         if other is None:
             return False
-        return self.__hash__() == other.__hash__()
+        if self.predicate:
+            return (self.id, self.vprev, self.vnext, self.name) == (
+                other.id,
+                other.vprev,
+                other.vnext,
+                other.name,
+            )
+        return self.name == other.name
 
     def __hash__(self) -> int:
         """Defines behavior for when hash() is called on a vertex.
