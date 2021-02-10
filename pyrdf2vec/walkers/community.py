@@ -127,7 +127,7 @@ class CommunityWalker(Walker):
                 if len(hops) > 0:
                     walks.remove(walk)
                 for (pred, obj) in hops:
-                    walks.add(walk + (pred, obj))
+                    walks.add(walk + (pred, obj))  # type: ignore
                     if (
                         obj in self.communities
                         and np.random.RandomState(self.seed) < self.hop_prob
@@ -138,7 +138,7 @@ class CommunityWalker(Walker):
                         rand_jump = np.random.RandomState(self.seed).choice(
                             community_nodes
                         )
-                        walks.add(walk + (rand_jump,))
+                        walks.add(walk + (rand_jump,))  # type: ignore
 
         # Return a numpy array of these walks
         return list(walks)
@@ -161,8 +161,8 @@ class CommunityWalker(Walker):
         # Initialize one walk of length 1 (the root)
         self.sampler.initialize()
 
-        walks = []
-        while len(walks) < self.max_walks:
+        walks: List[Tuple[str]] = []
+        while len(walks) < self.max_walks:  # type: ignore
             new = (root,)
             d = 1
             while d // 2 < self.depth:
@@ -181,9 +181,9 @@ class CommunityWalker(Walker):
                     rand_jump = np.random.RandomState(self.seed).choice(
                         community_nodes
                     )
-                    new = new + (hop[0], rand_jump)
+                    new = new + (hop[0], rand_jump)  # type: ignore
                 else:
-                    new = new + (hop[0], hop[1])
+                    new = new + (hop[0], hop[1])  # type: ignore
                 d = len(new) - 1
             walks.append(new)
         return list(set(walks))

@@ -57,7 +57,7 @@ class Sampler(metaclass=abc.ABCMeta):
         children are tagged.
 
         """
-        self.visited: Set[Any] = set()  #
+        self.visited: Set[Any] = set()
 
     def sample_neighbor(self, kg: KG, walk, last):
         not_tag_neighbors = [
