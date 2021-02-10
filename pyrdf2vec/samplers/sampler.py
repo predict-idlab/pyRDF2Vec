@@ -29,9 +29,9 @@ class Sampler(metaclass=abc.ABCMeta):
         seed: Optional[int] = None,
     ):
         self.inverse = inverse
+        self.is_support_remote_ = False
         self.seed = seed
         self.split = split
-        self.remote_supported = False
 
     @abc.abstractmethod
     def fit(self, kg: KG) -> None:
@@ -41,7 +41,7 @@ class Sampler(metaclass=abc.ABCMeta):
             kg: The Knowledge Graph.
 
         """
-        if kg.is_remote and not self.remote_supported:
+        if kg.is_remote and not self.is_support_remote_:
             raise ValueError("This sampler is not supported for remote KGs.")
         if self.split:
             self.degrees = {}

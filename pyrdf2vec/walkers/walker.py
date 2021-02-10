@@ -49,15 +49,17 @@ class Walker(metaclass=abc.ABCMeta):
         seed: Optional[int] = None,
     ):
         self.depth = depth
+        self.is_support_remote_ = True
+        self.max_walks = max_walks
+
         if n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
         else:
             self.n_jobs = n_jobs
-        self.max_walks = max_walks
+
         if sampler is not None:
             self.sampler = sampler
         else:
-        self.is_support_remote_ = True
             self.sampler = UniformSampler(seed=seed)
         self.seed = seed
 
