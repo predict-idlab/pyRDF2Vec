@@ -25,7 +25,7 @@ class RDF2VecTransformer:
         embedder: Optional[Embedder] = None,
         walkers: Optional[Sequence[Walker]] = None,
     ):
-
+        self.entities_: List[rdflib.URIRef] = []
         self.walks_: List[rdflib.URIRef] = []
 
         if embedder is not None:
@@ -37,8 +37,6 @@ class RDF2VecTransformer:
             self.walkers = walkers
         else:
             self.walkers = [RandomWalker(2)]
-
-        self.entities_: List[rdflib.URIRef] = []
 
     def fit(
         self,

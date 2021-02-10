@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
@@ -11,7 +13,8 @@ class UniformSampler(Sampler):
 
     Attributes:
         inverse: True if Inverse Uniform Weight sampling satrategy must be
-            used, False otherwise. Default to False.
+            used, False otherwise.
+            Default to False.
         seed: The seed to use to ensure ensure random determinism to generate
             the same walks for entities.
             Defaults to None.
