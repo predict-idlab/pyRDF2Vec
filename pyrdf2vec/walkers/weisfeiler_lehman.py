@@ -3,12 +3,12 @@ from hashlib import md5
 from typing import Any, DefaultDict, Dict, Tuple
 
 import attr
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
 
+@attr.s
 class WeisfeilerLehmanWalker(RandomWalker):
     """Defines the Weisfeler-Lehman walking strategy.
 
@@ -65,21 +65,22 @@ class WeisfeilerLehmanWalker(RandomWalker):
         self._label_map: DefaultDict[Any, Any] = defaultdict(dict)
         self._inv_label_map: DefaultDict[Any, Any] = defaultdict(dict)
 
-        for v in kg._vertices:
-            self._label_map[v][0] = str(v)
-            self._inv_label_map[str(v)][0] = v
+        for vertex in kg._vertices:
+            self._label_map[vertex][0] = str(vertex)
+            self._inv_label_map[vertex][0] = str(vertex)
 
         for n in range(1, self.wl_iterations + 1):
             for vertex in kg._vertices:
-                s_n = self._create_label(kg, vertex, n)
-                self._label_map[vertex][n] = str(md5(s_n.encode()).digest())
+                self._label_map[vertex][n] = str(
+                    md5(self._create_label(kg, vertex, n).encode()).digest()
+                )
 
         for vertex in kg._vertices:
-            for key, val in self._label_map[vertex].items():
-                self._inv_label_map[vertex][val] = key
+            for k, v in self._label_map[vertex].items():
+                self._inv_label_map[vertex][v] = k
 
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
+        self, kg: KG, instance: str
     ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
@@ -97,11 +98,12 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
         """
         canonical_walks = set()
-        walks = self.extract_walks(kg, str(instance))
+        walks = self.extract_walks(kg, instance)
         for walk in walks:
             kg.get_hops(walk[-1])  # type: ignore
 
         self._weisfeiler_lehman(kg)
+
         for n in range(self.wl_iterations + 1):
             for walk in walks:
                 canonical_walk = []
