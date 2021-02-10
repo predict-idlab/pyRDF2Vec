@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.samplers import Sampler, UniformSampler
+from pyrdf2vec.samplers import Sampler
 from pyrdf2vec.walkers import Walker
 
 
@@ -28,7 +28,7 @@ class RandomWalker(Walker):
         self,
         depth: int,
         max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
+        sampler: Optional[Sampler] = None,
         n_jobs: int = 1,
         seed: Optional[int] = None,
     ):

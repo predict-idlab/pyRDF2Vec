@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, DefaultDict
+from typing import Any, DefaultDict, Optional
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
@@ -14,9 +14,11 @@ class ObjFreqSampler(Sampler):
 
     Attributes:
         inverse: True if Inverse Object Frequency Weight sampling strategy
-            must be used, False otherwise. Default to False.
+            must be used, False otherwise.
+            Defaults to False.
         split: True if Split Object Frequency Weight sampling strategy must
-            be used, False otherwise. Default to False.
+            be used, False otherwise.
+            Defaults to False.
         seed: The seed to use to ensure ensure random determinism to generate
             the same walks for entities.
             Defaults to None.

@@ -56,7 +56,7 @@ for name, sampler in samplers:
     ).fit_transform(
         KG(
             "samples/mutag/mutag.owl",
-            label_predicates={
+            skip_predicates={
                 "http://dl-learner.org/carcinogenesis#isMutagenic"
             },
         ),

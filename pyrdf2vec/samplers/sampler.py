@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Set
+from typing import Any, Optional, Set
 
 import numpy as np
 
@@ -11,9 +11,11 @@ class Sampler(metaclass=abc.ABCMeta):
 
     Attributes:
         inverse: True if the inverse sampling strategy must be used,
-            False otherwise. Default to False.
+            False otherwise.
+            Defaults to False.
         split: True if the split sampling strategy must be used,
-            False otherwise. Default to False.
+            False otherwise.
+            Defaults to False.
         seed: The seed to use to ensure ensure random determinism to generate
             the same walks for entities.
             Defaults to None.
