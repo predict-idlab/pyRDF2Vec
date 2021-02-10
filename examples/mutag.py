@@ -48,10 +48,9 @@ clf = SVC(random_state=SEED)
 clf.fit(train_embeddings, train_labels)
 
 # Evaluate the Support Vector Machine on test embeddings.
-print(
-    f"Accuracy={accuracy_score(test_labels, clf.predict(test_embeddings)):.4f}"
-)
-print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
+predictions = clf.predict(test_embeddings)
+print(f"Accuracy: {accuracy_score(test_labels, predictions) * 100 :.4f}%")
+print(confusion_matrix(test_labels, predictions))
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
 X_tsne = TSNE(random_state=SEED).fit_transform(
