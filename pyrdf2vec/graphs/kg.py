@@ -24,6 +24,7 @@ except ModuleNotFoundError:
     is_aiohttp = False
 
 
+@attr.s(eq=False)
 class Vertex:
     """Represents a vertex in a Knowledge Graph.
 
@@ -38,19 +39,14 @@ class Vertex:
 
     """
 
+    name: str = attr.ib()
+    predicate: str = attr.ib(default=False)
+    vprev: Optional["Vertex"] = attr.ib(default=None)
+    vnext: Optional["Vertex"] = attr.ib(default=None)
+
     vertex_counter = itertools.count()
 
-    def __init__(
-        self,
-        name: str,
-        predicate: bool = False,
-        vprev: Optional["Vertex"] = None,
-        vnext: Optional["Vertex"] = None,
-    ):
-        self.name = name
-        self.predicate = predicate
-        self.vprev = vprev
-        self.vnext = vnext
+    def __attrs_post_init__(self):
         self.id = next(self.vertex_counter)
 
     def __eq__(self, other) -> bool:
