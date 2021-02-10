@@ -1,11 +1,13 @@
 from typing import Dict, Optional
 
+import attr
 import networkx as nx
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
+@attr.s
 class PageRankSampler(Sampler):
     """Defines the Object Frequency Weight sampling strategy.
 
@@ -26,15 +28,7 @@ class PageRankSampler(Sampler):
 
     """
 
-    def __init__(
-        self,
-        inverse: bool = False,
-        split: bool = False,
-        alpha: float = 0.85,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(inverse, split, seed)
-        self.alpha = alpha
+    alpha: float = attr.ib(default=0.85),
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.

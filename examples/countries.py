@@ -33,7 +33,7 @@ X_tsne = TSNE(random_state=SEED).fit_transform(
             skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
             is_remote=True,
         ),
-        [entity for entity in data["bond"]],
+        [entity for entity in data["location"]],
         verbose=True,
     )
 )
@@ -41,7 +41,7 @@ X_tsne = TSNE(random_state=SEED).fit_transform(
 # Ploy the embeddings of entities in a 2D plane, annotating them.
 plt.figure(figsize=(10, 4))
 plt.scatter(X_tsne[:, 0], X_tsne[:, 1])
-for x, y, t in zip(X_tsne[:, 0], X_tsne[:, 1], transformer.entities_):
+for x, y, t in zip(X_tsne[:, 0], X_tsne[:, 1], transformer._entities):
     plt.annotate(t.split("/")[-1], (x, y))
 
 # Display the graph with a title, removing the axes for better readability.

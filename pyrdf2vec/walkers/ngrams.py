@@ -1,6 +1,7 @@
 import itertools
 from typing import Any, Dict, List, Optional, Tuple
 
+import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
@@ -8,6 +9,7 @@ from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
+@attr.s
 class NGramWalker(RandomWalker):
     """Defines the N-Grams walking strategy.
 
@@ -28,20 +30,9 @@ class NGramWalker(RandomWalker):
 
     """
 
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
-        grams: int = 3,
-        wildcards: list = None,
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, seed)
-        self.grams = grams
-        self.n_gram_map: Dict[Tuple, str] = {}
-        self.wildcards = wildcards
+    grams: int = attr.ib(default=3)
+    wildcards: list = attr.ib(default=None)
+    _n_gram_map: Dict[Tuple, str] = attr.ib(init=False, default={})
 
     def _take_n_grams(self, walks: List[Vertex]) -> List[str]:
         """Takes the N-Grams.
@@ -62,9 +53,9 @@ class NGramWalker(RandomWalker):
                     str(walks[j])
                     for j in range(max(0, i - (self.grams - 1)), i + 1)
                 )
-                if n_gram not in self.n_gram_map:
-                    self.n_gram_map[n_gram] = str(len(self.n_gram_map))
-                n_gram_walk.append(self.n_gram_map[n_gram])
+                if n_gram not in self._n_gram_map:
+                    self._n_gram_map[n_gram] = str(len(self._n_gram_map))
+                n_gram_walk.append(self._n_gram_map[n_gram])
         return n_gram_walk
 
     def _extract(

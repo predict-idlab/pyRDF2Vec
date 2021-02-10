@@ -1,10 +1,13 @@
 from collections import defaultdict
 from typing import Any, DefaultDict, Optional
 
+import attr
+
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
+@attr.s
 class ObjFreqSampler(Sampler):
     """Defines the Object Frequency Weight sampling strategy.
 
@@ -24,14 +27,6 @@ class ObjFreqSampler(Sampler):
             Defaults to None.
 
     """
-
-    def __init__(
-        self,
-        inverse: bool = False,
-        split: bool = False,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(inverse, split, seed)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.

@@ -4,6 +4,7 @@ from collections import defaultdict
 from hashlib import md5
 from typing import Any, Dict, List, Optional, Tuple
 
+import attr
 import community
 import networkx as nx
 import numpy as np
@@ -33,6 +34,7 @@ def sample_from_iterable(x):
 np.random.permutation = lambda x: next(itertools.permutations(x))
 
 
+@attr.s
 class CommunityWalker(Walker):
     """Defines the community walking strategy.
 
@@ -53,6 +55,9 @@ class CommunityWalker(Walker):
 
     """
 
+    hop_prob: float = attr.ib(default=0.1)
+    resolution: int = attr.ib(default=1)
+
     def __init__(
         self,
         depth: int,
@@ -66,7 +71,7 @@ class CommunityWalker(Walker):
         super().__init__(depth, max_walks, sampler, n_jobs, seed)
         self.hop_prob = hop_prob
         self.resolution = resolution
-        self.is_support_remote_ = False
+        self._is_support_remote = False
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.

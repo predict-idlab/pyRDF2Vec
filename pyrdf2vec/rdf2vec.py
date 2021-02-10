@@ -2,6 +2,7 @@ import pickle
 import time
 from typing import List, Optional, Sequence
 
+import attr
 import rdflib
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
@@ -9,6 +10,7 @@ from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
+@attr.s
 class RDF2VecTransformer:
     """Transforms nodes in a Knowledge Graph into an embedding.
 
@@ -20,21 +22,14 @@ class RDF2VecTransformer:
 
     """
 
-    def __init__(
-        self,
-        embedder: Optional[Embedder] = None,
-        walkers: Optional[Sequence[Walker]] = None,
-    ):
-        self.entities_: List[rdflib.URIRef] = []
-        self.walks_: List[rdflib.URIRef] = []
+    embedder: Optional[Embedder] = attr.ib(factory=Word2Vec)
+    walkers: Optional[Sequence[Walker]] = attr.ib(default=None)
+    _entities: List[rdflib.URIRef] = attr.ib(factory=list)
+    _walks: List[rdflib.URIRef] = attr.ib(factory=list)
 
-        if embedder is not None:
-            self.embedder = embedder
-        else:
-            self.embedder = Word2Vec()
-
-        if walkers is not None:
-            self.walkers = walkers
+    def __attrs_post_init__(self):
+        if self.walkers is not None:
+            self.walkers = self.walkers
         else:
             self.walkers = [RandomWalker(2)]
 
@@ -74,21 +69,19 @@ class RDF2VecTransformer:
             )
 
         if verbose:
-            print(kg.info())
-            print(self.walkers[0].info())
-            print(self.walkers[0].sampler.info())
+            print(self.walkers[0])
 
-        self.entities_.extend(entities)
+        self._entities.extend(entities)
 
         tic = time.perf_counter()
         for walker in self.walkers:
-            self.walks_ += list(walker.extract(kg, entities, verbose))
+            self._walks += list(walker.extract(kg, entities, verbose))
         toc = time.perf_counter()
-        corpus = [list(map(str, walk)) for walk in self.walks_]
+        corpus = [list(map(str, walk)) for walk in self._walks]
 
         if verbose:
             print(
-                f"Extracted {len(self.walks_)} walks "
+                f"Extracted {len(self._walks)} walks "
                 + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
             )
 
@@ -140,7 +133,7 @@ class RDF2VecTransformer:
 
         """
         self.fit(kg, entities, is_update, verbose)
-        return self.transform(self.entities_)
+        return self.transform(self._entities)
 
     def save(self, filename: str = "transformer_data") -> None:
         """Saves a RDF2VecTransformer object.

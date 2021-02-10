@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
 from urllib import parse
 
+import attr
 import matplotlib.pyplot as plt
 import networkx as nx
 import rdflib
@@ -93,6 +94,7 @@ class Vertex:
         return self.name
 
 
+@attr.s
 class KG:
     """Represents a Knowledge Graph.
 
@@ -111,36 +113,36 @@ class KG:
 
     """
 
-    def __init__(
-        self,
-        location: str,
-        file_type: Optional[str] = None,
-        skip_predicates=None,
-        is_remote: bool = False,
-        cache: Cache = TTLCache(maxsize=1024, ttl=1200),
-    ):
-        self.cache = cache
-        self.file_type = file_type
-        if skip_predicates is None:
+    location: str = attr.ib()
+    file_type: Optional[str] = attr.ib(default=None)
+    skip_predicates = attr.ib(default=None)
+    is_remote: bool = attr.ib(default=False)
+    cache: Cache = attr.ib(default=TTLCache(maxsize=1024, ttl=1200))
+
+    _is_support_remote: bool = attr.ib(init=False, default=False)
+    _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
+        init=False, default=defaultdict(set)
+    )
+    _transition_matrix: DefaultDict[Any, Any] = attr.ib(
+        init=False, default=defaultdict(set)
+    )
+    _entities: Set[Vertex] = attr.ib(init=False, default=set())
+    _vertices: Set[Vertex] = attr.ib(init=False, default=set())
+
+    def __attrs_post_init__(self):
+        if self.skip_predicates is None:
             self.skip_predicates = set()
         else:
-            self.skip_predicates = set(skip_predicates)
-        self.is_remote = is_remote
-        self.location = location
+            self.skip_predicates = set(self.skip_predicates)
 
-        self._inv_transition_matrix: DefaultDict[Any, Any] = defaultdict(set)
-        self._transition_matrix: DefaultDict[Any, Any] = defaultdict(set)
-        self._entities: Set[Vertex] = set()
-        self._vertices: Set[Vertex] = set()
-
-        if is_remote:
-            if is_valid_url(location):
+        if self.is_remote:
+            if is_valid_url(self.location):
                 self.session = requests.Session()
                 self.session.mount("http://", HTTPAdapter())
                 self._headers = {"Accept": "application/sparql-results+json"}
-                self.endpoint = location
+                self.endpoint = self.location
             else:
-                raise ValueError(f"Invalid URL: {location}")
+                raise ValueError(f"Invalid URL: {self.location}")
         else:
             self.read_file()
 
@@ -346,21 +348,6 @@ class KG:
         if isinstance(vertex, str):
             vertex = Vertex(vertex)
         return self._transition_matrix[vertex]
-
-    def info(self):
-        """Gets informations related to a Walker.
-
-        Returns:
-            A friendly display of the Walker.
-
-        """
-        return (
-            f"{type(self).__name__}(location={self.location},"
-            + f"file_type={self.file_type},"
-            + f"skip_predicates={self.skip_predicates},"
-            + f"is_remote={self.is_remote},"
-            + f"cache={self.cache})"
-        )
 
     def read_file(self) -> None:
         """Parses a file with rdflib."""

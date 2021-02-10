@@ -3,6 +3,7 @@ import asyncio
 import multiprocessing
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+import attr
 import rdflib
 from tqdm import tqdm
 
@@ -19,6 +20,7 @@ class RemoteNotSupported(Exception):
     pass
 
 
+@attr.s
 class Walker(metaclass=abc.ABCMeta):
     """Base class for the walking strategies.
 
@@ -40,28 +42,17 @@ class Walker(metaclass=abc.ABCMeta):
     # Global KG used later on for the worker process.
     kg = None
 
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Optional[Sampler] = None,
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        self.depth = depth
-        self.is_support_remote_ = True
-        self.max_walks = max_walks
+    depth: int = attr.ib()
+    max_walks: Optional[int] = attr.ib(default=None)
+    sampler: Optional[Sampler] = attr.ib(default=UniformSampler())
+    n_jobs: int = attr.ib(default=1)
+    seed: Optional[int] = attr.ib(kw_only=True, default=None)
+    _is_support_remote: bool = attr.ib(init=False, default=True)
 
-        if n_jobs == -1:
+    def __attrs_post_init__(self):
+        if self.n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
-        else:
-            self.n_jobs = n_jobs
-
-        if sampler is not None:
-            self.sampler = sampler
-        else:
-            self.sampler = UniformSampler(seed=seed)
-        self.seed = seed
+        self.sampler = UniformSampler(seed=self.seed)
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef], verbose=False
@@ -84,7 +75,7 @@ class Walker(metaclass=abc.ABCMeta):
             provided instances; number of column equal to the embedding size.
 
         """
-        if kg.is_remote and not self.is_support_remote_:
+        if kg.is_remote and not self._is_support_remote:
             raise RemoteNotSupported(
                 "Invalid walking strategy. Please, choose a walking strategy "
                 + "that can retrieve walks via a SPARQL endpoint server."
@@ -145,22 +136,6 @@ class Walker(metaclass=abc.ABCMeta):
         """
         global kg
         kg = init_kg
-
-    def info(self):
-        """Gets informations related to a Walker.
-
-        Returns:
-            A friendly display of the Walker.
-
-        """
-        return (
-            f"{type(self).__name__}(depth={self.depth},"
-            + f"max_walks={self.max_walks},"
-            + f"sampler={type(self.sampler).__name__},"
-            + f"n_jobs={self.n_jobs},"
-            + f"is_support_remote={self.is_support_remote_},"
-            + f"seed={self.seed})"
-        )
 
     def print_walks(
         self,

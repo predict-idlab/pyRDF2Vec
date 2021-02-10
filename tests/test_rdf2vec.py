@@ -17,7 +17,7 @@ KNOWLEDGE_GRAPH = KG(
 
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
-ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
+ENTITIES = [entity for entity in TRAIN_DF["bond"]]
 ENTITIES_SUBSET = ENTITIES[:5]
 
 

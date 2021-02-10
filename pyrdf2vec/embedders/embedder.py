@@ -1,14 +1,13 @@
 import abc
 from typing import List
 
+import attr
 import rdflib
 
 
+@attr.s
 class Embedder(metaclass=abc.ABCMeta):
     """Base class for the embedding techniques."""
-
-    def __init__(self):
-        pass
 
     @abc.abstractmethod
     def fit(self, corpus: List[List[str]]):

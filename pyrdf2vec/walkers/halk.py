@@ -2,6 +2,7 @@ from collections import defaultdict
 from hashlib import md5
 from typing import Any, Dict, List, Optional, Tuple
 
+import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG
@@ -9,6 +10,7 @@ from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
+@attr.s
 class HalkWalker(RandomWalker):
     """Defines the Hierarchical Walking (HALK) strategy.
 
@@ -27,17 +29,9 @@ class HalkWalker(RandomWalker):
 
     """
 
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
-        freq_thresholds: List[float] = [0.001],
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, seed)
-        self.freq_thresholds = freq_thresholds
+    freq_thresholds: List[float] = attr.ib(default=[0.001])
+    hop_prob: float = attr.ib(default=0.1)
+    resolution: int = attr.ib(default=1)
 
     def _extract(
         self, kg: KG, instance: rdflib.URIRef

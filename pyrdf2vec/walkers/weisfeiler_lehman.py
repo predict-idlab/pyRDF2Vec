@@ -2,6 +2,7 @@ from collections import defaultdict
 from hashlib import md5
 from typing import Any, DefaultDict, Dict, Optional, Tuple
 
+import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
@@ -27,18 +28,8 @@ class WeisfeilerLehmanWalker(RandomWalker):
 
     """
 
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
-        wl_iterations: int = 4,
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, seed)
-        self.wl_iterations = wl_iterations
-        self.is_support_remote_ = False
+    wl_iterations: int = attr.ib(default=4)
+    _is_support_remote: bool = attr.ib(init=False, default=False)
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):
         """Creates a label.

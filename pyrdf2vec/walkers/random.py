@@ -1,6 +1,7 @@
 from hashlib import md5
 from typing import Any, Dict, List, Optional, Tuple
 
+import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
@@ -8,6 +9,7 @@ from pyrdf2vec.samplers import Sampler
 from pyrdf2vec.walkers import Walker
 
 
+@attr.s
 class RandomWalker(Walker):
     """Defines the random walking strategy.
 
@@ -23,16 +25,6 @@ class RandomWalker(Walker):
             Defaults to None.
 
     """
-
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Optional[Sampler] = None,
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, seed)
 
     def extract_walks_bfs(self, kg: KG, root: str):
         """Extracts walks with Breadth-first search.

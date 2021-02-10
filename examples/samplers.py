@@ -71,7 +71,8 @@ for _, sampler in samplers:
     clf.fit(train_embeddings, train_labels)
 
     # Evaluate the Support Vector Machine on test embeddings.
+    predictions = clf.predict(test_embeddings)
     print(
-        f"{sampler.info()}\nAcurracy="
-        + f"{accuracy_score(test_labels, clf.predict(test_embeddings)):.4f}"
+        f"{sampler}\nAcurracy="
+        + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
     )

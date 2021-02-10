@@ -1,9 +1,12 @@
 from typing import Optional
 
+import attr
+
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 
 
+@attr.s
 class UniformSampler(Sampler):
     """Defines the Uniform Weight Weight sampling strategy.
 
@@ -21,13 +24,8 @@ class UniformSampler(Sampler):
 
     """
 
-    def __init__(
-        self,
-        inverse: bool = False,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(inverse, seed=seed)
-        self.is_support_remote_ = True
+    seed: Optional[int] = attr.ib(kw_only=True, default=None)
+    _is_support_remote: bool = attr.ib(init=False, default=True)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.

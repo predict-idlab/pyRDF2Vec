@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, Tuple
 
+import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG
@@ -7,6 +8,7 @@ from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
+@attr.s
 class AnonymousWalker(RandomWalker):
     """Defines the anonymous walking strategy.
 
@@ -22,16 +24,6 @@ class AnonymousWalker(RandomWalker):
             Defaults to None.
 
     """
-
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, seed)
 
     def _extract(
         self, kg: KG, instance: rdflib.URIRef

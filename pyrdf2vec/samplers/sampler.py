@@ -2,11 +2,13 @@ import abc
 import random
 from typing import Any, Optional, Set
 
+import attr
 import numpy as np
 
 from pyrdf2vec.graphs import KG
 
 
+@attr.s
 class Sampler(metaclass=abc.ABCMeta):
     """Base class for the sampling strategies.
 
@@ -23,18 +25,14 @@ class Sampler(metaclass=abc.ABCMeta):
 
     """
 
-    def __init__(
-        self,
-        inverse: bool = False,
-        split: bool = False,
-        seed: Optional[int] = None,
-    ):
-        self.inverse = inverse
-        self.is_support_remote_ = False
-        self.seed = seed
-        if seed is not None:
-            random.seed(seed)
-        self.split = split
+    inverse: bool = attr.ib(default=False)
+    split: bool = attr.ib(default=False)
+    seed: Optional[int] = attr.ib(kw_only=True, default=None)
+    _is_support_remote: bool = attr.ib(init=False, default=False)
+
+    def __attrs_post_init__(self):
+        if self.seed is not None:
+            random.seed(self.seed)
 
     @abc.abstractmethod
     def fit(self, kg: KG) -> None:
@@ -44,29 +42,15 @@ class Sampler(metaclass=abc.ABCMeta):
             kg: The Knowledge Graph.
 
         """
-        if kg.is_remote and not self.is_support_remote_:
+        if kg.is_remote and not self._is_support_remote:
             raise ValueError("This sampler is not supported for remote KGs.")
         if self.split:
-            self.degrees = {}
+            self._degrees = {}
             for vertex in kg._vertices:
                 if not vertex.predicate:
-                    self.degrees[vertex.name] = len(
+                    self._degrees[vertex.name] = len(
                         kg.get_inv_neighbors(vertex)
                     )
-
-    def info(self):
-        """Gets informations related to a Sampler.
-
-        Returns:
-            A friendly display of the Sampler.
-
-        """
-        return (
-            f"{type(self).__name__}(inverse={self.inverse},"
-            + f"split={self.split},"
-            + f"is_support_remote={self.is_support_remote_},"
-            + f"seed={self.seed})"
-        )
 
     def initialize(self) -> None:
         """Tags vertices that appear at the max depth or of which all their
@@ -94,7 +78,7 @@ class Sampler(metaclass=abc.ABCMeta):
             weights = [max(weights) - (x - min(weights)) for x in weights]
         if self.split:
             weights = [
-                w / self.degrees[v[1]]
+                w / self._degrees[v[1]]
                 for w, v in zip(weights, not_tag_neighbors)
             ]
         weights = [x / sum(weights) for x in weights]
