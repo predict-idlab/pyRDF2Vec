@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import attr
 import community
@@ -11,7 +11,6 @@ import numpy as np
 import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import Walker
 
 
@@ -55,23 +54,8 @@ class CommunityWalker(Walker):
 
     """
 
-    hop_prob: float = attr.ib(default=0.1)
-    resolution: int = attr.ib(default=1)
-
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
-        hop_prob: float = 0.1,
-        resolution: int = 1,
-        n_jobs: int = 1,
-        seed: Optional[int] = None,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, seed)
-        self.hop_prob = hop_prob
-        self.resolution = resolution
-        self._is_support_remote = False
+    hop_prob: float = attr.ib(kw_only=True, default=0.1)
+    resolution: int = attr.ib(kw_only=True, default=1)
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.

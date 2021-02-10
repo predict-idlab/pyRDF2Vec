@@ -44,7 +44,7 @@ class Walker(metaclass=abc.ABCMeta):
 
     depth: int = attr.ib()
     max_walks: Optional[int] = attr.ib(default=None)
-    sampler: Optional[Sampler] = attr.ib(default=UniformSampler())
+    sampler: Sampler = attr.ib(factory=UniformSampler)
     n_jobs: int = attr.ib(default=1)
     seed: Optional[int] = attr.ib(kw_only=True, default=None)
     _is_support_remote: bool = attr.ib(init=False, default=True)

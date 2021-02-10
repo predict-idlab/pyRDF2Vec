@@ -1,12 +1,11 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 

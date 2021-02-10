@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, DefaultDict, Optional
+from typing import Any, DefaultDict
 
 import attr
 

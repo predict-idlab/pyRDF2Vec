@@ -40,7 +40,7 @@ class Vertex:
     """
 
     name: str = attr.ib()
-    predicate: str = attr.ib(default=False)
+    predicate: bool = attr.ib(default=False)
     vprev: Optional["Vertex"] = attr.ib(default=None)
     vnext: Optional["Vertex"] = attr.ib(default=None)
 

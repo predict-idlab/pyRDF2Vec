@@ -67,6 +67,7 @@ class RDF2VecTransformer:
             raise ValueError(
                 "The provided entities must be in the Knowledge Graph."
             )
+        assert self.walkers is not None
 
         if verbose:
             print(self.walkers[0])
@@ -101,6 +102,7 @@ class RDF2VecTransformer:
             The embeddings of the provided entities.
 
         """
+        assert self.embedder is not None
         return self.embedder.transform(entities)
 
     def fit_transform(

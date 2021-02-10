@@ -1,10 +1,9 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 import attr
 import rdflib
 
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.walkers import RandomWalker
 
 
