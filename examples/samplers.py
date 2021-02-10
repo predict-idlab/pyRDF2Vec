@@ -45,7 +45,7 @@ samplers = [
     ("Inverse PageRank Split", PageRankSampler(inverse=True, split=True)),
 ]
 
-for name, sampler in samplers:
+for _, sampler in samplers:
     embeddings = RDF2VecTransformer(
         # Use one worker threads for Word2Vec to ensure random determinism.
         # Must be used with PYTHONHASHSEED.
@@ -72,6 +72,6 @@ for name, sampler in samplers:
 
     # Evaluate the Support Vector Machine on test embeddings.
     print(
-        end=f"[{name},accuracy="
-        + f"{accuracy_score(test_labels, clf.predict(test_embeddings))}]"
+        f"{sampler.info()}\nAcurracy="
+        + f"{accuracy_score(test_labels, clf.predict(test_embeddings)):.4f}"
     )

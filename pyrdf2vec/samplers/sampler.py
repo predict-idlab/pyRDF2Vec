@@ -51,6 +51,20 @@ class Sampler(metaclass=abc.ABCMeta):
                         kg.get_inv_neighbors(vertex)
                     )
 
+    def info(self):
+        """Gets informations related to a Sampler.
+
+        Returns:
+            A friendly display of the Sampler.
+
+        """
+        return (
+            f"{type(self).__name__}(inverse={self.inverse},"
+            + f"split={self.split},"
+            + f"is_support_remote={self.is_support_remote_},"
+            + f"seed={self.seed})"
+        )
+
     def initialize(self) -> None:
         """Tags vertices that appear at the max depth or of which all their
         children are tagged.
