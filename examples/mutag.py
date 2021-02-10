@@ -1,7 +1,4 @@
-import random
-
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import rdflib
 from sklearn.manifold import TSNE
@@ -13,10 +10,8 @@ from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
-# Ensure the determinism of this script by initializing a pseudo-random number
-# generator to ensure to get the same walks for entities.
-np.random.seed(42)
-random.seed(42)
+# Ensure the determinism of this script by initializing a pseudo-random number.
+SEED = 42
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
@@ -34,8 +29,9 @@ embeddings = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
-    # Extract all possible walks of depth 2.
-    walkers=[RandomWalker(2, None)],
+    # Extract a maximum of 25 walks per entity of depth 2 and use a seed to
+    # ensure that the same walks are generated for the entities.
+    walkers=[RandomWalker(2, 25, seed=SEED)],
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
@@ -49,7 +45,7 @@ train_embeddings = embeddings[: len(train_entities)]
 test_embeddings = embeddings[len(train_entities) :]
 
 # Fit a Support Vector Machine on train embeddings.
-clf = SVC(random_state=42)
+clf = SVC(random_state=SEED)
 clf.fit(train_embeddings, train_labels)
 
 # Evaluate the Support Vector Machine on test embeddings.
@@ -60,7 +56,7 @@ print(
 print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
-X_tsne = TSNE(random_state=42).fit_transform(
+X_tsne = TSNE(random_state=SEED).fit_transform(
     train_embeddings + test_embeddings
 )
 

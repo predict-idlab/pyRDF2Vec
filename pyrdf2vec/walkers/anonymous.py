@@ -17,6 +17,9 @@ class AnonymousWalker(RandomWalker):
             Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
@@ -26,8 +29,9 @@ class AnonymousWalker(RandomWalker):
         max_walks: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
+        seed: Optional[int] = None,
     ):
-        super().__init__(depth, max_walks, sampler, n_jobs)
+        super().__init__(depth, max_walks, sampler, n_jobs, seed)
 
     def _extract(
         self, kg: KG, instance: rdflib.URIRef

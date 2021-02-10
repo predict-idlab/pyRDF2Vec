@@ -31,6 +31,9 @@ class Walker(metaclass=abc.ABCMeta):
             allocate as many processes as there are CPU cores available in the
             machine.
             Defaults to 1.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
@@ -43,6 +46,7 @@ class Walker(metaclass=abc.ABCMeta):
         max_walks: Optional[int] = None,
         sampler: Optional[Sampler] = None,
         n_jobs: int = 1,
+        seed: Optional[int] = None,
     ):
         self.depth = depth
         if n_jobs == -1:
@@ -55,6 +59,7 @@ class Walker(metaclass=abc.ABCMeta):
         else:
             self.sampler = UniformSampler()
         self.is_support_remote_ = True
+        self.seed = seed
 
     def extract(
         self, kg: KG, instances: List[rdflib.URIRef], verbose=False
@@ -151,7 +156,8 @@ class Walker(metaclass=abc.ABCMeta):
             + f"max_walks={self.max_walks},"
             + f"sampler={type(self.sampler).__name__},"
             + f"n_jobs={self.n_jobs},"
-            + f"is_support_remote={self.is_support_remote_})"
+            + f"is_support_remote={self.is_support_remote_},"
+            + f"seed={self.seed})"
         )
 
     def print_walks(

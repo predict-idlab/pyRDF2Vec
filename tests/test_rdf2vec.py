@@ -1,6 +1,5 @@
 import os
 import pickle
-import random
 
 import numpy as np
 import pandas as pd
@@ -10,9 +9,6 @@ import rdflib
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
 from pyrdf2vec.walkers import RandomWalker, WeisfeilerLehmanWalker
-
-np.random.seed(42)
-random.seed(42)
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
@@ -50,7 +46,10 @@ class TestRDF2VecTransformer:
 
     def test_load_save_transformer(self):
         RDF2VecTransformer(
-            walkers=[RandomWalker(2, None), WeisfeilerLehmanWalker(2, 2)]
+            walkers=[
+                RandomWalker(2, None, seed=42),
+                WeisfeilerLehmanWalker(2, 2, seed=42),
+            ]
         ).save()
         transformer = RDF2VecTransformer.load()
         assert len(transformer.walkers) == 2

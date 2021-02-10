@@ -18,6 +18,9 @@ class RandomWalker(Walker):
             Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
+        seed: The seed to use to ensure random determinism to generate the same
+            walks for entities.
+            Defaults to None.
 
     """
 
@@ -27,8 +30,9 @@ class RandomWalker(Walker):
         max_walks: Optional[int] = None,
         sampler: Sampler = UniformSampler(),
         n_jobs: int = 1,
+        seed: Optional[int] = None,
     ):
-        super().__init__(depth, max_walks, sampler, n_jobs)
+        super().__init__(depth, max_walks, sampler, n_jobs, seed)
 
     def extract_random_walks_bfs(self, kg: KG, root: str):
         """Breadth-first search to extract all possible walks.

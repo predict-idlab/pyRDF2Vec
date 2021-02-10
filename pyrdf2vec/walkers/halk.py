@@ -21,6 +21,9 @@ class HalkWalker(RandomWalker):
             Defaults to [0.001].
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
@@ -31,8 +34,9 @@ class HalkWalker(RandomWalker):
         sampler: Sampler = UniformSampler(),
         freq_thresholds: List[float] = [0.001],
         n_jobs: int = 1,
+        seed: Optional[int] = None,
     ):
-        super().__init__(depth, max_walks, sampler, n_jobs)
+        super().__init__(depth, max_walks, sampler, n_jobs, seed)
         self.freq_thresholds = freq_thresholds
 
     def _extract(

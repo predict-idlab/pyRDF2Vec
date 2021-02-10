@@ -1,8 +1,6 @@
 import functools
 import itertools
-import random
 
-import numpy as np
 import pandas as pd
 import pytest
 import rdflib
@@ -26,9 +24,6 @@ from pyrdf2vec.samplers import (  # isort: skip
     PredFreqSampler,
     UniformSampler,
 )
-
-np.random.seed(42)
-random.seed(42)
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
@@ -78,5 +73,5 @@ class TestRDF2Vec:
     )
     def test_fit_transform(self, walker, sampler):
         assert RDF2VecTransformer(
-            walkers=[walker(2, 5, sampler())]
+            walkers=[walker(2, 5, sampler(), seed=42)]
         ).fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)

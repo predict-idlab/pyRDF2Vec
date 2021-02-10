@@ -14,11 +14,20 @@ class Sampler(metaclass=abc.ABCMeta):
             False otherwise. Default to False.
         split: True if the split sampling strategy must be used,
             False otherwise. Default to False.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
-    def __init__(self, inverse=False, split=False):
+    def __init__(
+        self,
+        inverse: bool = False,
+        split: bool = False,
+        seed: Optional[int] = None,
+    ):
         self.inverse = inverse
+        self.seed = seed
         self.split = split
         self.remote_supported = False
 
@@ -72,7 +81,9 @@ class Sampler(metaclass=abc.ABCMeta):
         weights = [x / sum(weights) for x in weights]
 
         # Sample a random neighbor and add them to visited if needed.
-        rand_ix = np.random.choice(range(len(not_tag_neighbors)), p=weights)
+        rand_ix = np.random.RandomState(self.seed).choice(
+            range(len(not_tag_neighbors)), p=weights
+        )
         if last:
             self.visited.add((not_tag_neighbors[rand_ix], len(walk)))
         return not_tag_neighbors[rand_ix]

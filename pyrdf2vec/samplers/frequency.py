@@ -17,11 +17,19 @@ class ObjFreqSampler(Sampler):
             must be used, False otherwise. Default to False.
         split: True if Split Object Frequency Weight sampling strategy must
             be used, False otherwise. Default to False.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
-    def __init__(self, inverse=False, split=False):
-        super().__init__(inverse, split)
+    def __init__(
+        self,
+        inverse: bool = False,
+        split: bool = False,
+        seed: Optional[int] = None,
+    ):
+        super().__init__(inverse, split, seed)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.

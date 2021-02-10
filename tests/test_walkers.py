@@ -1,22 +1,16 @@
 import inspect
 import os
 import pkgutil
-import random
 from operator import itemgetter
 from typing import Any, List, Tuple, TypeVar
 
-import numpy as np
 import pandas as pd
 import pytest
 import rdflib
 
 import pyrdf2vec
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.samplers import UniformSampler
 from pyrdf2vec.walkers import Walker
-
-np.random.seed(42)
-random.seed(42)
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
@@ -69,7 +63,7 @@ def check_walker(name, Walker):
     walks_per_graph = 5
     depth = 2
 
-    canonical_walks = Walker(depth, walks_per_graph, UniformSampler()).extract(
+    canonical_walks = Walker(depth, max_walks, seed=42).extract(
         KNOWLEDGE_GRAPH, ENTITIES_SUBSET
     )
     assert type(canonical_walks) == set

@@ -20,13 +20,20 @@ class PageRankSampler(Sampler):
             Default to False.
         alpha: The threshold.
             Default to 0.85.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
     def __init__(
-        self, inverse: bool = False, split: bool = False, alpha: float = 0.85
+        self,
+        inverse: bool = False,
+        split: bool = False,
+        alpha: float = 0.85,
+        seed: Optional[int] = None,
     ):
-        super().__init__(inverse, split)
+        super().__init__(inverse, split, seed)
         self.alpha = alpha
 
     def fit(self, kg: KG) -> None:

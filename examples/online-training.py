@@ -1,20 +1,17 @@
 import os
-import random
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import rdflib
 from sklearn.manifold import TSNE
 
 from pyrdf2vec import RDF2VecTransformer
+from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
-# Ensure the determinism of this script by initializing a pseudo-random number
-# generator.
-np.random.seed(42)
-random.seed(42)
+# Ensure the determinism of this script by initializing a pseudo-random number.
+SEED = 42
 
 data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 
@@ -26,9 +23,17 @@ kg = KG(
     is_remote=True,
 )
 
-# Train and save the Word2Vec model according to the KG, the entities, and a
-# walking strategy.
-transformer = RDF2VecTransformer(walkers=[RandomWalker(4, 25, n_jobs=4)])
+# Train and save the Word2Vec model according to the KG, the entities, a
+# walking strategy, and use a seed to ensure to generate the same walks for
+# entities.
+transformer = RDF2VecTransformer(
+    # Ensure random determinism for Word2Vec.
+    # Must be used with PYTHONHASHSEED.
+    Word2Vec(workers=1),
+    # Extract a maximum of 25 walks per entity of depth 4 and use a seed to
+    # ensure that the same walks are generated for the entities.
+    walkers=[RandomWalker(4, 25, seed=SEED)],
+)
 transformer.fit_transform(
     kg,
     [rdflib.URIRef(x) for x in data["location"]],
@@ -55,7 +60,7 @@ embeddings = transformer.fit_transform(
 )
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
-X_tsne = TSNE(random_state=42).fit_transform(embeddings)
+X_tsne = TSNE(random_state=SEED).fit_transform(embeddings)
 
 # Plot the embeddings of entities in a 2D plane, annotating them.
 plt.figure(figsize=(10, 4))

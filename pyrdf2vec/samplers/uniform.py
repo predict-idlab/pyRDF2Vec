@@ -12,12 +12,18 @@ class UniformSampler(Sampler):
     Attributes:
         inverse: True if Inverse Uniform Weight sampling satrategy must be
             used, False otherwise. Default to False.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
-    def __init__(self, inverse=False):
-        super().__init__(inverse)
-        self.remote_supported = True
+    def __init__(
+        self,
+        inverse: bool = False,
+        seed: Optional[int] = None,
+    ):
+        super().__init__(inverse, seed=seed)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.

@@ -47,6 +47,9 @@ class CommunityWalker(Walker):
             Defaults to 1.
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
+        seed: The seed to use to ensure ensure random determinism to generate
+            the same walks for entities.
+            Defaults to None.
 
     """
 
@@ -58,8 +61,9 @@ class CommunityWalker(Walker):
         hop_prob: float = 0.1,
         resolution: int = 1,
         n_jobs: int = 1,
+        seed: Optional[int] = None,
     ):
-        super().__init__(depth, max_walks, sampler, n_jobs)
+        super().__init__(depth, max_walks, sampler, n_jobs, seed)
         self.hop_prob = hop_prob
         self.resolution = resolution
         self.is_support_remote_ = False
@@ -128,12 +132,12 @@ class CommunityWalker(Walker):
                     walks.add(walk + (pred, obj))
                     if (
                         obj in self.communities
-                        and np.random.random() < self.hop_prob
+                        and self.seed.random() < self.hop_prob
                     ):
                         community_nodes = self.labels_per_community[
                             self.communities[obj]
                         ]
-                        rand_jump = np.random.choice(community_nodes)
+                        rand_jump = self.seed.choice(community_nodes)
                         walks.add(walk + (rand_jump,))
 
         # Return a numpy array of these walks
@@ -155,12 +159,12 @@ class CommunityWalker(Walker):
                     break
                 if (
                     hop[1] in self.communities
-                    and np.random.random() < self.hop_prob
+                    and self.seed.random() < self.hop_prob
                 ):
                     community_nodes = self.labels_per_community[
                         self.communities[hop[1]]
                     ]
-                    rand_jump = np.random.choice(community_nodes)
+                    rand_jump = self.seed.choice(community_nodes)
                     new = new + (hop[0], rand_jump)
                 else:
                     new = new + (hop[0], hop[1])
