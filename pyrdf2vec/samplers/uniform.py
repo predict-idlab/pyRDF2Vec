@@ -24,7 +24,6 @@ class UniformSampler(Sampler):
 
     """
 
-    seed: Optional[int] = attr.ib(kw_only=True, default=None)
     _is_support_remote: bool = attr.ib(init=False, default=True)
 
     def fit(self, kg: KG) -> None:
