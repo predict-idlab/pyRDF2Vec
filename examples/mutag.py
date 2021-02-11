@@ -28,9 +28,10 @@ embeddings = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
-    # Extract a maximum of 25 walks per entity of depth 2 and use a seed to
-    # ensure that the same walks are generated for the entities.
-    walkers=[RandomWalker(2, 25, seed=SEED)],
+    # Extract a maximum of 25 walks per entity of depth 2 using two processes
+    # and use a seed to ensure that the same walks are generated for the
+    # entities.
+    walkers=[RandomWalker(2, 25, n_jobs=2, seed=SEED)],
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
