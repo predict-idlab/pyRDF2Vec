@@ -137,38 +137,6 @@ class Walker(metaclass=abc.ABCMeta):
         global kg
         kg = init_kg
 
-    def print_walks(
-        self,
-        kg: KG,
-        instances: List[rdflib.URIRef],
-        filename: str,
-    ) -> None:
-        """Prints the walks of a Knowledge Graph.
-
-        Args:
-            kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to be extracted from the Knowledge Graph.
-            filename: The filename that contains the rdflib.Graph
-
-        """
-        walks = self.extract(kg, instances)
-        walk_strs = []
-        for _, walk in enumerate(walks):
-            s = ""
-            for i in range(len(walk)):
-                s += f"{walk[i]} "
-                if i < len(walk) - 1:
-                    s += "--> "
-            walk_strs.append(s)
-
-        with open(filename, "w+") as f:
-            for s in walk_strs:
-                f.write(s)
-                f.write("\n\n")
-
     def _proc(
         self, instance: rdflib.URIRef
     ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
