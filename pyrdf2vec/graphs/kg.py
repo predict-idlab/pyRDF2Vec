@@ -318,7 +318,9 @@ class KG:
             return self._get_shops(vertex)
         return self._get_rhops(vertex)
 
-    def get_inv_neighbors(self, vertex: Vertex) -> Set[Vertex]:
+    def get_neighbors(
+        self, vertex: Vertex, reverse: bool = False
+    ) -> Set[Vertex]:
         """Gets the reverse neighbors of a vertex.
 
         Args:
@@ -328,22 +330,8 @@ class KG:
             The reverse neighbors of a vertex.
 
         """
-        if isinstance(vertex, str):
-            vertex = Vertex(vertex)
-        return self._inv_transition_matrix[vertex]
-
-    def get_neighbors(self, vertex: Vertex) -> Set[Vertex]:
-        """Gets the neighbors of a vertex.
-
-        Args:
-            vertex: The vertex.
-
-        Returns:
-            The neighbors of a vertex.
-
-        """
-        if isinstance(vertex, str):
-            vertex = Vertex(vertex)
+        if reverse:
+            return self._inv_transition_matrix[vertex]
         return self._transition_matrix[vertex]
 
     def read_file(self) -> None:

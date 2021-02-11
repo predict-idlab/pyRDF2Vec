@@ -49,7 +49,7 @@ class Sampler(metaclass=abc.ABCMeta):
             for vertex in kg._vertices:
                 if not vertex.predicate:
                     self._degrees[vertex.name] = len(
-                        kg.get_inv_neighbors(vertex)
+                        kg.get_neighbors(vertex, reverse=True)
                     )
 
     def initialize(self) -> None:

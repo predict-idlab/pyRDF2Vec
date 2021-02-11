@@ -43,7 +43,7 @@ class WLWalker(RandomWalker):
         """
         neighbor_names = [
             self._label_map[neighbor][n - 1]
-            for neighbor in kg.get_inv_neighbors(vertex)
+            for neighbor in kg.get_neighbors(vertex, reverse=True)
         ]
         suffix = "-".join(sorted(set(map(str, neighbor_names))))
         return self._label_map[vertex][n - 1] + "-" + suffix

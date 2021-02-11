@@ -39,7 +39,9 @@ class ObjFreqSampler(Sampler):
         self.counts = {}
         for vertex in kg._vertices:
             if not vertex.predicate:
-                self.counts[vertex.name] = len(kg.get_inv_neighbors(vertex))
+                self.counts[vertex.name] = len(
+                    kg.get_neighbors(vertex, reverse=True)
+                )
 
     def get_weight(self, hop) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
