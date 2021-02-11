@@ -48,16 +48,71 @@ LOCAL_KG = KG("tmp.ttl", file_type="turtle")
 
 class TestKG:
     def test_get_neighbors(self):
-        # remote_kg = KG("https://dbpedia.org/sparql", is_remote=True)
-        for graph in [LOCAL_KG]:
-            neighbors = graph.get_hops(f"{URL}#Alice")
+        alice_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Alice"))
+        ]
+        assert Vertex(f"{URL}#Alice") == alice_predicates[0].vprev
+        assert Vertex(f"{URL}#Dean") == alice_predicates[0].vnext
+        assert Vertex(f"{URL}#Bob") == alice_predicates[1].vnext
+        assert Vertex(f"{URL}#Alice") == alice_predicates[1].vprev
+        assert (
+            len(
+                [
+                    neighbor
+                    for neighbor in LOCAL_KG.get_neighbors(
+                        Vertex(f"{URL}#Alice"), reverse=True
+                    )
+                ]
+            )
+            == 0
+        )
 
+        bob_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Bob"))
+        ]
+        assert Vertex(f"{URL}#Bob") == bob_predicates[0].vprev
+        assert Vertex(f"{URL}#Casper") == bob_predicates[0].vnext
+
+        bob_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(
+                Vertex(f"{URL}#Bob"), reverse=True
+            )
+        ]
+        assert Vertex(f"{URL}#Bob") == bob_predicates[0].vnext
+        assert Vertex(f"{URL}#Alice") == bob_predicates[0].vprev
+
+        dean_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(
+                Vertex(f"{URL}#Dean"), reverse=True
+            )
+        ]
+        assert Vertex(f"{URL}#Dean") == dean_predicates[0].vnext
+        assert Vertex(f"{URL}#Alice") == dean_predicates[0].vprev
+        assert (
+            len(
+                [
+                    neighbor
+                    for neighbor in LOCAL_KG.get_neighbors(
+                        Vertex(f"{URL}#Dean")
+                    )
+                ]
+            )
+            == 0
+        )
+
+    def test_get_hops(self):
+        for graph in [LOCAL_KG]:
+            neighbors = graph.get_hops(Vertex(f"{URL}#Alice"))
             predicates = [neighbor[0] for neighbor in neighbors]
-            assert {str(predicate) for predicate in predicates} == {
+            objects = [neighbor[1] for neighbor in neighbors]
+
+            assert {predicate.name for predicate in predicates} == {
                 f"{URL}#knows"
             }
-
-            objects = [neighbor[1] for neighbor in neighbors]
             assert Vertex(f"{URL}#Bob") in objects
             assert Vertex(f"{URL}#Dean") in objects
 
