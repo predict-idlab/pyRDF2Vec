@@ -68,7 +68,7 @@ def check_walker(name, Walker):
     )
     assert type(canonical_walks) == set
 
-    if name == "WeisfeilerLehmanWalker":
+    if name == "WLWalker":
         assert len(canonical_walks) <= len(ENTITIES_SUBSET * max_walks * 5)
 
     # Sometimes, WalkletWalker returns one/two more walks than the ones

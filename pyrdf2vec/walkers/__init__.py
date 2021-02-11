@@ -9,7 +9,7 @@ from .anonymous import AnonymousWalker
 from .halk import HalkWalker
 from .ngrams import NGramWalker
 from .walklets import WalkletWalker
-from .weisfeiler_lehman import WeisfeilerLehmanWalker
+from .weisfeiler_lehman import WLWalker
 
 __all__ = [
     "AnonymousWalker",
@@ -19,5 +19,5 @@ __all__ = [
     "RandomWalker",
     "Walker",
     "WalkletWalker",
-    "WeisfeilerLehmanWalker",
+    "WLWalker",
 ]

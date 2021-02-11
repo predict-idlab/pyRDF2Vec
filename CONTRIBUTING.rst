@@ -274,14 +274,14 @@ to ``pyRDF2Vec``:
    from .anonymous import AnonymousWalker
    # ...
    from .walklets import WalkletWalker
-   from .weisfeiler_lehman import WeisfeilerLehmanWalker
+   from .weisfeiler_lehman import WLWalker
    from .foo import FooWalker
 
    __all__ = [
        "AnonymousWalker",
        # ...
        "WalkletWalker",
-       "WeisfeilerLehmanWalker",
+       "WLWalker",
        "FooWalker",
   ]
 

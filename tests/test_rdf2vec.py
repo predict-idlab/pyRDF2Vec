@@ -7,7 +7,7 @@ import pytest
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
-from pyrdf2vec.walkers import RandomWalker, WeisfeilerLehmanWalker
+from pyrdf2vec.walkers import RandomWalker, WLWalker
 
 KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
@@ -47,13 +47,13 @@ class TestRDF2VecTransformer:
         RDF2VecTransformer(
             walkers=[
                 RandomWalker(2, None, seed=42),
-                WeisfeilerLehmanWalker(2, 2, seed=42),
+                WLWalker(2, 2, seed=42),
             ]
         ).save()
         transformer = RDF2VecTransformer.load()
         assert len(transformer.walkers) == 2
         assert isinstance(transformer.walkers[0], RandomWalker)
-        assert isinstance(transformer.walkers[1], WeisfeilerLehmanWalker)
+        assert isinstance(transformer.walkers[1], WLWalker)
         os.remove("transformer_data")
 
     def test_transform(self):

@@ -15,7 +15,7 @@ from pyrdf2vec.walkers import (  # isort: skip
     NGramWalker,
     RandomWalker,
     WalkletWalker,
-    WeisfeilerLehmanWalker,
+    WLWalker,
 )
 from pyrdf2vec.samplers import (  # isort: skip
     ObjFreqSampler,
@@ -63,7 +63,7 @@ WALKER_CLASSES = {
     NGramWalker: "NGram",
     RandomWalker: "Random",
     WalkletWalker: "Walklet",
-    WeisfeilerLehmanWalker: "Weisfeiler-Lehman",
+    WLWalker: "Weisfeiler-Lehman",
 }
 
 

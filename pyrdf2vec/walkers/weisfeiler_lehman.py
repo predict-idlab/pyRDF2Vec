@@ -9,7 +9,7 @@ from pyrdf2vec.walkers import RandomWalker
 
 
 @attr.s
-class WeisfeilerLehmanWalker(RandomWalker):
+class WLWalker(RandomWalker):
     """Defines the Weisfeler-Lehman walking strategy.
 
     Attributes:
