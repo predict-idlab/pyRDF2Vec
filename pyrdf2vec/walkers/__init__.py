@@ -7,8 +7,8 @@ from .random import RandomWalker
 
 from .anonymous import AnonymousWalker
 from .halk import HalkWalker
-from .ngrams import NGramWalker
-from .walklets import WalkletWalker
+from .ngram import NGramWalker
+from .walklet import WalkletWalker
 from .weisfeiler_lehman import WLWalker
 
 __all__ = [

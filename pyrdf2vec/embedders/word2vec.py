@@ -20,7 +20,7 @@ class Word2Vec(Embedder):
 
     def fit(
         self, corpus: List[List[str]], is_update: bool = False
-    ) -> "Word2Vec":
+    ) -> "Embedder":
         """Fits the Word2Vec model based on provided corpus.
 
         Args:

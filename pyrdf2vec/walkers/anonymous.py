@@ -1,9 +1,8 @@
-from typing import Any, Dict, Tuple
+from typing import Dict, List, Set, Tuple
 
 import attr
-import rdflib
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -25,8 +24,8 @@ class AnonymousWalker(RandomWalker):
     """
 
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -42,14 +41,17 @@ class AnonymousWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
+        canonical_walks: Set[Tuple[str, ...]] = set()
         for walk in self.extract_walks(kg, instance):
-            canonical_walk = []
-            str_walk = [str(x) for x in walk]  # type: ignore
-            for i, hop in enumerate(walk):  # type: ignore
+            canonical_walk: List[str] = []
+            str_walk = [str(hop) for hop in walk]
+            for i, hop in enumerate(walk):
                 if i == 0:
-                    canonical_walk.append(str(hop))
+                    canonical_walk.append(hop.name)
                 else:
-                    canonical_walk.append(str(str_walk.index(str(hop))))
+                    # Use a hash to reduce memory usage of long texts by using
+                    # 8 bytes per hop, except for the first hop and odd
+                    # hops (predicates).
+                    canonical_walk.append(str(str_walk.index(hop.name)))
             canonical_walks.add(tuple(canonical_walk))
-        return {instance: tuple(canonical_walks)}
+        return {instance.name: tuple(canonical_walks)}

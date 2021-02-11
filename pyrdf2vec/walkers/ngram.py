@@ -1,8 +1,7 @@
 import itertools
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 import attr
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import RandomWalker
@@ -31,9 +30,9 @@ class NGramWalker(RandomWalker):
 
     grams: int = attr.ib(default=3)
     wildcards: list = attr.ib(default=None)
-    _n_gram_map: Dict[Tuple, str] = attr.ib(init=False, default={})
+    _n_gram_map: Dict[Tuple, str] = attr.ib(init=False, repr=False, default={})
 
-    def _take_n_grams(self, walks: List[Vertex]) -> List[str]:
+    def _take_n_grams(self, walks: Tuple[Vertex, ...]) -> List[str]:
         """Takes the N-Grams.
 
         Args:
@@ -43,13 +42,13 @@ class NGramWalker(RandomWalker):
             The N-Grams.
 
         """
-        n_gram_walk = []
+        n_gram_walk: List[str] = []
         for i, hop in enumerate(walks):
             if i == 0 or i % 2 == 1 or i < self.grams:
-                n_gram_walk.append(str(hop))
+                n_gram_walk.append(hop.name)
             else:
                 n_gram = tuple(
-                    str(walks[j])
+                    walks[j].name
                     for j in range(max(0, i - (self.grams - 1)), i + 1)
                 )
                 if n_gram not in self._n_gram_map:
@@ -58,8 +57,8 @@ class NGramWalker(RandomWalker):
         return n_gram_walk
 
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -75,11 +74,9 @@ class NGramWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
-        for walk in self.extract_walks(kg, str(instance)):
-            canonical_walks.add(
-                tuple(self._take_n_grams(walk))  # type:ignore
-            )
+        canonical_walks: Set[Tuple[str, ...]] = set()
+        for walk in self.extract_walks(kg, instance):
+            canonical_walks.add(tuple(self._take_n_grams(walk)))
 
             # Introduce wild-cards and re-calculate n-grams
             if self.wildcards is None:
@@ -87,10 +84,12 @@ class NGramWalker(RandomWalker):
 
             for wildcard in self.wildcards:
                 for idx in itertools.combinations(
-                    range(1, len(walk)), wildcard  # type: ignore
+                    range(1, len(walk)), wildcard
                 ):
-                    new_walk = list(walk).copy()  # type: ignore
+                    new_walk = list(walk).copy()
                     for ix in idx:
                         new_walk[ix] = Vertex("*")
-                    canonical_walks.add(tuple(self._take_n_grams(new_walk)))
-        return {instance: tuple(canonical_walks)}
+                    canonical_walks.add(
+                        tuple(self._take_n_grams(new_walk))  # type: ignore
+                    )
+        return {instance.name: tuple(canonical_walks)}

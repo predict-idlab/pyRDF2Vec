@@ -1,11 +1,20 @@
 import abc
 import random
-from typing import Any, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 import attr
 import numpy as np
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
+
+
+class RemoteNotSupported(Exception):
+    """Base exception class for the lack of support of a sampling strategy for
+    the extraction of walks via a SPARQL endpoint server.
+
+    """
+
+    pass
 
 
 @attr.s
@@ -29,8 +38,15 @@ class Sampler(metaclass=abc.ABCMeta):
     split: bool = attr.ib(default=False)
     seed: Optional[int] = attr.ib(kw_only=True, default=None)
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+    _vertices_deg: Dict[str, int] = attr.ib(init=False, repr=False, default={})
 
-    def __attrs_post_init__(self):
+    # Tags vertices that appear at the max depth or of which all their children
+    # are tagged.
+    _visited: Set[Tuple[Tuple[Vertex, Vertex], int]] = attr.ib(
+        init=False, repr=False, default=set()
+    )
+
+    def __attrs_post_init__(self) -> None:
         if self.seed is not None:
             random.seed(self.seed)
 
@@ -43,56 +59,19 @@ class Sampler(metaclass=abc.ABCMeta):
 
         """
         if kg.is_remote and not self._is_support_remote:
-            raise ValueError("This sampler is not supported for remote KGs.")
+            raise RemoteNotSupported(
+                "Invalid sampling strategy. Please, choose a sampling strategy"
+                + " that can fetch walks via a SPARQL endpoint server."
+            )
         if self.split:
-            self._degrees = {}
             for vertex in kg._vertices:
                 if not vertex.predicate:
-                    self._degrees[vertex.name] = len(
+                    self._vertices_deg[vertex.name] = len(
                         kg.get_neighbors(vertex, reverse=True)
                     )
 
-    def initialize(self) -> None:
-        """Tags vertices that appear at the max depth or of which all their
-        children are tagged.
-
-        """
-        self.visited: Set[Any] = set()
-
-    def sample_neighbor(self, kg: KG, walk, last):
-        not_tag_neighbors = [
-            x
-            for x in kg.get_hops(walk[-1])
-            if (x, len(walk)) not in self.visited
-        ]
-
-        # If there are no untagged neighbors, then tag
-        # this vertex and return None
-        if len(not_tag_neighbors) == 0:
-            if len(walk) > 2:
-                self.visited.add(((walk[-2], walk[-1]), len(walk) - 2))
-            return None
-
-        weights = [self.get_weight(hop) for hop in not_tag_neighbors]
-        if self.inverse:
-            weights = [max(weights) - (x - min(weights)) for x in weights]
-        if self.split:
-            weights = [
-                w / self._degrees[v[1]]
-                for w, v in zip(weights, not_tag_neighbors)
-            ]
-        weights = [x / sum(weights) for x in weights]
-
-        # Sample a random neighbor and add them to visited if needed.
-        rand_ix = np.random.RandomState(self.seed).choice(
-            range(len(not_tag_neighbors)), p=weights
-        )
-        if last:
-            self.visited.add((not_tag_neighbors[rand_ix], len(walk)))
-        return not_tag_neighbors[rand_ix]
-
     @abc.abstractmethod
-    def get_weight(self, hop):
+    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
 
         Args:
@@ -107,3 +86,80 @@ class Sampler(metaclass=abc.ABCMeta):
 
         """
         raise NotImplementedError("This has to be implemented")
+
+    def get_weights(self, hops: List[Tuple[Vertex, Vertex]]) -> List[float]:
+        """Gets the weights of the hops
+
+        Args:
+            hops: The hops.
+
+        Returns:
+            The weights to the edge of the Knowledge Graph.
+
+        """
+        weights: List[float] = [self.get_weight(hop) for hop in hops]
+        if self.inverse:
+            weights = [
+                max(weights) - (weight - min(weights)) for weight in weights
+            ]
+        if self.split:
+            weights = [
+                weight / self._vertices_deg[hop[1].name]
+                for weight, hop in zip(weights, hops)
+            ]
+        return [weight / sum(weights) for weight in weights]
+
+    def sample_neighbor(
+        self, kg: KG, walk: Tuple[str, Vertex, Vertex], is_last_neighbor: bool
+    ) -> Optional[Tuple[Vertex, Vertex]]:
+        """Samples a random neighbor and check if all its children are
+        tagged. If there are no untagged neighbors, this function will tag the
+        vertex and return None.
+
+        kg: The Knowledge Graph.
+        walk: The walk.
+        is_last_neighbor: True if the neighbor is the class, False otherwise.
+
+        Returns:
+            The sample neighbor
+
+        """
+        untagged_neighbors = [
+            hop
+            for hop in kg.get_hops(walk[-1])
+            if (hop, len(walk)) not in self.visited
+        ]
+
+        if len(untagged_neighbors) == 0:
+            if len(walk) > 2:
+                self.visited.add(((walk[-2], walk[-1]), len(walk) - 2))
+            return None
+
+        rnd_id = np.random.RandomState(self.seed).choice(
+            range(len(untagged_neighbors)),
+            p=self.get_weights(untagged_neighbors),  # type: ignore
+        )
+        if is_last_neighbor:
+            self.visited.add((untagged_neighbors[rnd_id], len(walk)))
+        return untagged_neighbors[rnd_id]
+
+    @property
+    def visited(self) -> Set[Tuple[Tuple[Vertex, Vertex], int]]:
+        """Gets the tagged vertices that appear at the max depth or of which
+        all their children are tagged.
+
+        Returns:
+            The tagged vertices.
+
+        """
+        return self._visited
+
+    @visited.setter
+    def visited(self, visited: Set[Tuple[Tuple[Vertex, Vertex], int]]) -> None:
+        """Sets the value of the tagged vertices.
+
+        Args:
+            visited: The tagged vertices.
+
+        """
+        self._visited = set() if visited is None else visited

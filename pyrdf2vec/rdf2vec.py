@@ -1,6 +1,6 @@
 import pickle
 import time
-from typing import List, Optional, Sequence
+from typing import List, Sequence
 
 import attr
 import rdflib
@@ -22,21 +22,15 @@ class RDF2VecTransformer:
 
     """
 
-    embedder: Optional[Embedder] = attr.ib(factory=Word2Vec)
-    walkers: Optional[Sequence[Walker]] = attr.ib(default=None)
+    embedder: Embedder = attr.ib(factory=lambda: Word2Vec())
+    walkers: Sequence[Walker] = attr.ib(factory=lambda: [RandomWalker(2)])
     _entities: List[rdflib.URIRef] = attr.ib(factory=list)
     _walks: List[rdflib.URIRef] = attr.ib(factory=list)
-
-    def __attrs_post_init__(self):
-        if self.walkers is not None:
-            self.walkers = self.walkers
-        else:
-            self.walkers = [RandomWalker(2)]
 
     def fit(
         self,
         kg: KG,
-        entities: List[rdflib.URIRef],
+        entities: List[str],
         is_update: bool = False,
         verbose: bool = False,
     ) -> "RDF2VecTransformer":
@@ -62,19 +56,17 @@ class RDF2VecTransformer:
 
         """
         if not kg.is_remote and not all(
-            [Vertex(str(entity)) in kg._vertices for entity in entities]
+            [Vertex(entity) in kg._vertices for entity in entities]
         ):
             raise ValueError(
                 "The provided entities must be in the Knowledge Graph."
             )
-        assert self.walkers is not None
 
         if verbose:
             print(kg)
             print(self.walkers[0])
 
         self._entities.extend(entities)
-
         tic = time.perf_counter()
         for walker in self.walkers:
             self._walks += list(walker.extract(kg, entities, verbose))
@@ -87,7 +79,7 @@ class RDF2VecTransformer:
                 + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
             )
 
-        self.embedder.fit(corpus, is_update)  # type:ignore
+        self.embedder.fit(corpus, is_update)
         return self
 
     def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:
@@ -109,7 +101,7 @@ class RDF2VecTransformer:
     def fit_transform(
         self,
         kg: KG,
-        entities: List[rdflib.URIRef],
+        entities: List[str],
         is_update: bool = False,
         verbose: bool = False,
     ) -> List[rdflib.URIRef]:

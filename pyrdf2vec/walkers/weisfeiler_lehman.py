@@ -1,6 +1,6 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, DefaultDict, Dict, Tuple
+from typing import Any, DefaultDict, Dict, List, Set, Tuple
 
 import attr
 
@@ -28,7 +28,7 @@ class WLWalker(RandomWalker):
     """
 
     wl_iterations: int = attr.ib(default=4)
-    _is_support_remote: bool = attr.ib(init=False, default=False)
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):
         """Creates a label.
@@ -79,9 +79,10 @@ class WLWalker(RandomWalker):
             for k, v in self._label_map[vertex].items():
                 self._inv_label_map[vertex][v] = k
 
+    # Tuple[Tuple[str, ...], ...]
     def _extract(
-        self, kg: KG, instance: str
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -97,20 +98,20 @@ class WLWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
+        canonical_walks: Set[Tuple[str, ...]] = set()
         walks = self.extract_walks(kg, instance)
         for walk in walks:
-            kg.get_hops(walk[-1])  # type: ignore
+            kg.get_hops(walk[-1])
 
         self._weisfeiler_lehman(kg)
 
         for n in range(self.wl_iterations + 1):
             for walk in walks:
-                canonical_walk = []
-                for i, hop in enumerate(walk):  # type: ignore
+                canonical_walk: List[str] = []
+                for i, hop in enumerate(walk):
                     if i == 0 or i % 2 == 1:
-                        canonical_walk.append(str(hop))
+                        canonical_walk.append(hop.name)
                     else:
                         canonical_walk.append(self._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance: tuple(canonical_walks)}
+        return {instance.name: tuple(canonical_walks)}

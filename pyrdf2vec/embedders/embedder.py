@@ -10,7 +10,9 @@ class Embedder(metaclass=abc.ABCMeta):
     """Base class for the embedding techniques."""
 
     @abc.abstractmethod
-    def fit(self, corpus: List[List[str]]):
+    def fit(
+        self, corpus: List[List[str]], is_update: bool = False
+    ) -> "Embedder":
         """Fits the Word2Vec model based on provided corpus.
 
         Args:

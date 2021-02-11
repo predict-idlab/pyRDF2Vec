@@ -6,20 +6,14 @@ from typing import Any, List, Tuple, TypeVar
 
 import pandas as pd
 import pytest
-import rdflib
 
 import pyrdf2vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import Walker
 
-KNOWLEDGE_GRAPH = KG(
-    "samples/mutag/mutag.owl",
-    skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
-)
-
 TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
 
-ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
+ENTITIES = [entity for entity in TRAIN_DF["bond"]]
 ENTITIES_SUBSET = ENTITIES[:5]
 
 T = TypeVar("T")
@@ -42,7 +36,7 @@ def _get_classes() -> List[Tuple[str, T]]:
     return classes
 
 
-def _get_walkers() -> List[Tuple[str, T]]:
+def _get_walkers() -> List[Tuple[str, Any]]:
     """Gets the classes that are not a subclass of `sklearn.BaseEstimator` and
     that are not an abstract class.
 
@@ -55,7 +49,6 @@ def _get_walkers() -> List[Tuple[str, T]]:
         for cls in set(_get_classes())  # type: ignore
         if issubclass(cls[1], Walker)  # type: ignore
     ]
-    classes = filter(lambda c: not is_abstract(c[1]), classes)  # type: ignore
     return sorted(set(classes), key=itemgetter(0))
 
 
@@ -64,7 +57,13 @@ def check_walker(name, Walker):
     depth = 2
 
     canonical_walks = Walker(depth, max_walks, seed=42).extract(
-        KNOWLEDGE_GRAPH, ENTITIES_SUBSET
+        KG(
+            "samples/mutag/mutag.owl",
+            skip_predicates={
+                "http://dl-learner.org/carcinogenesis#isMutagenic"
+            },
+        ),
+        ENTITIES_SUBSET,
     )
     assert type(canonical_walks) == set
 

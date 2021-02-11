@@ -1,11 +1,10 @@
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 import attr
-import rdflib
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -33,8 +32,8 @@ class HalkWalker(RandomWalker):
     resolution: int = attr.ib(default=1)
 
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -50,13 +49,13 @@ class HalkWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
-        walks = self.extract_walks(kg, str(instance))
+        canonical_walks: Set[Tuple[str, ...]] = set()
+        walks = self.extract_walks(kg, instance)
 
         freq = defaultdict(set)
         for i in range(len(walks)):
-            for hop in walks[i]:  # type: ignore
-                freq[str(hop)].add(i)
+            for hop in walks[i]:
+                freq[hop].add(i)
 
         for freq_threshold in self.freq_thresholds:
             uniformative_hops = set()
@@ -65,14 +64,17 @@ class HalkWalker(RandomWalker):
                     uniformative_hops.add(hop)
 
             for walk in walks:
-                canonical_walk = []
-                for i, hop in enumerate(walk):  # type: ignore
+                canonical_walk: List[str] = []
+                for i, hop in enumerate(walk):
                     if i == 0:
-                        canonical_walk.append(str(hop))
+                        canonical_walk.append(hop.name)
                     else:
-                        if str(hop) not in uniformative_hops:
+                        if hop.name not in uniformative_hops:
+                            # Use a hash to reduce memory usage of long texts
+                            # by using 8 bytes per hop, except for the first
+                            # hop and odd hops (predicates).
                             canonical_walk.append(
-                                str(md5(str(hop).encode()).digest()[:8])
+                                str(md5(hop.name.encode()).digest()[:8])
                             )
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance: tuple(canonical_walks)}
+        return {instance.name: tuple(canonical_walks)}

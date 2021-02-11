@@ -7,8 +7,6 @@ from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
 from urllib import parse
 
 import attr
-import matplotlib.pyplot as plt
-import networkx as nx
 import rdflib
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
@@ -162,14 +160,14 @@ class KG:
             return await response.text()
 
     @cachedmethod(operator.attrgetter("cache"))
-    def fetch_hops(self, vertex: str):
+    def fetch_hops(self, vertex: Vertex):
         """Fetchs the hops of the vertex.
 
         Args:
             vertex: The vertex to get the hops.
 
         """
-        if not vertex.startswith("http://"):
+        if not vertex.name.startswith("http://"):
             return []
         query = parse.quote(
             "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
@@ -254,7 +252,7 @@ class KG:
         else:
             self.entity_hops = {}
 
-    def _get_rhops(self, vertex: str) -> List[Tuple[str, str]]:
+    def _get_rhops(self, vertex: Vertex) -> List[Tuple[str, str]]:
         """Gets the hops for a vertex.
 
         Args:
@@ -264,12 +262,7 @@ class KG:
             The hops of a vertex in a (predicate, object) form.
 
         """
-        if isinstance(vertex, rdflib.term.URIRef):
-            vertex = Vertex(str(vertex))  # type: ignore
-        elif isinstance(vertex, str):
-            vertex = Vertex(vertex)  # type: ignore
         hops = []
-
         predicates = self._transition_matrix[vertex]
         for pred in predicates:
             assert len(self._transition_matrix[pred]) == 1
@@ -277,9 +270,9 @@ class KG:
                 hops.append((pred, obj))
         return hops
 
-    def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
-        if self.is_mul_req and str(vertex) in self.entity_hops:
-            return self.entity_hops[str(vertex)]
+    def _get_shops(self, vertex: Vertex) -> List[Tuple[str, str]]:
+        if self.is_mul_req and vertex.name in self.entity_hops:
+            return self.entity_hops[vertex.name]
         return self.fetch_hops(vertex)
 
     def add_edge(self, v1: Vertex, v2: Vertex) -> None:
@@ -304,7 +297,7 @@ class KG:
         if not vertex.predicate:
             self._entities.add(vertex)
 
-    def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
+    def get_hops(self, vertex: Vertex) -> List[Tuple[str, str]]:
         """Returns the hops of a vertex.
 
         Args:
@@ -374,33 +367,6 @@ class KG:
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)
             self._inv_transition_matrix[v2].remove(v1)
-
-    def visualise(self) -> None:
-        """Visualises the Knowledge Graph."""
-        nx_graph = nx.DiGraph()
-
-        for v in self._vertices:
-            if not v.predicate:
-                name = v.name.split("/")[-1]
-                nx_graph.add_node(name, name=name, pred=v.predicate)
-
-        for v in self._vertices:
-            if not v.predicate:
-                v_name = v.name.split("/")[-1]
-                # Neighbors are predicates
-                for pred in self.get_neighbors(v):
-                    pred_name = pred.name.split("/")[-1]
-                    for obj in self.get_neighbors(pred):
-                        obj_name = obj.name.split("/")[-1]
-                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
-
-        plt.figure(figsize=(10, 10))
-        _pos = nx.circular_layout(nx_graph)
-        nx.draw_networkx_nodes(nx_graph, pos=_pos)
-        nx.draw_networkx_edges(nx_graph, pos=_pos)
-        nx.draw_networkx_labels(nx_graph, pos=_pos)
-        names = nx.get_edge_attributes(nx_graph, "name")
-        nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
 
 
 def is_valid_url(url: str) -> bool:

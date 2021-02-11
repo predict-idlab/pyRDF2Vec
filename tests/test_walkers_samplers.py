@@ -56,6 +56,7 @@ SAMPLERS.update(
     }
 )
 
+
 WALKER_CLASSES = {
     AnonymousWalker: "Anonymous",
     CommunityWalker: "Community",

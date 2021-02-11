@@ -1,13 +1,12 @@
 import abc
 import asyncio
 import multiprocessing
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import attr
-import rdflib
 from tqdm import tqdm
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 
 
@@ -40,7 +39,7 @@ class Walker(metaclass=abc.ABCMeta):
     """
 
     # Global KG used later on for the worker process.
-    kg = None
+    kg: Optional[KG] = None
 
     depth: int = attr.ib()
     max_walks: Optional[int] = attr.ib(default=None)
@@ -55,8 +54,8 @@ class Walker(metaclass=abc.ABCMeta):
         self.sampler = UniformSampler(seed=self.seed)
 
     def extract(
-        self, kg: KG, instances: List[rdflib.URIRef], verbose=False
-    ) -> Set[Tuple[Any, ...]]:
+        self, kg: KG, instances: List[str], verbose: bool = False
+    ) -> Set[Tuple[str, str, str]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
@@ -78,10 +77,9 @@ class Walker(metaclass=abc.ABCMeta):
         if kg.is_remote and not self._is_support_remote:
             raise RemoteNotSupported(
                 "Invalid walking strategy. Please, choose a walking strategy "
-                + "that can retrieve walks via a SPARQL endpoint server."
+                + "that can fetch walks via a SPARQL endpoint server."
             )
         self.sampler.fit(kg)
-        canonical_walks = set()
 
         # To avoid circular imports
         if "CommunityWalker" in str(self):
@@ -100,16 +98,18 @@ class Walker(metaclass=abc.ABCMeta):
                     disable=not verbose,
                 )
             )
-        res = {k: v for elm in res for k, v in elm.items()}  # type: ignore
-
+        instance_walks = {
+            instance: walks for elm in res for instance, walks in elm.items()
+        }
+        canonical_walks = set()
         for instance in instances:
-            canonical_walks.update(res[instance])
+            canonical_walks.update(instance_walks[instance])
         return canonical_walks
 
     @abc.abstractmethod
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -127,7 +127,7 @@ class Walker(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError("This must be implemented!")
 
-    def _init_worker(self, init_kg):
+    def _init_worker(self, init_kg: KG) -> None:
         """Initializes each worker process.
 
         Args:
@@ -135,11 +135,9 @@ class Walker(metaclass=abc.ABCMeta):
 
         """
         global kg
-        kg = init_kg
+        kg = init_kg  # type: ignore
 
-    def _proc(
-        self, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+    def _proc(self, instance: str) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Executed by each process.
 
         Args:
@@ -150,4 +148,4 @@ class Walker(metaclass=abc.ABCMeta):
 
         """
         global kg
-        return self._extract(kg, instance)  # type:ignore
+        return self._extract(kg, Vertex(instance))  # type: ignore

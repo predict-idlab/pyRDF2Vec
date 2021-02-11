@@ -1,9 +1,9 @@
 from collections import defaultdict
-from typing import Any, DefaultDict
+from typing import Any, DefaultDict, Tuple
 
 import attr
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler
 
 
@@ -141,7 +141,7 @@ class ObjPredFreqSampler(Sampler):
                 obj = list(kg.get_neighbors(vertex))[0]
                 self.counts[(vertex.name, obj.name)] += 1
 
-    def get_weight(self, hop) -> int:
+    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
 
         Args:

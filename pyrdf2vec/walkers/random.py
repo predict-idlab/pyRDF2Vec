@@ -1,8 +1,7 @@
 from hashlib import md5
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 import attr
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import Walker
@@ -25,7 +24,9 @@ class RandomWalker(Walker):
 
     """
 
-    def extract_walks_bfs(self, kg: KG, root: str):
+    def extract_walks_bfs(
+        self, kg: KG, root: Vertex
+    ) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks with Breadth-first search.
 
         Args:
@@ -47,9 +48,11 @@ class RandomWalker(Walker):
                     walks.remove(walk)
                 for (pred, obj) in hops:
                     walks.add(walk + (pred, obj))  # type: ignore
-        return list(walks)
+        return list(walks)  # type: ignore
 
-    def extract_walks_dfs(self, kg: KG, root: str):
+    def extract_walks_dfs(
+        self, kg: KG, root: Vertex
+    ) -> List[Tuple[Vertex, ...]]:
         """Extracts a random limited number of walks with Depth-first search.
 
         Args:
@@ -65,24 +68,23 @@ class RandomWalker(Walker):
         """
         # TODO: Currently we are allowing duplicate walks in order
         # TODO: to avoid infinite loops. Can we do this better?
-
-        self.sampler.initialize()
-
-        walks: List[Tuple[Any, ...]] = []
-        while len(walks) < self.max_walks:  # type:ignore
+        self.sampler._visited = set()
+        walks: List[Tuple[Vertex]] = []
+        while len(walks) < self.max_walks:  # type: ignore
             new = (root,)
-            d = 1  # type: ignore
+            d = 1
             while d // 2 < self.depth:
-                last = d // 2 == self.depth - 1
-                hop = self.sampler.sample_neighbor(kg, new, last)
+                hop = self.sampler.sample_neighbor(
+                    kg, new, d // 2 == self.depth - 1  # type: ignore
+                )
                 if hop is None:
                     break
-                new = new + (hop[0], hop[1])  # type:ignore
+                new = new + (hop[0], hop[1])  # type: ignore
                 d = len(new) - 1
             walks.append(new)
         return list(set(walks))
 
-    def extract_walks(self, kg: KG, root: str) -> List[Vertex]:
+    def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
         """Extracts all possible walks.
 
         Args:
@@ -101,8 +103,8 @@ class RandomWalker(Walker):
         return self.extract_walks_dfs(kg, root)
 
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -118,15 +120,18 @@ class RandomWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
+        canonical_walks: Set[Tuple[str, ...]] = set()
         for walk in self.extract_walks(kg, instance):
-            canonical_walk = []
-            for i, hop in enumerate(walk):  # type: ignore
+            canonical_walk: List[str] = []
+            for i, hop in enumerate(walk):
                 if i == 0 or i % 2 == 1:
-                    canonical_walk.append(str(hop))
+                    canonical_walk.append(hop.name)
                 else:
+                    # Use a hash to reduce memory usage of long texts by using
+                    # 8 bytes per hop, except for the first hop and odd
+                    # hops (predicates).
                     canonical_walk.append(
-                        str(md5(str(hop).encode()).digest()[:8])
+                        str(md5(hop.name.encode()).digest()[:8])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance: tuple(canonical_walks)}
+        return {instance.name: tuple(canonical_walks)}

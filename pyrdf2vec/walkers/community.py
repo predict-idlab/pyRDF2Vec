@@ -2,13 +2,12 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 import attr
 import community
 import networkx as nx
 import numpy as np
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.walkers import Walker
@@ -56,6 +55,7 @@ class CommunityWalker(Walker):
 
     hop_prob: float = attr.ib(kw_only=True, default=0.1)
     resolution: int = attr.ib(kw_only=True, default=1)
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.
@@ -101,7 +101,9 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
-    def extract_walks_bfs(self, kg: KG, root: str):
+    def extract_walks_bfs(
+        self, kg: KG, root: Vertex
+    ) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks of depth - 1 hops rooted in root with
         Breadth-first search.
 
@@ -117,7 +119,6 @@ class CommunityWalker(Walker):
 
         """
         walks = {(root,)}
-
         for i in range(self.depth):
             # In each iteration, iterate over the walks, grab the
             # last hop, get all its neighbors and extend the walks
@@ -139,11 +140,11 @@ class CommunityWalker(Walker):
                             community_nodes
                         )
                         walks.add(walk + (rand_jump,))  # type: ignore
-
-        # Return a numpy array of these walks
         return list(walks)
 
-    def extract_walks_dfs(self, kg: KG, root: str):
+    def extract_walks_dfs(
+        self, kg: KG, root: Vertex
+    ) -> List[Tuple[Vertex, ...]]:
         """Extracts a random limited number of walks of depth - 1 hops rooted
         in root with Depth-first search.
 
@@ -159,15 +160,16 @@ class CommunityWalker(Walker):
 
         """
         # Initialize one walk of length 1 (the root)
-        self.sampler.initialize()
-
-        walks: List[Tuple[str]] = []
-        while len(walks) < self.max_walks:  # type: ignore
+        self.sampler._visited = set()
+        walks: List[Tuple[Vertex]] = []
+        assert self.max_walks is not None
+        while len(walks) < self.max_walks:
             new = (root,)
             d = 1
             while d // 2 < self.depth:
-                last = d // 2 == self.depth - 1
-                hop = self.sampler.sample_neighbor(kg, new, last)
+                hop = self.sampler.sample_neighbor(
+                    kg, new, d // 2 == self.depth - 1  # type: ignore
+                )
                 if hop is None:
                     break
                 if (
@@ -188,9 +190,7 @@ class CommunityWalker(Walker):
             walks.append(new)
         return list(set(walks))
 
-    def extract_random_community_walks(
-        self, kg: KG, root: str
-    ) -> List[Vertex]:
+    def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Note:
@@ -212,8 +212,8 @@ class CommunityWalker(Walker):
         return self.extract_walks_dfs(kg, root)
 
     def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+        self, kg: KG, instance: Vertex
+    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -229,15 +229,18 @@ class CommunityWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
-        for walk in self.extract_random_community_walks(kg, str(instance)):
-            canonical_walk = []
-            for i, hop in enumerate(walk):  # type: ignore
+        canonical_walks: Set[Tuple[str, ...]] = set()
+        for walk in self.extract_walks(kg, instance):
+            canonical_walk: List[str] = []
+            for i, hop in enumerate(walk):
                 if i == 0 or i % 2 == 1:
-                    canonical_walk.append(str(hop))
+                    canonical_walk.append(hop.name)
                 else:
+                    # Use a hash to reduce memory usage of long texts by using
+                    # 8 bytes per hop, except for the first hop and odd
+                    # hops (predicates).
                     canonical_walk.append(
-                        str(md5(str(hop).encode()).digest()[:8])
+                        str(md5(hop.name.encode()).digest()[:8])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance: tuple(canonical_walks)}
+        return {instance.name: tuple(canonical_walks)}

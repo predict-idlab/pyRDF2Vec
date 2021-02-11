@@ -1,9 +1,9 @@
-from typing import Dict
+from typing import Tuple
 
 import attr
 import networkx as nx
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler
 
 
@@ -50,7 +50,7 @@ class PageRankSampler(Sampler):
                         )
         self.pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
-    def get_weight(self, hop) -> Dict:
+    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
 
         Args:

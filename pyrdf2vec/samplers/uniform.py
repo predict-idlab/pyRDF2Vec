@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Tuple
 
 import attr
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler
 
 
@@ -35,7 +35,7 @@ class UniformSampler(Sampler):
         """
         pass
 
-    def get_weight(self, hop):
+    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
 
         Args:
