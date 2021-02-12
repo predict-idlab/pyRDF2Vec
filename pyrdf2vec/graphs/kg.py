@@ -275,27 +275,34 @@ class KG:
             return self.entity_hops[vertex.name]
         return self.fetch_hops(vertex)
 
-    def add_edge(self, v1: Vertex, v2: Vertex) -> None:
+    def add_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Adds a uni-directional edge.
 
         Args:
             v1: The first vertex.
             v2: The second vertex.
 
+        Returns:
+            True if the edge has been added, False otherwise.
+
         """
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
 
-    def add_vertex(self, vertex: Vertex) -> None:
+    def add_vertex(self, vertex: Vertex) -> bool:
         """Adds a vertex to the Knowledge Graph.
 
         Args:
             vertex: The vertex
 
+        Returns:
+            True if the vertex has been added, False otherwise.
+
         """
         self._vertices.add(vertex)
         if not vertex.predicate:
             self._entities.add(vertex)
+        return True
 
     def get_hops(self, vertex: Vertex) -> List[Tuple[str, str]]:
         """Returns the hops of a vertex.
@@ -356,17 +363,22 @@ class KG:
                 self.add_edge(s_v, p_v)
                 self.add_edge(p_v, o_v)
 
-    def remove_edge(self, v1: str, v2: str) -> None:
+    def remove_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Removes the edge (v1 -> v2) if present.
 
         Args:
             v1: The first vertex.
             v2: The second vertex.
 
+        Returns:
+            True if the edge has been removed, False otherwise.
+
         """
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)
             self._inv_transition_matrix[v2].remove(v1)
+            return True
+        return False
 
 
 def is_valid_url(url: str) -> bool:
