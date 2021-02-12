@@ -51,8 +51,8 @@ SAMPLERS.update(
         functools.partial(samp, inverse=True): (  # type: ignore
             "Inverse %s" % desc
         )
-        for samp, desc in SAMPLERS.items()
-        if samp is not UniformSampler
+        for sample, desc in SAMPLERS.items()
+        if sample is not UniformSampler
     }
 )
 
