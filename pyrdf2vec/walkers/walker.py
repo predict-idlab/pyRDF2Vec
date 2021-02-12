@@ -74,7 +74,7 @@ class Walker(metaclass=abc.ABCMeta):
 
     @n_jobs.validator
     def check_jobs(self, attribute, value):
-        if value is not None and value < 2:
+        if value is not None and value < -1:
             raise ValueError(
                 f"'n_jobs' must be None, or equal to -1, or > 0 (got {value})"
             )
