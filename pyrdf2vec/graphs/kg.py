@@ -117,7 +117,7 @@ class KG:
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
 
-    skip_predicates: Set[str] = attr.ib(default=set)
+    skip_predicates: Set[str] = attr.ib(default=set())
 
     is_mul_req: bool = attr.ib(
         default=True, validator=attr.validators.instance_of(bool)
