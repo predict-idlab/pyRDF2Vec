@@ -107,7 +107,7 @@ class KG:
 
     """
 
-    location: str = attr.ib()
+    location: str = attr.ib(default=None)
     file_type: Optional[str] = attr.ib(default=None)
     skip_predicates = attr.ib(default=None)
     is_mul_req: bool = attr.ib(default=True)
@@ -138,7 +138,7 @@ class KG:
                 self.endpoint = self.location
             else:
                 raise ValueError(f"Invalid URL: {self.location}")
-        else:
+        elif self.location is not None:
             self.read_file()
 
     async def fetch(self, session, url: str):
