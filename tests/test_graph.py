@@ -1,7 +1,4 @@
-import os
-
 import pytest
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
 
@@ -157,17 +154,17 @@ class TestKG:
             vertex
             for hops in neighbors
             for vertex in hops
-            if vertex.predicate == True
+            if vertex.predicate is True
         ]
 
-        assert LOCAL_KG.remove_edge(vtx_alice, predicates[0]) == True
+        assert LOCAL_KG.remove_edge(vtx_alice, predicates[0]) is True
         assert len(LOCAL_KG.get_hops(vtx_alice)) == 1
 
-        assert LOCAL_KG.remove_edge(vtx_alice, predicates[1]) == True
+        assert LOCAL_KG.remove_edge(vtx_alice, predicates[1]) is True
         assert len(LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))) == 0
 
         assert (
-            LOCAL_KG.remove_edge(vtx_alice, Vertex(f"{URL}#Unknown")) == False
+            LOCAL_KG.remove_edge(vtx_alice, Vertex(f"{URL}#Unknown")) is False
         )
 
     def test_valid_file(self):

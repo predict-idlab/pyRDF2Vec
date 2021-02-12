@@ -21,13 +21,16 @@ class WLWalker(RandomWalker):
             Defaults to 4.
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """
 
-    wl_iterations: int = attr.ib(default=4)
+    wl_iterations: int = attr.ib(
+        default=4, validator=attr.validators.instance_of(int)
+    )
+
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):

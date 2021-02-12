@@ -28,27 +28,30 @@ class Sampler(metaclass=abc.ABCMeta):
         split: True if the split sampling strategy must be used,
             False otherwise.
             Defaults to False.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
-            Defaults to None.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.  Defaults to
+            None.
 
     """
 
-    inverse: bool = attr.ib(default=False)
-    split: bool = attr.ib(default=False)
-    seed: Optional[int] = attr.ib(kw_only=True, default=None)
+    inverse: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
+    split: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+    _random_state: Optional[int] = attr.ib(
+        init=False,
+        repr=False,
+        default=None,
+    )
     _vertices_deg: Dict[str, int] = attr.ib(init=False, repr=False, default={})
-
     # Tags vertices that appear at the max depth or of which all their children
     # are tagged.
     _visited: Set[Tuple[Tuple[Vertex, Vertex], int]] = attr.ib(
         init=False, repr=False, default=set()
     )
-
-    def __attrs_post_init__(self) -> None:
-        if self.seed is not None:
-            random.seed(self.seed)
 
     @abc.abstractmethod
     def fit(self, kg: KG) -> None:
@@ -135,7 +138,7 @@ class Sampler(metaclass=abc.ABCMeta):
                 self.visited.add(((walk[-2], walk[-1]), len(walk) - 2))
             return None
 
-        rnd_id = np.random.RandomState(self.seed).choice(
+        rnd_id = np.random.RandomState(self._random_state).choice(
             range(len(untagged_neighbors)),
             p=self.get_weights(untagged_neighbors),  # type: ignore
         )
@@ -163,3 +166,24 @@ class Sampler(metaclass=abc.ABCMeta):
 
         """
         self._visited = set() if visited is None else visited
+
+    @property
+    def random_state(self) -> Optional[int]:
+        """Gets the random state.
+
+        Returns:
+            The random state.
+
+        """
+        return self._random_state
+
+    @random_state.setter
+    def random_state(self, random_state: Optional[int]):
+        """Sets the random state.
+
+        Args:
+            random_state: The random state.
+
+        """
+        self._random_state = random_state
+        random.seed(random_state)

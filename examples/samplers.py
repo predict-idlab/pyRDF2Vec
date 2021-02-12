@@ -46,12 +46,13 @@ samplers = [
 ]
 
 for _, sampler in samplers:
+    sampler.random_state = RANDOM_STATE
     embeddings = RDF2VecTransformer(
         # Use one worker threads for Word2Vec to ensure random determinism.
         # Must be used with PYTHONHASHSEED.
         Word2Vec(workers=1),
-        # Extract a maximum of 100 walks per entity of depth 4 and use a seed
-        # to ensure that the same walks are generated for the entities.
+        # Extract a maximum of 100 walks per entity of depth 4 and use a random
+        # state to ensure that the same walks are generated for the entities.
         walkers=[RandomWalker(4, 100, sampler, random_state=RANDOM_STATE)],
     ).fit_transform(
         KG(

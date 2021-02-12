@@ -22,13 +22,15 @@ class PageRankSampler(Sampler):
             Default to False.
         alpha: The threshold.
             Default to 0.85.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random_state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """
 
-    alpha: float = attr.ib(default=0.85)
+    alpha: float = attr.ib(
+        default=0.85, validator=attr.validators.instance_of(float)
+    )
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.

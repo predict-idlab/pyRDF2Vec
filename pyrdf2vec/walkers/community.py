@@ -47,8 +47,8 @@ class CommunityWalker(Walker):
             Defaults to 1.
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """
@@ -131,14 +131,15 @@ class CommunityWalker(Walker):
                     walks.add(walk + (pred, obj))  # type: ignore
                     if (
                         obj in self.communities
-                        and np.random.RandomState(self.seed) < self.hop_prob
+                        and np.random.RandomState(self.random_state)
+                        < self.hop_prob
                     ):
                         community_nodes = self.labels_per_community[
                             self.communities[obj]
                         ]
-                        rand_jump = np.random.RandomState(self.seed).choice(
-                            community_nodes
-                        )
+                        rand_jump = np.random.RandomState(
+                            self.random_state
+                        ).choice(community_nodes)
                         walks.add(walk + (rand_jump,))  # type: ignore
         return list(walks)
 
@@ -160,7 +161,7 @@ class CommunityWalker(Walker):
 
         """
         # Initialize one walk of length 1 (the root)
-        self.sampler._visited = set()
+        self.sampler.visited = set()
         walks: List[Tuple[Vertex]] = []
         assert self.max_walks is not None
         while len(walks) < self.max_walks:
@@ -174,15 +175,15 @@ class CommunityWalker(Walker):
                     break
                 if (
                     hop[1] in self.communities
-                    and np.random.RandomState(self.seed).random()
+                    and np.random.RandomState(self.random_state).random()
                     < self.hop_prob
                 ):
                     community_nodes = self.labels_per_community[
                         self.communities[hop[1]]
                     ]
-                    rand_jump = np.random.RandomState(self.seed).choice(
-                        community_nodes
-                    )
+                    rand_jump = np.random.RandomState(
+                        self.random_state
+                    ).choice(community_nodes)
                     new = new + (hop[0], rand_jump)  # type: ignore
                 else:
                     new = new + (hop[0], hop[1])  # type: ignore

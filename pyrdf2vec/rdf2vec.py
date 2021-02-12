@@ -3,7 +3,6 @@ import time
 from typing import List, Sequence
 
 import attr
-import rdflib
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import KG, Vertex
@@ -19,20 +18,38 @@ class RDF2VecTransformer:
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None).
+        verbose: If true, display a progress bar for the extraction of the
+                walks and display the number of these extracted walks for the
+                number of entities with the extraction time.  Defaults to
+                False.
 
     """
 
-    embedder: Embedder = attr.ib(factory=lambda: Word2Vec())
-    walkers: Sequence[Walker] = attr.ib(factory=lambda: [RandomWalker(2)])
-    _entities: List[rdflib.URIRef] = attr.ib(factory=list)
-    _walks: List[rdflib.URIRef] = attr.ib(factory=list)
+    embedder: Embedder = attr.ib(
+        factory=lambda: Word2Vec(),
+        validator=attr.validators.instance_of(Embedder),  # type: ignore
+    )
+    walkers: Sequence[Walker] = attr.ib(
+        factory=lambda: [RandomWalker(2)],  # type: ignore
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(
+                Walker  # type: ignore
+            ),
+            iterable_validator=attr.validators.instance_of(list),
+        ),
+    )
+    verbose: int = attr.ib(
+        kw_only=True, default=0, validator=attr.validators.in_([0, 1, 2])
+    )
+
+    _entities: List[str] = attr.ib(init=False, factory=list)
+    _walks: List[str] = attr.ib(init=False, factory=list)
 
     def fit(
         self,
         kg: KG,
         entities: List[str],
         is_update: bool = False,
-        verbose: bool = False,
     ) -> "RDF2VecTransformer":
         """Fits the embedding network based on provided entities.
 
@@ -62,18 +79,18 @@ class RDF2VecTransformer:
                 "The provided entities must be in the Knowledge Graph."
             )
 
-        if verbose:
+        if self.verbose == 2:
             print(kg)
             print(self.walkers[0])
 
         self._entities.extend(entities)
         tic = time.perf_counter()
         for walker in self.walkers:
-            self._walks += list(walker.extract(kg, entities, verbose))
+            self._walks += list(walker.extract(kg, entities, self.verbose))
         toc = time.perf_counter()
         corpus = [list(map(str, walk)) for walk in self._walks]
 
-        if verbose:
+        if self.verbose >= 1:
             print(
                 f"Extracted {len(self._walks)} walks "
                 + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
@@ -82,7 +99,7 @@ class RDF2VecTransformer:
         self.embedder.fit(corpus, is_update)
         return self
 
-    def transform(self, entities: List[rdflib.URIRef]) -> List[rdflib.URIRef]:
+    def transform(self, entities: List[str]) -> List[str]:
         """Constructs a feature vector for the provided entities.
 
         Args:
@@ -103,8 +120,7 @@ class RDF2VecTransformer:
         kg: KG,
         entities: List[str],
         is_update: bool = False,
-        verbose: bool = False,
-    ) -> List[rdflib.URIRef]:
+    ) -> List[str]:
         """Creates a Word2Vec model and generates embeddings for the provided
         entities.
 
@@ -118,16 +134,12 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
             is_update: If true, the new corpus will be added to old model's
                 corpus.
-            verbose: If true, display a progress bar for the extraction of the
-                walks and display the number of these extracted walks for the
-                number of entities with the extraction time.
-                Defaults to False.
 
         Returns:
             The embeddings of the provided entities.
 
         """
-        self.fit(kg, entities, is_update, verbose)
+        self.fit(kg, entities, is_update)
         return self.transform(self._entities)
 
     def save(self, filename: str = "transformer_data") -> None:

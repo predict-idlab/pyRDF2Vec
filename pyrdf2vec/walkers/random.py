@@ -68,7 +68,7 @@ class RandomWalker(Walker):
         """
         # TODO: Currently we are allowing duplicate walks in order
         # TODO: to avoid infinite loops. Can we do this better?
-        self.sampler._visited = set()
+        self.sampler.visited = set()
         walks: List[Tuple[Vertex]] = []
         while len(walks) < self.max_walks:  # type: ignore
             new = (root,)

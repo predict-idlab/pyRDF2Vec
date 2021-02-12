@@ -1,7 +1,7 @@
 import abc
 import asyncio
 import multiprocessing
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import attr
 from tqdm import tqdm
@@ -31,7 +31,7 @@ class Walker(metaclass=abc.ABCMeta):
         n_jobs: The number of processes to use for multiprocessing. Use -1 to
             allocate as many processes as there are CPU cores available in the
             machine.
-            Defaults to 1.
+            Defaults to None.
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
             Defaults to None.
@@ -41,21 +41,52 @@ class Walker(metaclass=abc.ABCMeta):
     # Global KG used later on for the worker process.
     kg: Optional[KG] = None
 
-    depth: int = attr.ib()
-    max_walks: Optional[int] = attr.ib(default=None)
-    sampler: Sampler = attr.ib(factory=UniformSampler)
-    n_jobs: int = attr.ib(default=1)
-    seed: Optional[int] = attr.ib(kw_only=True, default=None)
+    depth: int = attr.ib(attr.validators.instance_of(int))  # type: ignore
+    max_walks: Optional[int] = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(int)),
+    )
+    sampler: Sampler = attr.ib(
+        factory=lambda: UniformSampler(),
+        validator=attr.validators.instance_of(Sampler),  # type: ignore
+    )
+    n_jobs: Optional[int] = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(int)),
+    )
+    random_state: Optional[int] = attr.ib(
+        kw_only=True,
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(int)),
+    )
+
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
+
+    @depth.validator
+    def check_depth(self, attribute, value):
+        if value < 0:
+            raise ValueError(f"'depth' must be >= 0 (got {value})")
+
+    @max_walks.validator
+    def check_max_walks(self, attribute, value):
+        if value < 0:
+            raise ValueError(f"'max_walks' must be None or > 0 (got {value})")
+
+    @n_jobs.validator
+    def check_jobs(self, attribute, value):
+        if value < 2:
+            raise ValueError(
+                f"'n_jobs' must be None, or equal to -1, or > 0 (got {value})"
+            )
 
     def __attrs_post_init__(self):
         if self.n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
-        self.sampler = UniformSampler(seed=self.seed)
+        self.sampler.random_state = self.random_state
 
     def extract(
-        self, kg: KG, instances: List[str], verbose: bool = False
-    ) -> Set[Tuple[str, str, str]]:
+        self, kg: KG, instances: List[str], verbose: int = 0
+    ) -> Iterable[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
@@ -66,8 +97,8 @@ class Walker(metaclass=abc.ABCMeta):
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to be extracted from the Knowledge Graph.
-            verbose: If true, display a progress bar for the extraction of the
-                walks.
+            verbose: If equal to 1 or 2, display a progress bar for the
+                extraction of the walks.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -95,7 +126,7 @@ class Walker(metaclass=abc.ABCMeta):
                 tqdm(
                     pool.imap_unordered(self._proc, instances),
                     total=len(instances),
-                    disable=not verbose,
+                    disable=True if verbose == 0 else False,
                 )
             )
         instance_walks = {

@@ -18,13 +18,14 @@ class UniformSampler(Sampler):
         inverse: True if Inverse Uniform Weight sampling satrategy must be
             used, False otherwise.
             Default to False.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random_state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """
 
-    _is_support_remote: bool = attr.ib(init=False, default=True)
+    _state = attr.ib(default=None)
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
@@ -50,3 +51,13 @@ class UniformSampler(Sampler):
 
         """
         return 1
+
+    @property
+    def state(self):
+        print("GETTT")
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        print("Asds")
+        self._state = value

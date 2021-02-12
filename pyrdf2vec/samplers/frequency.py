@@ -22,8 +22,8 @@ class ObjFreqSampler(Sampler):
         split: True if Split Object Frequency Weight sampling strategy must
             be used, False otherwise.
             Defaults to False.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random_state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """

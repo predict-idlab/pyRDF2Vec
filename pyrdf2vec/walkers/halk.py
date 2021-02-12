@@ -21,15 +21,25 @@ class HalkWalker(RandomWalker):
             Defaults to [0.001].
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """
 
-    freq_thresholds: List[float] = attr.ib(default=[0.001])
-    hop_prob: float = attr.ib(default=0.1)
-    resolution: int = attr.ib(default=1)
+    freq_thresholds: List[float] = attr.ib(
+        default=[0.001],
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(float),
+            iterable_validator=attr.validators.instance_of(list),
+        ),
+    )
+    hop_prob: float = attr.ib(
+        default=0.1, validator=attr.validators.instance_of(float)
+    )
+    resolution: int = attr.ib(
+        default=1, validator=attr.validators.instance_of(int)
+    )
 
     def _extract(
         self, kg: KG, instance: Vertex

@@ -10,7 +10,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-SEED = 42
+RANDOM_STATE = 42
 
 data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 
@@ -23,20 +23,20 @@ kg = KG(
 )
 
 # Train and save the Word2Vec model according to the KG, the entities, a
-# walking strategy, and use a seed to ensure to generate the same walks for
-# entities.
+# walking strategy, and use a random state to ensure to generate the same walks
+# for entities.
 transformer = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
-    # Extract a maximum of 25 walks per entity of depth 4 and use a seed to
-    # ensure that the same walks are generated for the entities.
-    walkers=[RandomWalker(4, 25, seed=SEED)],
+    # Extract a maximum of 25 walks per entity of depth 4 and use a random
+    # state to ensure that the same walks are generated for the entities.
+    walkers=[RandomWalker(4, 25, random_state=RANDOM_STATE)],
+    verbose=1,
 )
 transformer.fit_transform(
     kg,
     [entity for entity in data["location"]],
-    verbose=True,
 )
 transformer.save("countries")
 
@@ -50,16 +50,15 @@ data = pd.DataFrame(
     },
     index=[0],
 )
-transformer = RDF2VecTransformer().load("countries")
+transformer = RDF2VecTransformer(verbose=1).load("countries")
 embeddings = transformer.fit_transform(
     kg,
     [entity for entity in data["location"]],
     is_update=True,
-    verbose=True,
 )
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
-X_tsne = TSNE(random_state=SEED).fit_transform(embeddings)
+X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(embeddings)
 
 # Plot the embeddings of entities in a 2D plane, annotating them.
 plt.figure(figsize=(10, 4))

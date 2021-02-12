@@ -10,7 +10,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-SEED = 42
+RANDOM_STATE = 42
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
@@ -29,23 +29,23 @@ embeddings = RDF2VecTransformer(
     # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
     # Extract a maximum of 25 walks per entity of depth 2 using two processes
-    # and use a seed to ensure that the same walks are generated for the
-    # entities.
-    walkers=[RandomWalker(2, 25, n_jobs=2, seed=SEED)],
+    # and use a random state to ensure that the same walks are generated for
+    # the entities.
+    walkers=[RandomWalker(2, 25, n_jobs=2, random_state=RANDOM_STATE)],
+    verbose=1,
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
         skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
     ),
     entities,
-    verbose=True,
 )
 
 train_embeddings = embeddings[: len(train_entities)]
 test_embeddings = embeddings[len(train_entities) :]
 
 # Fit a Support Vector Machine on train embeddings.
-clf = SVC(random_state=SEED)
+clf = SVC(random_state=RANDOM_STATE)
 clf.fit(train_embeddings, train_labels)
 
 # Evaluate the Support Vector Machine on test embeddings.
@@ -54,7 +54,7 @@ print(f"Accuracy: {accuracy_score(test_labels, predictions) * 100 :.4f}%")
 print(confusion_matrix(test_labels, predictions))
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
-X_tsne = TSNE(random_state=SEED).fit_transform(
+X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
     train_embeddings + test_embeddings
 )
 

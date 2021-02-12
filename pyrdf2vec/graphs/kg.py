@@ -107,11 +107,26 @@ class KG:
 
     """
 
-    location: str = attr.ib(default=None)
-    file_type: Optional[str] = attr.ib(default=None)
-    skip_predicates = attr.ib(default=None)
-    is_mul_req: bool = attr.ib(default=True)
-    is_remote: bool = attr.ib(default=False)
+    location: Optional[str] = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(str)),
+    )
+
+    file_type: Optional[str] = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(str)),
+    )
+
+    skip_predicates: Set[str] = attr.ib(default=set)
+
+    is_mul_req: bool = attr.ib(
+        default=True, validator=attr.validators.instance_of(bool)
+    )
+
+    is_remote: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
+
     cache: Cache = attr.ib(default=TTLCache(maxsize=1024, ttl=1200))
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
@@ -125,9 +140,7 @@ class KG:
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
 
     def __attrs_post_init__(self):
-        if self.skip_predicates is None:
-            self.skip_predicates = set()
-        else:
+        if self.skip_predicates is not None:
             self.skip_predicates = set(self.skip_predicates)
 
         if self.is_remote:
@@ -287,6 +300,7 @@ class KG:
         """
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
+        return True
 
     def add_vertex(self, vertex: Vertex) -> bool:
         """Adds a vertex to the Knowledge Graph.
@@ -335,12 +349,14 @@ class KG:
 
     def read_file(self) -> None:
         """Parses a file with rdflib."""
+        assert self.location is not None
         if not os.path.exists(self.location) or not os.path.isfile(
             self.location
         ):
             raise FileNotFoundError(self.location)
 
         self.graph = rdflib.Graph()
+        assert self.location is not None
         try:
             if self.file_type is None:
                 self.graph.parse(

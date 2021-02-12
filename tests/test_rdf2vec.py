@@ -14,9 +14,12 @@ KNOWLEDGE_GRAPH = KG(
     skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
 
-TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-
-ENTITIES = [entity for entity in TRAIN_DF["bond"]]
+ENTITIES = [
+    entity
+    for entity in pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)[
+        "bond"
+    ]
+]
 ENTITIES_SUBSET = ENTITIES[:5]
 
 

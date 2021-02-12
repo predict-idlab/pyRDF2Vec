@@ -29,8 +29,11 @@ KNOWLEDGE_GRAPH = KG(
     "samples/mutag/mutag.owl",
     skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
-TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
+
+ENTITIES = [
+    rdflib.URIRef(x)
+    for x in pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)["bond"]
+]
 ENTITIES_SUBSET = ENTITIES[:5]
 
 
@@ -48,7 +51,7 @@ SAMPLERS = {
 
 SAMPLERS.update(
     {
-        functools.partial(samp, inverse=True): (  # type: ignore
+        functools.partial(sample, inverse=True): (  # type: ignore
             "Inverse %s" % desc
         )
         for sample, desc in SAMPLERS.items()
@@ -74,5 +77,5 @@ class TestRDF2Vec:
     )
     def test_fit_transform(self, walker, sampler):
         assert RDF2VecTransformer(
-            walkers=[walker(2, 5, sampler(), random_state=42)]
+            walkers=[walker(2, 5, sampler(), n_jobs=-1, random_state=42)]
         ).fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)

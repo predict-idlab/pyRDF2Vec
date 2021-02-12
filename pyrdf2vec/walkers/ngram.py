@@ -28,8 +28,11 @@ class NGramWalker(RandomWalker):
 
     """
 
-    grams: int = attr.ib(default=3)
-    wildcards: list = attr.ib(default=None)
+    grams: int = attr.ib(default=3, validator=attr.validators.instance_of(int))
+    wildcards: list = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(list)),
+    )
     _n_gram_map: Dict[Tuple, str] = attr.ib(init=False, repr=False, default={})
 
     def _take_n_grams(self, walks: Tuple[Vertex, ...]) -> List[str]:
