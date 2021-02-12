@@ -166,6 +166,10 @@ class TestKG:
         assert LOCAL_KG.remove_edge(vtx_alice, predicates[1]) == True
         assert len(LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))) == 0
 
+        assert (
+            LOCAL_KG.remove_edge(vtx_alice, Vertex(f"{URL}#Unknown")) == False
+        )
+
     def test_valid_file(self):
         assert KG(
             "samples/mutag/mutag.owl",
