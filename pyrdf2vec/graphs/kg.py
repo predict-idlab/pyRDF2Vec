@@ -262,13 +262,12 @@ class KG:
             The hops of a vertex in a (predicate, object) form.
 
         """
-        hops = []
-        predicates = self._transition_matrix[vertex]
-        for pred in predicates:
-            assert len(self._transition_matrix[pred]) == 1
-            for obj in self._transition_matrix[pred]:
-                hops.append((pred, obj))
-        return hops
+        return [
+            ((pred, obj))
+            for pred in self._transition_matrix[vertex]
+            for obj in self._transition_matrix[pred]
+            if len(self._transition_matrix[pred]) != 0
+        ]
 
     def _get_shops(self, vertex: Vertex) -> List[Tuple[str, str]]:
         if self.is_mul_req and vertex.name in self.entity_hops:
