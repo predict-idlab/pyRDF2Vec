@@ -127,7 +127,10 @@ class KG:
         default=False, validator=attr.validators.instance_of(bool)
     )
 
-    cache: Cache = attr.ib(default=TTLCache(maxsize=1024, ttl=1200))
+    cache: Cache = attr.ib(
+        default=TTLCache(maxsize=1024, ttl=1200),
+        validator=attr.validators.instance_of(Cache),
+    )
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
