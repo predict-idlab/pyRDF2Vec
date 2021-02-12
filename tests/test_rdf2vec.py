@@ -46,8 +46,8 @@ class TestRDF2VecTransformer:
     def test_load_save_transformer(self):
         RDF2VecTransformer(
             walkers=[
-                RandomWalker(2, None, seed=42),
-                WLWalker(2, 2, seed=42),
+                RandomWalker(2, None, random_state=42),
+                WLWalker(2, 2, random_state=42),
             ]
         ).save()
         transformer = RDF2VecTransformer.load()

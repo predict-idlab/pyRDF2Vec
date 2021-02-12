@@ -74,5 +74,5 @@ class TestRDF2Vec:
     )
     def test_fit_transform(self, walker, sampler):
         assert RDF2VecTransformer(
-            walkers=[walker(2, 5, sampler(), seed=42)]
+            walkers=[walker(2, 5, sampler(), random_state=42)]
         ).fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)

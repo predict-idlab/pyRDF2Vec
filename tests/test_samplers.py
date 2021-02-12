@@ -63,9 +63,9 @@ def _get_samplers() -> List[Tuple[str, T]]:
 
 def check_sampler(Sampler):
     max_walks = 5
-    canonical_walks = RandomWalker(2, max_walks, Sampler(), seed=42).extract(
-        KNOWLEDGE_GRAPH, ENTITIES_SUBSET
-    )
+    canonical_walks = RandomWalker(
+        2, max_walks, Sampler(), random_state=42
+    ).extract(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
     assert type(canonical_walks) == set
     assert len(canonical_walks) <= len(ENTITIES_SUBSET * max_walks)
 

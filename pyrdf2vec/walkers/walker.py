@@ -32,8 +32,8 @@ class Walker(metaclass=abc.ABCMeta):
             allocate as many processes as there are CPU cores available in the
             machine.
             Defaults to 1.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """
