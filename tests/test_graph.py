@@ -34,20 +34,36 @@ GRAPH = [
 ]
 URL = "http://pyRDF2Vec"
 
-g = rdflib.Graph()
-for t in GRAPH:
-    triple: rdflib.URIRef = tuple()
-    for entity in t:
-        triple = triple + (rdflib.URIRef(f"{URL}#{entity}"),)
-    g.add(triple)
-g.serialize("tmp.ttl", format="turtle")
-
 SKIP_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
-LOCAL_KG = KG("tmp.ttl", file_type="turtle")
+
+LOCAL_KG = KG()
 
 
 class TestKG:
-    def test_get_neighbors(self):
+    @pytest.fixture(scope="session")
+    def setup(self):
+        for row in GRAPH:
+            subj = Vertex(f"{URL}#{row[0]}")
+            obj = Vertex((f"{URL}#{row[2]}"))
+            pred = Vertex(
+                (f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj
+            )
+
+            LOCAL_KG.add_vertex(subj)
+            LOCAL_KG.add_vertex(obj)
+            LOCAL_KG.add_vertex(pred)
+            LOCAL_KG.add_edge(subj, pred)
+            LOCAL_KG.add_edge(pred, obj)
+
+    def test_get_hops(self, setup):
+        neighbors = LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))
+        predicates = [neighbor[0] for neighbor in neighbors]
+        objects = [neighbor[1] for neighbor in neighbors]
+        assert {predicate.name for predicate in predicates} == {f"{URL}#knows"}
+        assert Vertex(f"{URL}#Bob") in objects
+        assert Vertex(f"{URL}#Dean") in objects
+
+    def test_get_neighbors(self, setup):
         alice_predicates = [
             neighbor
             for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Alice"))
@@ -110,18 +126,6 @@ class TestKG:
             == 0
         )
 
-    def test_get_hops(self):
-        for graph in [LOCAL_KG]:
-            neighbors = graph.get_hops(Vertex(f"{URL}#Alice"))
-            predicates = [neighbor[0] for neighbor in neighbors]
-            objects = [neighbor[1] for neighbor in neighbors]
-
-            assert {predicate.name for predicate in predicates} == {
-                f"{URL}#knows"
-            }
-            assert Vertex(f"{URL}#Bob") in objects
-            assert Vertex(f"{URL}#Dean") in objects
-
     def test_invalid_file(self):
         with pytest.raises(FileNotFoundError):
             KG(
@@ -143,6 +147,25 @@ class TestKG:
                 is_remote=True,
             )
 
+    def test_remove_edge(self, setup):
+        vtx_alice = Vertex(f"{URL}#Alice")
+
+        neighbors = LOCAL_KG.get_hops(vtx_alice)
+        assert len(LOCAL_KG.get_hops(vtx_alice)) == 2
+
+        predicates = [
+            vertex
+            for hops in neighbors
+            for vertex in hops
+            if vertex.predicate == True
+        ]
+
+        assert LOCAL_KG.remove_edge(vtx_alice, predicates[0]) == True
+        assert len(LOCAL_KG.get_hops(vtx_alice)) == 1
+
+        assert LOCAL_KG.remove_edge(vtx_alice, predicates[1]) == True
+        assert len(LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))) == 0
+
     def test_valid_file(self):
         assert KG(
             "samples/mutag/mutag.owl",
@@ -155,6 +178,3 @@ class TestKG:
             skip_predicates=SKIP_PREDICATES,
             is_remote=True,
         )
-
-
-os.remove("tmp.ttl")
