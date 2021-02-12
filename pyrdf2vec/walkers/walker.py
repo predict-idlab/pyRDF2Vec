@@ -63,17 +63,17 @@ class Walker(metaclass=abc.ABCMeta):
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     @depth.validator
-    def check_depth(self, attribute, value):
+    def _check_depth(self, attribute, value):
         if value < 0:
             raise ValueError(f"'depth' must be >= 0 (got {value})")
 
     @max_walks.validator
-    def check_max_walks(self, attribute, value):
+    def _check_max_walks(self, attribute, value):
         if value is not None and value < 0:
             raise ValueError(f"'max_walks' must be None or > 0 (got {value})")
 
     @n_jobs.validator
-    def check_jobs(self, attribute, value):
+    def _check_jobs(self, attribute, value):
         if value is not None and value < -1:
             raise ValueError(
                 f"'n_jobs' must be None, or equal to -1, or > 0 (got {value})"
