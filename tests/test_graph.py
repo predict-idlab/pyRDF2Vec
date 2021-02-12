@@ -52,9 +52,12 @@ class TestKG:
             neighbor
             for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Alice"))
         ]
+        assert len(alice_predicates) == 2
         assert Vertex(f"{URL}#Alice") == alice_predicates[0].vprev
-        assert Vertex(f"{URL}#Dean") == alice_predicates[0].vnext
-        assert Vertex(f"{URL}#Bob") == alice_predicates[1].vnext
+        assert Vertex(f"{URL}#Bob") and Vertex(f"{URL}#Dean") in {
+            alice_predicates[0].vnext,
+            alice_predicates[1].vnext,
+        }
         assert Vertex(f"{URL}#Alice") == alice_predicates[1].vprev
         assert (
             len(
@@ -72,6 +75,7 @@ class TestKG:
             neighbor
             for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Bob"))
         ]
+        assert len(bob_predicates) == 1
         assert Vertex(f"{URL}#Bob") == bob_predicates[0].vprev
         assert Vertex(f"{URL}#Casper") == bob_predicates[0].vnext
 
@@ -81,6 +85,7 @@ class TestKG:
                 Vertex(f"{URL}#Bob"), reverse=True
             )
         ]
+        assert len(bob_predicates) == 1
         assert Vertex(f"{URL}#Bob") == bob_predicates[0].vnext
         assert Vertex(f"{URL}#Alice") == bob_predicates[0].vprev
 
@@ -90,6 +95,7 @@ class TestKG:
                 Vertex(f"{URL}#Dean"), reverse=True
             )
         ]
+        assert len(dean_predicates) == 1
         assert Vertex(f"{URL}#Dean") == dean_predicates[0].vnext
         assert Vertex(f"{URL}#Alice") == dean_predicates[0].vprev
         assert (
