@@ -22,7 +22,7 @@ except ModuleNotFoundError:
     is_aiohttp = False
 
 
-@attr.s(eq=False)
+@attr.s(eq=False, frozen=True, slots=True)
 class Vertex:
     """Represents a vertex in a Knowledge Graph.
 
@@ -37,15 +37,15 @@ class Vertex:
 
     """
 
-    name: str = attr.ib()
-    predicate: bool = attr.ib(default=False)
+    name: str = attr.ib(validator=attr.validators.instance_of(str))
+    predicate: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
     vprev: Optional["Vertex"] = attr.ib(default=None)
     vnext: Optional["Vertex"] = attr.ib(default=None)
 
-    vertex_counter = itertools.count()
-
-    def __attrs_post_init__(self):
-        self.id = next(self.vertex_counter)
+    _counter = itertools.count()
+    id: int = attr.ib(init=False, factory=lambda: next(Vertex._counter))
 
     def __eq__(self, other) -> bool:
         """Defines behavior for the equality operator, ==.
@@ -83,9 +83,6 @@ class Vertex:
 
     def __lt__(self, other: "Vertex") -> bool:
         return self.name < other.name
-
-    def __str__(self) -> str:
-        return self.name
 
 
 @attr.s
