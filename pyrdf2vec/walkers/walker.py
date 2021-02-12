@@ -69,12 +69,12 @@ class Walker(metaclass=abc.ABCMeta):
 
     @max_walks.validator
     def check_max_walks(self, attribute, value):
-        if value < 0:
+        if value is not None and value < 0:
             raise ValueError(f"'max_walks' must be None or > 0 (got {value})")
 
     @n_jobs.validator
     def check_jobs(self, attribute, value):
-        if value < 2:
+        if value is not None and value < 2:
             raise ValueError(
                 f"'n_jobs' must be None, or equal to -1, or > 0 (got {value})"
             )
