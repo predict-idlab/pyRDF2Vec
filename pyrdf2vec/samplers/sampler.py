@@ -61,7 +61,7 @@ class Sampler(ABC):
             kg: The Knowledge Graph.
 
         """
-        if kg.is_remote and not self._is_support_remote:
+        if kg._is_remote and not self._is_support_remote:
             raise RemoteNotSupported(
                 "Invalid sampling strategy. Please, choose a sampling strategy"
                 + " that can fetch walks via a SPARQL endpoint server."
