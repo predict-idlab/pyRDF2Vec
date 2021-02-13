@@ -59,7 +59,7 @@ class Vertex:
         """
         if other is None:
             return False
-        if self.predicate:
+        elif self.predicate:
             return (self.id, self.vprev, self.vnext, self.name) == (
                 other.id,
                 other.vprev,
