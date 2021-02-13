@@ -108,51 +108,91 @@ class KG:
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
-
     file_type: Optional[str] = attr.ib(
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
-
-    skip_predicates: Set[str] = attr.ib(default=set())
-
+    skip_predicates: Set[str] = attr.ib(
+        default=set(),
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(str)
+        ),
+    )
     is_mul_req: bool = attr.ib(
-        default=True, validator=attr.validators.instance_of(bool)
+        kw_only=True, default=True, validator=attr.validators.instance_of(bool)
     )
-
     is_remote: bool = attr.ib(
-        default=False, validator=attr.validators.instance_of(bool)
+        kw_only=True,
+        default=False,
+        validator=attr.validators.instance_of(bool),
     )
-
     cache: Cache = attr.ib(
+        kw_only=True,
         default=TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.instance_of(Cache),
     )
 
-    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, default=defaultdict(set)
     )
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
     _transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, default=defaultdict(set)
     )
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
 
-    def __attrs_post_init__(self):
-        if self.skip_predicates is not None:
-            self.skip_predicates = set(self.skip_predicates)
+    @is_remote.validator
+    def _check_is_remote(self, attribute, value):
+        if value is True and not is_valid_url(self.location):
+            raise ValueError(
+                f"'location' must be a valid URL (got {self.location})"
+            )
+        elif value is False and self.location is not None:
+            if not os.path.exists(self.location) or not os.path.isfile(
+                self.location
+            ):
+                raise FileNotFoundError(
+                    f"'location' must be a valid file (got {self.location})"
+                )
 
+    def __attrs_post_init__(self):
         if self.is_remote:
-            if is_valid_url(self.location):
-                self.session = requests.Session()
-                self.session.mount("http://", HTTPAdapter())
-                self._headers = {"Accept": "application/sparql-results+json"}
-                self.endpoint = self.location
-            else:
-                raise ValueError(f"Invalid URL: {self.location}")
+            self.session = requests.Session()
+            self.session.mount("http://", HTTPAdapter())
+            self._headers = {"Accept": "application/sparql-results+json"}
         elif self.location is not None:
             self.read_file()
+
+    def add_edge(self, v1: Vertex, v2: Vertex) -> bool:
+        """Adds a uni-directional edge.
+
+        Args:
+            v1: The first vertex.
+            v2: The second vertex.
+
+        Returns:
+            True if the edge has been added, False otherwise.
+
+        """
+        self._transition_matrix[v1].add(v2)
+        self._inv_transition_matrix[v2].add(v1)
+        return True
+
+    def add_vertex(self, vertex: Vertex) -> bool:
+        """Adds a vertex to the Knowledge Graph.
+
+        Args:
+            vertex: The vertex to add.
+
+        Returns:
+            True if the vertex has been added, False otherwise.
+
+        """
+        self._vertices.add(vertex)
+        if not vertex.predicate:
+            self._entities.add(vertex)
+        return True
 
     async def fetch(self, session, url: str):
         """Fetchs the hops for a URL
@@ -186,7 +226,7 @@ class KG:
             "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
         )
 
-        url = self.endpoint + "/query?query=" + query
+        url = self.location + "/query?query=" + query
 
         res = self.session.get(url, headers=self._headers)
         if res.status_code != 200:
@@ -221,7 +261,7 @@ class KG:
 
         """
         urls = [
-            self.endpoint
+            self.location
             + "/query?query="
             + parse.quote(
                 "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
@@ -287,36 +327,6 @@ class KG:
             return self.entity_hops[vertex.name]
         return self.fetch_hops(vertex)
 
-    def add_edge(self, v1: Vertex, v2: Vertex) -> bool:
-        """Adds a uni-directional edge.
-
-        Args:
-            v1: The first vertex.
-            v2: The second vertex.
-
-        Returns:
-            True if the edge has been added, False otherwise.
-
-        """
-        self._transition_matrix[v1].add(v2)
-        self._inv_transition_matrix[v2].add(v1)
-        return True
-
-    def add_vertex(self, vertex: Vertex) -> bool:
-        """Adds a vertex to the Knowledge Graph.
-
-        Args:
-            vertex: The vertex
-
-        Returns:
-            True if the vertex has been added, False otherwise.
-
-        """
-        self._vertices.add(vertex)
-        if not vertex.predicate:
-            self._entities.add(vertex)
-        return True
-
     def get_hops(self, vertex: Vertex) -> List[Tuple[str, str]]:
         """Returns the hops of a vertex.
 
@@ -350,13 +360,7 @@ class KG:
     def read_file(self) -> None:
         """Parses a file with rdflib."""
         assert self.location is not None
-        if not os.path.exists(self.location) or not os.path.isfile(
-            self.location
-        ):
-            raise FileNotFoundError(self.location)
-
         self.graph = rdflib.Graph()
-        assert self.location is not None
         try:
             if self.file_type is None:
                 self.graph.parse(
