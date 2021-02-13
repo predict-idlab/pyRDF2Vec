@@ -20,7 +20,7 @@ class RemoteNotSupported(Exception):
 
 
 @attr.s
-class Walker(metaclass=abc.ABCMeta):
+class Walker(ABC):
     """Base class for the walking strategies.
 
     Attributes:
@@ -137,7 +137,7 @@ class Walker(metaclass=abc.ABCMeta):
             canonical_walks.update(instance_walks[instance])
         return canonical_walks
 
-    @abc.abstractmethod
+    @abstractmethod
     def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:

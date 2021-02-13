@@ -18,7 +18,7 @@ class RemoteNotSupported(Exception):
 
 
 @attr.s
-class Sampler(metaclass=abc.ABCMeta):
+class Sampler(ABC):
     """Base class for the sampling strategies.
 
     Attributes:
@@ -53,7 +53,7 @@ class Sampler(metaclass=abc.ABCMeta):
         init=False, repr=False, default=set()
     )
 
-    @abc.abstractmethod
+    @abstractmethod
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
 
@@ -73,7 +73,7 @@ class Sampler(metaclass=abc.ABCMeta):
                         kg.get_neighbors(vertex, reverse=True)
                     )
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
         """Gets the weights to the edge of the Knowledge Graph.
 
