@@ -1,6 +1,6 @@
-import abc
 import asyncio
 import multiprocessing
+from abc import ABC, abstractmethod
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import attr
@@ -105,7 +105,7 @@ class Walker(ABC):
             provided instances; number of column equal to the embedding size.
 
         """
-        if kg.is_remote and not self._is_support_remote:
+        if kg._is_remote and not self._is_support_remote:
             raise RemoteNotSupported(
                 "Invalid walking strategy. Please, choose a walking strategy "
                 + "that can fetch walks via a SPARQL endpoint server."
@@ -116,7 +116,7 @@ class Walker(ABC):
         if "CommunityWalker" in str(self):
             self._community_detection(kg)  # type: ignore
 
-        if kg.is_remote and kg.is_mul_req:
+        if kg._is_remote and kg.is_mul_req:
             asyncio.run(kg._fill_entity_hops(instances))  # type: ignore
 
         with multiprocessing.Pool(

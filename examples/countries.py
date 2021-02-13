@@ -32,7 +32,6 @@ X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
         KG(
             "https://dbpedia.org/sparql",
             skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-            is_remote=True,
         ),
         [entity for entity in data["location"]],
     )

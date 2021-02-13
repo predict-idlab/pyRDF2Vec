@@ -19,7 +19,6 @@ data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 kg = KG(
     "https://dbpedia.org/sparql",
     skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-    is_remote=True,
 )
 
 # Train and save the Word2Vec model according to the KG, the entities, a

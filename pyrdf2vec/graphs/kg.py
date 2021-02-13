@@ -96,9 +96,6 @@ class KG:
             Defaults to None.
         skip_predicates: The label predicates to skip from the KG.
             Defaults to None.
-        is_remote: True if the file is in a SPARQL endpoint server.
-            False otherwise.
-            Defaults to False.
         cache: The cache policy to use for remote Knowledge Graphs.
             Defaults to TTLCache(maxsize=1024, ttl=1200)
 
@@ -121,11 +118,6 @@ class KG:
     is_mul_req: bool = attr.ib(
         kw_only=True, default=True, validator=attr.validators.instance_of(bool)
     )
-    is_remote: bool = attr.ib(
-        kw_only=True,
-        default=False,
-        validator=attr.validators.instance_of(bool),
-    )
     cache: Cache = attr.ib(
         kw_only=True,
         default=TTLCache(maxsize=1024, ttl=1200),
@@ -135,6 +127,9 @@ class KG:
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, default=defaultdict(set)
     )
+    _is_remote: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
     _transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, default=defaultdict(set)
@@ -142,22 +137,21 @@ class KG:
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
 
-    @is_remote.validator
-    def _check_is_remote(self, attribute, value):
-        if value is True and not is_valid_url(self.location):
-            raise ValueError(
-                f"'location' must be a valid URL (got {self.location})"
-            )
-        elif value is False and self.location is not None:
-            if not os.path.exists(self.location) or not os.path.isfile(
-                self.location
-            ):
+    @location.validator
+    def _check_location(self, attribute, value):
+        self._is_remote = value.startswith("http://") or value.startswith(
+            "https://"
+        )
+        if self._is_remote and not is_valid_url(value):
+            raise ValueError(f"'location' must be a valid URL (got {value})")
+        elif not self._is_remote and value is not None:
+            if not os.path.exists(value) or not os.path.isfile(value):
                 raise FileNotFoundError(
-                    f"'location' must be a valid file (got {self.location})"
+                    f"'location' must be a valid file (got {value})"
                 )
 
     def __attrs_post_init__(self):
-        if self.is_remote:
+        if self._is_remote:
             self.session = requests.Session()
             self.session.mount("http://", HTTPAdapter())
             self._headers = {"Accept": "application/sparql-results+json"}
