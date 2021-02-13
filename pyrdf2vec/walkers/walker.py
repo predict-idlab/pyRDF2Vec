@@ -1,5 +1,6 @@
 import asyncio
 import multiprocessing
+import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, Iterable, List, Optional, Tuple
 
@@ -116,8 +117,17 @@ class Walker(ABC):
         if "CommunityWalker" in str(self):
             self._community_detection(kg)  # type: ignore
 
-        if kg._is_remote and kg.is_mul_req:
-            asyncio.run(kg._fill_entity_hops(instances))  # type: ignore
+        if kg._is_remote and (kg.connector.is_mul_req or kg.n_jobs >= 2):
+            warnings.warn(
+                "Using 'is_mul_req=True' and/or 'n_jobs>=2' speed up the "
+                + "extraction of entity's walks, but may violate the policy "
+                + "of some SPARQL endpoint servers.",
+                category=RuntimeWarning,
+                stacklevel=2,
+            )
+
+        if kg._is_remote and kg.connector.is_mul_req:
+            asyncio.run(kg.connector._fill_hops(kg, instances))
 
         with multiprocessing.Pool(
             self.n_jobs, self._init_worker, [kg]

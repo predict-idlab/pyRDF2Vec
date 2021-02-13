@@ -151,9 +151,8 @@ class TestKG:
     def test_invalid_url(self):
         with pytest.raises(ValueError):
             KG(
-                "foo",
+                "http://foo",
                 skip_predicates=SKIP_PREDICATES,
-                is_remote=True,
             )
 
     def test_remove_edge(self, setup):

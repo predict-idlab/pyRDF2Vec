@@ -1,5 +1,5 @@
-import abc
 import random
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Set, Tuple
 
 import attr
@@ -113,7 +113,7 @@ class Sampler(ABC):
         return [weight / sum(weights) for weight in weights]
 
     def sample_neighbor(
-        self, kg: KG, walk: Tuple[str, Vertex, Vertex], is_last_neighbor: bool
+        self, kg: KG, walk: Tuple[Vertex], is_last_neighbor: bool
     ) -> Optional[Tuple[Vertex, Vertex]]:
         """Samples a random neighbor and check if all its children are
         tagged. If there are no untagged neighbors, this function will tag the

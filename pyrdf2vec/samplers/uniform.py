@@ -54,10 +54,8 @@ class UniformSampler(Sampler):
 
     @property
     def state(self):
-        print("GETTT")
         return self._state
 
     @state.setter
     def state(self, value):
-        print("Asds")
         self._state = value
