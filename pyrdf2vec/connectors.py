@@ -1,4 +1,3 @@
-import asyncio
 import json
 import operator
 import warnings
@@ -9,7 +8,6 @@ from urllib import parse
 import attr
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
-from requests.adapters import HTTPAdapter
 
 from pyrdf2vec.graphs.vertex import Vertex
 
@@ -23,10 +21,22 @@ except ModuleNotFoundError:
     is_aiohttp = False
 
 
+@attr.s
 class Connector(ABC):
+    """Base class for the connectors."""
+
     @abstractmethod
-    def query(self, query):
-        pass
+    def query(self, query: str):
+        """Gets the result of a query.
+
+        Args:
+            query: The query.
+
+        Returns:
+            The dictionary generated from the ['results']['bindings'] json.
+
+        """
+        raise NotImplementedError("This must be implemented!")
 
 
 @attr.s
@@ -48,7 +58,7 @@ class SPARQLConnector(Connector):
     )
     is_mul_req: bool = attr.ib(
         kw_only=True,
-        default=True,
+        default=False,
         validator=attr.validators.instance_of(bool),
     )
     cache: Cache = attr.ib(
@@ -85,12 +95,6 @@ class SPARQLConnector(Connector):
             "SELECT ?p ?o WHERE { <" + vertex.name + "> ?p ?o . }"
         )
 
-    def query(self, query):
-        url = self.endpoint + "/query?query=" + parse.quote(query)
-        with requests.Session() as session:
-            res = session.get(url, headers=self._headers).text
-        return json.loads(res)["results"]["bindings"]
-
     async def fetch(self, url: str, session):
         """Fetchs the hops for a URL
 
@@ -107,15 +111,14 @@ class SPARQLConnector(Connector):
         ) as response:
             return await response.text()
 
-    async def _fill_hops(self, kg, vertices):
+    async def _fill_hops(self, kg, vertices: List[Vertex]) -> None:
         """Fills the entity hops.
 
         Args:
             vertices: The vertices to get the hops.
 
         """
-        if not is_aiohttp:
-            vertices = list(map(Vertex, vertices))
+        if is_aiohttp:
             async with aiohttp.ClientSession() as session:
                 urls = [
                     self.endpoint
@@ -151,3 +154,19 @@ class SPARQLConnector(Connector):
                 category=RuntimeWarning,
                 stacklevel=2,
             )
+
+    def query(self, query: str):
+        """Gets the result of a query for a SPARQL endpoint server.
+
+        Args:
+            query: The SPARQL query.
+
+        Returns:
+            The dictionary generated from the ['results']['bindings'] json.
+
+        """
+        url = self.endpoint + "/query?query=" + parse.quote(query)
+        with requests.Session() as session:
+            res = session.get(url, headers=self._headers).text
+        print(json.loads(res)["results"]["bindings"])
+        return json.loads(res)["results"]["bindings"]

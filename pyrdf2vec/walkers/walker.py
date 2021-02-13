@@ -32,7 +32,7 @@ class Walker(ABC):
         n_jobs: The number of processes to use for multiprocessing. Use -1 to
             allocate as many processes as there are CPU cores available in the
             machine.
-            Defaults to None.
+            Defaults to 1.
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
             Defaults to None.
@@ -117,7 +117,9 @@ class Walker(ABC):
         if "CommunityWalker" in str(self):
             self._community_detection(kg)  # type: ignore
 
-        if kg._is_remote and (kg.connector.is_mul_req or kg.n_jobs >= 2):
+        process = self.n_jobs if self.n_jobs is not None else 1
+
+        if (kg._is_remote and kg.connector.is_mul_req) and process >= 2:
             warnings.warn(
                 "Using 'is_mul_req=True' and/or 'n_jobs>=2' speed up the "
                 + "extraction of entity's walks, but may violate the policy "
@@ -127,11 +129,11 @@ class Walker(ABC):
             )
 
         if kg._is_remote and kg.connector.is_mul_req:
-            asyncio.run(kg.connector._fill_hops(kg, instances))
+            asyncio.run(  # type:ignore
+                kg.connector._fill_hops(kg, list(map(Vertex, instances)))
+            )
 
-        with multiprocessing.Pool(
-            self.n_jobs, self._init_worker, [kg]
-        ) as pool:
+        with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
                 tqdm(
                     pool.imap_unordered(self._proc, instances),

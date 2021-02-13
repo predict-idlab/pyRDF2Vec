@@ -1,7 +1,6 @@
 import os
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
-from urllib import parse
+from typing import Any, DefaultDict, List, Optional, Set, Tuple
 
 import attr
 import rdflib

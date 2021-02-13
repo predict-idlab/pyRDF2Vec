@@ -135,7 +135,9 @@ class Sampler(ABC):
 
         if len(untagged_neighbors) == 0:
             if len(walk) > 2:
-                self.visited.add(((walk[-2], walk[-1]), len(walk) - 2))
+                self.visited.add(
+                    ((walk[-2], walk[-1]), len(walk) - 2)  # type:ignore
+                )
             return None
 
         rnd_id = np.random.RandomState(self._random_state).choice(

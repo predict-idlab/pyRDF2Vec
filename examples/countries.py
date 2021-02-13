@@ -16,9 +16,10 @@ transformer = RDF2VecTransformer(
     # Use one worker threads for Word2Vec to ensure random determinism.
     # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
-    # Extract a maximum of 25 walks per entity of depth 4 and use a random
-    # state to ensure that the same walks are generated for the entities.
-    walkers=[RandomWalker(4, 25, random_state=RANDOM_STATE)],
+    # Extract a maximum of 25 walks per entity of depth 4 using two processes
+    # and use a random state to ensure that the same walks are generated for
+    # the entities.
+    walkers=[RandomWalker(4, 25, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 )
 
