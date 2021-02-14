@@ -44,14 +44,11 @@ class AnonymousWalker(RandomWalker):
         canonical_walks: Set[Tuple[str, ...]] = set()
         for walk in self.extract_walks(kg, instance):
             canonical_walk: List[str] = []
-            str_walk = [str(hop) for hop in walk]
+            str_walk = [hop.name for hop in walk]
             for i, hop in enumerate(walk):
                 if i == 0:
                     canonical_walk.append(hop.name)
                 else:
-                    # Use a hash to reduce memory usage of long texts by using
-                    # 8 bytes per hop, except for the first hop and odd
-                    # hops (predicates).
                     canonical_walk.append(str(str_walk.index(hop.name)))
             canonical_walks.add(tuple(canonical_walk))
         return {instance.name: tuple(canonical_walks)}
