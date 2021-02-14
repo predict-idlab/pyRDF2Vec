@@ -11,9 +11,12 @@ import pyrdf2vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import Walker
 
-TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-
-ENTITIES = [entity for entity in TRAIN_DF["bond"]]
+ENTITIES = [
+    entity
+    for entity in pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)[
+        "bond"
+    ]
+]
 ENTITIES_SUBSET = ENTITIES[:5]
 
 T = TypeVar("T")

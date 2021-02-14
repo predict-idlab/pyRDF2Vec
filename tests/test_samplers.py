@@ -6,7 +6,6 @@ from typing import Any, List, Tuple, TypeVar
 
 import pandas as pd
 import pytest
-import rdflib
 
 import pyrdf2vec
 from pyrdf2vec.graphs import KG
@@ -18,10 +17,12 @@ KNOWLEDGE_GRAPH = KG(
     skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
 )
 
-LEAKY_KG = KG("samples/mutag/mutag.owl", skip_predicates=set())
-TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-
-ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
+ENTITIES = [
+    entity
+    for entity in pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)[
+        "bond"
+    ]
+]
 ENTITIES_SUBSET = ENTITIES[:5]
 
 T = TypeVar("T")
