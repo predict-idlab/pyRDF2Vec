@@ -58,7 +58,7 @@ class SPARQLConnector(Connector):
     )
     is_mul_req: bool = attr.ib(
         kw_only=True,
-        default=False,
+        default=True,
         validator=attr.validators.instance_of(bool),
     )
     cache: Cache = attr.ib(
