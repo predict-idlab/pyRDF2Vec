@@ -27,7 +27,7 @@ class KG:
 
     """
 
-    location: Optional[str] = attr.ib(
+    location: Optional[str] = attr.ib(  # type: ignore
         default=None,
         validator=[
             attr.validators.optional(attr.validators.instance_of(str)),
