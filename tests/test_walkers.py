@@ -60,9 +60,7 @@ def check_walker(name, Walker):
     max_walks = 5
     depth = 2
 
-    canonical_walks = Walker(
-        depth, max_walks, n_jobs=-1, random_state=42
-    ).extract(
+    canonical_walks = Walker(depth, max_walks, random_state=42).extract(
         KG(
             "samples/mutag/mutag.owl",
             skip_predicates={

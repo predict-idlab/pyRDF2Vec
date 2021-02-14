@@ -72,7 +72,7 @@ class TestRDF2Vec:
     )
     def test_fit_transform(self, walker, sampler):
         assert RDF2VecTransformer(
-            walkers=[walker(2, 5, sampler(), n_jobs=-1, random_state=42)]
+            walkers=[walker(2, 5, sampler(), random_state=42)]
         ).fit_transform(
             KG(
                 "samples/mutag/mutag.owl",
