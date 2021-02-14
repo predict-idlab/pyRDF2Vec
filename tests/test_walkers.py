@@ -52,6 +52,7 @@ def _get_walkers() -> List[Tuple[str, Any]]:
         for cls in set(_get_classes())  # type: ignore
         if issubclass(cls[1], Walker)  # type: ignore
     ]
+    classes = filter(lambda c: not is_abstract(c[1]), classes)  # type: ignore
     return sorted(set(classes), key=itemgetter(0))
 
 
