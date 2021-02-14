@@ -57,12 +57,7 @@ class TestKG:
             pred = Vertex(
                 (f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj
             )
-
-            LOCAL_KG.add_vertex(subj)
-            LOCAL_KG.add_vertex(obj)
-            LOCAL_KG.add_vertex(pred)
-            LOCAL_KG.add_edge(subj, pred)
-            LOCAL_KG.add_edge(pred, obj)
+            LOCAL_KG.add_walk(subj, pred, obj)
 
     def test_get_hops(self, setup):
         neighbors = LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))
