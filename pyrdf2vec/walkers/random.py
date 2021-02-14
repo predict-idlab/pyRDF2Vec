@@ -70,7 +70,8 @@ class RandomWalker(Walker):
         # TODO: to avoid infinite loops. Can we do this better?
         self.sampler.visited = set()
         walks: List[Tuple[Vertex]] = []
-        while len(walks) < self.max_walks:  # type: ignore
+        assert self.max_walks is not None
+        while len(walks) < self.max_walks:
             new = (root,)
             d = 1
             while d // 2 < self.depth:

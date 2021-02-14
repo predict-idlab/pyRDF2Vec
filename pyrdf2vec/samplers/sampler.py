@@ -124,7 +124,7 @@ class Sampler(ABC):
         is_last_neighbor: True if the neighbor is the class, False otherwise.
 
         Returns:
-            The sample neighbor
+            The sample neighbor.
 
         """
         untagged_neighbors = [
@@ -142,7 +142,7 @@ class Sampler(ABC):
 
         rnd_id = np.random.RandomState(self._random_state).choice(
             range(len(untagged_neighbors)),
-            p=self.get_weights(untagged_neighbors),  # type: ignore
+            p=self.get_weights(untagged_neighbors),
         )
         if is_last_neighbor:
             self.visited.add((untagged_neighbors[rnd_id], len(walk)))

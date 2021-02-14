@@ -1,5 +1,5 @@
 import itertools
-from typing import Optional
+from typing import Any, Optional
 
 import attr
 
@@ -29,7 +29,7 @@ class Vertex:
     _counter = itertools.count()
     id: int = attr.ib(init=False, factory=lambda: next(Vertex._counter))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Defines behavior for the equality operator, ==.
 
         Args:
@@ -64,4 +64,14 @@ class Vertex:
         return hash(self.name)
 
     def __lt__(self, other: "Vertex") -> bool:
+        """Defines behavior for the small than operator, <.
+
+        Args:
+            other: The other vertex to test the equality.
+
+        Returns:
+            True if the first vertex is smaller than the second. False
+            otherwise.
+
+        """
         return self.name < other.name
