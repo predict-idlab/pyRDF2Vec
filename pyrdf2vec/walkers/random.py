@@ -40,15 +40,15 @@ class RandomWalker(Walker):
             The list of walks for the root node.
 
         """
-        walks = {(root,)}
+        walks: Set[Tuple[Vertex, ...]] = {(root,)}
         for i in range(self.depth):
             for walk in walks.copy():
                 hops = kg.get_hops(walk[-1])
                 if len(hops) > 0:
                     walks.remove(walk)
                 for (pred, obj) in hops:
-                    walks.add(walk + (pred, obj))  # type: ignore
-        return list(walks)  # type: ignore
+                    walks.add(walk + (pred, obj))
+        return list(walks)
 
     def extract_walks_dfs(
         self, kg: KG, root: Vertex
@@ -76,13 +76,13 @@ class RandomWalker(Walker):
             d = 1
             while d // 2 < self.depth:
                 hop = self.sampler.sample_neighbor(
-                    kg, new, d // 2 == self.depth - 1  # type: ignore
+                    kg, new, d // 2 == self.depth - 1
                 )
                 if hop is None:
                     break
                 new = new + (hop[0], hop[1])  # type: ignore
                 d = len(new) - 1
-            walks.append(new)
+            walks.append(new)  # type: ignore
         return list(set(walks))
 
     def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:

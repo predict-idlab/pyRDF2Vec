@@ -125,7 +125,7 @@ class Walker(ABC):
             )
 
         if kg._is_remote and kg.connector.is_mul_req:
-            asyncio.run(
+            asyncio.run(  # type:ignore
                 kg.connector._fill_hops(kg, list(map(Vertex, instances)))
             )
 
