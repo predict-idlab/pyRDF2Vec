@@ -18,10 +18,10 @@ class RDF2VecTransformer:
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None).
-        verbose: If true, display a progress bar for the extraction of the
+        verbose: If True, display a progress bar for the extraction of the
                 walks and display the number of these extracted walks for the
-                number of entities with the extraction time.  Defaults to
-                False.
+                number of entities with the extraction time.
+            Defaults to False.
 
     """
 
