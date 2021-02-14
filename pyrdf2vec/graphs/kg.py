@@ -6,6 +6,7 @@ import rdflib
 
 from pyrdf2vec.connectors import SPARQLConnector
 from pyrdf2vec.graphs.vertex import Vertex
+from pyrdf2vec.utils.validation import _check_location
 
 
 @attr.s
@@ -28,7 +29,10 @@ class KG:
 
     location: Optional[str] = attr.ib(
         default=None,
-        validator=attr.validators.optional(attr.validators.instance_of(str)),
+        validator=[
+            attr.validators.optional(attr.validators.instance_of(str)),
+            _check_location,
+        ],
     )
     skip_predicates: Set[str] = attr.ib(
         default=set(),
