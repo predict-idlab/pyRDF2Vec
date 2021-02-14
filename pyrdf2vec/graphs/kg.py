@@ -1,10 +1,8 @@
-import os
 from collections import defaultdict
 from typing import Any, DefaultDict, List, Optional, Set, Tuple
 
 import attr
 import rdflib
-import requests
 
 from pyrdf2vec.connectors import SPARQLConnector
 from pyrdf2vec.graphs.vertex import Vertex
@@ -52,36 +50,27 @@ class KG:
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
 
-    @location.validator
-    def _check_location(self, attribute, value):
-        if value is not None:
-            self._is_remote = value.startswith("http://") or value.startswith(
-                "https://"
-            )
-            if self._is_remote and not is_valid_url(value):
-                raise ValueError(
-                    f"'location' must be a valid URL (got {value})"
-                )
-            elif not self._is_remote and value is not None:
-                if not os.path.exists(value) or not os.path.isfile(value):
-                    raise FileNotFoundError(
-                        f"'location' must be a valid file (got {value})"
-                    )
-
     def __attrs_post_init__(self):
-        if self._is_remote is True:
-            self.connector = SPARQLConnector(self.location)
-        elif self.location is not None:
-            for (sub, pred, obj) in rdflib.Graph().parse(
-                self.location, format=self.fmt
-            ):
-                sub = Vertex(str(sub))
-                obj = Vertex(str(obj))
-                self.add_walk(
-                    sub,
-                    Vertex(str(pred), predicate=True, vprev=sub, vnext=obj),
-                    obj,
-                )
+        if self.location is not None:
+            self._is_remote = self.location.startswith(
+                "http://"
+            ) or self.location.startswith("https://")
+
+            if self._is_remote is True:
+                self.connector = SPARQLConnector(self.location)
+            elif self.location is not None:
+                for (sub, pred, obj) in rdflib.Graph().parse(
+                    self.location, format=self.fmt
+                ):
+                    sub = Vertex(str(sub))
+                    obj = Vertex(str(obj))
+                    self.add_walk(
+                        sub,
+                        Vertex(
+                            str(pred), predicate=True, vprev=sub, vnext=obj
+                        ),
+                        obj,
+                    )
 
     def add_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Adds a uni-directional edge.
@@ -196,20 +185,3 @@ class KG:
             self._inv_transition_matrix[v2].remove(v1)
             return True
         return False
-
-
-def is_valid_url(url: str) -> bool:
-    """Checks if a URL is valid.
-
-    Args:
-        url: The URL to validate.
-
-    Returns:
-        True if the URL is valid. False otherwise.
-
-    """
-    try:
-        requests.get(url)
-    except Exception:
-        return False
-    return True

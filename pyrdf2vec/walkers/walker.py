@@ -10,6 +10,12 @@ from tqdm import tqdm
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 
+from pyrdf2vec.utils.validation import (  # isort: skip
+    _check_depth,
+    _check_jobs,
+    _check_max_walks,
+)
+
 
 class RemoteNotSupported(Exception):
     """Base exception class for the lack of support of a walking strategy for
@@ -29,9 +35,8 @@ class Walker(ABC):
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        n_jobs: The number of processes to use for multiprocessing. Use -1 to
-            allocate as many processes as there are CPU cores available in the
-            machine.
+        n_jobs: The number of CPU cores used when parallelizing. None means 1.
+            -1 means using all processors.
             Defaults to 1.
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
@@ -42,18 +47,26 @@ class Walker(ABC):
     # Global KG used later on for the worker process.
     kg: Optional[KG] = None
 
-    depth: int = attr.ib(attr.validators.instance_of(int))  # type: ignore
-    max_walks: Optional[int] = attr.ib(
+    depth: int = attr.ib(
+        validator=[attr.validators.instance_of(int), _check_depth]
+    )  # type: ignore
+    max_walks: Optional[int] = attr.ib(  # type: ignore
         default=None,
-        validator=attr.validators.optional(attr.validators.instance_of(int)),
+        validator=[
+            attr.validators.optional(attr.validators.instance_of(int)),
+            _check_max_walks,
+        ],
     )
     sampler: Sampler = attr.ib(
         factory=lambda: UniformSampler(),
         validator=attr.validators.instance_of(Sampler),  # type: ignore
     )
-    n_jobs: Optional[int] = attr.ib(
+    n_jobs: Optional[int] = attr.ib(  # type: ignore
         default=None,
-        validator=attr.validators.optional(attr.validators.instance_of(int)),
+        validator=[
+            attr.validators.optional(attr.validators.instance_of(int)),
+            _check_jobs,
+        ],
     )
     random_state: Optional[int] = attr.ib(
         kw_only=True,
@@ -62,23 +75,6 @@ class Walker(ABC):
     )
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
-
-    @depth.validator
-    def _check_depth(self, attribute, value):
-        if value < 0:
-            raise ValueError(f"'depth' must be >= 0 (got {value})")
-
-    @max_walks.validator
-    def _check_max_walks(self, attribute, value):
-        if value is not None and value < 0:
-            raise ValueError(f"'max_walks' must be None or > 0 (got {value})")
-
-    @n_jobs.validator
-    def _check_jobs(self, attribute, value):
-        if value is not None and value < -1:
-            raise ValueError(
-                f"'n_jobs' must be None, or equal to -1, or > 0 (got {value})"
-            )
 
     def __attrs_post_init__(self):
         if self.n_jobs == -1:
@@ -129,7 +125,7 @@ class Walker(ABC):
             )
 
         if kg._is_remote and kg.connector.is_mul_req:
-            asyncio.run(  # type:ignore
+            asyncio.run(
                 kg.connector._fill_hops(kg, list(map(Vertex, instances)))
             )
 

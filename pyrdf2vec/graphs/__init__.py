@@ -1,5 +1,3 @@
-"""isort:skip_file"""
-
 from .kg import KG
 from .vertex import Vertex
 

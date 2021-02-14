@@ -24,7 +24,6 @@ class UniformSampler(Sampler):
 
     """
 
-    _state = attr.ib(default=None)
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     def fit(self, kg: KG) -> None:
@@ -51,11 +50,3 @@ class UniformSampler(Sampler):
 
         """
         return 1
-
-    @property
-    def state(self):
-        return self._state
-
-    @state.setter
-    def state(self, value):
-        self._state = value
