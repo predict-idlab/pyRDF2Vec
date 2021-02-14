@@ -19,6 +19,10 @@ class KG:
             Defaults to None.
         fmt: Used if format can not be determined from source.
             Defaults to None.
+        is_mul_req: If True allows to bundle SPARQL requests.
+            Defaults to True.
+        cache: The cache policy to use for remote Knowledge Graphs.
+            Defaults to TTLCache(maxsize=1024, ttl=1200)
 
     """
 
