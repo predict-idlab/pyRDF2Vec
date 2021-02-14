@@ -71,9 +71,6 @@ def check_walker(name, Walker):
 
     if name == "WLWalker":
         assert len(canonical_walks) <= len(ENTITIES_SUBSET * max_walks * 5)
-
-    # Sometimes, WalkletWalker returns one/two more walks than the ones
-    # specified.  We need to fix that.
     elif name == "WalkletWalker":
         assert len(canonical_walks) <= len(
             ENTITIES_SUBSET * max_walks * (depth + 2)
