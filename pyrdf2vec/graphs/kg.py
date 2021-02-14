@@ -110,11 +110,11 @@ class KG:
             self._entities.add(vertex)
         return True
 
-    def add_walk(self, sub: Vertex, pred: Vertex, obj: Vertex) -> bool:
+    def add_walk(self, subj: Vertex, pred: Vertex, obj: Vertex) -> bool:
         """Adds a walk.
 
         Args:
-            sub: The vertex of the subject.
+            subj: The vertex of the subject.
             pred: The vertex of the predicate.
             obj: The vertex of the object.
 
@@ -123,10 +123,10 @@ class KG:
 
         """
         if pred.name not in self.skip_predicates:
-            self.add_vertex(sub)
+            self.add_vertex(subj)
             self.add_vertex(pred)
             self.add_vertex(obj)
-            self.add_edge(sub, pred)
+            self.add_edge(subj, pred)
             self.add_edge(pred, obj)
             return True
         return False
