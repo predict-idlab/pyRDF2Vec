@@ -81,6 +81,14 @@ class BERT(Embedder):
             )
         )
 
+        train_dataset = WalkDataset(corpus, self.tokenizer)
+
+        print(
+            self.model_.distilbert.embeddings.word_embeddings.weight[
+                train_dataset[1]["input_ids"][1]
+            ][:25]
+        )
+
         Trainer(
             model=self.model_,
             args=TrainingArguments(
@@ -97,15 +105,24 @@ class BERT(Embedder):
             data_collator=DataCollatorForLanguageModeling(
                 tokenizer=self.tokenizer
             ),
-            train_dataset=WalkDataset(corpus, self.tokenizer),
+            train_dataset=train_dataset,
         ).train()
+
+        print(
+            self.model_.distilbert.embeddings.word_embeddings.weight[
+                train_dataset[1]["input_ids"][1]
+            ][:25]
+        )
         return self
 
     def transform(self, entities: List[str]):
         check_is_fitted(self, ["model_"])
         return [
             self.model_.distilbert.embeddings.word_embeddings.weight[
-                self.tokenizer.init_kwargs["never_split"].index(entity)
+                self.tokenizer(entity)["input_ids"][1]
             ]
+            .cpu()
+            .detach()
+            .numpy()
             for entity in entities
         ]
