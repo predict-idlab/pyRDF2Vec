@@ -32,7 +32,7 @@ embeddings = RDF2VecTransformer(
     # and use a random state to ensure that the same walks are generated for
     # the entities.
     walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
-    verbose=2,
+    verbose=1,
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
