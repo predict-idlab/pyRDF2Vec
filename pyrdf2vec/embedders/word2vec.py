@@ -40,7 +40,7 @@ class Word2Vec(Embedder):
         )
         return self
 
-    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
+    def transform(self, entities: List[str]) -> List[str]:
         """Constructs a features vector for the provided entities.
 
         Args:
@@ -53,9 +53,9 @@ class Word2Vec(Embedder):
             The embeddings of the provided entities.
 
         """
-        if not all([str(entity) in self.model_.wv for entity in entities]):
+        if not all([entity in self.model_.wv for entity in entities]):
             raise ValueError(
                 "The entities must have been provided to fit() first "
                 "before they can be transformed into a numerical vector."
             )
-        return [self.model_.wv.get_vector(str(entity)) for entity in entities]
+        return [self.model_.wv.get_vector(entity) for entity in entities]
