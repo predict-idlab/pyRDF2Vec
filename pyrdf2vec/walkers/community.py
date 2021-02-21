@@ -101,9 +101,7 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
-    def extract_walks_bfs(
-        self, kg: KG, root: Vertex
-    ) -> List[Tuple[Vertex, ...]]:
+    def _bfs(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks of depth - 1 hops rooted in root with
         Breadth-first search.
 
@@ -112,13 +110,13 @@ class CommunityWalker(Walker):
 
                 The graph from which the neighborhoods are extracted for the
                 provided entities.
-            root: The root node.
+            root: The root node to extract walks.
 
         Returns:
             The list of walks for the root node.
 
         """
-        walks = {(root,)}
+        walks: Set[Tuple[Vertex, ...]] = {(root,)}
         for i in range(self.depth):
             # In each iteration, iterate over the walks, grab the
             # last hop, get all its neighbors and extend the walks
@@ -127,25 +125,28 @@ class CommunityWalker(Walker):
                 hops = kg.get_hops(walk[-1])
                 if len(hops) > 0:
                     walks.remove(walk)
-                for (pred, obj) in hops:
-                    walks.add(walk + (pred, obj))  # type: ignore
+                for pred, obj in hops:
+                    walks.add(walk + (pred, obj))
                     if (
                         obj in self.communities
                         and np.random.RandomState(self.random_state)
                         < self.hop_prob
                     ):
-                        community_nodes = self.labels_per_community[
-                            self.communities[obj]
-                        ]
-                        rand_jump = np.random.RandomState(
-                            self.random_state
-                        ).choice(community_nodes)
-                        walks.add(walk + (rand_jump,))  # type: ignore
+                        walks.add(
+                            walk
+                            + (
+                                np.random.RandomState(
+                                    self.random_state
+                                ).choice(
+                                    self.labels_per_community[
+                                        self.communities[obj]
+                                    ]
+                                ),
+                            )
+                        )
         return list(walks)
 
-    def extract_walks_dfs(
-        self, kg: KG, root: Vertex
-    ) -> List[Tuple[Vertex, ...]]:
+    def _dfs(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
         """Extracts a random limited number of walks of depth - 1 hops rooted
         in root with Depth-first search.
 
@@ -154,41 +155,46 @@ class CommunityWalker(Walker):
 
                 The graph from which the neighborhoods are extracted for the
                 provided entities.
-            root: The root node.
+            root: The root node to extract walks.
 
         Returns:
-            The list of limited  walks for the root node.
+            The list of walks for the root node according to the depth and
+            max_walks.
 
         """
         # Initialize one walk of length 1 (the root)
         self.sampler.visited = set()
-        walks: List[Tuple[Vertex]] = []
+        walks: List[Tuple[Vertex, ...]] = []
         assert self.max_walks is not None
         while len(walks) < self.max_walks:
-            new = (root,)
+            sub_walk: Tuple[Vertex, ...] = (root,)
             d = 1
             while d // 2 < self.depth:
-                hop = self.sampler.sample_neighbor(
-                    kg, new, d // 2 == self.depth - 1  # type: ignore
+                pred_obj = self.sampler.sample_neighbor(
+                    kg, sub_walk, d // 2 == self.depth - 1, False
                 )
-                if hop is None:
+                if pred_obj is None:
                     break
+
                 if (
-                    hop[1] in self.communities
+                    pred_obj[1] in self.communities
                     and np.random.RandomState(self.random_state).random()
                     < self.hop_prob
                 ):
                     community_nodes = self.labels_per_community[
-                        self.communities[hop[1]]
+                        self.communities[pred_obj[1]]
                     ]
-                    rand_jump = np.random.RandomState(
-                        self.random_state
-                    ).choice(community_nodes)
-                    new = new + (hop[0], rand_jump)  # type: ignore
+                    sub_walk += (
+                        pred_obj[0],
+                        np.random.RandomState(self.random_state).choice(
+                            community_nodes
+                        ),
+                        community_nodes,
+                    )
                 else:
-                    new = new + (hop[0], hop[1])  # type: ignore
-                d = len(new) - 1
-            walks.append(new)
+                    sub_walk += (pred_obj[0], pred_obj[1])
+                d = len(sub_walk) - 1
+            walks.append(sub_walk)
         return list(set(walks))
 
     def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
@@ -209,8 +215,8 @@ class CommunityWalker(Walker):
 
         """
         if self.max_walks is None:
-            return self.extract_walks_bfs(kg, root)
-        return self.extract_walks_dfs(kg, root)
+            return self._bfs(kg, root)
+        return self._dfs(kg, root)
 
     def _extract(
         self, kg: KG, instance: Vertex
