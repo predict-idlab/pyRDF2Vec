@@ -113,38 +113,47 @@ class Sampler(ABC):
         return [weight / sum(weights) for weight in weights]
 
     def sample_neighbor(
-        self, kg: KG, walk: Tuple[Vertex], is_last_neighbor: bool
+        self,
+        kg: KG,
+        walk: Tuple[Vertex, ...],
+        is_last_depth: bool,
+        is_reverse: bool = False,
     ) -> Optional[Tuple[Vertex, Vertex]]:
-        """Samples a random neighbor and check if all its children are
-        tagged. If there are no untagged neighbors, this function will tag the
-        vertex and return None.
+        """Samples an unvisited random neighbor in the (predicate, object)
+        form, according to the weight of hops for a given walk.
 
         kg: The Knowledge Graph.
-        walk: The walk.
-        is_last_neighbor: True if the neighbor is the class, False otherwise.
+        walk: The walk with one or several vertices.
+        is_last_hop: True if the next neighbor to be visited is the last one
+            for the desired depth. Otherwise False.
+        is_reverse: True to get the parent neighbors instead of the child
+            neighbors. Otherwise False.
+            Defaults: False
 
         Returns:
-            The sample neighbor.
+            An unvisited neighbor in the form (predicate, object).
 
         """
+        subj = walk[0] if is_reverse else walk[-1]
         untagged_neighbors = [
-            hop
-            for hop in kg.get_hops(walk[-1])
-            if (hop, len(walk)) not in self.visited
+            pred_obj
+            for pred_obj in kg.get_hops(subj, is_reverse)
+            if (pred_obj, len(walk)) not in self.visited
         ]
-
         if len(untagged_neighbors) == 0:
             if len(walk) > 2:
-                self.visited.add(
-                    ((walk[-2], walk[-1]), len(walk) - 2)  # type:ignore
+                pred_obj = (
+                    (walk[1], walk[0]) if is_reverse else (walk[-2], walk[-1])
                 )
+                self.visited.add((pred_obj, len(walk) - 2))
             return None
 
         rnd_id = np.random.RandomState(self._random_state).choice(
             range(len(untagged_neighbors)),
             p=self.get_weights(untagged_neighbors),
         )
-        if is_last_neighbor:
+
+        if is_last_depth:
             self.visited.add((untagged_neighbors[rnd_id], len(walk)))
         return untagged_neighbors[rnd_id]
 

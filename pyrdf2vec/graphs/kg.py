@@ -131,7 +131,9 @@ class KG:
             return True
         return False
 
-    def get_hops(self, vertex: Vertex) -> List[Tuple[Vertex, Vertex]]:
+    def get_hops(
+        self, vertex: Vertex, reverse: bool = False
+    ) -> List[Tuple[Vertex, Vertex]]:
         """Returns the hops of a vertex.
 
         Args:
@@ -154,6 +156,14 @@ class KG:
                 if self.add_walk(vertex, pred, obj):
                     hops.append((pred, obj))
             return hops
+
+        if reverse:
+            return [
+                (pred, obj)
+                for pred in self._inv_transition_matrix[vertex]
+                for obj in self._inv_transition_matrix[pred]
+                if len(self._inv_transition_matrix[pred]) != 0
+            ]
         return [
             (pred, obj)
             for pred in self._transition_matrix[vertex]

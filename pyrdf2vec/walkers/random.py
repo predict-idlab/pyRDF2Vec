@@ -24,8 +24,8 @@ class RandomWalker(Walker):
 
     """
 
-    def extract_walks_bfs(
-        self, kg: KG, root: Vertex
+    def _bfs(
+        self, kg: KG, root: Vertex, is_reverse: bool = False
     ) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks with Breadth-first search.
 
@@ -34,7 +34,10 @@ class RandomWalker(Walker):
 
                 The graph from which the neighborhoods are extracted for the
                 provided entities.
-            root: The root node.
+            root: The root node to extract walks.
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors. Otherwise False.
+                Defaults: False
 
         Returns:
             The list of walks for the root node.
@@ -43,15 +46,21 @@ class RandomWalker(Walker):
         walks: Set[Tuple[Vertex, ...]] = {(root,)}
         for i in range(self.depth):
             for walk in walks.copy():
-                hops = kg.get_hops(walk[-1])
+                if is_reverse:
+                    hops = kg.get_hops(walk[0], True)
+                    for pred, obj in hops:
+                        walks.add((obj, pred) + walk)
+                else:
+                    hops = kg.get_hops(walk[-1])
+                    for pred, obj in hops:
+                        walks.add(walk + (pred, obj))
+
                 if len(hops) > 0:
                     walks.remove(walk)
-                for (pred, obj) in hops:
-                    walks.add(walk + (pred, obj))
         return list(walks)
 
-    def extract_walks_dfs(
-        self, kg: KG, root: Vertex
+    def _dfs(
+        self, kg: KG, root: Vertex, is_reverse: bool = False
     ) -> List[Tuple[Vertex, ...]]:
         """Extracts a random limited number of walks with Depth-first search.
 
@@ -60,29 +69,34 @@ class RandomWalker(Walker):
 
                 The graph from which the neighborhoods are extracted for the
                 provided entities.
-            root: The root node.
+            root: The root node to extract walks.
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors. Otherwise False.
+                Defaults: False
 
         Returns:
-            The list of limited  walks for the root node.
+            The list of walks for the root node according to the depth and
+            max_walks.
 
         """
-        # TODO: Currently we are allowing duplicate walks in order
-        # TODO: to avoid infinite loops. Can we do this better?
         self.sampler.visited = set()
-        walks: List[Tuple[Vertex]] = []
+        walks: List[Tuple[Vertex, ...]] = []
         assert self.max_walks is not None
         while len(walks) < self.max_walks:
-            new = (root,)
+            sub_walk: Tuple[Vertex, ...] = (root,)
             d = 1
             while d // 2 < self.depth:
-                hop = self.sampler.sample_neighbor(
-                    kg, new, d // 2 == self.depth - 1
+                pred_obj = self.sampler.sample_neighbor(
+                    kg, sub_walk, d // 2 == self.depth - 1, is_reverse
                 )
-                if hop is None:
+                if pred_obj is None:
                     break
-                new = new + (hop[0], hop[1])  # type: ignore
-                d = len(new) - 1
-            walks.append(new)  # type: ignore
+                if is_reverse:
+                    sub_walk += (pred_obj[1], pred_obj[0])
+                else:
+                    sub_walk += (pred_obj[0], pred_obj[1])
+                d = len(sub_walk) - 1
+            walks.append(sub_walk)
         return list(set(walks))
 
     def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
@@ -100,8 +114,14 @@ class RandomWalker(Walker):
 
         """
         if self.max_walks is None:
-            return self.extract_walks_bfs(kg, root)
-        return self.extract_walks_dfs(kg, root)
+            fct_search = self._bfs
+        else:
+            fct_search = self._dfs
+        return [
+            r_walk[:-1] + walk
+            for walk in fct_search(kg, root)
+            for r_walk in fct_search(kg, root, is_reverse=True)
+        ]
 
     def _extract(
         self, kg: KG, instance: Vertex
