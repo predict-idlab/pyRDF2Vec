@@ -45,6 +45,8 @@ samplers = [
     ("Inverse PageRank Split", PageRankSampler(inverse=True, split=True)),
 ]
 
+print(f"Prediction of {len(test_entities)} entities:")
+
 for _, sampler in samplers:
     sampler.random_state = RANDOM_STATE
     embeddings = RDF2VecTransformer(
@@ -75,6 +77,6 @@ for _, sampler in samplers:
     # Evaluate the Support Vector Machine on test embeddings.
     predictions = clf.predict(test_embeddings)
     print(
-        f"{sampler}\nAcurracy="
+        f"{sampler}\naccuracy="
         + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
     )

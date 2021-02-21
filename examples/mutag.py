@@ -50,7 +50,11 @@ clf.fit(train_embeddings, train_labels)
 
 # Evaluate the Support Vector Machine on test embeddings.
 predictions = clf.predict(test_embeddings)
-print(f"Accuracy: {accuracy_score(test_labels, predictions) * 100 :.4f}%")
+print(
+    f"Predicted {len(test_entities)} entities with an accuracy of "
+    + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
+)
+print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
 print(confusion_matrix(test_labels, predictions))
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
