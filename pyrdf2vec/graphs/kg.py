@@ -67,15 +67,15 @@ class KG:
             if self._is_remote is True:
                 self.connector = SPARQLConnector(self.location)
             elif self.location is not None:
-                for (sub, pred, obj) in rdflib.Graph().parse(
+                for subj, pred, obj in rdflib.Graph().parse(
                     self.location, format=self.fmt
                 ):
-                    sub = Vertex(str(sub))
+                    subj = Vertex(str(subj))
                     obj = Vertex(str(obj))
                     self.add_walk(
-                        sub,
+                        subj,
                         Vertex(
-                            str(pred), predicate=True, vprev=sub, vnext=obj
+                            str(pred), predicate=True, vprev=subj, vnext=obj
                         ),
                         obj,
                     )
