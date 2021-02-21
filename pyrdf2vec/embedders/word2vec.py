@@ -1,6 +1,5 @@
 from typing import List
 
-import rdflib
 from gensim.models.word2vec import Word2Vec as W2V
 
 from pyrdf2vec.embedders import Embedder
