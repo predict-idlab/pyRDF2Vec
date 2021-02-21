@@ -43,8 +43,6 @@ GRAPH = [
 ]
 URL = "http://pyRDF2Vec"
 
-SKIP_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
-
 LOCAL_KG = KG()
 
 
@@ -134,20 +132,17 @@ class TestKG:
         with pytest.raises(FileNotFoundError):
             KG(
                 "foo",
-                skip_predicates=SKIP_PREDICATES,
             )
 
         with pytest.raises(FileNotFoundError):
             KG(
                 "samples/mutag/",
-                skip_predicates=SKIP_PREDICATES,
             )
 
     def test_invalid_url(self):
         with pytest.raises(ValueError):
             KG(
                 "http://foo",
-                skip_predicates=SKIP_PREDICATES,
             )
 
     def test_remove_edge(self, setup):
@@ -176,12 +171,10 @@ class TestKG:
     def test_valid_file(self):
         assert KG(
             "samples/mutag/mutag.owl",
-            skip_predicates=SKIP_PREDICATES,
         )
 
     def test_valid_url(self):
         KG(
             "https://dbpedia.org/sparql",
-            skip_predicates=SKIP_PREDICATES,
             is_remote=True,
         )
