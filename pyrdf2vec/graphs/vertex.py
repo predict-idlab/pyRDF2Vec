@@ -21,13 +21,15 @@ class Vertex:
 
     name: str = attr.ib(validator=attr.validators.instance_of(str))
     predicate: bool = attr.ib(
-        default=False, validator=attr.validators.instance_of(bool)
+        default=False, validator=attr.validators.instance_of(bool), repr=False
     )
-    vprev: Optional["Vertex"] = attr.ib(default=None)
-    vnext: Optional["Vertex"] = attr.ib(default=None)
+    vprev: Optional["Vertex"] = attr.ib(default=None, repr=False)
+    vnext: Optional["Vertex"] = attr.ib(default=None, repr=False)
 
     _counter = itertools.count()
-    id: int = attr.ib(init=False, factory=lambda: next(Vertex._counter))
+    id: int = attr.ib(
+        init=False, factory=lambda: next(Vertex._counter), repr=False
+    )
 
     def __eq__(self, other: Any) -> bool:
         """Defines behavior for the equality operator, ==.
