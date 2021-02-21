@@ -1,15 +1,19 @@
 from typing import List
 
-import numpy as np
-import transformers
+import attr
 from sklearn.utils.validation import check_is_fitted
 from torch.utils.data import Dataset
-from transformers import (BertConfig, BertForMaskedLM, BertTokenizer,
-                          DataCollatorForLanguageModeling, DistilBertConfig,
-                          DistilBertForMaskedLM, DistilBertTokenizer, Trainer,
-                          TrainingArguments)
 
 from pyrdf2vec.embedders import Embedder
+
+from transformers import (  # isort:skip
+    DataCollatorForLanguageModeling,
+    DistilBertConfig,
+    DistilBertForMaskedLM,
+    DistilBertTokenizer,
+    Trainer,
+    TrainingArguments,
+)
 
 
 class WalkDataset(Dataset):
@@ -28,14 +32,35 @@ class WalkDataset(Dataset):
         return self.walks[i]
 
 
+@attr.s
 class BERT(Embedder):
     """Defines BERT embedding technique."""
 
-    def __init__(self, vocab_filename="bert-kg", seed=None):
-        self.seed = seed
-        self.vocab_filename = vocab_filename
-        self.verbose = True
-        self._vocabulary_size = 0
+    training_args = attr.ib(
+        default=TrainingArguments(
+            output_dir="./bert",
+            overwrite_output_dir=True,
+            num_train_epochs=3,
+            warmup_steps=500,
+            weight_decay=0.2,
+            logging_dir="./logs",
+            dataloader_num_workers=2,
+            prediction_loss_only=True,
+        ),
+        validator=attr.validators.instance_of(TrainingArguments),
+    )
+
+    vocab_filename: str = attr.ib(
+        default="bert-kg",
+        validator=attr.validators.instance_of(str),
+    )
+
+    _vocabulary_size: int = attr.ib(
+        init=False,
+        repr=False,
+        default=0,
+        validator=attr.validators.instance_of(int),
+    )
 
     def _build_vocabulary(
         self, hops: List[str], is_update: bool = False
@@ -52,27 +77,11 @@ class BERT(Embedder):
     def fit(self, corpus, is_update=False):
         unique_hops = list({hop for walk in corpus for hop in walk})
         self._build_vocabulary(unique_hops, is_update)
-
-        # tokenizer = BertTokenizer(
-        #     vocab_file=self.vocab_filename,
-        #     do_lower_case=False,
-        #     never_split=unique_hops,
-        # )
-
         self.tokenizer = DistilBertTokenizer(
             vocab_file=self.vocab_filename,
             do_lower_case=False,
             never_split=unique_hops,
         )
-
-        # self.model_ = BertForMaskedLM(
-        #     BertConfig(
-        #         vocab_size=self._vocabulary_size,
-        #         max_position_embeddings=512,
-        #         type_vocab_size=1,
-        #     )
-        # )
-
         self.model_ = DistilBertForMaskedLM(
             DistilBertConfig(
                 vocab_size=self._vocabulary_size,
@@ -80,39 +89,14 @@ class BERT(Embedder):
                 type_vocab_size=1,
             )
         )
-
-        train_dataset = WalkDataset(corpus, self.tokenizer)
-
-        print(
-            self.model_.distilbert.embeddings.word_embeddings.weight[
-                train_dataset[1]["input_ids"][1]
-            ][:25]
-        )
-
         Trainer(
             model=self.model_,
-            args=TrainingArguments(
-                output_dir="./bert",
-                overwrite_output_dir=True,
-                num_train_epochs=1,
-                warmup_steps=500,
-                weight_decay=0.2,
-                logging_dir="./logs",
-                seed=self.seed,
-                dataloader_num_workers=2,
-                prediction_loss_only=True,
-            ),
+            args=self.training_args,
             data_collator=DataCollatorForLanguageModeling(
                 tokenizer=self.tokenizer
             ),
-            train_dataset=train_dataset,
+            train_dataset=WalkDataset(corpus, self.tokenizer),
         ).train()
-
-        print(
-            self.model_.distilbert.embeddings.word_embeddings.weight[
-                train_dataset[1]["input_ids"][1]
-            ][:25]
-        )
         return self
 
     def transform(self, entities: List[str]):

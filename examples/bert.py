@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
+from transformers import TrainingArguments
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.embedders import BERT
@@ -27,12 +28,24 @@ labels = train_labels + test_labels
 embeddings = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
-    BERT(seed=RANDOM_STATE),
+    BERT(
+        TrainingArguments(
+            output_dir="./bert",
+            overwrite_output_dir=True,
+            num_train_epochs=3,
+            warmup_steps=500,
+            weight_decay=0.2,
+            logging_dir="./logs",
+            seed=RANDOM_STATE,
+            dataloader_num_workers=2,
+            prediction_loss_only=True,
+        ),
+    ),
     # Extract all walks of depth 2 for each entity using two processes
     # and use a random state to ensure that the same walks are generated for
     # the entities.
     walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
-    verbose=1,
+    verbose=2,
 ).fit_transform(
     KG(
         "samples/mutag/mutag.owl",
@@ -40,8 +53,6 @@ embeddings = RDF2VecTransformer(
     ),
     entities,
 )
-
-print(embeddings)
 
 train_embeddings = embeddings[: len(train_entities)]
 test_embeddings = embeddings[len(train_entities) :]
