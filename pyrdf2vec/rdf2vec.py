@@ -82,6 +82,7 @@ class RDF2VecTransformer:
         if self.verbose == 2:
             print(kg)
             print(self.walkers[0])
+            print(self.embedder)
 
         self._entities.extend(entities)
         tic = time.perf_counter()
