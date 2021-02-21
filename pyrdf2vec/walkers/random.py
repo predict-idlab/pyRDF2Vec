@@ -92,7 +92,7 @@ class RandomWalker(Walker):
                 if pred_obj is None:
                     break
                 if is_reverse:
-                    sub_walk += (pred_obj[1], pred_obj[0])
+                    sub_walk = (pred_obj[1], pred_obj[0]) + sub_walk
                 else:
                     sub_walk += (pred_obj[0], pred_obj[1])
                 d = len(sub_walk) - 1
