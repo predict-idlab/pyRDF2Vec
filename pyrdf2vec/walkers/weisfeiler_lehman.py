@@ -60,7 +60,6 @@ class WLWalker(RandomWalker):
             self._label_map[neighbor.name][n - 1]
             for neighbor in kg.get_neighbors(vertex, reverse=True)
         ]
-
         suffix = "-".join(sorted(set(neighbor_names)))
         return f"{self._label_map[vertex.name][n - 1]}-{suffix}"
 
