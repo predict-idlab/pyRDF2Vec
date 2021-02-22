@@ -17,7 +17,7 @@ class HalkWalker(RandomWalker):
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        freq_thresholds: The thresholds frequencies.
+        freq_thresholds: The minimum frequency thresholds of a hop.
             Defaults to [0.001].
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
@@ -60,15 +60,15 @@ class HalkWalker(RandomWalker):
         canonical_walks: Set[Tuple[str, ...]] = set()
         walks = self.extract_walks(kg, instance)
 
-        freq = defaultdict(set)
+        hop_to_freq = defaultdict(set)
         for i in range(len(walks)):
             for hop in walks[i]:
-                freq[hop].add(i)
+                hop_to_freq[hop].add(i)
 
         for freq_threshold in self.freq_thresholds:
             uniformative_hops = set()
-            for hop in freq:
-                if len(freq[hop]) / len(walks) < freq_threshold:
+            for hop in hop_to_freq:
+                if len(hop_to_freq[hop]) / len(walks) < freq_threshold:
                     uniformative_hops.add(hop)
 
             for walk in walks:
@@ -76,13 +76,12 @@ class HalkWalker(RandomWalker):
                 for i, hop in enumerate(walk):
                     if i == 0:
                         canonical_walk.append(hop.name)
-                    else:
-                        if hop.name not in uniformative_hops:
-                            # Use a hash to reduce memory usage of long texts
-                            # by using 8 bytes per hop, except for the first
-                            # hop and odd hops (predicates).
-                            canonical_walk.append(
-                                str(md5(hop.name.encode()).digest()[:8])
-                            )
+                    elif hop.name not in uniformative_hops:
+                        # Use a hash to reduce memory usage of long texts
+                        # by using 8 bytes per hop, except for the first
+                        # hop and odd hops (predicates).
+                        canonical_walk.append(
+                            str(md5(hop.name.encode()).digest()[:8])
+                        )
                 canonical_walks.add(tuple(canonical_walk))
         return {instance.name: tuple(canonical_walks)}
