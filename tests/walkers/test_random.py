@@ -43,48 +43,49 @@ class TestRandomWalker:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "kg, depth, root",
+        "kg, root, depth, is_reverse",
         list(
             itertools.product(
                 (KG_LOOP, KG_CHAIN),
-                (range(5)),
                 (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
+                (range(6)),
+                (False, True),
             )
         ),
     )
-    def test_bfs(self, setup, kg, depth, root):
+    def test_bfs(self, setup, kg, depth, root, is_reverse):
         walks = RandomWalker(depth, None, random_state=42)._bfs(
-            kg, Vertex(root)
+            kg, Vertex(root), is_reverse
         )
+        d = (depth * 2) + 1
         for walk in walks:
-            assert len(walk) == (depth * 2) + 1
-            assert walk[0].name == root
+            assert len(walk) <= d
+            if is_reverse:
+                assert walk[-1].name == root
+            else:
+                assert walk[0].name == root
 
     @pytest.mark.parametrize(
-        "kg, depth, max_walks, root",
+        "kg, root, depth, max_walks, is_reverse",
         list(
             itertools.product(
                 (KG_LOOP, KG_CHAIN),
+                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
                 (0, 2, 3, 4, 5, 10, 15, 20),
                 (0, 1, 2, 3, 4, 5),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
+                (False, True),
             )
         ),
     )
-    def test_dfs(self, setup, kg, depth, max_walks, root):
+    def test_dfs(self, setup, kg, root, depth, max_walks, is_reverse):
         walks = RandomWalker(depth, max_walks, random_state=42)._dfs(
-            kg, Vertex(root)
+            kg, Vertex(root), is_reverse
         )
-        if depth == 0:
-            if max_walks == 0:
-                assert len(walks) == 0
-            else:
-                assert len(walks) == 1
-        else:
-            assert len(walks) == max_walks
-
-        depth1 = (depth * 2) - 1
-        depth2 = (depth * 2) + 1
+        d = (depth * 2) + 1
         for walk in walks:
-            assert len(walk) == depth1 or depth2
-            assert walk[0].name == root
+            assert len(walk) <= d
+
+            if is_reverse:
+                assert walk[-1].name == root
+            else:
+                assert walk[0].name == root
