@@ -47,13 +47,13 @@ class KG:
     )
 
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
-        init=False, repr=False, default=defaultdict(set)
+        init=False, repr=False, factory=lambda: defaultdict(set)
     )
     _is_remote: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
     _transition_matrix: DefaultDict[Any, Any] = attr.ib(
-        init=False, repr=False, default=defaultdict(set)
+        init=False, repr=False, factory=lambda: defaultdict(set)
     )
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
