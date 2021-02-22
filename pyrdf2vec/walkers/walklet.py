@@ -45,10 +45,12 @@ class WalkletWalker(RandomWalker):
 
         """
         canonical_walks: Set[Tuple[str, ...]] = set()
-        walks = self.extract_walks(kg, instance)
-        for walk in walks:
+        for walk in self.extract_walks(kg, instance):
             if len(walk) == 1:
                 canonical_walks.add((walk[0].name,))
-            for n in range(1, len(walk)):
-                canonical_walks.add((walk[0].name, walk[n].name))
+            for i in range(1, len(walk)):
+                if self.with_reverse:
+                    canonical_walks.add((walk[i].name, walk[0].name))
+                else:
+                    canonical_walks.add((walk[0].name, walk[i].name))
         return {instance.name: tuple(canonical_walks)}
