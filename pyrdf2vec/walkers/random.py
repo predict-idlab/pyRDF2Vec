@@ -18,6 +18,9 @@ class RandomWalker(Walker):
             Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
+        with_reverse: extracts children's and parents' walks from the root,
+            creating (max_walks * max_walks) more walks of 2 * depth.
+            Defaults to False.
         random_state: The random state to use to ensure random determinism to
             generate the same walks for entities.
             Defaults to None.
@@ -107,7 +110,7 @@ class RandomWalker(Walker):
 
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
-            root: The root node.
+            root: The root node to extract walks.
 
         Returns:
             The list of the walks.
@@ -117,11 +120,13 @@ class RandomWalker(Walker):
             fct_search = self._bfs
         else:
             fct_search = self._dfs
-        return [
-            r_walk[:-1] + walk
-            for walk in fct_search(kg, root)
-            for r_walk in fct_search(kg, root, is_reverse=True)
-        ]
+        if self.with_reverse:
+            return [
+                r_walk[:-1] + walk
+                for walk in fct_search(kg, root)
+                for r_walk in fct_search(kg, root, is_reverse=True)
+            ]
+        return [walk for walk in fct_search(kg, root)]
 
     def _extract(
         self, kg: KG, instance: Vertex

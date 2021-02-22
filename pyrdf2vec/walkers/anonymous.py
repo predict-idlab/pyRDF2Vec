@@ -17,8 +17,11 @@ class AnonymousWalker(RandomWalker):
             Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
-        seed: The seed to use to ensure ensure random determinism to generate
-            the same walks for entities.
+        with_reverse: extracts children's and parents' walks from the root,
+            creating (max_walks * max_walks) more walks of 2 * depth.
+            Defaults to False.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
             Defaults to None.
 
     """

@@ -57,9 +57,8 @@ class TestRandomWalker:
         walks = RandomWalker(depth, None, random_state=42)._bfs(
             kg, Vertex(root), is_reverse
         )
-        d = (depth * 2) + 1
         for walk in walks:
-            assert len(walk) <= d
+            assert len(walk) <= (depth * 2) + 1
             if is_reverse:
                 assert walk[-1].name == root
             else:
@@ -71,21 +70,48 @@ class TestRandomWalker:
             itertools.product(
                 (KG_LOOP, KG_CHAIN),
                 (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                (0, 2, 3, 4, 5, 10, 15, 20),
-                (0, 1, 2, 3, 4, 5),
+                range(15),
+                range(6),
                 (False, True),
             )
         ),
     )
     def test_dfs(self, setup, kg, root, depth, max_walks, is_reverse):
-        walks = RandomWalker(depth, max_walks, random_state=42)._dfs(
+        for walk in RandomWalker(depth, max_walks, random_state=42)._dfs(
             kg, Vertex(root), is_reverse
-        )
-        d = (depth * 2) + 1
-        for walk in walks:
-            assert len(walk) <= d
-
+        ):
+            assert len(walk) <= (depth * 2) + 1
             if is_reverse:
                 assert walk[-1].name == root
             else:
                 assert walk[0].name == root
+
+    @pytest.mark.parametrize(
+        "kg, root, depth, max_walks, with_reverse",
+        list(
+            itertools.product(
+                (KG_LOOP, KG_CHAIN),
+                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
+                range(15),
+                (None, 0, 1, 2, 3, 4, 5),
+                (False, True),
+            )
+        ),
+    )
+    def test_extract(self, setup, kg, root, depth, max_walks, with_reverse):
+        walks = RandomWalker(
+            depth, max_walks, with_reverse=with_reverse, random_state=42
+        )._extract(kg, Vertex(root))[root]
+        if max_walks is not None:
+            if with_reverse:
+                assert len(walks) <= max_walks * max_walks
+            else:
+                assert len(walks) <= max_walks
+        for walk in walks:
+            for obj in walk[2::2]:
+                assert obj.startswith("b'")
+            if not with_reverse:
+                assert walk[0] == root
+                assert len(walk) <= (depth * 2) + 1
+            else:
+                assert len(walk) <= ((depth * 2) + 1) * 2

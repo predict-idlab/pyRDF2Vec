@@ -38,6 +38,9 @@ class Walker(ABC):
         n_jobs: The number of CPU cores used when parallelizing. None means 1.
             -1 means using all processors.
             Defaults to 1.
+        with_reverse: extracts children's and parents' walks from the root,
+            creating (max_walks * max_walks) more walks of 2 * depth.
+            Defaults to False.
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
             Defaults to None.
@@ -68,6 +71,11 @@ class Walker(ABC):
             _check_jobs,
         ],
     )
+    with_reverse: Optional[bool] = attr.ib(
+        kw_only=True,
+        default=False,
+        validator=attr.validators.instance_of(bool),
+    )
     random_state: Optional[int] = attr.ib(
         kw_only=True,
         default=None,
@@ -82,7 +90,10 @@ class Walker(ABC):
         self.sampler.random_state = self.random_state
 
     def extract(
-        self, kg: KG, instances: List[str], verbose: int = 0
+        self,
+        kg: KG,
+        instances: List[str],
+        verbose: int = 0,
     ) -> Iterable[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
@@ -147,7 +158,9 @@ class Walker(ABC):
 
     @abstractmethod
     def _extract(
-        self, kg: KG, instance: Vertex
+        self,
+        kg: KG,
+        instance: Vertex,
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.

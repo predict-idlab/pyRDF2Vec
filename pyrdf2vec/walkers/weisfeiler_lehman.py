@@ -21,6 +21,9 @@ class WLWalker(RandomWalker):
             Defaults to 4.
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
+        with_reverse: extracts children's and parents' walks from the root,
+            creating (max_walks * max_walks) more walks of 2 * depth.
+            Defaults to False.
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
             Defaults to None.
@@ -82,7 +85,6 @@ class WLWalker(RandomWalker):
             for k, v in self._label_map[vertex].items():
                 self._inv_label_map[vertex][v] = k
 
-    # Tuple[Tuple[str, ...], ...]
     def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
@@ -104,7 +106,10 @@ class WLWalker(RandomWalker):
         canonical_walks: Set[Tuple[str, ...]] = set()
         walks = self.extract_walks(kg, instance)
         for walk in walks:
-            kg.get_hops(walk[-1])
+            if self.with_reverse:
+                kg.get_hops(walk[0])
+            else:
+                kg.get_hops(walk[0])
 
         self._weisfeiler_lehman(kg)
 
