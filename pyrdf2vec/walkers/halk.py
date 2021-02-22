@@ -31,6 +31,7 @@ class HalkWalker(RandomWalker):
     """
 
     freq_thresholds: List[float] = attr.ib(
+        kw_only=True,
         default=[0.001],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(float),
