@@ -17,8 +17,6 @@ class WLWalker(RandomWalker):
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        wl_iterations: The Weisfeiler Lehman's iteration.
-            Defaults to 4.
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
         with_reverse: extracts children's and parents' walks from the root,
@@ -27,14 +25,22 @@ class WLWalker(RandomWalker):
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
             Defaults to None.
+        wl_iterations: The Weisfeiler Lehman's iteration.
+            Defaults to 4.
 
     """
 
     wl_iterations: int = attr.ib(
-        default=4, validator=attr.validators.instance_of(int)
+        kw_only=True, default=4, validator=attr.validators.instance_of(int)
     )
 
+    _inv_label_map: DefaultDict[Any, Any] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(dict)
+    )
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+    _label_map: DefaultDict[Any, Any] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(dict)
+    )
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int):
         """Creates a label.
@@ -43,16 +49,20 @@ class WLWalker(RandomWalker):
 
             The graph from which the neighborhoods are extracted for the
             provided instances.
-        vertex: The vertex.
+        vertex: The vertex to get the neighbors for the suffix.
         n:  The position.
 
         """
+        if len(self._label_map) == 0:
+            self._weisfeiler_lehman(kg)
+
         neighbor_names = [
-            self._label_map[neighbor][n - 1]
+            self._label_map[neighbor.name][n - 1]
             for neighbor in kg.get_neighbors(vertex, reverse=True)
         ]
-        suffix = "-".join(sorted(set(map(str, neighbor_names))))
-        return self._label_map[vertex][n - 1] + "-" + suffix
+
+        suffix = "-".join(sorted(set(neighbor_names)))
+        return f"{self._label_map[vertex.name][n - 1]}-{suffix}"
 
     def _weisfeiler_lehman(self, kg: KG) -> None:
         """Performs Weisfeiler-Lehman relabeling of the vertices.
@@ -68,22 +78,19 @@ class WLWalker(RandomWalker):
                 provided instances.
 
         """
-        self._label_map: DefaultDict[Any, Any] = defaultdict(dict)
-        self._inv_label_map: DefaultDict[Any, Any] = defaultdict(dict)
-
         for vertex in kg._vertices:
-            self._label_map[vertex][0] = str(vertex)
-            self._inv_label_map[vertex][0] = str(vertex)
+            self._label_map[vertex.name][0] = vertex.name
+            self._inv_label_map[vertex.name][0] = vertex.name
 
         for n in range(1, self.wl_iterations + 1):
             for vertex in kg._vertices:
-                self._label_map[vertex][n] = str(
+                self._label_map[vertex.name][n] = str(
                     md5(self._create_label(kg, vertex, n).encode()).digest()
                 )
 
         for vertex in kg._vertices:
-            for k, v in self._label_map[vertex].items():
-                self._inv_label_map[vertex][v] = k
+            for k, v in self._label_map[vertex.name].items():
+                self._inv_label_map[vertex.name][v] = k
 
     def _extract(
         self, kg: KG, instance: Vertex
@@ -109,7 +116,7 @@ class WLWalker(RandomWalker):
             if self.with_reverse:
                 kg.get_hops(walk[0])
             else:
-                kg.get_hops(walk[0])
+                kg.get_hops(walk[-1])
 
         self._weisfeiler_lehman(kg)
 
@@ -120,6 +127,6 @@ class WLWalker(RandomWalker):
                     if i == 0 or i % 2 == 1:
                         canonical_walk.append(hop.name)
                     else:
-                        canonical_walk.append(self._label_map[hop][n])
+                        canonical_walk.append(self._label_map[hop.name][n])
                 canonical_walks.add(tuple(canonical_walk))
         return {instance.name: tuple(canonical_walks)}
