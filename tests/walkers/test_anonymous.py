@@ -43,50 +43,6 @@ class TestAnonymousWalker:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "kg, root, depth, is_reverse",
-        list(
-            itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                (range(6)),
-                (False, True),
-            )
-        ),
-    )
-    def test_bfs(self, setup, kg, depth, root, is_reverse):
-        walks = AnonymousWalker(depth, None, random_state=42)._bfs(
-            kg, Vertex(root), is_reverse
-        )
-        for walk in walks:
-            assert len(walk) <= (depth * 2) + 1
-            if is_reverse:
-                assert walk[-1].name == root
-            else:
-                assert walk[0].name == root
-
-    @pytest.mark.parametrize(
-        "kg, root, depth, max_walks, is_reverse",
-        list(
-            itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                range(15),
-                range(6),
-                (False, True),
-            )
-        ),
-    )
-    def test_dfs(self, setup, kg, root, depth, max_walks, is_reverse):
-        for walk in AnonymousWalker(depth, max_walks, random_state=42)._dfs(
-            kg, Vertex(root), is_reverse
-        ):
-            assert len(walk) <= (depth * 2) + 1
-            if is_reverse:
-                assert walk[-1].name == root
-            else:
-                assert walk[0].name == root
-
-    @pytest.mark.parametrize(
         "kg, root, depth, max_walks, with_reverse",
         list(
             itertools.product(
