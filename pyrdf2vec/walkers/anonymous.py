@@ -8,7 +8,8 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class AnonymousWalker(RandomWalker):
-    """Defines the anonymous walking strategy.
+    """Walker that transforms label information into positional information in
+    order to anonymize the random walks.
 
     Attributes:
         depth: The depth per entity.

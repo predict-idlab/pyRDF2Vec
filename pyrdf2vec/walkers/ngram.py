@@ -9,17 +9,17 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class NGramWalker(RandomWalker):
-    """Defines the N-Grams walking strategy.
+    """Walker that relabels the N-grams in random walks to define a mapping
+    from one-to-many.
+
+    The intuition behind this is that the predecessors of a node that two
+    different walks have in common can be different.
 
     Attributes:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        grams: The number of grams.
-            Defaults to 3.
-        wildcards: the wild cards.
-            Defaults to None.
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
         with_reverse: extracts children's and parents' walks from the root,
@@ -27,6 +27,11 @@ class NGramWalker(RandomWalker):
             Defaults to False.
         random_state: The random state to use to ensure ensure random
             determinism to generate the same walks for entities.
+            Defaults to None.
+        grams: The N-grams to relabel.
+            Defaults to 3.
+        wildcards: The wildcards to be used to match sub-sequences with small
+            differences to be mapped onto the same label.
             Defaults to None.
 
     """

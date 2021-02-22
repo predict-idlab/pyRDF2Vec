@@ -10,14 +10,16 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class HalkWalker(RandomWalker):
-    """Defines the Hierarchical Walking (HALK) strategy.
+    """Walker that removes the rare entities from the random walks in order to
+    increase the quality of the generated embeddings while decreasing the
+    memory usage.
 
     Attributes:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        freq_thresholds: The minimum frequency thresholds of a hop.
+        freq_thresholds: The minimum frequency thresholds of a hop to be kept.
             Defaults to [0.001].
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.

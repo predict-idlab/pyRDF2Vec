@@ -8,7 +8,8 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class WalkletWalker(RandomWalker):
-    """Defines the walklet walking strategy.
+    """Walker that transforms walks into walklets, which are walks of length
+    two consisting of the root of the original walk and one of the hop.
 
     Attributes:
         depth: The depth per entity.
