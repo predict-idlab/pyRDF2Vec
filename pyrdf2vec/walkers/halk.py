@@ -37,12 +37,6 @@ class HalkWalker(RandomWalker):
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
-    hop_prob: float = attr.ib(
-        default=0.1, validator=attr.validators.instance_of(float)
-    )
-    resolution: int = attr.ib(
-        default=1, validator=attr.validators.instance_of(int)
-    )
 
     def _extract(
         self, kg: KG, instance: Vertex
