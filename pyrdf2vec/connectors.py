@@ -168,5 +168,4 @@ class SPARQLConnector(Connector):
         url = self.endpoint + "/query?query=" + parse.quote(query)
         with requests.Session() as session:
             res = session.get(url, headers=self._headers).text
-        print(json.loads(res)["results"]["bindings"])
         return json.loads(res)["results"]["bindings"]
