@@ -8,7 +8,7 @@ from pyrdf2vec.samplers import Sampler
 
 @attr.s
 class UniformSampler(Sampler):
-    """Defines the Uniform Weight Weight sampling strategy.
+    """Sampler that assigns a uniform weight to each hop in a Knowledge Graph.
 
     This sampling strategy is the most straight forward approach. With this
     strategy, strongly connected entities will have a higher influence on the
@@ -27,7 +27,7 @@ class UniformSampler(Sampler):
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Since the weights are uniform, this function does nothing.
 
         Args:
             kg: The Knowledge Graph.
@@ -39,14 +39,10 @@ class UniformSampler(Sampler):
         """Gets the weights to the edge of the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for this hop.
 
         """
         return 1
