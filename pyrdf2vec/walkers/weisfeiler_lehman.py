@@ -64,7 +64,9 @@ class WLWalker(RandomWalker):
                 set(
                     [
                         self._label_map[neighbor.name][n - 1]
-                        for neighbor in kg.get_neighbors(vertex, reverse=True)
+                        for neighbor in kg.get_neighbors(
+                            vertex, is_reverse=True
+                        )
                     ]
                 )
             )
