@@ -34,41 +34,45 @@ class WLWalker(RandomWalker):
         kw_only=True, default=4, validator=attr.validators.instance_of(int)
     )
 
-    _inv_label_map: DefaultDict[Any, Any] = attr.ib(
+    _inv_label_map: DefaultDict[str, Dict[Any, Any]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
-    _label_map: DefaultDict[Any, Any] = attr.ib(
+    _label_map: DefaultDict[str, Dict[int, str]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
 
-    def _create_label(self, kg: KG, vertex: Vertex, n: int):
-        """Creates a label.
+    def _create_label(self, kg: KG, vertex: Vertex, n: int) -> str:
+        """Creates a label according to a vertex and its neighbors.
 
         kg: The Knowledge Graph.
 
             The graph from which the neighborhoods are extracted for the
             provided instances.
-        vertex: The vertex to get the neighbors for the suffix.
-        n:  The position.
+        vertex: The vertex to get its neighbors to create the suffix.
+        n:  The index of the neighbor
+
+        Returns:
+            the label created for the vertex.
 
         """
         if len(self._label_map) == 0:
             self._weisfeiler_lehman(kg)
 
-        neighbor_names = [
-            self._label_map[neighbor.name][n - 1]
-            for neighbor in kg.get_neighbors(vertex, reverse=True)
-        ]
-        suffix = "-".join(sorted(set(neighbor_names)))
+        suffix = "-".join(
+            sorted(
+                set(
+                    [
+                        self._label_map[neighbor.name][n - 1]
+                        for neighbor in kg.get_neighbors(vertex, reverse=True)
+                    ]
+                )
+            )
+        )
         return f"{self._label_map[vertex.name][n - 1]}-{suffix}"
 
     def _weisfeiler_lehman(self, kg: KG) -> None:
         """Performs Weisfeiler-Lehman relabeling of the vertices.
-
-        Note:
-            You can create a `graph.KnowledgeGraph` object from an
-            `rdflib.Graph` object by using a converter method.
 
         Args:
             kg: The Knowledge Graph.
@@ -111,9 +115,8 @@ class WLWalker(RandomWalker):
         """
         canonical_walks: Set[Tuple[str, ...]] = set()
         self._weisfeiler_lehman(kg)
-
         for n in range(self.wl_iterations + 1):
-            for walk in walks:
+            for walk in self.extract_walks(kg, instance):
                 canonical_walk: List[str] = []
                 for i, hop in enumerate(walk):
                     if i == 0 or i % 2 == 1:
