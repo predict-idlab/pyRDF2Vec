@@ -27,7 +27,7 @@ KG_LOOP = KG()
 KG_CHAIN = KG()
 
 
-class TestHalkWalker:
+class TestUniformSampler:
     @pytest.fixture(scope="session")
     def setup(self):
         for i, graph in enumerate([LOOP, LONG_CHAIN]):
