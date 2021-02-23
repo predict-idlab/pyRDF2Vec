@@ -70,7 +70,7 @@ class Sampler(ABC):
             for vertex in kg._vertices:
                 if not vertex.predicate:
                     self._vertices_deg[vertex.name] = len(
-                        kg.get_neighbors(vertex, reverse=True)
+                        kg.get_neighbors(vertex, is_reverse=True)
                     )
 
     @abstractmethod
