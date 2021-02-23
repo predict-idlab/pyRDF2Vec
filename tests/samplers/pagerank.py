@@ -51,7 +51,6 @@ class TestHalkWalker:
         sampler = PageRankSampler()
         assert len(sampler._pageranks) == 0
         sampler.fit(kg)
-        assert isinstance(sampler._pageranks, dict)
         assert len(sampler._pageranks) > 0
 
     @pytest.mark.parametrize(
