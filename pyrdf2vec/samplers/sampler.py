@@ -99,6 +99,8 @@ class Sampler(ABC):
 
         """
         weights: List[float] = [self.get_weight(hop) for hop in hops]
+        if {} in weights:
+            return []
         if self.inverse:
             weights = [
                 max(weights) - (weight - min(weights)) for weight in weights
@@ -109,14 +111,9 @@ class Sampler(ABC):
                 for weight, hop in zip(weights, hops)
                 if self._vertices_deg[hop[1].name] != 0
             ]
-
-        if not {} in weights:
-            return [
-                weight / sum(weights)
-                for weight in weights
-                if sum(weights) != 0
-            ]
-        return []
+        return [
+            weight / sum(weights) for weight in weights if sum(weights) != 0
+        ]
 
     def sample_neighbor(
         self,
