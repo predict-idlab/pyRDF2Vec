@@ -15,15 +15,18 @@ class UniformSampler(Sampler):
     resulting embeddings.
 
     Attributes:
-        inverse: True if Inverse Uniform Weight sampling satrategy must be
-            used, False otherwise.
-            Default to False.
-        random_state: The random_state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.  Defaults to
+            None.
 
     """
 
+    inverse: bool = attr.ib(
+        init=False, default=False, validator=attr.validators.instance_of(bool)
+    )
+    split: bool = attr.ib(
+        init=False, default=False, validator=attr.validators.instance_of(bool)
+    )
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     def fit(self, kg: KG) -> None:
