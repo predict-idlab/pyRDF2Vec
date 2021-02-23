@@ -113,12 +113,15 @@ class TestFreqSampler:
                 (
                     ObjFreqSampler(),
                     ObjFreqSampler(inverse=True),
+                    ObjFreqSampler(split=True),
                     ObjFreqSampler(inverse=True, split=True),
                     ObjPredFreqSampler(),
                     ObjPredFreqSampler(inverse=True),
+                    ObjPredFreqSampler(split=True),
                     ObjPredFreqSampler(inverse=True, split=True),
                     PredFreqSampler(),
                     PredFreqSampler(inverse=True),
+                    PredFreqSampler(split=True),
                     PredFreqSampler(inverse=True, split=True),
                 ),
             )
