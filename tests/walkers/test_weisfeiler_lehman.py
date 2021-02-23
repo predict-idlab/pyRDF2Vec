@@ -58,13 +58,15 @@ class TestWLWalker:
     def test_extract(
         self, setup, kg, root, depth, max_walks, with_reverse, wl_iterations
     ):
-        walks = WLWalker(
+        walker = WLWalker(
             depth,
             max_walks,
             with_reverse=with_reverse,
             random_state=42,
             wl_iterations=wl_iterations,
-        )._extract(kg, Vertex(root))[root]
+        )
+        walker._weisfeiler_lehman(kg)
+        walks = walker._extract(kg, Vertex(root))[root]
         if max_walks is not None:
             if not with_reverse:
                 assert len(walks) <= (max_walks * wl_iterations) + max(
