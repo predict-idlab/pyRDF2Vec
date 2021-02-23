@@ -20,7 +20,7 @@ class PageRankSampler(Sampler):
             Default to False.
         split: True if PageRank Split Weight must be used, False otherwise.
             Default to False.
-        alpha: The threshold.
+        alpha: The damping for PageRank.
             Default to 0.85.
         random_state: The random_state to use to ensure ensure random
             determinism to generate the same walks for entities.
@@ -29,8 +29,11 @@ class PageRankSampler(Sampler):
     """
 
     alpha: float = attr.ib(
-        default=0.85, validator=attr.validators.instance_of(float)
+        kw_only=True,
+        default=0.85,
+        validator=attr.validators.instance_of(float),
     )
+    _pageranks = attr.ib(init=False, repr=False, factory=dict)
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
@@ -50,20 +53,21 @@ class PageRankSampler(Sampler):
                         nx_graph.add_edge(
                             vertex.name, obj.name, name=predicate.name
                         )
-        self.pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
+        self._pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
+    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> float:
         """Gets the weights to the edge of the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for this hop.
 
         """
-        return self.pageranks[hop[1].name]
+        if len(self._pageranks) == 0:
+            raise ValueError(
+                "You must call the `fit(kg)` function before get the weight of"
+                + " a hop."
+            )
+        return self._pageranks[hop[1].name]
