@@ -45,6 +45,11 @@ class KG:
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
+    is_mul_req: bool = attr.ib(
+        kw_only=True,
+        default=True,
+        validator=attr.validators.instance_of(bool),
+    )
 
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
@@ -65,7 +70,9 @@ class KG:
             ) or self.location.startswith("https://")
 
             if self._is_remote is True:
-                self.connector = SPARQLConnector(self.location)
+                self.connector = SPARQLConnector(
+                    self.location, is_mul_req=self.is_mul_req
+                )
             elif self.location is not None:
                 for subj, pred, obj in rdflib.Graph().parse(
                     self.location, format=self.fmt
