@@ -110,13 +110,6 @@ class WLWalker(RandomWalker):
 
         """
         canonical_walks: Set[Tuple[str, ...]] = set()
-        walks = self.extract_walks(kg, instance)
-        for walk in walks:
-            if self.with_reverse:
-                kg.get_hops(walk[0])
-            else:
-                kg.get_hops(walk[-1])
-
         self._weisfeiler_lehman(kg)
 
         for n in range(self.wl_iterations + 1):
