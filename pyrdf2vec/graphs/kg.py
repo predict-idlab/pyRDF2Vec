@@ -139,12 +139,15 @@ class KG:
         return False
 
     def get_hops(
-        self, vertex: Vertex, reverse: bool = False
+        self, vertex: Vertex, is_reverse: bool = False
     ) -> List[Tuple[Vertex, Vertex]]:
         """Returns the hops of a vertex.
 
         Args:
             vertex: The name of the vertex to get the hops.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
 
         Returns:
             The hops of a vertex in a (predicate, object) form.
@@ -164,7 +167,7 @@ class KG:
                     hops.append((pred, obj))
             return hops
 
-        if reverse:
+        if is_reverse:
             return [
                 (pred, obj)
                 for pred in self._inv_transition_matrix[vertex]
@@ -179,18 +182,21 @@ class KG:
         ]
 
     def get_neighbors(
-        self, vertex: Vertex, reverse: bool = False
+        self, vertex: Vertex, is_reverse: bool = False
     ) -> Set[Vertex]:
-        """Gets the reverse neighbors of a vertex.
+        """Gets the children or parents neighbors of a vertex.
 
         Args:
             vertex: The vertex.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
 
         Returns:
-            The reverse neighbors of a vertex.
+            The children or parents neighbors of a vertex.
 
         """
-        if reverse:
+        if is_reverse:
             return self._inv_transition_matrix[vertex]
         return self._transition_matrix[vertex]
 
