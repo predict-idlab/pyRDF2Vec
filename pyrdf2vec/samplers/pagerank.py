@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Dict, Tuple
 
 import attr
 import networkx as nx
@@ -33,7 +33,9 @@ class PageRankSampler(Sampler):
         default=0.85,
         validator=attr.validators.instance_of(float),
     )
-    _pageranks = attr.ib(init=False, repr=False, factory=dict)
+    _pageranks: Dict[str, float] = attr.ib(
+        init=False, repr=False, factory=dict
+    )
 
     def fit(self, kg: KG) -> None:
         """Fits the embedding network based on provided Knowledge Graph.
@@ -55,8 +57,8 @@ class PageRankSampler(Sampler):
                         )
         self._pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> float:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.

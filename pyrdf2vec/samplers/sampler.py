@@ -74,18 +74,14 @@ class Sampler(ABC):
                     )
 
     @abstractmethod
-    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for this hop.
 
         """
         raise NotImplementedError("This has to be implemented")

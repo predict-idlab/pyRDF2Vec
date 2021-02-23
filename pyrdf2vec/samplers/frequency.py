@@ -40,23 +40,20 @@ class ObjFreqSampler(Sampler):
         for vertex in kg._vertices:
             if not vertex.predicate:
                 self.counts[vertex.name] = len(
-                    kg.get_neighbors(vertex, reverse=True)
+                    kg.get_neighbors(vertex, is_reverse=True)
                 )
 
-    def get_weight(self, hop) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for this hop.
 
         """
+
         return self.counts[hop[1].name]
 
 
@@ -91,18 +88,14 @@ class PredFreqSampler(Sampler):
             if vertex.predicate:
                 self.counts[vertex.name] += 1
 
-    def get_weight(self, hop) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for this hop.
 
         """
         return self.counts[hop[0].name]
@@ -141,18 +134,14 @@ class ObjPredFreqSampler(Sampler):
                 obj = list(kg.get_neighbors(vertex))[0]
                 self.counts[(vertex.name, obj.name)] += 1
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for this hop.
 
         """
         return self.counts[(hop[0].name, hop[1].name)]

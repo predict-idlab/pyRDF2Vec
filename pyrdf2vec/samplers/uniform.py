@@ -38,8 +38,8 @@ class UniformSampler(Sampler):
         """
         pass
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
