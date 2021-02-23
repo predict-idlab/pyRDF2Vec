@@ -86,7 +86,9 @@ class Sampler(ABC):
         """
         raise NotImplementedError("This has to be implemented")
 
-    def get_weights(self, hops: List[Tuple[Vertex, Vertex]]) -> List[float]:
+    def get_weights(
+        self, hops: List[Tuple[Vertex, Vertex]]
+    ) -> Optional[List[float]]:
         """Gets the weights of the hops
 
         Args:
@@ -105,8 +107,16 @@ class Sampler(ABC):
             weights = [
                 weight / self._vertices_deg[hop[1].name]
                 for weight, hop in zip(weights, hops)
+                if self._vertices_deg[hop[1].name] != 0
             ]
-        return [weight / sum(weights) for weight in weights]
+
+        if not {} in weights:
+            return [
+                weight / sum(weights)
+                for weight in weights
+                if sum(weights) != 0
+            ]
+        return []
 
     def sample_neighbor(
         self,
