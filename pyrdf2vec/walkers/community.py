@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Dict, List, Set, Tuple
+from typing import Dict, Iterable, List, Set, Tuple
 
 import attr
 import community
@@ -199,6 +199,33 @@ class CommunityWalker(Walker):
                 d = len(sub_walk) - 1
             walks.append(sub_walk)
         return list(set(walks))
+
+    def extract(
+        self,
+        kg: KG,
+        instances: List[str],
+        verbose: int = 0,
+    ) -> Iterable[str]:
+        """Fits the provided sampling strategy and then calls the
+        private _extract method that is implemented for each of the
+        walking strategies.
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided instances.
+            instances: The instances to be extracted from the Knowledge Graph.
+            verbose: If equal to 1 or 2, display a progress bar for the
+                extraction of the walks.
+
+        Returns:
+            The 2D matrix with its number of rows equal to the number of
+            provided instances; number of column equal to the embedding size.
+
+        """
+        self._community_detection(kg)
+        return super().extract(kg, instances, verbose)
 
     def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks of depth - 1 hops rooted in root.

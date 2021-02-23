@@ -120,10 +120,6 @@ class Walker(ABC):
             )
         self.sampler.fit(kg)
 
-        # To avoid circular imports
-        if "CommunityWalker" in str(self):
-            self._community_detection(kg)  # type: ignore
-
         process = self.n_jobs if self.n_jobs is not None else 1
 
         if (kg._is_remote and kg.connector.is_mul_req) and process >= 2:
