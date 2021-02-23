@@ -26,6 +26,10 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
+IS_REVERSE = [False, True]
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+
 
 class TestUniformSampler:
     @pytest.fixture(scope="session")
@@ -47,15 +51,9 @@ class TestUniformSampler:
 
     @pytest.mark.parametrize(
         "kg, root, is_reverse",
-        list(
-            itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                (False, True),
-            )
-        ),
+        list(itertools.product(KGS, ROOTS_WITHOUT_URL, IS_REVERSE)),
     )
     def test_weight(self, setup, kg, root, is_reverse):
         sampler = UniformSampler()
-        for hop in kg.get_hops(Vertex(root), is_reverse=is_reverse):
+        for hop in kg.get_hops(Vertex(f"{URL}#{root}"), is_reverse=is_reverse):
             assert sampler.get_weight(hop) == 1

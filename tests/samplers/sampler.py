@@ -3,7 +3,14 @@ import itertools
 import pytest
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.samplers import *
+
+from pyrdf2vec.samplers import (  # isort: skip
+    ObjFreqSampler,
+    ObjPredFreqSampler,
+    PageRankSampler,
+    PredFreqSampler,
+    UniformSampler,
+)
 
 LOOP = [
     ["Alice", "knows", "Bob"],
@@ -26,6 +33,19 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
+IS_INVERSE = [False, True]
+IS_REVERSE = [False, True]
+IS_SPLIT = [False, True]
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+SAMPLERS = [
+    ObjFreqSampler,
+    ObjPredFreqSampler,
+    PageRankSampler,
+    PredFreqSampler,
+    UniformSampler,
+]
+
 
 class TestSampler:
     @pytest.fixture(scope="session")
@@ -43,38 +63,29 @@ class TestSampler:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "kg, root, sampler, is_reverse",
+        "kg, root, sampler, is_reverse, is_inverse, is_split",
         list(
             itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                (
-                    ObjFreqSampler(),
-                    ObjFreqSampler(inverse=True),
-                    ObjFreqSampler(split=True),
-                    ObjFreqSampler(inverse=True, split=True),
-                    ObjPredFreqSampler(),
-                    ObjPredFreqSampler(inverse=True),
-                    ObjPredFreqSampler(split=True),
-                    ObjPredFreqSampler(inverse=True, split=True),
-                    PredFreqSampler(),
-                    PredFreqSampler(inverse=True),
-                    PredFreqSampler(split=True),
-                    PredFreqSampler(inverse=True, split=True),
-                    UniformSampler(),
-                    PageRankSampler(),
-                    PageRankSampler(inverse=True),
-                    PageRankSampler(split=True),
-                    PageRankSampler(inverse=True, split=True),
-                ),
-                (False, True),
+                KGS,
+                ROOTS_WITHOUT_URL,
+                SAMPLERS,
+                IS_REVERSE,
+                IS_INVERSE,
+                IS_SPLIT,
             ),
         ),
     )
-    def test_get_weights(self, setup, kg, root, sampler, is_reverse):
+    def test_get_weights(
+        self, setup, kg, root, sampler, is_reverse, is_inverse, is_split
+    ):
+        if "UniformSampler" in str(sampler):
+            sampler = sampler()
+        else:
+            sampler = sampler(is_inverse, is_split)
         sampler.fit(kg)
+
         weights = sampler.get_weights(
-            kg.get_hops(Vertex(root), is_reverse=is_reverse)
+            kg.get_hops(Vertex(f"{URL}#{root}"), is_reverse=is_reverse)
         )
         assert isinstance(weights, list)
         if len(weights) > 0:

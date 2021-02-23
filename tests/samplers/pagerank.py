@@ -26,6 +26,13 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
+ALPHA = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+IS_INVERSE = [False, True]
+IS_REVERSE = [False, True]
+IS_SPLIT = [False, True]
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+
 
 class TestHalkWalker:
     @pytest.fixture(scope="session")
@@ -54,21 +61,24 @@ class TestHalkWalker:
         assert len(sampler._pageranks) > 0
 
     @pytest.mark.parametrize(
-        "kg, root, is_reverse, alpha, inverse, split",
+        "kg, root, is_reverse, alpha, is_inverse, is_split",
         list(
             itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                (False, True),
-                (0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
-                (False, True),
-                (False, True),
+                KGS,
+                ROOTS_WITHOUT_URL,
+                IS_REVERSE,
+                ALPHA,
+                IS_INVERSE,
+                IS_SPLIT,
             )
         ),
     )
-    def test_weight(self, setup, kg, root, is_reverse, alpha, inverse, split):
-        sampler = PageRankSampler(alpha=alpha, inverse=inverse, split=split)
+    def test_weight(
+        self, setup, kg, root, is_reverse, alpha, is_inverse, is_split
+    ):
+        sampler = PageRankSampler(
+            alpha=alpha, inverse=is_inverse, split=is_split
+        )
         sampler.fit(kg)
-        print(alpha)
-        for hop in kg.get_hops(Vertex(root), is_reverse=is_reverse):
+        for hop in kg.get_hops(Vertex(f"{URL}#{root}"), is_reverse=is_reverse):
             assert sampler.get_weight(hop) <= alpha

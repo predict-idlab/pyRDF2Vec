@@ -33,6 +33,14 @@ KG_LOOP = KG()
 KG_CHAIN = KG()
 
 
+FREQ_SAMPLERS = [ObjFreqSampler, ObjPredFreqSampler, PredFreqSampler]
+IS_INVERSE = [False, True]
+IS_REVERSE = [False, True]
+IS_SPLIT = [False, True]
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+
+
 class TestFreqSampler:
     @pytest.fixture(scope="session")
     def setup(self):
@@ -49,48 +57,34 @@ class TestFreqSampler:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "freq_sampler",
-        list(
-            (
-                ObjFreqSampler(),
-                ObjFreqSampler(inverse=True),
-                ObjFreqSampler(inverse=True, split=True),
-                ObjPredFreqSampler(),
-                ObjPredFreqSampler(inverse=True),
-                ObjPredFreqSampler(inverse=True, split=True),
-                PredFreqSampler(),
-                PredFreqSampler(inverse=True),
-                PredFreqSampler(inverse=True, split=True),
-            )
-        ),
-    )
-    def test_invalid_weight(self, freq_sampler):
-        with pytest.raises(ValueError):
-            freq_sampler.get_weight(None)
-
-    @pytest.mark.parametrize(
-        "kg, freq_sampler",
+        "sampler, is_inverse, is_split",
         list(
             itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (
-                    ObjFreqSampler(),
-                    ObjFreqSampler(inverse=True),
-                    ObjFreqSampler(inverse=True, split=True),
-                    ObjPredFreqSampler(),
-                    ObjPredFreqSampler(inverse=True),
-                    ObjPredFreqSampler(inverse=True, split=True),
-                    PredFreqSampler(),
-                    PredFreqSampler(inverse=True),
-                    PredFreqSampler(inverse=True, split=True),
-                ),
+                FREQ_SAMPLERS,
+                IS_INVERSE,
+                IS_SPLIT,
             )
         ),
     )
-    def test_fit(self, setup, kg, freq_sampler):
-        sampler = freq_sampler
+    def test_invalid_weight(self, sampler, is_inverse, is_split):
+        with pytest.raises(ValueError):
+            sampler(is_inverse, is_split).get_weight(None)
+
+    @pytest.mark.parametrize(
+        "kg, sampler, is_inverse, is_split",
+        list(
+            itertools.product(
+                KGS,
+                FREQ_SAMPLERS,
+                IS_INVERSE,
+                IS_SPLIT,
+            )
+        ),
+    )
+    def test_fit(self, setup, kg, sampler, is_inverse, is_split):
+        sampler = sampler(is_inverse, is_split)
         # To bypass the fact that the objects tested with pytest are the same.
-        freq_sampler._counts = defaultdict(dict)
+        sampler._counts = defaultdict(dict)
         assert len(sampler._counts) == 0
         sampler.fit(kg)
         if isinstance(sampler, ObjFreqSampler):
@@ -104,32 +98,23 @@ class TestFreqSampler:
             assert len(sampler._counts) == 2
 
     @pytest.mark.parametrize(
-        "kg, root, is_reverse, freq_sampler",
+        "kg, root, is_reverse, sampler, is_inverse, is_split",
         list(
             itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                (False, True),
-                (
-                    ObjFreqSampler(),
-                    ObjFreqSampler(inverse=True),
-                    ObjFreqSampler(split=True),
-                    ObjFreqSampler(inverse=True, split=True),
-                    ObjPredFreqSampler(),
-                    ObjPredFreqSampler(inverse=True),
-                    ObjPredFreqSampler(split=True),
-                    ObjPredFreqSampler(inverse=True, split=True),
-                    PredFreqSampler(),
-                    PredFreqSampler(inverse=True),
-                    PredFreqSampler(split=True),
-                    PredFreqSampler(inverse=True, split=True),
-                ),
+                KGS,
+                ROOTS_WITHOUT_URL,
+                IS_REVERSE,
+                FREQ_SAMPLERS,
+                IS_INVERSE,
+                IS_SPLIT,
             )
         ),
     )
-    def test_weight(self, setup, kg, root, is_reverse, freq_sampler):
-        sampler = freq_sampler
+    def test_weight(
+        self, setup, kg, root, is_reverse, sampler, is_inverse, is_split
+    ):
+        sampler = sampler(is_inverse, is_split)
         sampler.fit(kg)
-        for hop in kg.get_hops(Vertex(root), is_reverse=is_reverse):
+        for hop in kg.get_hops(Vertex(f"{URL}#{root}"), is_reverse=is_reverse):
             if isinstance(sampler, ObjFreqSampler):
                 assert sampler.get_weight(hop) <= 2
