@@ -40,7 +40,7 @@ class RandomWalker(Walker):
             root: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors. Otherwise False.
-                Defaults: False
+                Defaults to False
 
         Returns:
             The list of walks for the root node.
@@ -75,7 +75,7 @@ class RandomWalker(Walker):
             root: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors. Otherwise False.
-                Defaults: False
+                Defaults to False
 
         Returns:
             The list of walks for the root node according to the depth and

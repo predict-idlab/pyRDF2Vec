@@ -128,7 +128,7 @@ class Sampler(ABC):
             for the desired depth. Otherwise False.
         is_reverse: True to get the parent neighbors instead of the child
             neighbors. Otherwise False.
-            Defaults: False
+            Defaults to False
 
         Returns:
             An unvisited neighbor in the form (predicate, object).
