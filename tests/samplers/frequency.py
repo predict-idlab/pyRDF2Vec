@@ -114,4 +114,4 @@ class TestFreqSampler:
         sampler.fit(kg)
         for hop in kg.get_hops(Vertex(f"{URL}#{root}"), is_reverse=is_reverse):
             if isinstance(sampler, ObjFreqSampler):
-                assert sampler.get_weight(hop) <= 2
+                assert sampler.get_weight(hop) <= 4
