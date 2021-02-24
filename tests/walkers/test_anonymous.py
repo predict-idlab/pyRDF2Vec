@@ -26,6 +26,12 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
+DEPTHS = range(15)
+KGS = [KG_LOOP, KG_CHAIN]
+MAX_WALKS = [None, 0, 1, 2, 3, 4, 5]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+WITH_REVERSE = [False, True]
+
 
 class TestAnonymousWalker:
     @pytest.fixture(scope="session")
@@ -46,15 +52,12 @@ class TestAnonymousWalker:
         "kg, root, depth, max_walks, with_reverse",
         list(
             itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                range(15),
-                (None, 0, 1, 2, 3, 4, 5),
-                (False, True),
+                KGS, ROOTS_WITHOUT_URL, DEPTHS, MAX_WALKS, WITH_REVERSE
             )
         ),
     )
     def test_extract(self, setup, kg, root, depth, max_walks, with_reverse):
+        root = f"{URL}#{root}"
         walks = AnonymousWalker(
             depth, max_walks, with_reverse=with_reverse, random_state=42
         )._extract(kg, Vertex(root))[root]

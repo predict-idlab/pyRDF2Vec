@@ -1,5 +1,4 @@
 import itertools
-from collections import defaultdict
 
 import pytest
 
@@ -83,8 +82,6 @@ class TestFreqSampler:
     )
     def test_fit(self, setup, kg, sampler, is_inverse, is_split):
         sampler = sampler(is_inverse, is_split)
-        # To bypass the fact that the objects tested with pytest are the same.
-        sampler._counts = defaultdict(dict)
         assert len(sampler._counts) == 0
         sampler.fit(kg)
         if isinstance(sampler, ObjFreqSampler):

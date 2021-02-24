@@ -26,6 +26,13 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
+DEPTHS = range(5)
+KGS = [KG_LOOP, KG_CHAIN]
+MAX_WALKS = [None, 0, 1, 2, 3, 4, 5]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+WITH_REVERSE = [False, True]
+WL_ITERATIONS = range(5)
+
 
 class TestWLWalker:
     @pytest.fixture(scope="session")
@@ -46,18 +53,19 @@ class TestWLWalker:
         "kg, root, depth, max_walks, with_reverse, wl_iterations",
         list(
             itertools.product(
-                (KG_LOOP, KG_CHAIN),
-                (f"{URL}#Alice", f"{URL}#Bob", f"{URL}#Dean"),
-                range(5),
-                (None, 0, 1, 2, 3, 4, 5),
-                (False, True),
-                (range(5)),
+                KGS,
+                ROOTS_WITHOUT_URL,
+                DEPTHS,
+                MAX_WALKS,
+                WITH_REVERSE,
+                WL_ITERATIONS,
             )
         ),
     )
     def test_extract(
         self, setup, kg, root, depth, max_walks, with_reverse, wl_iterations
     ):
+        root = f"{URL}#{root}"
         walker = WLWalker(
             depth,
             max_walks,
