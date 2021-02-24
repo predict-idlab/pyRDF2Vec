@@ -30,7 +30,7 @@ class RemoteNotSupported(Exception):
 class Walker(ABC):
     """Base class for the walking strategies.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

@@ -15,7 +15,7 @@ class NGramWalker(RandomWalker):
     The intuition behind this is that the predecessors of a node that two
     different walks have in common can be different.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

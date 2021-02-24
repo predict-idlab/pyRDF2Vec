@@ -11,7 +11,7 @@ class AnonymousWalker(RandomWalker):
     """Walker that transforms label information into positional information in
     order to anonymize the random walks.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

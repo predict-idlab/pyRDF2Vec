@@ -19,20 +19,7 @@ class RemoteNotSupported(Exception):
 
 @attr.s
 class Sampler(ABC):
-    """Base class for the sampling strategies.
-
-    Attributes:
-        inverse: True if the inverse sampling strategy must be used,
-            False otherwise.
-            Defaults to False.
-        split: True if the split sampling strategy must be used,
-            False otherwise.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.  Defaults to
-            None.
-
-    """
+    """Base class for the sampling strategies."""
 
     inverse: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
@@ -125,13 +112,14 @@ class Sampler(ABC):
         """Samples an unvisited random neighbor in the (predicate, object)
         form, according to the weight of hops for a given walk.
 
-        kg: The Knowledge Graph.
-        walk: The walk with one or several vertices.
-        is_last_hop: True if the next neighbor to be visited is the last one
-            for the desired depth. Otherwise False.
-        is_reverse: True to get the parent neighbors instead of the child
-            neighbors. Otherwise False.
-            Defaults to False
+        Args:
+            kg: The Knowledge Graph.
+            walk: The walk with one or several vertices.
+            is_last_hop: True if the next neighbor to be visited is the last
+                one for the desired depth. Otherwise False.
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors, False otherwise.
+                Defaults to False
 
         Returns:
             An unvisited neighbor in the form (predicate, object).

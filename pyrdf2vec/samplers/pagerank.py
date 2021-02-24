@@ -15,7 +15,7 @@ class PageRankSampler(Sampler):
     nodes are more important than others and hence there will be resources
     which are more frequent in the walks as others.
 
-    Attributes:
+    Args:
         inverse: True if Inverse PageRank Weight must be used, False otherwise.
             Default to False.
         split: True if PageRank Split Weight must be used, False otherwise.

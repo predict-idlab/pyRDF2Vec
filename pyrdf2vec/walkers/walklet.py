@@ -11,7 +11,7 @@ class WalkletWalker(RandomWalker):
     """Walker that transforms walks into walklets, which are walks of length
     two consisting of the root of the original walk and one of the hop.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

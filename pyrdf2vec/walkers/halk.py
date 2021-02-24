@@ -14,7 +14,7 @@ class HalkWalker(RandomWalker):
     increase the quality of the generated embeddings while decreasing the
     memory usage.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

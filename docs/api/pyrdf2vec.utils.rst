@@ -1,5 +1,5 @@
-pyrdf2vec.graphs package
-========================
+pyrdf2vec.utils package
+=======================
 
 Submodules
 ----------
@@ -7,13 +7,12 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   pyrdf2vec.graphs.kg
-   pyrdf2vec.graphs.vertex
+   pyrdf2vec.utils.validation
 
 Module contents
 ---------------
 
-.. automodule:: pyrdf2vec.graphs
+.. automodule:: pyrdf2vec.utils
    :members:
    :undoc-members:
    :show-inheritance:

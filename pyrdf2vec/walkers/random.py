@@ -11,7 +11,7 @@ from pyrdf2vec.walkers import Walker
 class RandomWalker(Walker):
     """Defines the random walking strategy.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

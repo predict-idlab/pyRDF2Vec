@@ -36,7 +36,7 @@ np.random.permutation = lambda x: next(itertools.permutations(x))
 class CommunityWalker(Walker):
     """Defines the community walking strategy.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.

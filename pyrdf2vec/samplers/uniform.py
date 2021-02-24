@@ -14,10 +14,10 @@ class UniformSampler(Sampler):
     strategy, strongly connected entities will have a higher influence on the
     resulting embeddings.
 
-    Attributes:
+    Args:
         random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.  Defaults to
-            None.
+            determinism to generate the same walks for entities.
+            Defaults to None.
 
     """
 

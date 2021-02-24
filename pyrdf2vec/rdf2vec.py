@@ -13,15 +13,15 @@ from pyrdf2vec.walkers import RandomWalker, Walker
 class RDF2VecTransformer:
     """Transforms nodes in a Knowledge Graph into an embedding.
 
-    Attributes:
+    Args:
         embedder: The embedding technique.
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None).
         verbose: If True, display a progress bar for the extraction of the
-                walks and display the number of these extracted walks for the
-                number of entities with the extraction time.
-            Defaults to False.
+            walks and display the number of these extracted walks for the
+            number of entities with the extraction time.
+            Defaults to 0.
 
     """
 

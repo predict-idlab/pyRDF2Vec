@@ -13,7 +13,7 @@ from pyrdf2vec.utils.validation import _check_location
 class KG:
     """Represents a Knowledge Graph.
 
-    Attributes:
+    Args:
         location: The location of the file to load.
             Defaults to None.
         skip_predicates: The label predicates to skip from the KG.

@@ -15,7 +15,7 @@ class ObjFreqSampler(Sampler):
     this strategy, entities which have a high in degree get visisted more
     often.
 
-    Attributes:
+    Args:
         inverse: True if Inverse Object Frequency Weight sampling strategy
             must be used, False otherwise.
             Defaults to False.

@@ -6,18 +6,7 @@ import attr
 
 @attr.s(eq=False, frozen=True, slots=True)
 class Vertex:
-    """Represents a vertex in a Knowledge Graph.
-
-    Attributes:
-        name: The name of the vertex.
-        predicate: The predicate of the vertex.
-            Defaults to False.
-        vprev: The previous Vertex.
-            Defaults to None
-        vnext: The next Vertex.
-            Defaults to None.
-
-    """
+    """Represents a vertex in a Knowledge Graph."""
 
     name: str = attr.ib(validator=attr.validators.instance_of(str))
     predicate: bool = attr.ib(

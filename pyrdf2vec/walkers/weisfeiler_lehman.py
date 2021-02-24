@@ -12,11 +12,9 @@ from pyrdf2vec.walkers import RandomWalker
 class WLWalker(RandomWalker):
     """Defines the Weisfeler-Lehman walking strategy.
 
-    Attributes:
+    Args:
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to UniformSampler().
         n_jobs: The number of process to use for multiprocessing.
             Defaults to 1.
         with_reverse: extracts children's and parents' walks from the root,
