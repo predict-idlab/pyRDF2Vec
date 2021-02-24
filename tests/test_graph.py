@@ -168,13 +168,5 @@ class TestKG:
             LOCAL_KG.remove_edge(vtx_alice, Vertex(f"{URL}#Unknown")) is False
         )
 
-    def test_valid_file(self):
-        assert KG(
-            "samples/mutag/mutag.owl",
-        )
-
     def test_valid_url(self):
-        KG(
-            "https://dbpedia.org/sparql",
-            is_remote=True,
-        )
+        KG("https://dbpedia.org/sparql")
