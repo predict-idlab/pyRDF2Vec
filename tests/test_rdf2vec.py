@@ -57,11 +57,13 @@ class TestRDF2VecTransformer:
     @pytest.mark.parametrize("kg", KGS)
     def test_fit(self, setup, kg):
         transformer = RDF2VecTransformer()
+        assert len(transformer._walks) == 0
         with pytest.raises(ValueError):
             transformer.fit(kg, ["does", "not", "exist"])
         transformer.fit(
             kg, [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         )
+        assert len(transformer._walks) > 0
 
     @pytest.mark.parametrize("kg", KGS)
     def test_fit_transform(self, kg):
