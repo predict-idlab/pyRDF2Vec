@@ -82,7 +82,7 @@ class TestKG:
                 [
                     neighbor
                     for neighbor in LOCAL_KG.get_neighbors(
-                        Vertex(f"{URL}#Alice"), reverse=True
+                        Vertex(f"{URL}#Alice"), is_reverse=True
                     )
                 ]
             )
@@ -100,7 +100,7 @@ class TestKG:
         bob_predicates = [
             neighbor
             for neighbor in LOCAL_KG.get_neighbors(
-                Vertex(f"{URL}#Bob"), reverse=True
+                Vertex(f"{URL}#Bob"), is_reverse=True
             )
         ]
         assert len(bob_predicates) == 1
@@ -110,7 +110,7 @@ class TestKG:
         dean_predicates = [
             neighbor
             for neighbor in LOCAL_KG.get_neighbors(
-                Vertex(f"{URL}#Dean"), reverse=True
+                Vertex(f"{URL}#Dean"), is_reverse=True
             )
         ]
         assert len(dean_predicates) == 1
