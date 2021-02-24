@@ -5,45 +5,70 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
 from pyrdf2vec.walkers import RandomWalker, WLWalker
 
-KNOWLEDGE_GRAPH = KG(
-    "samples/mutag/mutag.owl",
-    skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
-)
-
-ENTITIES = [
-    entity
-    for entity in pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)[
-        "bond"
-    ]
+LOOP = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Dean"],
+    ["Dean", "loves", "Alice"],
 ]
-ENTITIES_SUBSET = ENTITIES[:5]
+LONG_CHAIN = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Mathilde"],
+    ["Mathilde", "knows", "Alfy"],
+    ["Alfy", "knows", "Stephane"],
+    ["Stephane", "knows", "Alfred"],
+    ["Alfred", "knows", "Emma"],
+    ["Emma", "knows", "Julio"],
+]
+URL = "http://pyRDF2Vec"
 
+KG_LOOP = KG()
+KG_CHAIN = KG()
+
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "
 
 class TestRDF2VecTransformer:
+    @pytest.fixture(scope="session")
+    def setup(self):
+        for i, graph in enumerate([LOOP, LONG_CHAIN]):
+            for row in graph:
+                subj = Vertex(f"{URL}#{row[0]}")
+                obj = Vertex((f"{URL}#{row[2]}"))
+                pred = Vertex(
+                    (f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj
+                )
+                if i == 0:
+                    KG_LOOP.add_walk(subj, pred, obj)
+                else:
+                    KG_CHAIN.add_walk(subj, pred, obj)
+
     def test_fail_load_transformer(self):
         pickle.dump([0, 1, 2], open("tmp", "wb"))
         with pytest.raises(ValueError):
             RDF2VecTransformer.load("tmp")
         os.remove("tmp")
 
-    def test_fit(self):
+    @pytest.mark.parametrize("kg", KGS)
+    def test_fit(self, setup, kg):
         transformer = RDF2VecTransformer()
         with pytest.raises(ValueError):
-            transformer.fit(KNOWLEDGE_GRAPH, ["does", "not", "exist"])
-        transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
+            transformer.fit(kg, ["does", "not", "exist"])
+        transformer.fit(
+            kg, [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
+        )
 
-    def test_fit_transform(self):
+    @pytest.mark.parametrize("kg", KGS)
+    def test_fit_transform(self, kg):
+        entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         np.testing.assert_array_equal(
-            RDF2VecTransformer().fit_transform(
-                KNOWLEDGE_GRAPH, ENTITIES_SUBSET
-            ),
-            RDF2VecTransformer()
-            .fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
-            .transform(ENTITIES_SUBSET),
+            RDF2VecTransformer().fit_transform(kg, entities),
+            RDF2VecTransformer().fit(kg, entities).transform(entities),
         )
 
     def test_load_save_transformer(self):
@@ -59,12 +84,10 @@ class TestRDF2VecTransformer:
         assert isinstance(transformer.walkers[1], WLWalker)
         os.remove("transformer_data")
 
-    def test_transform(self):
+    @pytest.mark.parametrize("kg", KGS)
+    def test_transform(self, setup, kg):
+        entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         assert (
-            type(
-                RDF2VecTransformer()
-                .fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
-                .transform(ENTITIES_SUBSET)
-            )
+            type(RDF2VecTransformer().fit(kg, entities).transform(entities))
             == list
         )
