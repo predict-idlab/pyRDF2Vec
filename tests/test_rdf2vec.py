@@ -2,7 +2,6 @@ import os
 import pickle
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from pyrdf2vec.graphs import KG, Vertex
@@ -31,7 +30,8 @@ KG_LOOP = KG()
 KG_CHAIN = KG()
 
 KGS = [KG_LOOP, KG_CHAIN]
-ROOTS_WITHOUT_URL = ["Alice", "Bob", "
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+
 
 class TestRDF2VecTransformer:
     @pytest.fixture(scope="session")
