@@ -3,6 +3,7 @@ from typing import Any, DefaultDict, List, Optional, Set, Tuple
 
 import attr
 import rdflib
+from cachetools import Cache, TTLCache, cachedmethod
 
 from pyrdf2vec.connectors import SPARQLConnector
 from pyrdf2vec.graphs.vertex import Vertex
@@ -22,8 +23,6 @@ class KG:
             Defaults to None.
         is_mul_req: If True allows to bundle SPARQL requests.
             Defaults to True.
-        cache: The cache policy to use for remote Knowledge Graphs.
-            Defaults to TTLCache(maxsize=1024, ttl=1200)
 
     """
 
@@ -50,6 +49,11 @@ class KG:
         default=True,
         validator=attr.validators.instance_of(bool),
     )
+    cache: Cache = attr.ib(
+        kw_only=True,
+        default=TTLCache(maxsize=1024, ttl=1200),
+        validator=attr.validators.optional(attr.validators.instance_of(Cache)),
+    )
 
     _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
@@ -71,7 +75,7 @@ class KG:
 
             if self._is_remote is True:
                 self.connector = SPARQLConnector(
-                    self.location, is_mul_req=self.is_mul_req
+                    self.location, is_mul_req=self.is_mul_req, cache=self.cache
                 )
             elif self.location is not None:
                 for subj, pred, obj in rdflib.Graph().parse(

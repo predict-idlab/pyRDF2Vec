@@ -54,7 +54,7 @@ class SPARQLConnector(Connector):
     cache: Cache = attr.ib(
         kw_only=True,
         default=TTLCache(maxsize=1024, ttl=1200),
-        validator=attr.validators.instance_of(Cache),
+        validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
 
     _entity_hops: Dict[str, List[Tuple[Any, Any]]] = attr.ib(

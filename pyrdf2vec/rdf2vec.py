@@ -85,18 +85,30 @@ class RDF2VecTransformer:
             print(self.embedder)
 
         self._entities.extend(entities)
+
+        walks = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            self._walks += list(walker.extract(kg, entities, self.verbose))
+            walks += list(walker.extract(kg, entities, self.verbose))
         toc = time.perf_counter()
-        corpus = [list(map(str, walk)) for walk in self._walks]
+
+        if self._walks is None:
+            self._walks = walks
+        else:
+            self._walks += walks
 
         if self.verbose >= 1:
             print(
-                f"Extracted {len(self._walks)} walks "
-                + f"for {len(entities)} entities! ({toc - tic:0.4f}s)"
+                f"Extracted {len(walks)} walks "
+                + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
             )
+            if len(self._walks) != len(walks):
+                print(
+                    f"> {len(self._walks)} walks extracted "
+                    + f"for {len(self._entities)} entities."
+                )
 
+        corpus = [list(map(str, walk)) for walk in self._walks]
         self.embedder.fit(corpus, is_update)
         return self
 

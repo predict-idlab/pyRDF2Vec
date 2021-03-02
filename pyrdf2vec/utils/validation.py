@@ -24,7 +24,7 @@ def _check_location(self, attribute, location: str) -> None:
             raise ValueError(
                 f"'location' must be a valid URL (got {location})"
             )
-        elif not is_remote and location is not None:
+        elif not is_remote:
             if not os.path.exists(location) or not os.path.isfile(location):
                 raise FileNotFoundError(
                     f"'location' must be a valid file (got {location})"

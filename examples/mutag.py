@@ -52,7 +52,7 @@ clf.fit(train_embeddings, train_labels)
 predictions = clf.predict(test_embeddings)
 print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
-    + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
+    + f"{round(accuracy_score(test_labels, predictions), 2)} %"
 )
 print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
 print(confusion_matrix(test_labels, predictions))
