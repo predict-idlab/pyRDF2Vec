@@ -39,6 +39,12 @@ class KG:
             member_validator=attr.validators.instance_of(str)
         ),
     )
+    literals: Optional[List[List]] = attr.ib(
+        factory=list,
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(List)
+        ),
+    )
     fmt: Optional[str] = attr.ib(
         kw_only=True,
         default=None,
@@ -105,6 +111,24 @@ class KG:
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
         return True
+
+    def is_valid_pchain(self, entity, pchain):
+        if len(pchain) == 0:
+            return False
+
+        i = len(pchain) - 1
+
+        while len(pchain) > 1:
+            subjs = self.get_neighbors(Vertex(pchain[i]), is_reverse=True)
+            if len(subjs) > 0:
+                if pchain[i - 1] in [sub.vprev.name for sub in subjs]:
+                    pchain.pop()
+                else:
+                    return False
+            else:
+                return False
+            i -= 1
+        return _transition_matrix(Vertex(pchain[i])).name == entity
 
     def add_vertex(self, vertex: Vertex) -> bool:
         """Adds a vertex to the Knowledge Graph.

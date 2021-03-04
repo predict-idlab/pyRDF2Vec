@@ -138,81 +138,55 @@ def _autolabel(rects, ax):
 
 
 if __name__ == "__main__":
-    without_cache = [
-        37.44,
-        94.74,
-        191.61,
-        195.55,
-        478.28,
-        940.38,
-        370.08,
-        938.84,
-        1850.04,
-    ]
-    with_cache = [
-        3.71,
-        4.25,
-        4.63,
-        18.97,
-        20.45,
-        23,
-        41.67,
-        44.47,
-        51.3,
-    ]
-    v1 = [1.3, 5.81, 7.06, 19.58, 9.26, 23.51, 10.04, 11.99, 25.72]
-    v2 = [0.09, 0.21, 0.06, 0.15, 0.75, 0.36, 4.27, 2.47, 5.69]
+    dcemd_to_avg_stdev = {}
 
-    xticks = (
-        "10,10",
-        "10,25",
-        "10,50",
-        "50,10",
-        "50,25",
-        "50,50",
-        "100,10",
-        "100,25",
-        "100,50",
-    )
+    for db, is_cache, entities, depth, max_walks in itertools.product(
+        ["mutag", "am", "dbpedia"],
+        [True, False],
+        [10, 25, 50],
+        [10, 25, 50],
+        [10, 25, 50],
+    ):
+        if not is_cache:
+            kg = KG(
+                f"http://10.2.35.70:5820/{db}", is_mul_req=False, cache=None
+            )
+        else:
+            kg = KG(f"http://10.2.35.70:5820/{db}", is_mul_req=False)
 
-    Benchmark.display(
-        without_cache,
-        with_cache,
-        xlabel="entities,max_walks",
-        ylabel="Time (s)",
-        label1="without cache",
-        label2="with cache",
-        title="pyRDF2Vec with/without cache (MUTAG)",
-        xticks=xticks,
-    )
+        label = "bond"
+        if db == "am":
+            label = "proxy"
+        else:
+            label = "DBpedia_URL"
 
-    # for is_cache in [False, True]:
-    #     if not is_cache:
-    #         kg = KG(
-    #             "http://10.2.35.70:5820/mutag", is_mul_req=False, cache=None
-    #         )
-    #     else:
-    #         kg = KG("http://10.2.35.70:5820/mutag", is_mul_req=False)
+        avg_stdev = Benchmark(
+            kg,
+            [
+                entity
+                for entity in pd.read_csv(
+                    f"benchmarks/mutag-{entities}.tsv", sep="\t"
+                )[label]
+            ],
+            walker=[
+                RandomWalker(
+                    depth, max_walks=max_walks, random_state=RANDOM_STATE
+                )
+            ],
+        ).evaluate()
 
-    #     emc_to_avg_stdev = {}
-    #     for e, max_walks in itertools.product([10, 50, 100], [10, 25, 50]):
-    #         emc_to_avg_stdev[(e, max_walks, cache)] = Benchmark(
-    #             kg,
-    #             [
-    #                 entity
-    #                 for entity in pd.read_csv(
-    #                     f"benchmarks/mutag-{e}.tsv", sep="\t"
-    #                 )["bond"]
-    #             ],
-    #             walker=[
-    #                 RandomWalker(
-    #                     2, max_walks=max_walks, random_state=RANDOM_STATE
-    #                 )
-    #             ],
-    #         ).evaluate()
+        print(
+            f"(db={db}, is_cache={is_cache}, entities={entities},"
+            + f"depth={depth}, max_walks={max_walks}) = "
+            + f"{avg_stdev[0]} +/- {avg_stdev[1]}"
+        )
+        dcemd_to_avg_stdev[
+            (db, is_cache, entities, max_walks, depth)
+        ] = avg_stdev
 
-    # for emc, avg_stdev in emc_to_avg_stdev.items():
-    #     print(
-    #         f"(entities={emc[0]},max_walks={emc[1]},is_cache={emc[2]}):"
-    #         + f"{avg_stdev[0]} +/- {avg_stdev[1]}"
-    #     )
+    for db, is_cache, entities, depth, max_walks in dcemd_to_avg_stdev.items():
+        print(
+            f"(db={db}, is_cache={is_cache}, entities={entities},"
+            + f"depth={depth}, max_walks={max_walks}) = "
+            + f"{avg_stdev[0]} +/- {avg_stdev[1]}"
+        )

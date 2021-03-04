@@ -1,0 +1,51 @@
+id	city_name	DBpedia_URL	rating	label	DB15_URI
+1	Vancouver	http://dbpedia.org/resource/Vancouver	106	high	http://dbpedia.org/resource/Vancouver
+2	Zurich	http://dbpedia.org/resource/Zurich	106	high	http://dbpedia.org/resource/Zürich
+3	Vienna	http://dbpedia.org/resource/Vienna	106	high	http://dbpedia.org/resource/Vienna
+4	Bern	http://dbpedia.org/resource/Bern	106	high	http://dbpedia.org/resource/Bern
+5	Sydney	http://dbpedia.org/resource/Sydney	105.5	high	http://dbpedia.org/resource/Sydney
+6	Geneva	http://dbpedia.org/resource/Geneva	105.5	high	http://dbpedia.org/resource/Geneva
+7	Auckland	http://dbpedia.org/resource/Auckland	105.5	high	http://dbpedia.org/resource/Auckland
+8	Copenhagen	http://dbpedia.org/resource/Copenhagen	105.5	high	http://dbpedia.org/resource/Copenhagen
+9	Helsinki	http://dbpedia.org/resource/Helsinki	104.5	high	http://dbpedia.org/resource/Helsinki
+10	Amsterdam	http://dbpedia.org/resource/Amsterdam	104.5	high	http://dbpedia.org/resource/Amsterdam
+11	Frankfurt	http://dbpedia.org/resource/Frankfurt	104	high	http://dbpedia.org/resource/Frankfurt
+12	Munich	http://dbpedia.org/resource/Munich	104	high	http://dbpedia.org/resource/Munich
+13	Melbourne	http://dbpedia.org/resource/Melbourne	104	high	http://dbpedia.org/resource/Melbourne
+14	Honolulu	http://dbpedia.org/resource/Honolulu	104	high	http://dbpedia.org/resource/Honolulu
+15	Dusseldorf	http://dbpedia.org/resource/Dusseldorf	103.5	high	http://dbpedia.org/resource/Düsseldorf
+16	San Francisco	http://dbpedia.org/resource/San_Francisco	103.5	high	http://dbpedia.org/resource/San_Francisco
+17	Oslo	http://dbpedia.org/resource/Oslo	103.5	high	http://dbpedia.org/resource/Oslo
+18	Perth	http://dbpedia.org/resource/Perth	103.5	high	http://dbpedia.org/resource/Perth
+19	Brussels	http://dbpedia.org/resource/Brussels	103.5	high	http://dbpedia.org/resource/Brussels
+20	Toronto	http://dbpedia.org/resource/Toronto	103.5	high	http://dbpedia.org/resource/Toronto
+21	Adelaide	http://dbpedia.org/resource/Adelaide	103	high	http://dbpedia.org/resource/Adelaide
+22	Luxembourg	http://dbpedia.org/resource/Luxembourg	103	high	http://dbpedia.org/resource/Luxembourg
+23	Stockholm	http://dbpedia.org/resource/Stockholm	103	high	http://dbpedia.org/resource/Stockholm
+24	Paris	http://dbpedia.org/resource/Paris	102.5	high	http://dbpedia.org/resource/Paris
+25	Nurnberg	http://dbpedia.org/resource/Nurnberg	102.5	high	http://dbpedia.org/resource/Nuremberg
+26	Brisbane	http://dbpedia.org/resource/Brisbane	102.5	high	http://dbpedia.org/resource/Brisbane
+27	Montreal	http://dbpedia.org/resource/Montreal	102.5	high	http://dbpedia.org/resource/Montreal
+28	Tokyo	http://dbpedia.org/resource/Tokyo	102.5	high	http://dbpedia.org/resource/Tokyo
+29	Berlin	http://dbpedia.org/resource/Berlin	102	high	http://dbpedia.org/resource/Berlin
+30	Hamburg	http://dbpedia.org/resource/Hamburg	102	high	http://dbpedia.org/resource/Hamburg
+31	Wellington	http://dbpedia.org/resource/Wellington	102	high	http://dbpedia.org/resource/Wellington
+32	Ludwigshafen	http://dbpedia.org/resource/Ludwigshafen	102	high	http://dbpedia.org/resource/Ludwigshafen
+33	Lyon	http://dbpedia.org/resource/Lyon	102	high	http://dbpedia.org/resource/Lyon
+34	Atlanta	http://dbpedia.org/resource/Atlanta	101.5	high	http://dbpedia.org/resource/Atlanta
+35	London	http://dbpedia.org/resource/London	101.5	high	http://dbpedia.org/resource/London
+36	Calgary	http://dbpedia.org/resource/Calgary	101.5	high	http://dbpedia.org/resource/Calgary
+37	Kobe	http://dbpedia.org/resource/Kobe	101.5	high	http://dbpedia.org/resource/Kobe
+38	Lexington	http://dbpedia.org/resource/Lexington	101	high	http://dbpedia.org/resource/Lexington
+39	Seattle	http://dbpedia.org/resource/Seattle	101	high	http://dbpedia.org/resource/Seattle
+40	Dublin	http://dbpedia.org/resource/Dublin	101	high	http://dbpedia.org/resource/Dublin
+41	Winston Salem	http://dbpedia.org/resource/Winston_Salem	101	high	http://dbpedia.org/resource/Winston-Salem,_North_Carolina
+42	Los Angeles	http://dbpedia.org/resource/Los_Angeles	101	high	http://dbpedia.org/resource/Los_Angeles
+43	Yokohama	http://dbpedia.org/resource/Yokohama	101	high	http://dbpedia.org/resource/Yokohama
+44	Singapore	http://dbpedia.org/resource/Singapore	100.5	high	http://dbpedia.org/resource/Singapore
+45	Washington Dc	http://dbpedia.org/resource/Washington_Dc	100.5	high	http://dbpedia.org/resource/Washington,_D.C.
+46	Pittsburgh	http://dbpedia.org/resource/Pittsburgh	100	high	http://dbpedia.org/resource/Pittsburgh
+47	Chicago	http://dbpedia.org/resource/Chicago	100	high	http://dbpedia.org/resource/Chicago
+48	Boston	http://dbpedia.org/resource/Boston	100	high	http://dbpedia.org/resource/Boston
+49	Madrid	http://dbpedia.org/resource/Madrid	100	high	http://dbpedia.org/resource/Madrid
+50	New York	http://dbpedia.org/resource/New_York	100	high	http://dbpedia.org/resource/New_York

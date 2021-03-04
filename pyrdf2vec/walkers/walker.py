@@ -144,9 +144,29 @@ class Walker(ABC):
                     disable=True if verbose == 0 else False,
                 )
             )
+
+        print(res)
+
+        # ('http://dl-learner.org/carcinogenesis#d334', #v1
+        #  'http://dl-learner.org/carcinogenesis#hasAtom',
+        #  "b'i\\xe8\\xe7y\\xdf@Z?'",
+        #  'http://dl-learner.org/carcinogenesis#charge',
+        #  "b'\\x19\\x97=q\\xbf\\x15\\x0b\\xb7'")
+
+        # print(
+        #     kg.is_valid_pchain(
+        #         "http://dl-learner.org/carcinogenesis#d334",
+        #         [
+        #             "http://dl-learner.org/carcinogenesis#hasAtom",
+        #             # "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+        #         ],
+        #     )
+        # )
+
         instance_walks = {
             instance: walks for elm in res for instance, walks in elm.items()
         }
+
         canonical_walks = set()
         for instance in instances:
             canonical_walks.update(instance_walks[instance])
