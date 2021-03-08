@@ -47,6 +47,6 @@ def is_valid_url(url: str) -> bool:
 
     """
     try:
-        return requests.head(url).status_code == 200
+        return requests.get(url).status_code == requests.codes.ok
     except Exception:
         return False
