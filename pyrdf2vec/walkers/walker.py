@@ -145,14 +145,6 @@ class Walker(ABC):
                 )
             )
 
-        print(res)
-
-        # ('http://dl-learner.org/carcinogenesis#d334', #v1
-        #  'http://dl-learner.org/carcinogenesis#hasAtom',
-        #  "b'i\\xe8\\xe7y\\xdf@Z?'",
-        #  'http://dl-learner.org/carcinogenesis#charge',
-        #  "b'\\x19\\x97=q\\xbf\\x15\\x0b\\xb7'")
-
         # print(
         #     kg.is_valid_pchain(
         #         "http://dl-learner.org/carcinogenesis#d334",
