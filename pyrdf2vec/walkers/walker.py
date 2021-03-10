@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import attr
+import numpy as np
 from tqdm import tqdm
 
 from pyrdf2vec.graphs import KG, Vertex
@@ -160,10 +161,14 @@ class Walker(ABC):
             canonical_walks.update(instance_walks[instance])
 
         if len(literals) == 0:
-            literals = [
-                [entity] + literal
-                for entity, literal in instance_literals.items()
-            ]
+            for entity, l in instance_literals.items():
+                tmp = [entity]
+                for literal in l:
+                    if len(literal) == 0:
+                        tmp += [np.NaN]
+                    else:
+                        tmp += [tuple(literal)]
+                literals.append(tmp)
         return [canonical_walks, literals]
 
     @abstractmethod

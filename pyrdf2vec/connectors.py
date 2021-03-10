@@ -147,6 +147,12 @@ class SPARQLConnector(Connector):
         """
         if len(res) == 0:
             return np.NaN
-        elif len(res) == 1:
-            return res[0]["o"]["value"]
-        return tuple([literal["o"]["value"] for literal in res])
+        literals = []
+        for literal in res:
+            try:
+                literals.append(float(literal["o"]["value"]))
+            except:
+                literals.append(literal["o"]["value"])
+        if len(literals) > 1:
+            return tuple(literals)
+        return literals[0]

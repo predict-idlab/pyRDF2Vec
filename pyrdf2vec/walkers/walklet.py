@@ -55,7 +55,7 @@ class WalkletWalker(RandomWalker):
         else:
             walks = await self.extract_walks(kg, instance)
             literals = [
-                [instance] + kg.get_pliterals(instance, pred)
+                [instance] + kg.get_pliterals(instance.name, pred)
                 for pred in kg.literals
             ]
 

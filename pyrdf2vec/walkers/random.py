@@ -158,8 +158,7 @@ class RandomWalker(Walker):
         else:
             walks = await self.extract_walks(kg, instance)
             literals = [
-                [instance] + kg.get_pliterals(instance, pred)
-                for pred in kg.literals
+                kg.get_pliterals(instance, pred) for pred in kg.literals
             ]
 
         canonical_walks: Set[Tuple[str, ...]] = set()

@@ -41,7 +41,11 @@ embeddings, literals = RDF2VecTransformer(
             [
                 "http://dl-learner.org/carcinogenesis#hasBond",
                 "http://dl-learner.org/carcinogenesis#inBond",
-            ]
+            ],
+            [
+                "http://dl-learner.org/carcinogenesis#hasAtom",
+                "http://dl-learner.org/carcinogenesis#charge",
+            ],
         ],
     ),
     entities,

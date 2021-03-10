@@ -47,7 +47,7 @@ class Benchmark:
 
     def evaluate(
         self,
-        verbose=1,
+        verbose=0,
     ):
         times = []
         for _ in tqdm(

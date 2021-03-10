@@ -37,6 +37,7 @@ embeddings, literals = transformer.fit_transform(
                 "http://dbpedia.org/ontology/wikiPageWikiLink",
                 "http://www.w3.org/2004/02/skos/core#prefLabel",
             ],
+            ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
         ],
     ),
     [entity for entity in data["location"]],

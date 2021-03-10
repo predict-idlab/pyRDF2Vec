@@ -240,15 +240,16 @@ class KG:
         ]
 
     def get_pliterals(self, entity: Vertex, pchain: str):
-        frontier = {entity}
-        for i in range(len(pchain)):
+        frontier = {entity.name}
+        for p in pchain:
             new_frontier = set()
             for node in frontier:
-                for pred, obj in self.get_hops(node):
-                    if pred.name == pchain[i]:
-                        new_frontier.add(obj)
-                    else:
-                        new_frontier.add(np.NaN)
+                for pred, obj in self.get_hops(Vertex(node)):
+                    if pred.name == p:
+                        try:
+                            new_frontier.add(float(obj.name))
+                        except:
+                            new_frontier.add(obj.name)
             frontier = new_frontier
         return list(frontier)
 
