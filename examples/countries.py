@@ -16,27 +16,34 @@ transformer = RDF2VecTransformer(
     # Use one worker threads for Word2Vec to ensure random determinism.
     # Must be used with PYTHONHASHSEED.
     Word2Vec(workers=1),
-    # Extract a maximum of 25 walks of depth 4 for each entity using two
+    # Extract a maximum of 10 walks of depth 4 for each entity using two
     # processes and use a random state to ensure that the same walks are
     # generated for the entities.
-    walkers=[RandomWalker(4, 25, n_jobs=2, random_state=RANDOM_STATE)],
+    walkers=[RandomWalker(4, 10, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 )
 
-# Reduce the dimensions of entity embeddings to represent them in a 2D plane.
-X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
-    # Train and save the Word2Vec model according to the KG, the entities, and
-    # a walking strategy.
-    transformer.fit_transform(
-        # Defined that the KG is remotely located, as well as a set of
-        # predicates to exclude from this KG.
-        KG(
-            "https://dbpedia.org/sparql",
-            skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-        ),
-        [entity for entity in data["location"]],
-    )
+# Train and save the Word2Vec model according to the KG, the entities, and
+# a walking strategy.
+embeddings, literals = transformer.fit_transform(
+    # Defined that the KG is remotely located, as well as a set of
+    # predicates to exclude from this KG.
+    KG(
+        "https://dbpedia.org/sparql",
+        is_mul_req=False,
+        skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+        literals=[
+            [
+                "http://dbpedia.org/ontology/wikiPageWikiLink",
+                "http://www.w3.org/2004/02/skos/core#prefLabel",
+            ],
+        ],
+    ),
+    [entity for entity in data["location"]],
 )
+
+# Reduce the dimensions of entity embeddings to represent them in a 2D plane.
+X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(embeddings)
 
 # Ploy the embeddings of entities in a 2D plane, annotating them.
 plt.figure(figsize=(10, 4))

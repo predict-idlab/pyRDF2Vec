@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from hashlib import md5
 from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple
@@ -61,7 +62,7 @@ class WLWalker(RandomWalker):
             sorted(
                 set(
                     [
-                        self._label_map[neighbor.name][n - 1]
+                        self._label_map[neighbor][n - 1]
                         for neighbor in kg.get_neighbors(
                             vertex, is_reverse=True
                         )
@@ -69,7 +70,7 @@ class WLWalker(RandomWalker):
                 )
             )
         )
-        return f"{self._label_map[vertex.name][n - 1]}-{suffix}"
+        return f"{self._label_map[vertex][n - 1]}-{suffix}"
 
     def _weisfeiler_lehman(self, kg: KG) -> None:
         """Performs Weisfeiler-Lehman relabeling of the vertices.
@@ -82,18 +83,18 @@ class WLWalker(RandomWalker):
 
         """
         for vertex in kg._vertices:
-            self._label_map[vertex.name][0] = vertex.name
-            self._inv_label_map[vertex.name][0] = vertex.name
+            self._label_map[vertex][0] = vertex.name
+            self._inv_label_map[vertex][0] = vertex.name
 
         for n in range(1, self.wl_iterations + 1):
             for vertex in kg._vertices:
-                self._label_map[vertex.name][n] = str(
+                self._label_map[vertex][n] = str(
                     md5(self._create_label(kg, vertex, n).encode()).digest()
                 )
 
         for vertex in kg._vertices:
-            for k, v in self._label_map[vertex.name].items():
-                self._inv_label_map[vertex.name][v] = k
+            for k, v in self._label_map[vertex].items():
+                self._inv_label_map[vertex][v] = k
 
     def extract(
         self,
@@ -122,7 +123,7 @@ class WLWalker(RandomWalker):
         self._weisfeiler_lehman(kg)
         return super().extract(kg, instances, verbose)
 
-    def _extract(
+    async def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -140,8 +141,20 @@ class WLWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
+        literals = []
+        if not kg.is_mul_req:
+            walks = await asyncio.create_task(self.extract_walks(kg, instance))
+            literals = await asyncio.create_task(
+                kg.get_literals(instance.name)
+            )
+        else:
+            walks = await self.extract_walks(kg, instance)
+            literals = [
+                [instance] + kg.get_pliterals(instance, pred)
+                for pred in kg.literals
+            ]
+
         canonical_walks: Set[Tuple[str, ...]] = set()
-        walks = self.extract_walks(kg, instance)
         for n in range(self.wl_iterations + 1):
             for walk in walks:
                 canonical_walk: List[str] = []
@@ -149,6 +162,6 @@ class WLWalker(RandomWalker):
                     if i == 0 or i % 2 == 1:
                         canonical_walk.append(hop.name)
                     else:
-                        canonical_walk.append(self._label_map[hop.name][n])
+                        canonical_walk.append(self._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: [tuple(canonical_walks), literals]}

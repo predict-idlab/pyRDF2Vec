@@ -89,7 +89,7 @@ class Walker(ABC):
             self.n_jobs = multiprocessing.cpu_count()
         self.sampler.random_state = self.random_state
 
-    def extract(
+    async def extract(
         self,
         kg: KG,
         instances: List[str],
@@ -122,7 +122,7 @@ class Walker(ABC):
 
         process = self.n_jobs if self.n_jobs is not None else 1
 
-        if (kg._is_remote and kg.connector.is_mul_req) and process >= 2:
+        if (kg._is_remote and kg.is_mul_req) and process >= 2:
             warnings.warn(
                 "Using 'is_mul_req=True' and/or 'n_jobs>=2' speed up the "
                 + "extraction of entity's walks, but may violate the policy "
@@ -131,9 +131,11 @@ class Walker(ABC):
                 stacklevel=2,
             )
 
-        if kg._is_remote and kg.connector.is_mul_req:
-            asyncio.run(  # type:ignore
-                kg.connector._fill_hops(kg, list(map(Vertex, instances)))
+        literals = []
+        if kg._is_remote and kg.is_mul_req:
+            literals = await asyncio.create_task(kg.get_literals(instances))
+            await asyncio.create_task(
+                kg._fill_hops(list(map(Vertex, instances)))
             )
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
@@ -145,27 +147,27 @@ class Walker(ABC):
                 )
             )
 
-        # print(
-        #     kg.is_valid_pchain(
-        #         "http://dl-learner.org/carcinogenesis#d334",
-        #         [
-        #             "http://dl-learner.org/carcinogenesis#hasAtom",
-        #             # "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        #         ],
-        #     )
-        # )
-
-        instance_walks = {
-            instance: walks for elm in res for instance, walks in elm.items()
-        }
+        instance_walks = {}
+        instance_literals = {}
+        for elm in res:
+            for instance, walks_literals in elm.items():
+                instance_walks[instance] = walks_literals[0]
+                if len(literals) == 0:
+                    instance_literals[instance] = walks_literals[1]
 
         canonical_walks = set()
         for instance in instances:
             canonical_walks.update(instance_walks[instance])
-        return canonical_walks
+
+        if len(literals) == 0:
+            literals = [
+                [entity] + literal
+                for entity, literal in instance_literals.items()
+            ]
+        return [canonical_walks, literals]
 
     @abstractmethod
-    def _extract(
+    async def _extract(
         self,
         kg: KG,
         instance: Vertex,
@@ -208,4 +210,4 @@ class Walker(ABC):
 
         """
         global kg
-        return self._extract(kg, Vertex(instance))  # type: ignore
+        return asyncio.run(self._extract(kg, Vertex(instance)))  # type: ignore

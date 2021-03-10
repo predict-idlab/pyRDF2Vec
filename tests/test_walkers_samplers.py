@@ -8,7 +8,7 @@ from pyrdf2vec.rdf2vec import RDF2VecTransformer
 from pyrdf2vec.walkers import (  # isort: skip
     AnonymousWalker,
     CommunityWalker,
-    HalkWalker,
+    HALKWalker,
     NGramWalker,
     RandomWalker,
     WalkletWalker,
@@ -58,7 +58,7 @@ SAMPLERS = [
 WALKERS = [
     AnonymousWalker,
     CommunityWalker,
-    HalkWalker,
+    HALKWalker,
     NGramWalker,
     RandomWalker,
     WalkletWalker,

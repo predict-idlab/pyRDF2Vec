@@ -1,14 +1,11 @@
 import itertools
 import multiprocessing
 import random
-import statistics
 import time
 
 import attr
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from cachetools import TTLCache
 from tqdm import tqdm
 
 from pyrdf2vec import RDF2VecTransformer
@@ -64,77 +61,10 @@ class Benchmark:
             toc = time.perf_counter()
             times.append(toc - tic)
         return [
-            round(statistics.fmean(times), 2),
-            round(statistics.stdev(times), 2),
+            round(np.mean(times), 2),
+            round(np.stdev(times), 2),
+            round(np.stdev(times, ddof=1), 2),
         ]
-
-    @staticmethod
-    def display(
-        samples1,
-        samples2,
-        xlabel=None,
-        ylabel=None,
-        title=None,
-        label1=None,
-        label2=None,
-        xticks=None,
-        yerr1=None,
-        yerr2=None,
-        c1="r",
-        c2="g",
-        autolabel=True,
-    ):
-        _, ax = plt.subplots()
-        index = np.arange(len(samples1))
-        bar_width = 0.35
-        opacity = 0.8
-
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.xticks(index + bar_width, xticks)
-
-        res1 = plt.bar(
-            index,
-            samples1,
-            bar_width,
-            alpha=opacity,
-            color=c1,
-            label=label1,
-            yerr=yerr1,
-        )
-
-        res2 = plt.bar(
-            index + bar_width,
-            samples2,
-            bar_width,
-            alpha=opacity,
-            color=c2,
-            label=label2,
-            yerr=yerr2,
-        )
-
-        if autolabel:
-            _autolabel(res1, ax)
-            _autolabel(res2, ax)
-
-        plt.tight_layout()
-        plt.show()
-        plt.legend()
-
-
-def _autolabel(rects, ax):
-    """Attach a text label above each bar in *rects*, displaying its height."""
-    for rect in rects:
-        height = rect.get_height()
-        ax.annotate(
-            "{}".format(height),
-            xy=(rect.get_x() + rect.get_width() / 2, height),
-            xytext=(0, 3),  # 3 points vertical offset
-            textcoords="offset points",
-            ha="center",
-            va="bottom",
-        )
 
 
 if __name__ == "__main__":
@@ -142,9 +72,9 @@ if __name__ == "__main__":
 
     for db, is_cache, entities, depth, max_walks in itertools.product(
         ["mutag", "am", "dbpedia"],
-        [True, False],
-        [10, 25, 50],
-        [10, 25, 50],
+        [False, True],
+        [25],
+        [25],
         [10, 25, 50],
     ):
         if not is_cache:
@@ -157,7 +87,7 @@ if __name__ == "__main__":
         label = "bond"
         if db == "am":
             label = "proxy"
-        else:
+        elif db == "dbpedia":
             label = "DBpedia_URL"
 
         avg_stdev = Benchmark(
@@ -165,7 +95,7 @@ if __name__ == "__main__":
             [
                 entity
                 for entity in pd.read_csv(
-                    f"benchmarks/mutag-{entities}.tsv", sep="\t"
+                    f"benchmarks/{db}/{db}-{entities}.tsv", sep="\t"
                 )[label]
             ],
             walker=[
@@ -184,9 +114,9 @@ if __name__ == "__main__":
             (db, is_cache, entities, max_walks, depth)
         ] = avg_stdev
 
-    for db, is_cache, entities, depth, max_walks in dcemd_to_avg_stdev.items():
+    for k, v in dcemd_to_avg_stdev.items():
         print(
-            f"(db={db}, is_cache={is_cache}, entities={entities},"
-            + f"depth={depth}, max_walks={max_walks}) = "
-            + f"{avg_stdev[0]} +/- {avg_stdev[1]}"
+            f"(db={k[0]}, is_cache={k[1]}, entities={k[2]},"
+            + f"depth={k[3]}, max_walks={k[4]}) = "
+            + f"{v[0]} +/- {v[1]} ({v[2]})"
         )

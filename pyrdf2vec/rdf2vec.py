@@ -1,3 +1,4 @@
+import asyncio
 import pickle
 import time
 from typing import List, Sequence
@@ -43,6 +44,7 @@ class RDF2VecTransformer:
     )
 
     _entities: List[str] = attr.ib(init=False, factory=list)
+    _literals: List[List[str]] = attr.ib(init=False, factory=list)
     _walks: List[str] = attr.ib(init=False, factory=list)
 
     def fit(
@@ -89,7 +91,10 @@ class RDF2VecTransformer:
         walks = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            walks += list(walker.extract(kg, entities, self.verbose))
+            w, self._literals = asyncio.run(
+                walker.extract(kg, entities, self.verbose)
+            )
+            walks += list(w)
         toc = time.perf_counter()
 
         if self._walks is None:
@@ -126,7 +131,7 @@ class RDF2VecTransformer:
 
         """
         assert self.embedder is not None
-        return self.embedder.transform(entities)
+        return self.embedder.transform(entities), self._literals
 
     def fit_transform(
         self,

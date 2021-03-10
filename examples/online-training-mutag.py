@@ -1,9 +1,7 @@
 import os
 import random
 
-import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.svm import SVC
 

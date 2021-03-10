@@ -3,7 +3,7 @@ import itertools
 import pytest
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.walkers import HalkWalker
+from pyrdf2vec.walkers import HALKWalker
 
 LOOP = [
     ["Alice", "knows", "Bob"],
@@ -33,7 +33,7 @@ ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
 WITH_REVERSE = [False, True]
 
 
-class TestHalkWalker:
+class TestHALKWalker:
     @pytest.fixture(scope="session")
     def setup(self):
         for i, graph in enumerate([LOOP, LONG_CHAIN]):
@@ -58,7 +58,7 @@ class TestHalkWalker:
     )
     def test_extract(self, setup, kg, root, depth, max_walks, with_reverse):
         root = f"{URL}#{root}"
-        walks = HalkWalker(
+        walks = HALKWalker(
             depth,
             max_walks,
             freq_thresholds=[0.01],

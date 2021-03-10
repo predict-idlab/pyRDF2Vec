@@ -1,3 +1,4 @@
+import asyncio
 import itertools
 from typing import Dict, List, Set, Tuple
 
@@ -72,7 +73,7 @@ class NGramWalker(RandomWalker):
                 n_gram_walk.append(self._n_gram_map[n_gram])
         return n_gram_walk
 
-    def _extract(
+    async def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -90,8 +91,21 @@ class NGramWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
+        literals = []
+        if not kg.is_mul_req:
+            walks = await asyncio.create_task(self.extract_walks(kg, instance))
+            literals = await asyncio.create_task(
+                kg.get_literals(instance.name)
+            )
+        else:
+            walks = await self.extract_walks(kg, instance)
+            literals = [
+                [instance] + kg.get_pliterals(instance, pred)
+                for pred in kg.literals
+            ]
+
         canonical_walks: Set[Tuple[str, ...]] = set()
-        for walk in self.extract_walks(kg, instance):
+        for walk in walks:
             canonical_walks.add(tuple(self._take_n_grams(walk)))
 
             # Introduce wild-cards and re-calculate n-grams
@@ -108,4 +122,4 @@ class NGramWalker(RandomWalker):
                     canonical_walks.add(
                         tuple(self._take_n_grams(new_walk))  # type: ignore
                     )
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: [tuple(canonical_walks), literals]}

@@ -1,24 +1,16 @@
-import json
+import asyncio
 import operator
-import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib import parse
 
+import aiohttp
 import attr
+import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
-
-from pyrdf2vec.graphs.vertex import Vertex
-
-try:
-    import asyncio
-
-    import aiohttp
-
-    is_aiohttp = True
-except ModuleNotFoundError:
-    is_aiohttp = False
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 
 @attr.s
@@ -46,19 +38,10 @@ class SPARQLConnector(Connector):
     endpoint: str = attr.ib(
         validator=attr.validators.instance_of(str),
     )
-    is_mul_req: bool = attr.ib(
-        kw_only=True,
-        default=True,
-        validator=attr.validators.instance_of(bool),
-    )
     cache: Cache = attr.ib(
         kw_only=True,
         default=TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
-    )
-
-    _entity_hops: Dict[str, List[Tuple[Any, Any]]] = attr.ib(
-        init=False, repr=False, default={}
     )
     _headers: Dict[str, str] = attr.ib(
         init=False,
@@ -66,86 +49,80 @@ class SPARQLConnector(Connector):
         default={"Accept": "application/sparql-results+json"},
     )
 
-    @cachedmethod(operator.attrgetter("cache"))
-    def fetch_hops(self, vertex: Vertex):
-        """Fetchs the hops of the vertex.
+    def __attrs_post_init__(self):
+        self._session = requests.Session()
+        adapter = HTTPAdapter(
+            Retry(
+                total=3,
+                status_forcelist=[429, 500, 502, 503, 504],
+                method_whitelist=["HEAD", "GET", "OPTIONS"],
+            )
+        )
+        self._session.mount("http", adapter)
+        self._session.mount("https", adapter)
+        self._asession = aiohttp.ClientSession()
+
+    async def afetch(
+        self, queries: List[str]
+    ) -> List[List[Optional[Dict[Any, Any]]]]:
+        """Fetchs the result of queries asynchronously.
 
         Args:
-            vertex: The vertex to get the hops.
+            queries: The queries.
 
         Returns:
-            The hops of the vertex.
+            The result of the queries.
 
         """
-        if not vertex.name.startswith("http://"):
-            return []
-        elif vertex.name in self._entity_hops:
-            return self._entity_hops[vertex.name]
-        return self.query(
-            "SELECT ?p ?o WHERE { <" + vertex.name + "> ?p ?o . }"
-        )
+        urls = [
+            f"{self.endpoint}/query?query={parse.quote(query)}"
+            for query in queries
+        ]
+        async with aiohttp.ClientSession() as session:
+            return await asyncio.gather(
+                *(self.fetch(url, session) for url in urls)
+            )
 
-    async def fetch(self, url: str, session):
-        """Fetchs the hops for a URL
+    @cachedmethod(operator.attrgetter("cache"))
+    async def fetch(self, url: str, session) -> List[Dict[Any, Any]]:
+        """Fetchs the result of the URL asynchronously.
 
         Args:
+            url: The URL.
             session: The session.
-            url: The URL that contains the query.
 
         Returns:
-            The response of the URL.
+            The response of the URL in a JSON format.
 
         """
         async with session.get(
             url, headers=self._headers, raise_for_status=True
-        ) as response:
-            return await response.text()
+        ) as res:
+            res = await res.json()
+            return res["results"]["bindings"]
 
-    async def _fill_hops(self, kg, vertices: List[Vertex]) -> None:
-        """Fills the entity hops.
+    def get_query(self, entity: str, pchain: Optional[str] = None) -> str:
+        """Gets the SPARQL query for an entity.
 
         Args:
-            vertices: The vertices to get the hops.
+            entity: The entity.
+            pchain: The predicate chain.
+                Defaults to None.
+
+        Returns:
+            The SPARQL query for the given entity.
 
         """
-        if is_aiohttp:
-            async with aiohttp.ClientSession() as session:
-                urls = [
-                    self.endpoint
-                    + "/query?query="
-                    + parse.quote(
-                        "SELECT ?p ?o WHERE { <" + vertex.name + "> ?p ?o . }"
-                    )
-                    for vertex in vertices
-                    if vertex.name.startswith("http://")
-                ]
-                for vertex, res in zip(
-                    vertices,
-                    await asyncio.gather(
-                        *(self.fetch(url, session) for url in urls)
-                    ),
-                ):
-                    hops = []
-                    for result in json.loads(res)["results"]["bindings"]:
-                        obj = Vertex(result["o"]["value"])
-                        pred = Vertex(
-                            result["p"]["value"],
-                            predicate=True,
-                            vprev=vertex,
-                            vnext=obj,
-                        )
-                        if kg.add_walk(vertex, pred, obj):
-                            hops.append((pred, obj))
-                        self._entity_hops.update({str(vertex): hops})
-        else:
-            warnings.warn(
-                "Sending multiple SPARQL requests simultaneously is only "
-                + "available from Python >= 3.7",
-                category=RuntimeWarning,
-                stacklevel=2,
-            )
+        query = f"SELECT ?p ?o WHERE {{ <{entity}> ?p "
+        if pchain:
+            query = f"SELECT ?o WHERE {{ <{entity}> <{pchain[0]}> "
+            for i in range(1, len(pchain)):
+                query += f"?o{i} . ?o{i} <{pchain[i]}> "
+        query += "?o . }"
+        return query
 
-    def query(self, query: str):
+    @cachedmethod(operator.attrgetter("cache"))
+    def query(self, query: str) -> List[Dict[Any, Any]]:
         """Gets the result of a query for a SPARQL endpoint server.
 
         Args:
@@ -155,7 +132,26 @@ class SPARQLConnector(Connector):
             The dictionary generated from the ['results']['bindings'] json.
 
         """
-        url = self.endpoint + "/query?query=" + parse.quote(query)
-        with requests.Session() as session:
-            res = session.get(url, headers=self._headers).text
-        return json.loads(res)["results"]["bindings"]
+        url = f"{self.endpoint}/query?query={parse.quote(query)}"
+        res = self._session.get(url, headers=self._headers).json()
+        return res["results"]["bindings"]
+
+    def res2literal(self, res) -> Union[str, Tuple[str, ...]]:
+        """Converts a JSON response from a SPARQL endpoint server to a literal.
+
+        Args:
+            res: The JSON response of the SPARQL endpoint server
+
+        Returns:
+            The literal.
+
+        """
+        if len(res) == 0:
+            return np.NaN
+        elif len(res) == 1:
+            return res[0]["o"]["value"]
+        return tuple([literal["o"]["value"] for literal in res])
+
+    async def close(self):
+        print("CLOSE")
+        await self._asession.close()

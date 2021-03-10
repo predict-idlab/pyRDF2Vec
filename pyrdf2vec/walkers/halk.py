@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from hashlib import md5
 from typing import Dict, List, Set, Tuple
@@ -9,7 +10,7 @@ from pyrdf2vec.walkers import RandomWalker
 
 
 @attr.s
-class HalkWalker(RandomWalker):
+class HALKWalker(RandomWalker):
     """Walker that removes the rare entities from the random walks in order to
     increase the quality of the generated embeddings while decreasing the
     memory usage.
@@ -41,7 +42,7 @@ class HalkWalker(RandomWalker):
         ),
     )
 
-    def _extract(
+    async def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -59,9 +60,20 @@ class HalkWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks: Set[Tuple[str, ...]] = set()
-        walks = self.extract_walks(kg, instance)
+        literals = []
+        if not kg.is_mul_req:
+            walks = await asyncio.create_task(self.extract_walks(kg, instance))
+            literals = await asyncio.create_task(
+                kg.get_literals(instance.name)
+            )
+        else:
+            walks = await self.extract_walks(kg, instance)
+            literals = [
+                [instance] + kg.get_pliterals(instance, pred)
+                for pred in kg.literals
+            ]
 
+        canonical_walks: Set[Tuple[str, ...]] = set()
         hop_to_freq = defaultdict(set)
         for i in range(len(walks)):
             for hop in walks[i]:
@@ -86,4 +98,4 @@ class HalkWalker(RandomWalker):
                             str(md5(hop.name.encode()).digest()[:8])
                         )
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: [tuple(canonical_walks), literals]}

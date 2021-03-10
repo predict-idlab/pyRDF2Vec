@@ -1,3 +1,4 @@
+import asyncio
 from hashlib import md5
 from typing import Dict, List, Set, Tuple
 
@@ -102,7 +103,9 @@ class RandomWalker(Walker):
             walks.append(sub_walk)
         return list(set(walks))
 
-    def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
+    async def extract_walks(
+        self, kg: KG, root: Vertex
+    ) -> List[Tuple[Vertex, ...]]:
         """Extracts all possible walks.
 
         Args:
@@ -128,7 +131,7 @@ class RandomWalker(Walker):
             ]
         return [walk for walk in fct_search(kg, root)]
 
-    def _extract(
+    async def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -146,8 +149,21 @@ class RandomWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
+        literals = []
+        if not kg.is_mul_req:
+            walks = await asyncio.create_task(self.extract_walks(kg, instance))
+            literals = await asyncio.create_task(
+                kg.get_literals(instance.name)
+            )
+        else:
+            walks = await self.extract_walks(kg, instance)
+            literals = [
+                [instance] + kg.get_pliterals(instance, pred)
+                for pred in kg.literals
+            ]
+
         canonical_walks: Set[Tuple[str, ...]] = set()
-        for walk in self.extract_walks(kg, instance):
+        for walk in walks:
             canonical_walk: List[str] = []
             for i, hop in enumerate(walk):
                 if i == 0 or i % 2 == 1:
@@ -160,4 +176,4 @@ class RandomWalker(Walker):
                         str(md5(hop.name.encode()).digest()[:8])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: [tuple(canonical_walks), literals]}

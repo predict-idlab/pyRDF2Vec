@@ -6,7 +6,7 @@ from .community import CommunityWalker
 from .random import RandomWalker
 
 from .anonymous import AnonymousWalker
-from .halk import HalkWalker
+from .halk import HALKWalker
 from .ngram import NGramWalker
 from .walklet import WalkletWalker
 from .weisfeiler_lehman import WLWalker
@@ -14,7 +14,7 @@ from .weisfeiler_lehman import WLWalker
 __all__ = [
     "AnonymousWalker",
     "CommunityWalker",
-    "HalkWalker",
+    "HALKWalker",
     "NGramWalker",
     "RandomWalker",
     "Walker",
