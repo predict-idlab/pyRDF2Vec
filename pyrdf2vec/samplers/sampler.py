@@ -37,7 +37,7 @@ class Sampler(ABC):
     # Tags vertices that appear at the max depth or of which all their children
     # are tagged.
     _visited: Set[Tuple[Tuple[Vertex, Vertex], int]] = attr.ib(
-        init=False, repr=False, default=set()
+        init=False, repr=False, factory=set
     )
 
     @abstractmethod

@@ -34,7 +34,7 @@ class KG:
         ],
     )
     skip_predicates: Set[str] = attr.ib(
-        default=set(),
+        factory=set,
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(str)
         ),
@@ -70,8 +70,12 @@ class KG:
     _transition_matrix: DefaultDict[Any, Any] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
     )
-    _entities: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
-    _vertices: Set[Vertex] = attr.ib(init=False, repr=False, default=set())
+    _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
+    _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
+
+    _entity_hops: Dict[str, List[Tuple[Any, Any]]] = attr.ib(
+        init=False, repr=False, default={}
+    )
 
     def __attrs_post_init__(self):
         if self.location is not None:
