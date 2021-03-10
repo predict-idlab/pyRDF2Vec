@@ -60,7 +60,6 @@ class SPARQLConnector(Connector):
         )
         self._session.mount("http", adapter)
         self._session.mount("https", adapter)
-        self._asession = aiohttp.ClientSession()
 
     async def afetch(
         self, queries: List[str]
@@ -151,7 +150,3 @@ class SPARQLConnector(Connector):
         elif len(res) == 1:
             return res[0]["o"]["value"]
         return tuple([literal["o"]["value"] for literal in res])
-
-    async def close(self):
-        print("CLOSE")
-        await self._asession.close()
