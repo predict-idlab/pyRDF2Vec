@@ -227,11 +227,11 @@ class Walker(ABC):
 
         """
         global kg
+
         try:
             loop = asyncio.get_running_loop()
-        except RuntimeError:  # if cleanup: 'RuntimeError: There is no current event loop..'
+        except RuntimeError:
             loop = None
-
         if loop and loop.is_running():
             return loop.create_task(self._extract(kg, Vertex(instance)))
         else:
