@@ -134,10 +134,10 @@ class Walker(ABC):
 
         literals = []
         if kg._is_remote and kg.is_mul_req:
-            literals = await asyncio.create_task(kg.get_literals(instances))
             await asyncio.create_task(
                 kg._fill_hops(list(map(Vertex, instances)))
             )
+            literals = await asyncio.create_task(kg.get_literals(instances))
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
@@ -164,10 +164,22 @@ class Walker(ABC):
             for entity, l in instance_literals.items():
                 tmp = [entity]
                 for literal in l:
-                    if len(literal) == 0:
-                        tmp += [np.NaN]
+                    if isinstance(literal, list):
+                        if len(literal) == 0:
+                            tmp += [np.NaN]
+                        else:
+                            tmp2 = []
+                            for i in literal:
+                                try:
+                                    tmp2.append(float(i.name))
+                                except:
+                                    tmp2.append(i.name)
+                            tmp += [tuple(tmp2)]
                     else:
-                        tmp += [tuple(literal)]
+                        try:
+                            tmp += [float(literal.name)]
+                        except:
+                            tmp += [literal.name]
                 literals.append(tmp)
         return [canonical_walks, literals]
 
@@ -215,4 +227,12 @@ class Walker(ABC):
 
         """
         global kg
-        return asyncio.run(self._extract(kg, Vertex(instance)))  # type: ignore
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:  # if cleanup: 'RuntimeError: There is no current event loop..'
+            loop = None
+
+        if loop and loop.is_running():
+            return loop.create_task(self._extract(kg, Vertex(instance)))
+        else:
+            return asyncio.run(self._extract(kg, Vertex(instance)))  # type: ignore

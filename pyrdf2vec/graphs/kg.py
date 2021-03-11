@@ -165,9 +165,21 @@ class KG:
         """
         if not vertex.name.startswith("http://"):
             return []
-        elif vertex.name in self._entity_hops:
-            return self._entity_hops[vertex.name]
-        return self.connector.query(self.connector.get_query(vertex.name))
+        elif vertex in self._entity_hops:
+            return self._entity_hops[vertex]
+        hops = []
+        res = self.connector.query(self.connector.get_query(vertex.name))
+        for value in res:
+            obj = Vertex(value["o"]["value"])
+            pred = Vertex(
+                value["p"]["value"],
+                predicate=True,
+                vprev=vertex,
+                vnext=obj,
+            )
+            if self.add_walk(vertex, pred, obj):
+                hops.append((pred, obj))
+        return hops
 
     async def _fill_hops(self, vertices: List[Vertex]) -> None:
         """Fills the entity hops.
@@ -194,7 +206,7 @@ class KG:
                 )
                 if self.add_walk(vertex, pred, obj):
                     hops.append((pred, obj))
-                self._entity_hops.update({str(vertex): hops})
+                self._entity_hops.update({vertex: hops})
 
     def get_hops(
         self, vertex: Vertex, is_reverse: bool = False
@@ -212,44 +224,27 @@ class KG:
 
         """
         if self._is_remote:
-            hops = []
-            for result in self.fetch_hops(vertex):
-                obj = Vertex(result["o"]["value"])
-                pred = Vertex(
-                    result["p"]["value"],
-                    predicate=True,
-                    vprev=vertex,
-                    vnext=obj,
-                )
-                if self.add_walk(vertex, pred, obj):
-                    hops.append((pred, obj))
-            return hops
+            return self.fetch_hops(vertex)
 
+        matrix = self._transition_matrix
         if is_reverse:
-            return [
-                (pred, obj)
-                for pred in self._inv_transition_matrix[vertex]
-                for obj in self._inv_transition_matrix[pred]
-                if len(self._inv_transition_matrix[pred]) != 0
-            ]
+            matrix = self._inv_transition_matrix
+
         return [
             (pred, obj)
-            for pred in self._transition_matrix[vertex]
-            for obj in self._transition_matrix[pred]
-            if len(self._transition_matrix[pred]) != 0
+            for pred in matrix[vertex]
+            for obj in matrix[pred]
+            if len(matrix[pred]) != 0
         ]
 
     def get_pliterals(self, entity: Vertex, pchain: str):
-        frontier = {entity.name}
+        frontier = {entity}
         for p in pchain:
             new_frontier = set()
             for node in frontier:
-                for pred, obj in self.get_hops(Vertex(node)):
-                    if pred.name == p:
-                        try:
-                            new_frontier.add(float(obj.name))
-                        except:
-                            new_frontier.add(obj.name)
+                for pred, obj in self.get_hops(node):
+                    # if pred.name == p:
+                    new_frontier.add(obj)
             frontier = new_frontier
         return list(frontier)
 
