@@ -243,8 +243,8 @@ class KG:
             new_frontier = set()
             for node in frontier:
                 for pred, obj in self.get_hops(node):
-                    # if pred.name == p:
-                    new_frontier.add(obj)
+                    if pred.name == p:
+                        new_frontier.add(obj)
             frontier = new_frontier
         return list(frontier)
 
