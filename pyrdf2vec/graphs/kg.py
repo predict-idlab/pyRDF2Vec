@@ -22,7 +22,7 @@ class KG:
             Defaults to None.
         fmt: Used if format can not be determined from source.
             Defaults to None.
-        is_mul_req: If True allows to bundle SPARQL requests.
+        mul_req: If True allows to bundle SPARQL requests.
             Defaults to True.
 
     """
@@ -51,7 +51,7 @@ class KG:
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
-    is_mul_req: bool = attr.ib(
+    mul_req: bool = attr.ib(
         kw_only=True,
         default=True,
         validator=attr.validators.instance_of(bool),
@@ -75,7 +75,7 @@ class KG:
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
 
     _entity_hops: Dict[str, List[Tuple[Any, Any]]] = attr.ib(
-        init=False, repr=False, default={}
+        init=False, repr=False, factory=dict
     )
 
     def __attrs_post_init__(self):
@@ -153,8 +153,9 @@ class KG:
             return True
         return False
 
-    def fetch_hops(self, vertex: Vertex):
-        """Fetchs the hops of the vertex.
+    def fetch_hops(self, vertex: Vertex) -> List[Tuple[Vertex, Vertex]]:
+        """Fetchs the hops of the vertex from a SPARQL endpoint server and
+        add the hops for this vertex in a cache dictionary.
 
         Args:
             vertex: The vertex to get the hops.
@@ -163,50 +164,18 @@ class KG:
             The hops of the vertex.
 
         """
-        if not vertex.name.startswith("http://"):
-            return []
+        hops = []
+        if not self._is_remote:
+            return hops
         elif vertex in self._entity_hops:
             return self._entity_hops[vertex]
-        hops = []
-        res = self.connector.query(self.connector.get_query(vertex.name))
-        for value in res:
-            obj = Vertex(value["o"]["value"])
-            pred = Vertex(
-                value["p"]["value"],
-                predicate=True,
-                vprev=vertex,
-                vnext=obj,
-            )
-            if self.add_walk(vertex, pred, obj):
-                hops.append((pred, obj))
+        elif vertex.name.startswith("http://") or vertex.name.startswith(
+            "https://"
+        ):
+            res = self.connector.query(self.connector.get_query(vertex.name))
+            hops = self._res2hops(vertex, res)
+            self._entity_hops.update({vertex: hops})
         return hops
-
-    async def _fill_hops(self, vertices: List[Vertex]) -> None:
-        """Fills the entity hops.
-
-        Args:
-            vertices: The vertices to get the hops.
-
-        """
-        queries = [
-            self.connector.get_query(vertex.name)
-            for vertex in vertices
-            if vertex.name.startswith("http://")
-        ]
-        vertices_res = await self.connector.afetch(queries)
-        for vertex, res in zip(vertices, vertices_res):
-            hops = []
-            for result in res:
-                obj = Vertex(result["o"]["value"])
-                pred = Vertex(
-                    result["p"]["value"],
-                    predicate=True,
-                    vprev=vertex,
-                    vnext=obj,
-                )
-                if self.add_walk(vertex, pred, obj):
-                    hops.append((pred, obj))
-                self._entity_hops.update({vertex: hops})
 
     def get_hops(
         self, vertex: Vertex, is_reverse: bool = False
@@ -229,7 +198,6 @@ class KG:
         matrix = self._transition_matrix
         if is_reverse:
             matrix = self._inv_transition_matrix
-
         return [
             (pred, obj)
             for pred in matrix[vertex]
@@ -237,21 +205,11 @@ class KG:
             if len(matrix[pred]) != 0
         ]
 
-    def _get_local_literals(self, entity: str, pchain: str) -> List[Vertex]:
-        frontier = {entity}
-        for p in pchain:
-            new_frontier = set()
-            for node in frontier:
-                for pred, obj in self.get_hops(Vertex(node)):
-                    if pred.name == p:
-                        new_frontier.add(obj.name)
-            frontier = new_frontier
-        return list(frontier)
-
     async def get_literals(
         self, entities: Union[str, List[Union[str, Tuple[str, ...]]]]
     ):
-        """Gets the literals for one or more entities.
+        """Gets the literals for one or more entities for all the predicates
+        chain.
 
         Args:
             entities: The entity or entities to get the literals.
@@ -261,37 +219,27 @@ class KG:
 
         """
         if self._is_remote:
-            if isinstance(entities, str):
-                queries = [
-                    self.connector.get_query(entities, pchain)
-                    for pchain in self.literals
-                    if len(pchain) > 0
-                ]
-            else:
-                queries = [
-                    self.connector.get_query(entity, pchain)
-                    for entity in entities
-                    for pchain in self.literals
-                    if len(pchain) > 0
-                ]
-
-            res = await self.connector.afetch(queries)
-            literals_res = [
-                self.connector.res2literal(literal) for literal in res
+            e = [entities] if isinstance(entities, str) else entities
+            queries = [
+                self.connector.get_query(entity, pchain)
+                for entity in e
+                for pchain in self.literals
+                if len(pchain) > 0
             ]
-
+            responses = await self.connector.afetch(queries)
+            literals_responses = [
+                self.connector.res2literals(res) for res in responses
+            ]
             if isinstance(entities, str):
-                return literals_res
+                return literals_responses
             return [
                 [entities[i]]
-                + literals_res[
+                + literals_responses[
                     len(self.literals) * i : len(self.literals) * (i + 1) :
                 ]
                 for i in range(len(entities))
             ]
-        return [
-            self._get_local_literals(entities, pred) for pred in self.literals
-        ]
+        return [self._get_pliterals(entities, pred) for pred in self.literals]
 
     def get_neighbors(
         self, vertex: Vertex, is_reverse: bool = False
@@ -328,3 +276,44 @@ class KG:
             self._inv_transition_matrix[v2].remove(v1)
             return True
         return False
+
+    async def _fill_hops(self, vertices: List[Vertex]) -> None:
+        """Fills the entity hops in a cache dictionary.
+
+        Args:
+            vertices: The vertices to get the hops.
+
+        """
+        queries = [
+            self.connector.get_query(vertex.name)
+            for vertex in vertices
+            if self._is_remote
+        ]
+        vertices_res = await self.connector.afetch(queries)
+        for vertex, res in zip(vertices, vertices_res):
+            self._entity_hops.update({vertex: self._res2hops(vertex, res)})
+
+    def _get_pliterals(self, entity: str, pchain: str) -> List[Vertex]:
+        frontier = {entity}
+        for p in pchain:
+            new_frontier = set()
+            for node in frontier:
+                for pred, obj in self.get_hops(Vertex(node)):
+                    if pred.name == p:
+                        new_frontier.add(obj.name)
+            frontier = new_frontier
+        return list(frontier)
+
+    def _res2hops(self, vertex: Vertex, res) -> List[Tuple[Vertex, Vertex]]:
+        hops = []
+        for value in res:
+            obj = Vertex(value["o"]["value"])
+            pred = Vertex(
+                value["p"]["value"],
+                predicate=True,
+                vprev=vertex,
+                vnext=obj,
+            )
+            if self.add_walk(vertex, pred, obj):
+                hops.append((pred, obj))
+        return hops

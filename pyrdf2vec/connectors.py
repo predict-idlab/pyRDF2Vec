@@ -135,11 +135,11 @@ class SPARQLConnector(Connector):
         res = self._session.get(url, headers=self._headers).json()
         return res["results"]["bindings"]
 
-    def res2literal(self, res) -> Union[str, Tuple[str, ...]]:
+    def res2literals(self, res) -> Union[str, Tuple[str, ...]]:
         """Converts a JSON response from a SPARQL endpoint server to a literal.
 
         Args:
-            res: The JSON response of the SPARQL endpoint server
+            res: The JSON response of the SPARQL endpoint server.
 
         Returns:
             The literal.

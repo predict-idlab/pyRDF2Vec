@@ -122,10 +122,9 @@ class Walker(ABC):
         self.sampler.fit(kg)
 
         process = self.n_jobs if self.n_jobs is not None else 1
-
-        if (kg._is_remote and kg.is_mul_req) and process >= 2:
+        if (kg._is_remote and kg.mul_req) and process >= 2:
             warnings.warn(
-                "Using 'is_mul_req=True' and/or 'n_jobs>=2' speed up the "
+                "Using 'mul_req=True' and/or 'n_jobs>=2' speed up the "
                 + "extraction of entity's walks, but may violate the policy "
                 + "of some SPARQL endpoint servers.",
                 category=RuntimeWarning,
@@ -133,7 +132,7 @@ class Walker(ABC):
             )
 
         literals = []
-        if kg._is_remote and kg.is_mul_req:
+        if kg._is_remote and kg.mul_req:
             await asyncio.create_task(
                 kg._fill_hops(list(map(Vertex, instances)))
             )

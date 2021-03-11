@@ -78,11 +78,9 @@ if __name__ == "__main__":
         [10, 25, 50],
     ):
         if not is_cache:
-            kg = KG(
-                f"http://10.2.35.70:5820/{db}", is_mul_req=False, cache=None
-            )
+            kg = KG(f"http://10.2.35.70:5820/{db}", mul_req=False, cache=None)
         else:
-            kg = KG(f"http://10.2.35.70:5820/{db}", is_mul_req=False)
+            kg = KG(f"http://10.2.35.70:5820/{db}", mul_req=False)
 
         label = "bond"
         if db == "am":

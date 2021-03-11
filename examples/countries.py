@@ -30,7 +30,7 @@ embeddings, literals = transformer.fit_transform(
     # predicates to exclude from this KG.
     KG(
         "https://dbpedia.org/sparql",
-        is_mul_req=False,
+        # mul_req=False,
         skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
         literals=[
             [
@@ -42,7 +42,6 @@ embeddings, literals = transformer.fit_transform(
     ),
     [entity for entity in data["location"]],
 )
-
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
 X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(embeddings)
 

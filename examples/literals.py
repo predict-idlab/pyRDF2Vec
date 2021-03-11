@@ -34,7 +34,7 @@ X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
             "https://dbpedia.org/sparql",
             skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
             literals=[["dbo:area"], ["dbo:capital", "dbo:population"]],
-            is_mul_req=False,
+            mul_req=False,
         ),
         [entity for entity in data["location"]],
     )

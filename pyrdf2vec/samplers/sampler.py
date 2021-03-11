@@ -27,13 +27,16 @@ class Sampler(ABC):
     split: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
+
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
     _random_state: Optional[int] = attr.ib(
         init=False,
         repr=False,
         default=None,
     )
-    _vertices_deg: Dict[str, int] = attr.ib(init=False, repr=False, default={})
+    _vertices_deg: Dict[str, int] = attr.ib(
+        init=False, repr=False, factory=dict
+    )
     # Tags vertices that appear at the max depth or of which all their children
     # are tagged.
     _visited: Set[Tuple[Tuple[Vertex, Vertex], int]] = attr.ib(

@@ -189,10 +189,10 @@ if __name__ == "__main__":
     # for is_cache in [False, True]:
     #     if not is_cache:
     #         kg = KG(
-    #             "http://10.2.35.70:5820/mutag", is_mul_req=False, cache=None
+    #             "http://10.2.35.70:5820/mutag", mul_req=False, cache=None
     #         )
     #     else:
-    #         kg = KG("http://10.2.35.70:5820/mutag", is_mul_req=False)
+    #         kg = KG("http://10.2.35.70:5820/mutag", mul_req=False)
 
     #     emc_to_avg_stdev = {}
     #     for e, max_walks in itertools.product([10, 50, 100], [10, 25, 50]):
