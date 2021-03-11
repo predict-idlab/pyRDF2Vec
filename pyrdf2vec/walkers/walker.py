@@ -161,25 +161,25 @@ class Walker(ABC):
             canonical_walks.update(instance_walks[instance])
 
         if len(literals) == 0:
-            for entity, l in instance_literals.items():
+            for entity, v in instance_literals.items():
                 tmp = [entity]
-                for literal in l:
-                    if isinstance(literal, list):
-                        if len(literal) == 0:
+                for k in v:
+                    if isinstance(k, list):
+                        if len(k) == 0:
                             tmp += [np.NaN]
                         else:
                             tmp2 = []
-                            for i in literal:
+                            for literal in k:
                                 try:
-                                    tmp2.append(float(i.name))
+                                    tmp2.append(float(literal))
                                 except:
-                                    tmp2.append(i.name)
+                                    tmp2.append(literal)
                             tmp += [tuple(tmp2)]
                     else:
                         try:
-                            tmp += [float(literal.name)]
+                            tmp += [float(k)]
                         except:
-                            tmp += [literal.name]
+                            tmp += [k]
                 literals.append(tmp)
         return [canonical_walks, literals]
 

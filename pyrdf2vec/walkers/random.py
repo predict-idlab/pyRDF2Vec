@@ -150,16 +150,11 @@ class RandomWalker(Walker):
 
         """
         literals = []
+        walks = await asyncio.create_task(self.extract_walks(kg, instance))
         if not kg.is_mul_req:
-            walks = await asyncio.create_task(self.extract_walks(kg, instance))
             literals = await asyncio.create_task(
                 kg.get_literals(instance.name)
             )
-        else:
-            walks = await self.extract_walks(kg, instance)
-            literals = [
-                kg.get_pliterals(instance, pred) for pred in kg.literals
-            ]
 
         canonical_walks: Set[Tuple[str, ...]] = set()
         for walk in walks:

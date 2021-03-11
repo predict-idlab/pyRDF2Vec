@@ -237,14 +237,14 @@ class KG:
             if len(matrix[pred]) != 0
         ]
 
-    def get_pliterals(self, entity: Vertex, pchain: str):
+    def _get_local_literals(self, entity: str, pchain: str) -> List[Vertex]:
         frontier = {entity}
         for p in pchain:
             new_frontier = set()
             for node in frontier:
-                for pred, obj in self.get_hops(node):
+                for pred, obj in self.get_hops(Vertex(node)):
                     if pred.name == p:
-                        new_frontier.add(obj)
+                        new_frontier.add(obj.name)
             frontier = new_frontier
         return list(frontier)
 
@@ -260,31 +260,37 @@ class KG:
             The literals.
 
         """
-        if isinstance(entities, str):
-            queries = [
-                self.connector.get_query(entities, pchain)
-                for pchain in self.literals
-                if len(pchain) > 0
-            ]
-        else:
-            queries = [
-                self.connector.get_query(entity, pchain)
-                for entity in entities
-                for pchain in self.literals
-                if len(pchain) > 0
+        if self._is_remote:
+            if isinstance(entities, str):
+                queries = [
+                    self.connector.get_query(entities, pchain)
+                    for pchain in self.literals
+                    if len(pchain) > 0
+                ]
+            else:
+                queries = [
+                    self.connector.get_query(entity, pchain)
+                    for entity in entities
+                    for pchain in self.literals
+                    if len(pchain) > 0
+                ]
+
+            res = await self.connector.afetch(queries)
+            literals_res = [
+                self.connector.res2literal(literal) for literal in res
             ]
 
-        res = await self.connector.afetch(queries)
-        literals_res = [self.connector.res2literal(literal) for literal in res]
-
-        if isinstance(entities, str):
-            return literals_res
+            if isinstance(entities, str):
+                return literals_res
+            return [
+                [entities[i]]
+                + literals_res[
+                    len(self.literals) * i : len(self.literals) * (i + 1) :
+                ]
+                for i in range(len(entities))
+            ]
         return [
-            [entities[i]]
-            + literals_res[
-                len(self.literals) * i : len(self.literals) * (i + 1) :
-            ]
-            for i in range(len(entities))
+            self._get_local_literals(entities, pred) for pred in self.literals
         ]
 
     def get_neighbors(
