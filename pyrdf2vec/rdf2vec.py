@@ -89,12 +89,12 @@ class RDF2VecTransformer:
         self._entities.extend(entities)
 
         walks = []
+        literals = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            w, self._literals = asyncio.run(
-                walker.extract(kg, entities, self.verbose)
-            )
+            w, l = asyncio.run(walker.extract(kg, entities, self.verbose))
             walks += list(w)
+            literals += list(l)
         toc = time.perf_counter()
 
         if self._walks is None:
@@ -102,16 +102,36 @@ class RDF2VecTransformer:
         else:
             self._walks += walks
 
+        if self._literals is None:
+            self._literals = literals
+        else:
+            self._literals += literals
+
         if self.verbose >= 1:
-            print(
-                f"Extracted {len(walks)} walks "
-                + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
-            )
-            if len(self._walks) != len(walks):
+            if len(kg.literals) > 0:
                 print(
-                    f"> {len(self._walks)} walks extracted "
-                    + f"for {len(self._entities)} entities."
+                    f"Extracted {len(walks)} walks and {len(literals)} "
+                    + f"literals for {len(entities)} entities "
+                    + f"({toc - tic:0.4f}s)"
                 )
+            else:
+                print(
+                    f"Extracted {len(walks)} walks "
+                    + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
+                )
+
+            if len(self._walks) != len(walks):
+                if len(self._literals) != len(literals):
+                    print(
+                        f"> {len(self._walks)} walks and {len(literals)} "
+                        + f"literals extracted for {len(self._entities)} "
+                        + f"entities."
+                    )
+                else:
+                    print(
+                        f"> {len(self._walks)} walks extracted "
+                        + f"for {len(self._entities)} entities."
+                    )
 
         corpus = [list(map(str, walk)) for walk in self._walks]
         self.embedder.fit(corpus, is_update)
