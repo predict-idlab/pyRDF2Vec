@@ -1,10 +1,11 @@
 """isort:skip_file"""
 from .rdf2vec import RDF2VecTransformer
-from IPython import get_ipython
 
 
 def is_notebook():
     try:
+        from IPython import get_ipython
+
         shell = get_ipython().__class__.__name__
         if shell == "ZMQInteractiveShell":
             return True  # Jupyter notebook or qtconsole
