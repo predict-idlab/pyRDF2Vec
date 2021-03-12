@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
@@ -54,8 +55,11 @@ embeddings, literals = RDF2VecTransformer(
 train_embeddings = embeddings[: len(train_entities)]
 test_embeddings = embeddings[len(train_entities) :]
 
-# Fit a Support Vector Machine on train embeddings.
-clf = SVC(random_state=RANDOM_STATE)
+# Fit a Support Vector Machine on train embeddings and pick the best
+# C-parameters (regularization strength).
+clf = GridSearchCV(
+    SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+)
 clf.fit(train_embeddings, train_labels)
 
 # Evaluate the Support Vector Machine on test embeddings.
