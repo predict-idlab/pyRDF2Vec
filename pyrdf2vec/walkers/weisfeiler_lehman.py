@@ -123,7 +123,7 @@ class WLWalker(RandomWalker):
         self._weisfeiler_lehman(kg)
         return super().extract(kg, instances, verbose)
 
-    async def _extract(
+    def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -141,16 +141,9 @@ class WLWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        literals = []
-        walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
-            literals = await asyncio.create_task(
-                kg.get_literals(instance.name)
-            )
-
         canonical_walks: Set[Tuple[str, ...]] = set()
         for n in range(self.wl_iterations + 1):
-            for walk in walks:
+            for walk in self.extract_walks(kg, instance):
                 canonical_walk: List[str] = []
                 for i, hop in enumerate(walk):
                     if i == 0 or i % 2 == 1:
@@ -158,4 +151,4 @@ class WLWalker(RandomWalker):
                     else:
                         canonical_walk.append(self._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: [tuple(canonical_walks), literals]}
+        return {instance.name: canonical_walks}

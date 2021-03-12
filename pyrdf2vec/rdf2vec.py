@@ -43,6 +43,7 @@ class RDF2VecTransformer:
         kw_only=True, default=0, validator=attr.validators.in_([0, 1, 2])
     )
 
+    _embeddings: List[str] = attr.ib(init=False, factory=list)
     _entities: List[str] = attr.ib(init=False, factory=list)
     _literals: List[List[str]] = attr.ib(init=False, factory=list)
     _walks: List[str] = attr.ib(init=False, factory=list)
@@ -65,10 +66,6 @@ class RDF2VecTransformer:
                 Due to RDF2Vec being unsupervised, there is no label leakage.
             is_update: If true, the new corpus will be added to old model's
                 corpus.
-            verbose: If true, display a progress bar for the extraction of the
-                walks and display the number of these extracted walks for the
-                number of entities with the extraction time.
-                Defaults to False.
 
         Returns:
             The RDF2VecTransformer.
@@ -89,12 +86,9 @@ class RDF2VecTransformer:
         self._entities.extend(entities)
 
         walks = []
-        literals = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            w, l = asyncio.run(walker.extract(kg, entities, self.verbose))
-            walks += list(w)
-            literals += list(l)
+            walks += walker.extract(kg, entities, self.verbose)
         toc = time.perf_counter()
 
         if self._walks is None:
@@ -102,56 +96,66 @@ class RDF2VecTransformer:
         else:
             self._walks += walks
 
-        if self._literals is None:
-            self._literals = literals
-        else:
-            self._literals += literals
-
         if self.verbose >= 1:
-            if len(kg.literals) > 0:
-                print(
-                    f"Extracted {len(walks)} walks and {len(literals)} "
-                    + f"literals for {len(entities)} entities "
-                    + f"({toc - tic:0.4f}s)"
-                )
-            else:
-                print(
-                    f"Extracted {len(walks)} walks "
-                    + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
-                )
-
+            print(
+                f"Extracted {len(walks)} walks "
+                + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
+            )
             if len(self._walks) != len(walks):
-                if len(self._literals) != len(literals):
-                    print(
-                        f"> {len(self._walks)} walks and {len(literals)} "
-                        + f"literals extracted for {len(self._entities)} "
-                        + f"entities."
-                    )
-                else:
-                    print(
-                        f"> {len(self._walks)} walks extracted "
-                        + f"for {len(self._entities)} entities."
-                    )
+                print(
+                    f"> {len(self._walks)} walks extracted "
+                    + f"for {len(self._entities)} entities."
+                )
 
         corpus = [list(map(str, walk)) for walk in self._walks]
+
+        tic = time.perf_counter()
         self.embedder.fit(corpus, is_update)
+        toc = time.perf_counter()
+        if self.verbose >= 1:
+            print(f"Fitted {len(walks)} walks ({toc - tic:0.4f}s)")
         return self
 
-    def transform(self, entities: List[str]) -> List[str]:
+    def transform(self, kg: KG, entities: List[str]) -> List[str]:
         """Constructs a feature vector for the provided entities.
 
         Args:
+            kg: The Knowledge Graph.
+                The graph from which we will extract neighborhoods for the
+                provided instances.
             entities: The entities to create the embeddings.
                 The test entities should be passed to the fit method as well.
 
                 Due to RDF2Vec being unsupervised, there is no label leakage.
+            verbose: If True, display a progress bar for the extraction of the
+                walks and display the number of these extracted walks for the
+                number of entities with the extraction time.
+                Defaults to 0.
 
         Returns:
             The embeddings of the provided entities.
 
         """
         assert self.embedder is not None
-        return self.embedder.transform(entities), self._literals
+        embeddings = self.embedder.transform(entities)
+        self._embeddings += embeddings
+
+        tic = time.perf_counter()
+        literals = kg.get_literals(entities, self.verbose)
+        toc = time.perf_counter()
+
+        if self._literals is None:
+            self._literals = literals
+        else:
+            self._literals += literals
+
+        if self.verbose >= 1 and len(literals) > 0:
+            print(
+                f"Extracted {len(literals)} "
+                + f"literals for {len(entities)} entities "
+                + f"({toc - tic:0.4f}s)"
+            )
+        return embeddings, literals
 
     def fit_transform(
         self,
@@ -178,7 +182,7 @@ class RDF2VecTransformer:
 
         """
         self.fit(kg, entities, is_update)
-        return self.transform(self._entities)
+        return self.transform(kg, entities)
 
     def save(self, filename: str = "transformer_data") -> None:
         """Saves a RDF2VecTransformer object.

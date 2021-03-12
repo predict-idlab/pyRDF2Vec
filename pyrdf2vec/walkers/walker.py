@@ -90,7 +90,7 @@ class Walker(ABC):
             self.n_jobs = multiprocessing.cpu_count()
         self.sampler.random_state = self.random_state
 
-    async def extract(
+    def extract(
         self,
         kg: KG,
         instances: List[str],
@@ -138,8 +138,7 @@ class Walker(ABC):
                 for vertex in instances
                 if kg._is_remote
             ]
-            await asyncio.create_task(kg.connector.afetch(queries))
-            literals = await asyncio.create_task(kg.get_literals(instances))
+            asyncio.run(kg.connector.afetch(queries))
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
@@ -150,43 +149,17 @@ class Walker(ABC):
                 )
             )
 
-        instance_walks = {}
-        instance_literals = {}
-        for elm in res:
-            for instance, walks_literals in elm.items():
-                instance_walks[instance] = walks_literals[0]
-                if len(literals) == 0:
-                    instance_literals[instance] = walks_literals[1]
+        instance_walks = {
+            instance: walks for elm in res for instance, walks in elm.items()
+        }
 
         canonical_walks = set()
         for instance in instances:
             canonical_walks.update(instance_walks[instance])
-
-        if len(literals) == 0:
-            for entity, v in instance_literals.items():
-                tmp = []
-                for k in v:
-                    if isinstance(k, list):
-                        if len(k) == 0:
-                            tmp += [np.NaN]
-                        else:
-                            tmp2 = []
-                            for literal in k:
-                                try:
-                                    tmp2.append(float(literal))
-                                except:
-                                    tmp2.append(literal)
-                            tmp += [tuple(tmp2)]
-                    else:
-                        try:
-                            tmp += [float(k)]
-                        except:
-                            tmp += [k]
-                literals.append(tmp)
-        return [canonical_walks, literals]
+        return list(canonical_walks)
 
     @abstractmethod
-    async def _extract(
+    def _extract(
         self,
         kg: KG,
         instance: Vertex,
@@ -229,4 +202,4 @@ class Walker(ABC):
 
         """
         global kg
-        return asyncio.run(self._extract(kg, Vertex(instance)))
+        return self._extract(kg, Vertex(instance))

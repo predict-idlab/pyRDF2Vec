@@ -28,7 +28,7 @@ class AnonymousWalker(RandomWalker):
 
     """
 
-    async def _extract(
+    def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -46,15 +46,8 @@ class AnonymousWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        literals = []
-        walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
-            literals = await asyncio.create_task(
-                kg.get_literals(instance.name)
-            )
-
         canonical_walks: Set[Tuple[str, ...]] = set()
-        for walk in walks:
+        for walk in self.extract_walks(kg, instance):
             canonical_walk: List[str] = []
             str_walk = [hop.name for hop in walk]
             for i, hop in enumerate(walk):
@@ -63,4 +56,4 @@ class AnonymousWalker(RandomWalker):
                 else:
                     canonical_walk.append(str(str_walk.index(hop.name)))
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: [tuple(canonical_walks), literals]}
+        return {instance.name: canonical_walks}

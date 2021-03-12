@@ -35,14 +35,14 @@ class HALKWalker(RandomWalker):
 
     freq_thresholds: List[float] = attr.ib(
         kw_only=True,
-        default=[0.001],
+        factory=lambda: [0.001],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(float),
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
 
-    async def _extract(
+    def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -60,12 +60,7 @@ class HALKWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        literals = []
-        walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
-            literals = await asyncio.create_task(
-                kg.get_literals(instance.name)
-            )
+        walks = self.extract_walks(kg, instance)
 
         canonical_walks: Set[Tuple[str, ...]] = set()
         hop_to_freq = defaultdict(set)
@@ -92,4 +87,4 @@ class HALKWalker(RandomWalker):
                             str(md5(hop.name.encode()).digest()[:8])
                         )
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: [tuple(canonical_walks), literals]}
+        return {instance.name: canonical_walks}

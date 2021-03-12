@@ -1,3 +1,4 @@
+import asyncio
 import operator
 from collections import defaultdict
 from functools import partial
@@ -8,6 +9,7 @@ import numpy as np
 import rdflib
 from cachetools import Cache, TTLCache, cachedmethod
 from cachetools.keys import hashkey
+from tqdm import tqdm
 
 from pyrdf2vec.connectors import SPARQLConnector
 from pyrdf2vec.graphs.vertex import Vertex
@@ -207,8 +209,10 @@ class KG:
             if len(matrix[pred]) != 0
         ]
 
-    async def get_literals(
-        self, entities: Union[str, List[Union[str, Tuple[str, ...]]]]
+    def get_literals(
+        self,
+        entities: Union[str, List[Union[str, Tuple[str, ...]]]],
+        verbose: int = 0,
     ):
         """Gets the literals for one or more entities for all the predicates
         chain.
@@ -220,15 +224,18 @@ class KG:
             The literals.
 
         """
+        if len(self.literals) == 0:
+            return []
+
         if self._is_remote:
             e = [entities] if isinstance(entities, str) else entities
             queries = [
                 self.connector.get_query(entity, pchain)
-                for entity in e
+                for entity in tqdm(e)
                 for pchain in self.literals
                 if len(pchain) > 0
             ]
-            responses = await self.connector.afetch(queries)
+            responses = asyncio.run(self.connector.afetch(queries))
             literals_responses = [
                 self.connector.res2literals(res) for res in responses
             ]
@@ -240,7 +247,32 @@ class KG:
                 ]
                 for i in range(len(entities))
             ]
-        return [self._get_pliterals(entities, pred) for pred in self.literals]
+
+        t = []
+        for entity in tqdm(entities):
+            tmp2 = []
+            for pred in self.literals:
+                tmp2 += self.get_pliterals(entity, pred)
+            t.append(tmp2)
+
+        lit = []
+        for literal in t:
+            tmp = []
+            if len(literal) == 0:
+                tmp += ["nan"]
+            else:
+                tmp2 = []
+                for value in literal:
+                    try:
+                        tmp2.append(float(value))
+                    except:
+                        tmp2.append(value)
+                if len(tmp2) > 1:
+                    tmp += tuple(tmp2)
+                else:
+                    tmp += tmp2
+            lit.append(tmp)
+        return lit
 
     def get_neighbors(
         self, vertex: Vertex, is_reverse: bool = False
@@ -278,7 +310,7 @@ class KG:
             return True
         return False
 
-    def _get_pliterals(self, entity: str, pchain: str) -> List[Vertex]:
+    def get_pliterals(self, entity: str, pchain: str) -> List[Vertex]:
         frontier = {entity}
         for p in pchain:
             new_frontier = set()

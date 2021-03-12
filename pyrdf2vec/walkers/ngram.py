@@ -73,7 +73,7 @@ class NGramWalker(RandomWalker):
                 n_gram_walk.append(self._n_gram_map[n_gram])
         return n_gram_walk
 
-    async def _extract(
+    def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -91,15 +91,8 @@ class NGramWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        literals = []
-        walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
-            literals = await asyncio.create_task(
-                kg.get_literals(instance.name)
-            )
-
         canonical_walks: Set[Tuple[str, ...]] = set()
-        for walk in walks:
+        for walk in self.extract_walks(kg, instance):
             canonical_walks.add(tuple(self._take_n_grams(walk)))
 
             # Introduce wild-cards and re-calculate n-grams
@@ -116,4 +109,4 @@ class NGramWalker(RandomWalker):
                     canonical_walks.add(
                         tuple(self._take_n_grams(new_walk))  # type: ignore
                     )
-        return {instance.name: [tuple(canonical_walks), literals]}
+        return {instance.name: canonical_walks}

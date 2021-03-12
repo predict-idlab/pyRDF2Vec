@@ -284,9 +284,7 @@ class CommunityWalker(Walker):
         self._community_detection(kg)
         return super().extract(kg, instances, verbose)
 
-    async def extract_walks(
-        self, kg: KG, root: Vertex
-    ) -> List[Tuple[Vertex, ...]]:
+    def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Args:
@@ -312,7 +310,7 @@ class CommunityWalker(Walker):
             ]
         return [walk for walk in fct_search(kg, root)]
 
-    async def _extract(
+    def _extract(
         self, kg: KG, instance: Vertex
     ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
         """Extracts walks rooted at the provided instances which are then each
@@ -330,15 +328,8 @@ class CommunityWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        literals = []
-        walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
-            literals = await asyncio.create_task(
-                kg.get_literals(instance.name)
-            )
-
         canonical_walks: Set[Tuple[str, ...]] = set()
-        for walk in walks:
+        for walk in self.extract_walks(kg, instance):
             canonical_walk: List[str] = []
             for i, hop in enumerate(walk):
                 if i == 0 or i % 2 == 1:
@@ -351,4 +342,4 @@ class CommunityWalker(Walker):
                         str(md5(hop.name.encode()).digest()[:8])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: [tuple(canonical_walks), literals]}
+        return {instance.name: canonical_walks}
