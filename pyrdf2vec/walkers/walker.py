@@ -164,7 +164,7 @@ class Walker(ABC):
 
         if len(literals) == 0:
             for entity, v in instance_literals.items():
-                tmp = [entity]
+                tmp = []
                 for k in v:
                     if isinstance(k, list):
                         if len(k) == 0:

@@ -235,8 +235,7 @@ class KG:
             if isinstance(entities, str):
                 return literals_responses
             return [
-                [entities[i]]
-                + literals_responses[
+                literals_responses[
                     len(self.literals) * i : len(self.literals) * (i + 1) :
                 ]
                 for i in range(len(entities))
