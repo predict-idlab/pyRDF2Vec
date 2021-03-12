@@ -151,7 +151,7 @@ class RandomWalker(Walker):
         """
         literals = []
         walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
+        if not kg._is_remote or (kg._is_remote and not kg.mul_req):
             literals = await asyncio.create_task(
                 kg.get_literals(instance.name)
             )

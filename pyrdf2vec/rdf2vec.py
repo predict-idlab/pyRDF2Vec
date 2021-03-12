@@ -91,19 +91,9 @@ class RDF2VecTransformer:
         walks = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            try:
-                loop = asyncio.get_running_loop()
-            except RuntimeError:
-                loop = None
-
-            if loop and loop.is_running():
-                w, self._literals = loop.create_task(
-                    walker.extract(kg, entities, self.verbose)
-                )
-            else:
-                w, self._literals = asyncio.run(
-                    walker.extract(kg, entities, self.verbose)
-                )
+            w, self._literals = asyncio.run(
+                walker.extract(kg, entities, self.verbose)
+            )
             walks += list(w)
         toc = time.perf_counter()
 
