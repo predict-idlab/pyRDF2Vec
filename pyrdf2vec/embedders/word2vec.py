@@ -13,8 +13,14 @@ class Word2Vec(Embedder):
     """
 
     def __init__(self, **kwargs):
-        kwargs.setdefault("min_count", 0)
-        self.kwargs = kwargs
+        self.kwargs = {
+            "size": 500,
+            "negative": 25,
+            "iter": 10,
+            "min_count": 1,
+            "sg": 1,
+            **kwargs,
+        }
         self.model_ = W2V(**self.kwargs)
 
     def fit(

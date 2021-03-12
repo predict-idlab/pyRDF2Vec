@@ -32,7 +32,7 @@ embeddings, literals = RDF2VecTransformer(
     # Extract all walks of depth 2 for each entity using two processes
     # and use a random state to ensure that the same walks are generated for
     # the entities.
-    walkers=[RandomWalker(2, 25, n_jobs=2, random_state=RANDOM_STATE)],
+    walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 ).fit_transform(
     KG(
