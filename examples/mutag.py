@@ -39,10 +39,10 @@ embeddings, literals = RDF2VecTransformer(
         "samples/mutag/mutag.owl",
         skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
         literals=[
-            # [
-            #     "http://dl-learner.org/carcinogenesis#hasBond",
-            #     "http://dl-learner.org/carcinogenesis#inBond",
-            # ],
+            [
+                "http://dl-learner.org/carcinogenesis#hasBond",
+                "http://dl-learner.org/carcinogenesis#inBond",
+            ],
             [
                 "http://dl-learner.org/carcinogenesis#hasAtom",
                 "http://dl-learner.org/carcinogenesis#charge",

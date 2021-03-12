@@ -1,10 +1,13 @@
+import operator
 from collections import defaultdict
+from functools import partial
 from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple, Union
 
 import attr
 import numpy as np
 import rdflib
-from cachetools import Cache, TTLCache
+from cachetools import Cache, TTLCache, cachedmethod
+from cachetools.keys import hashkey
 
 from pyrdf2vec.connectors import SPARQLConnector
 from pyrdf2vec.graphs.vertex import Vertex
@@ -73,10 +76,6 @@ class KG:
     )
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
-
-    _entity_hops: Dict[str, List[Tuple[Any, Any]]] = attr.ib(
-        init=False, repr=False, factory=dict
-    )
 
     def __attrs_post_init__(self):
         if self.location is not None:
@@ -153,6 +152,9 @@ class KG:
             return True
         return False
 
+    @cachedmethod(
+        operator.attrgetter("cache"), key=partial(hashkey, "fetch_hops")
+    )
     def fetch_hops(self, vertex: Vertex) -> List[Tuple[Vertex, Vertex]]:
         """Fetchs the hops of the vertex from a SPARQL endpoint server and
         add the hops for this vertex in a cache dictionary.
@@ -167,16 +169,16 @@ class KG:
         hops = []
         if not self._is_remote:
             return hops
-        elif vertex in self._entity_hops:
-            return self._entity_hops[vertex]
         elif vertex.name.startswith("http://") or vertex.name.startswith(
             "https://"
         ):
             res = self.connector.query(self.connector.get_query(vertex.name))
             hops = self._res2hops(vertex, res)
-            self._entity_hops.update({vertex: hops})
         return hops
 
+    @cachedmethod(
+        operator.attrgetter("cache"), key=partial(hashkey, "get_hops")
+    )
     def get_hops(
         self, vertex: Vertex, is_reverse: bool = False
     ) -> List[Tuple[Vertex, Vertex]]:
@@ -276,22 +278,6 @@ class KG:
             self._inv_transition_matrix[v2].remove(v1)
             return True
         return False
-
-    async def _fill_hops(self, vertices: List[Vertex]) -> None:
-        """Fills the entity hops in a cache dictionary.
-
-        Args:
-            vertices: The vertices to get the hops.
-
-        """
-        queries = [
-            self.connector.get_query(vertex.name)
-            for vertex in vertices
-            if self._is_remote
-        ]
-        vertices_res = await self.connector.afetch(queries)
-        for vertex, res in zip(vertices, vertices_res):
-            self._entity_hops.update({vertex: self._res2hops(vertex, res)})
 
     def _get_pliterals(self, entity: str, pchain: str) -> List[Vertex]:
         frontier = {entity}

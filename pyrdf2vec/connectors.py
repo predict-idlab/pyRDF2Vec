@@ -1,6 +1,7 @@
 import asyncio
 import operator
 from abc import ABC, abstractmethod
+from functools import partial
 from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib import parse
 
@@ -9,6 +10,7 @@ import attr
 import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
+from cachetools.keys import hashkey
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -82,7 +84,7 @@ class SPARQLConnector(Connector):
                 *(self.fetch(url, session) for url in urls)
             )
 
-    @cachedmethod(operator.attrgetter("cache"))
+    @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "fetch"))
     async def fetch(self, url: str, session) -> List[Dict[Any, Any]]:
         """Fetchs the result of the URL asynchronously.
 
@@ -120,7 +122,7 @@ class SPARQLConnector(Connector):
         query += "?o . }"
         return query
 
-    @cachedmethod(operator.attrgetter("cache"))
+    @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "query"))
     def query(self, query: str) -> List[Dict[Any, Any]]:
         """Gets the result of a query for a SPARQL endpoint server.
 

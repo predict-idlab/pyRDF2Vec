@@ -133,9 +133,12 @@ class Walker(ABC):
 
         literals = []
         if kg._is_remote and kg.mul_req:
-            await asyncio.create_task(
-                kg._fill_hops(list(map(Vertex, instances)))
-            )
+            queries = [
+                kg.connector.get_query(vertex)
+                for vertex in instances
+                if kg._is_remote
+            ]
+            await asyncio.create_task(kg.connector.afetch(queries))
             literals = await asyncio.create_task(kg.get_literals(instances))
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
