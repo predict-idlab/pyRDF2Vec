@@ -1,7 +1,7 @@
 import itertools
-import multiprocessing
 import random
 import time
+from typing import List
 
 import attr
 import numpy as np
@@ -16,29 +16,22 @@ from pyrdf2vec.walkers import RandomWalker, Walker
 RANDOM_STATE = 42
 random.seed(RANDOM_STATE)
 
-# A large number of entities but with small number of walks per entity is
-# interesting as probably cache will not be used very often here. Small number of
-# entities but large number of walks is interesting in a similar way as well.  Of
-# course, keep the entities you extract walk from fixed (i.e. pick 10, 100 and
-# 1000 entities but always use the same ones as some might be faster than
-# others)
-
 
 @attr.s
 class Benchmark:
 
-    kg = attr.ib(validator=attr.validators.instance_of(KG))
+    kg: KG = attr.ib(validator=attr.validators.instance_of(KG))
 
     entities = attr.ib(
         factory=list, validator=attr.validators.instance_of(list)
     )
 
     embedder: Embedder = attr.ib(
-        factory=lambda: Word2Vec(workers=1),
-        validator=attr.validators.instance_of(Embedder),
+        factory=lambda: Word2Vec.init(workers=1),
+        validator=attr.validators.instance_of(Embedder),  # type: ignore
     )
 
-    walker = attr.ib(
+    walker: List[Walker] = attr.ib(
         factory=lambda: [RandomWalker(2, random_state=RANDOM_STATE)],
         validator=attr.validators.instance_of(list),
     )
@@ -55,9 +48,9 @@ class Benchmark:
             disable=True if verbose == 0 else False,
         ):
             tic = time.perf_counter()
-            RDF2VecTransformer(Word2Vec(workers=1), self.walker).fit_transform(
-                self.kg, self.entities
-            )
+            RDF2VecTransformer(
+                Word2Vec.init(workers=1), self.walker
+            ).fit_transform(self.kg, self.entities)
             toc = time.perf_counter()
             times.append(toc - tic)
         return [
