@@ -15,27 +15,27 @@ data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 transformer = RDF2VecTransformer(
     # Use one worker threads for Word2Vec to ensure random determinism.
     # Must be used with PYTHONHASHSEED.
-    Word2Vec(workers=1),
+    Word2Vec.init(workers=1),
     # Extract a maximum of 10 walks of depth 4 for each entity using two
     # processes and use a random state to ensure that the same walks are
     # generated for the entities.
-    walkers=[RandomWalker(4, 10, n_jobs=2, random_state=RANDOM_STATE)],
+    walkers=[RandomWalker(4, 10, n_jobs=1, random_state=RANDOM_STATE)],
     verbose=1,
 )
 
 # Train and save the Word2Vec model according to the KG, the entities, and
 # a walking strategy.
-embeddings, literals = transformer.fit_transform(
+embeddings, _ = transformer.fit_transform(
     # Defined that the KG is remotely located, as well as a set of
     # predicates to exclude from this KG.
     KG(
         "https://dbpedia.org/sparql",
-        mul_req=False,
+        # mul_req=False,
         skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
         literals=[
             [
                 "http://dbpedia.org/ontology/wikiPageWikiLink",
-                "http://www.w3.org/2004/02/skos/core#prefLabel",
+                "http://www.w3.orgb/2004/02/skos/core#prefLabel",
             ],
             ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
         ],

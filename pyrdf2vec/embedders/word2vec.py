@@ -1,63 +1,83 @@
+from __future__ import annotations
+
 from typing import List
 
+import attr
 from gensim.models.word2vec import Word2Vec as W2V
 
 from pyrdf2vec.embedders import Embedder
+from pyrdf2vec.typings import Embeddings, Entities
 
 
+@attr.s
 class Word2Vec(Embedder):
-    """Defines Word2Vec embedding technique.
+    """Defines the Word2Vec embedding technique.
 
-    For more details: https://radimrehurek.com/gensim/models/word2vec.html
+    SEE: https://radimrehurek.com/gensim_3.8.3/models/word2vec.html
 
     """
 
-    def __init__(self, **kwargs):
-        self.kwargs = {
-            "size": 500,
-            "negative": 20,
-            **kwargs,
-        }
-        self.model_ = W2V(**self.kwargs)
+    kwargs = attr.ib(kw_only=True, default=None)
+    _model: W2V = attr.ib(kw_only=True, default=None, repr=False)
 
-    def fit(
-        self, corpus: List[List[str]], is_update: bool = False
-    ) -> "Embedder":
+    @classmethod
+    def init(cls, **kwargs) -> Word2Vec:
+        """Initializes a Word2Vec model according to the keyword arguments.
+
+        Args:
+            cls: The Word2Vec class.
+            kwargs: The keyword arguments.
+                Defaults: size=500, negative=20.
+
+        Returns:
+            The Word2vec model according to the keyword arguments.
+
+        """
+        return cls(
+            kwargs={
+                "size": 500,
+                "negative": 20,
+                **kwargs,
+            },
+            model=W2V(**kwargs),
+        )
+
+    def fit(self, corpus: List[Entities], is_update: bool = False) -> Embedder:
         """Fits the Word2Vec model based on provided corpus.
 
         Args:
-            corpus: The corpus.
-            is_update: If true, the new corpus will be added to old model's
-                corpus.
+            corpus: The corpus to fit the model.
+            is_update: True if the new corpus should be added to old model's
+                corpus, False otherwise.
+                Defaults to False.
 
         Returns:
             The fitted Word2Vec model.
 
         """
-        self.model_.build_vocab(corpus, update=is_update)
-        self.model_.train(
+        self._model.build_vocab(corpus, update=is_update)
+        self._model.train(
             corpus,
-            total_examples=self.model_.corpus_count,
-            epochs=self.model_.epochs,
+            total_examples=self._model.corpus_count,
+            epochs=self._model.epochs,
         )
         return self
 
-    def transform(self, entities: List[str]) -> List[str]:
-        """Constructs a features vector for the provided entities.
+    def transform(self, entities: Entities) -> Embeddings:
+        """The features vector of the provided entities.
 
-        Args:
-            entities: The entities to create the embeddings.
-                The test entities should be passed to the fit method as well.
-
-                Due to RDF2Vec being unsupervised, there is no label leakage.
+                Args:
+            entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
 
         Returns:
-            The embeddings of the provided entities.
+            The features vector of the provided entities.
 
         """
-        if not all([entity in self.model_.wv for entity in entities]):
+        if not all([entity in self._model.wv for entity in entities]):
             raise ValueError(
                 "The entities must have been provided to fit() first "
                 "before they can be transformed into a numerical vector."
             )
-        return [self.model_.wv.get_vector(entity) for entity in entities]
+        return [self._model.wv.get_vector(entity) for entity in entities]
