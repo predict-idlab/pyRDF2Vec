@@ -1,22 +1,23 @@
+from __future__ import annotations
+
 import abc
 from typing import List
 
 import attr
-import rdflib
+
+from pyrdf2vec.typings import Embeddings, Entities
 
 
 @attr.s
 class Embedder(metaclass=abc.ABCMeta):
-    """Base class for the embedding techniques."""
+    """Base class for the embedding technique."""
 
     @abc.abstractmethod
-    def fit(
-        self, corpus: List[List[str]], is_update: bool = False
-    ) -> "Embedder":
-        """Fits the Word2Vec model based on provided corpus.
+    def fit(self, corpus: List[Entities], is_update: bool = False) -> Embedder:
+        """Fits a model based on the provided corpus.
 
         Args:
-            corpus: The corpus.
+            corpus: The corpus to fit the model.
 
         Returns:
             The fitted model according to an embedding technique.
@@ -25,17 +26,16 @@ class Embedder(metaclass=abc.ABCMeta):
         raise NotImplementedError("This has to be implemented")
 
     @abc.abstractmethod
-    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
-        """Constructs a features vector for the provided entities.
+    def transform(self, entities: Entities) -> Embeddings:
+        """Constructs a features vector of the provided entities.
 
         Args:
-            entities: The entities to create the embeddings.
-                The test entities should be passed to the fit method as well.
-
-                Due to RDF2Vec being unsupervised, there is no label leakage.
+            entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
 
         Returns:
-            The embeddings of the provided entities.
+            The features vector of the provided entities.
 
         """
         raise NotImplementedError("This has to be implemented")
