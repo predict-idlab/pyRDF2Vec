@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 from typing import Any, Optional
 
@@ -12,8 +14,8 @@ class Vertex:
     predicate: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool), repr=False
     )
-    vprev: Optional["Vertex"] = attr.ib(default=None, repr=False)
-    vnext: Optional["Vertex"] = attr.ib(default=None, repr=False)
+    vprev: Optional[Vertex] = attr.ib(default=None, repr=False)
+    vnext: Optional[Vertex] = attr.ib(default=None, repr=False)
 
     _counter = itertools.count()
     id: int = attr.ib(
@@ -27,7 +29,7 @@ class Vertex:
             other: The other vertex to test the equality.
 
         Returns:
-            True if the hash of the vertices are equal. False otherwise.
+            True if the hash of the vertices are equal, False otherwise.
 
         """
         if other is None:
@@ -58,10 +60,10 @@ class Vertex:
         """Defines behavior for the small than operator, <.
 
         Args:
-            other: The other vertex to test the equality.
+            other: The other vertex.
 
         Returns:
-            True if the first vertex is smaller than the second. False
+            True if the first vertex is smaller than the second, False
             otherwise.
 
         """
