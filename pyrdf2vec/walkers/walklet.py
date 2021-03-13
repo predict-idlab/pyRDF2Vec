@@ -46,15 +46,8 @@ class WalkletWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        literals = []
-        walks = await asyncio.create_task(self.extract_walks(kg, instance))
-        if not kg.mul_req:
-            literals = await asyncio.create_task(
-                kg.get_literals(instance.name)
-            )
-
         canonical_walks: Set[Tuple[str, ...]] = set()
-        for walk in walks:
+        for walk in self.extract_walks(kg, instance):
             if len(walk) == 1:
                 canonical_walks.add((walk[0].name,))
             for i in range(1, len(walk)):
@@ -62,4 +55,4 @@ class WalkletWalker(RandomWalker):
                     canonical_walks.add((walk[i].name, walk[0].name))
                 else:
                     canonical_walks.add((walk[0].name, walk[i].name))
-        return {instance.name: [tuple(canonical_walks), literals]}
+        return {instance.name: canonical_walks}
