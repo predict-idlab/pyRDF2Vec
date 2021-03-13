@@ -21,6 +21,7 @@ Submodules
 
    pyrdf2vec.connectors
    pyrdf2vec.rdf2vec
+   pyrdf2vec.typings
 
 Module contents
 ---------------
