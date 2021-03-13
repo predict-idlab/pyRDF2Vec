@@ -3,8 +3,9 @@ from typing import DefaultDict, Tuple
 
 import attr
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
+from pyrdf2vec.typings import Hop
 
 
 @attr.s
@@ -22,9 +23,6 @@ class ObjFreqSampler(Sampler):
         split: True if Split Object Frequency Weight sampling strategy must
             be used, False otherwise.
             Defaults to False.
-        random_state: The random_state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
 
     """
 
@@ -33,7 +31,8 @@ class ObjFreqSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by counting the number of available
+        neighbors for each vertex.
 
         Args:
             kg: The Knowledge Graph.
@@ -46,14 +45,18 @@ class ObjFreqSampler(Sampler):
                     kg.get_neighbors(vertex, is_reverse=True)
                 )
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+    def get_weight(self, hop: Hop) -> int:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weight for this hop.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
         if len(self._counts) == 0:
@@ -84,7 +87,8 @@ class PredFreqSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by counting the number of occurance that
+        a predicate appears in the Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
@@ -98,14 +102,18 @@ class PredFreqSampler(Sampler):
                 else:
                     self._counts[vertex.name] = 1
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+    def get_weight(self, hop: Hop) -> int:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weight for this hop.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
         if len(self._counts) == 0:
@@ -139,7 +147,8 @@ class ObjPredFreqSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by counting the number of occurance of
+        having two neighboring vertices.
 
         Args:
             kg: The Knowledge Graph.
@@ -156,14 +165,18 @@ class ObjPredFreqSampler(Sampler):
                     else:
                         self._counts[(vertex.name, obj.name)] = 1
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+    def get_weight(self, hop: Hop) -> int:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weight for this hop.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
         if len(self._counts) == 0:

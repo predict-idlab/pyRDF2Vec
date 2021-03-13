@@ -1,11 +1,11 @@
-import asyncio
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple
+from typing import DefaultDict, Dict, List, Set, Union
 
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import Entities, EntityWalks, SWalk
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -33,11 +33,12 @@ class WLWalker(RandomWalker):
         kw_only=True, default=4, validator=attr.validators.instance_of(int)
     )
 
-    _inv_label_map: DefaultDict[str, Dict[Any, Any]] = attr.ib(
-        init=False, repr=False, factory=lambda: defaultdict(dict)
-    )
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
-    _label_map: DefaultDict[str, Dict[int, str]] = attr.ib(
+
+    _inv_label_map: DefaultDict[
+        Vertex, Dict[Union[str, int], Union[str, int]]
+    ] = attr.ib(init=False, repr=False, factory=lambda: defaultdict(dict))
+    _label_map: DefaultDict[Vertex, Dict[int, str]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
 
@@ -97,23 +98,20 @@ class WLWalker(RandomWalker):
                 self._inv_label_map[vertex][v] = k
 
     def extract(
-        self,
-        kg: KG,
-        instances: List[str],
-        verbose: int = 0,
-    ) -> Iterable[str]:
+        self, kg: KG, instances: Entities, verbose: int = 0
+    ) -> List[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             instances: The instances to be extracted from the Knowledge Graph.
-            verbose: If equal to 1 or 2, display a progress bar for the
-                extraction of the walks.
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -123,9 +121,7 @@ class WLWalker(RandomWalker):
         self._weisfeiler_lehman(kg)
         return super().extract(kg, instances, verbose)
 
-    def _extract(
-        self, kg: KG, instance: Vertex
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -141,7 +137,7 @@ class WLWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks: Set[Tuple[str, ...]] = set()
+        canonical_walks: Set[SWalk] = set()
         for n in range(self.wl_iterations + 1):
             for walk in self.extract_walks(kg, instance):
                 canonical_walk: List[str] = []

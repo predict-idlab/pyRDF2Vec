@@ -1,9 +1,9 @@
-import asyncio
-from typing import Dict, Set, Tuple
+from typing import Set
 
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import EntityWalks, SWalk
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -28,17 +28,12 @@ class WalkletWalker(RandomWalker):
 
     """
 
-    async def _extract(
-        self, kg: KG, instance: Vertex
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
@@ -46,7 +41,7 @@ class WalkletWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks: Set[Tuple[str, ...]] = set()
+        canonical_walks: Set[SWalk] = set()
         for walk in self.extract_walks(kg, instance):
             if len(walk) == 1:
                 canonical_walks.add((walk[0].name,))

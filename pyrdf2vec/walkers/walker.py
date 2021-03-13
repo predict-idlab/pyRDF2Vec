@@ -1,15 +1,15 @@
-import asyncio
+# import asyncio
 import multiprocessing
 import warnings
 from abc import ABC, abstractmethod
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import List, Optional
 
 import attr
-import numpy as np
 from tqdm import tqdm
 
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
+from pyrdf2vec.typings import Entities, EntityWalks
 
 from pyrdf2vec.utils.validation import (  # isort: skip
     _check_depth,
@@ -29,7 +29,7 @@ class RemoteNotSupported(Exception):
 
 @attr.s
 class Walker(ABC):
-    """Base class for the walking strategies.
+    """Base class of the walking strategies.
 
     Args:
         depth: The depth per entity.
@@ -53,7 +53,7 @@ class Walker(ABC):
 
     depth: int = attr.ib(
         validator=[attr.validators.instance_of(int), _check_depth]
-    )  # type: ignore
+    )
     max_walks: Optional[int] = attr.ib(  # type: ignore
         default=None,
         validator=[
@@ -91,27 +91,28 @@ class Walker(ABC):
         self.sampler.random_state = self.random_state
 
     def extract(
-        self,
-        kg: KG,
-        instances: List[str],
-        verbose: int = 0,
-    ) -> Iterable[str]:
+        self, kg: KG, instances: Entities, verbose: int = 0
+    ) -> List[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             instances: The instances to be extracted from the Knowledge Graph.
-            verbose: If equal to 1 or 2, display a progress bar for the
-                extraction of the walks.
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided instances; number of column equal to the embedding size.
+
+        Raises:
+            RemoteNotSupported: If there is an attempt to use an invalid
+                walking strategy to a remote Knowledge Graph.
 
         """
         if kg._is_remote and not self._is_support_remote:
@@ -131,14 +132,15 @@ class Walker(ABC):
                 stacklevel=2,
             )
 
-        literals = []
         if kg._is_remote and kg.mul_req:
-            queries = [
-                kg.connector.get_query(vertex)
-                for vertex in instances
-                if kg._is_remote
-            ]
-            asyncio.run(kg.connector.afetch(queries))
+            pass
+            # queries = [
+            #     kg.connector.get_query(vertex)
+            #     for vertex in instances
+            #     if kg._is_remote
+            # ]
+            # RuntimeError: cannot reuse already awaited coroutine
+            # asyncio.run(kg.connector.afetch(queries))
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
@@ -159,19 +161,12 @@ class Walker(ABC):
         return list(canonical_walks)
 
     @abstractmethod
-    def _extract(
-        self,
-        kg: KG,
-        instance: Vertex,
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
@@ -191,7 +186,7 @@ class Walker(ABC):
         global kg
         kg = init_kg  # type: ignore
 
-    def _proc(self, instance: str) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _proc(self, instance: str) -> EntityWalks:
         """Executed by each process.
 
         Args:
@@ -202,4 +197,4 @@ class Walker(ABC):
 
         """
         global kg
-        return self._extract(kg, Vertex(instance))
+        return self._extract(kg, Vertex(instance))  # type: ignore

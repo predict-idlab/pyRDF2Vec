@@ -1,9 +1,8 @@
-import asyncio
 import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Dict, Iterable, List, Set, Tuple
+from typing import List, Set
 
 import attr
 import community
@@ -11,6 +10,7 @@ import networkx as nx
 import numpy as np
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import Entities, EntityWalks, SWalk, Walk
 from pyrdf2vec.walkers import Walker
 
 
@@ -75,9 +75,6 @@ class CommunityWalker(Walker):
         Args:
             kg: The Knowledge Graph.
 
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-
         """
         nx_graph = nx.Graph()
 
@@ -111,7 +108,7 @@ class CommunityWalker(Walker):
 
     def _bfs(
         self, kg: KG, root: Vertex, is_reverse: bool = False
-    ) -> List[Tuple[Vertex, ...]]:
+    ) -> List[Walk]:
         """Extracts random walks of depth - 1 hops rooted in root with
         Breadth-first search.
 
@@ -122,15 +119,15 @@ class CommunityWalker(Walker):
                 provided entities.
             root: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
-                neighbors. Otherwise False.
-                Defaults to False
+                neighbors, False otherwise.
+                Defaults to False.
 
         Returns:
             The list of walks for the root node according to the depth and
             max_walks.
 
         """
-        walks: Set[Tuple[Vertex, ...]] = {(root,)}
+        walks: Set[Walk] = {(root,)}
         for i in range(self.depth):
             for walk in walks.copy():
                 if is_reverse:
@@ -185,7 +182,7 @@ class CommunityWalker(Walker):
 
     def _dfs(
         self, kg: KG, root: Vertex, is_reverse: bool = False
-    ) -> List[Tuple[Vertex, ...]]:
+    ) -> List[Walk]:
         """Extracts a random limited number of walks of depth - 1 hops rooted
         in root with Depth-first search.
 
@@ -196,7 +193,7 @@ class CommunityWalker(Walker):
                 provided entities.
             root: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
-                neighbors. Otherwise False.
+                neighbors, False otherwise.
                 Defaults to False
 
         Returns:
@@ -205,10 +202,10 @@ class CommunityWalker(Walker):
 
         """
         self.sampler.visited = set()
-        walks: List[Tuple[Vertex, ...]] = []
+        walks: List[Walk] = []
         assert self.max_walks is not None
         while len(walks) < self.max_walks:
-            sub_walk: Tuple[Vertex, ...] = (root,)
+            sub_walk: Walk = (root,)
             d = 1
             while d // 2 < self.depth:
                 pred_obj = self.sampler.sample_neighbor(
@@ -258,11 +255,8 @@ class CommunityWalker(Walker):
         return list(set(walks))
 
     def extract(
-        self,
-        kg: KG,
-        instances: List[str],
-        verbose: int = 0,
-    ) -> Iterable[str]:
+        self, kg: KG, instances: Entities, verbose: int = 0
+    ) -> List[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
@@ -273,8 +267,11 @@ class CommunityWalker(Walker):
                 The graph from which the neighborhoods are extracted for the
                 provided instances.
             instances: The instances to be extracted from the Knowledge Graph.
-            verbose: If equal to 1 or 2, display a progress bar for the
-                extraction of the walks.
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
@@ -284,7 +281,7 @@ class CommunityWalker(Walker):
         self._community_detection(kg)
         return super().extract(kg, instances, verbose)
 
-    def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
+    def extract_walks(self, kg: KG, root: Vertex) -> List[Walk]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Args:
@@ -310,9 +307,7 @@ class CommunityWalker(Walker):
             ]
         return [walk for walk in fct_search(kg, root)]
 
-    def _extract(
-        self, kg: KG, instance: Vertex
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -328,7 +323,7 @@ class CommunityWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks: Set[Tuple[str, ...]] = set()
+        canonical_walks: Set[SWalk] = set()
         for walk in self.extract_walks(kg, instance):
             canonical_walk: List[str] = []
             for i, hop in enumerate(walk):

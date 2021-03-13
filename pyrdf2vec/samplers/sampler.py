@@ -5,7 +5,8 @@ from typing import Dict, List, Optional, Set, Tuple
 import attr
 import numpy as np
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import KG
+from pyrdf2vec.typings import Hop, Walk
 
 
 class RemoteNotSupported(Exception):
@@ -29,26 +30,32 @@ class Sampler(ABC):
     )
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+
     _random_state: Optional[int] = attr.ib(
         init=False,
         repr=False,
         default=None,
     )
+
     _vertices_deg: Dict[str, int] = attr.ib(
         init=False, repr=False, factory=dict
     )
     # Tags vertices that appear at the max depth or of which all their children
     # are tagged.
-    _visited: Set[Tuple[Tuple[Vertex, Vertex], int]] = attr.ib(
+    _visited: Set[Tuple[Hop, int]] = attr.ib(
         init=False, repr=False, factory=set
     )
 
     @abstractmethod
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy.
 
         Args:
             kg: The Knowledge Graph.
+
+        Raises:
+            RemoteNotSupported: If there is an attempt to use an invalid
+                sampling strategy to a remote Knowledge Graph.
 
         """
         if kg._is_remote and not self._is_support_remote:
@@ -64,25 +71,23 @@ class Sampler(ABC):
                     )
 
     @abstractmethod
-    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+    def get_weight(self, hop: Hop):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weight for this hop.
+            The weight for a given hop.
 
         """
         raise NotImplementedError("This has to be implemented")
 
-    def get_weights(
-        self, hops: List[Tuple[Vertex, Vertex]]
-    ) -> Optional[List[float]]:
-        """Gets the weights of the hops
+    def get_weights(self, hops: List[Hop]) -> Optional[List[float]]:
+        """Gets the weights of the provided hops.
 
         Args:
-            hops: The hops.
+            hops: The hops to get the weights.
 
         Returns:
             The weights to the edge of the Knowledge Graph.
@@ -106,12 +111,8 @@ class Sampler(ABC):
         ]
 
     def sample_neighbor(
-        self,
-        kg: KG,
-        walk: Tuple[Vertex, ...],
-        is_last_depth: bool,
-        is_reverse: bool = False,
-    ) -> Optional[Tuple[Vertex, Vertex]]:
+        self, kg: KG, walk: Walk, is_last_depth: bool, is_reverse: bool = False
+    ) -> Optional[Hop]:
         """Samples an unvisited random neighbor in the (predicate, object)
         form, according to the weight of hops for a given walk.
 
@@ -119,13 +120,13 @@ class Sampler(ABC):
             kg: The Knowledge Graph.
             walk: The walk with one or several vertices.
             is_last_hop: True if the next neighbor to be visited is the last
-                one for the desired depth. Otherwise False.
+                one for the desired depth, False otherwise.
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors, False otherwise.
-                Defaults to False
+                Defaults to False.
 
         Returns:
-            An unvisited neighbor in the form (predicate, object).
+            An unvisited neighbor in the (predicate, object) form.
 
         """
         subj = walk[0] if is_reverse else walk[-1]
@@ -152,7 +153,7 @@ class Sampler(ABC):
         return untagged_neighbors[rnd_id]
 
     @property
-    def visited(self) -> Set[Tuple[Tuple[Vertex, Vertex], int]]:
+    def visited(self) -> Set[Tuple[Hop, int]]:
         """Gets the tagged vertices that appear at the max depth or of which
         all their children are tagged.
 
@@ -163,7 +164,7 @@ class Sampler(ABC):
         return self._visited
 
     @visited.setter
-    def visited(self, visited: Set[Tuple[Tuple[Vertex, Vertex], int]]) -> None:
+    def visited(self, visited: Set[Tuple[Hop, int]]) -> None:
         """Sets the value of the tagged vertices.
 
         Args:

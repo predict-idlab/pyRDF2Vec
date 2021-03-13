@@ -1,9 +1,8 @@
-from typing import Tuple
-
 import attr
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
+from pyrdf2vec.typings import Hop
 
 
 @attr.s
@@ -13,11 +12,6 @@ class UniformSampler(Sampler):
     This sampling strategy is the most straight forward approach. With this
     strategy, strongly connected entities will have a higher influence on the
     resulting embeddings.
-
-    Args:
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
 
     """
 
@@ -38,14 +32,14 @@ class UniformSampler(Sampler):
         """
         pass
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+    def get_weight(self, hop: Hop) -> int:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weight for this hop.
+            The weight for a given hop.
 
         """
         return 1

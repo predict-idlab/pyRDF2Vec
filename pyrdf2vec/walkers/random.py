@@ -1,10 +1,10 @@
-import asyncio
 from hashlib import md5
-from typing import Dict, List, Set, Tuple
+from typing import List, Set
 
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import EntityWalks, SWalk, Walk
 from pyrdf2vec.walkers import Walker
 
 
@@ -30,24 +30,21 @@ class RandomWalker(Walker):
 
     def _bfs(
         self, kg: KG, root: Vertex, is_reverse: bool = False
-    ) -> List[Tuple[Vertex, ...]]:
+    ) -> List[Walk]:
         """Extracts random walks with Breadth-first search.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
             root: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
-                neighbors. Otherwise False.
-                Defaults to False
+                neighbors, False otherwise.
+                Defaults to False.
 
         Returns:
             The list of walks for the root node.
 
         """
-        walks: Set[Tuple[Vertex, ...]] = {(root,)}
+        walks: Set[Walk] = {(root,)}
         for i in range(self.depth):
             for walk in walks.copy():
                 if is_reverse:
@@ -65,18 +62,15 @@ class RandomWalker(Walker):
 
     def _dfs(
         self, kg: KG, root: Vertex, is_reverse: bool = False
-    ) -> List[Tuple[Vertex, ...]]:
+    ) -> List[Walk]:
         """Extracts a random limited number of walks with Depth-first search.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
             root: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
-                neighbors. Otherwise False.
-                Defaults to False
+                neighbors, False otherwise.
+                Defaults to False.
 
         Returns:
             The list of walks for the root node according to the depth and
@@ -84,10 +78,10 @@ class RandomWalker(Walker):
 
         """
         self.sampler.visited = set()
-        walks: List[Tuple[Vertex, ...]] = []
+        walks: List[Walk] = []
         assert self.max_walks is not None
         while len(walks) < self.max_walks:
-            sub_walk: Tuple[Vertex, ...] = (root,)
+            sub_walk: Walk = (root,)
             d = 1
             while d // 2 < self.depth:
                 pred_obj = self.sampler.sample_neighbor(
@@ -103,14 +97,11 @@ class RandomWalker(Walker):
             walks.append(sub_walk)
         return list(set(walks))
 
-    def extract_walks(self, kg: KG, root: Vertex) -> List[Tuple[Vertex, ...]]:
+    def extract_walks(self, kg: KG, root: Vertex) -> List[Walk]:
         """Extracts all possible walks.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             root: The root node to extract walks.
 
         Returns:
@@ -129,17 +120,12 @@ class RandomWalker(Walker):
             ]
         return [walk for walk in fct_search(kg, root)]
 
-    def _extract(
-        self, kg: KG, instance: Vertex
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
@@ -147,7 +133,7 @@ class RandomWalker(Walker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks: Set[Tuple[str, ...]] = set()
+        canonical_walks: Set[SWalk] = set()
         for walk in self.extract_walks(kg, instance):
             canonical_walk: List[str] = []
             for i, hop in enumerate(walk):

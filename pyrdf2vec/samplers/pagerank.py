@@ -1,10 +1,11 @@
-from typing import Dict, Tuple
+from typing import Dict
 
 import attr
 import networkx as nx
 
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
+from pyrdf2vec.typings import Hop
 
 
 @attr.s
@@ -17,14 +18,11 @@ class PageRankSampler(Sampler):
 
     Args:
         inverse: True if Inverse PageRank Weight must be used, False otherwise.
-            Default to False.
+            Defaults to False.
         split: True if PageRank Split Weight must be used, False otherwise.
-            Default to False.
+            Defaults to False.
         alpha: The damping for PageRank.
-            Default to 0.85.
-        random_state: The random_state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
+            Defaults to 0.85.
 
     """
 
@@ -38,7 +36,8 @@ class PageRankSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by running PageRank on a provided KG
+        according to the specified damping.
 
         Args:
             kg: The Knowledge Graph.
@@ -57,14 +56,18 @@ class PageRankSampler(Sampler):
                         )
         self._pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
-    def get_weight(self, hop: Tuple[Vertex, Vertex]):
+    def get_weight(self, hop: Hop) -> float:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
             hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weight for this hop.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
         if len(self._pageranks) == 0:

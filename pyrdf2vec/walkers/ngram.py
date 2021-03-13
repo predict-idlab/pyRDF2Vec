@@ -1,10 +1,10 @@
-import asyncio
 import itertools
 from typing import Dict, List, Set, Tuple
 
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import EntityWalks, SWalk, Walk
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -49,23 +49,23 @@ class NGramWalker(RandomWalker):
         init=False, repr=False, factory=dict
     )
 
-    def _take_n_grams(self, walks: Tuple[Vertex, ...]) -> List[str]:
+    def _take_n_grams(self, walk: Walk) -> List[str]:
         """Takes the N-Grams.
 
         Args:
-            walks: The walks.
+            walk: The walk.
 
         Returns:
             The N-Grams.
 
         """
-        n_gram_walk: List[str] = []
-        for i, hop in enumerate(walks):
+        n_gram_walk = []
+        for i, hop in enumerate(walk):
             if i == 0 or i % 2 == 1 or i < self.grams:
                 n_gram_walk.append(hop.name)
             else:
                 n_gram = tuple(
-                    walks[j].name
+                    walk[j].name
                     for j in range(max(0, i - (self.grams - 1)), i + 1)
                 )
                 if n_gram not in self._n_gram_map:
@@ -73,17 +73,12 @@ class NGramWalker(RandomWalker):
                 n_gram_walk.append(self._n_gram_map[n_gram])
         return n_gram_walk
 
-    def _extract(
-        self, kg: KG, instance: Vertex
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
@@ -91,7 +86,7 @@ class NGramWalker(RandomWalker):
             provided instances; number of column equal to the embedding size.
 
         """
-        canonical_walks: Set[Tuple[str, ...]] = set()
+        canonical_walks: Set[SWalk] = set()
         for walk in self.extract_walks(kg, instance):
             canonical_walks.add(tuple(self._take_n_grams(walk)))
 

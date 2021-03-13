@@ -1,11 +1,11 @@
-import asyncio
 from collections import defaultdict
 from hashlib import md5
-from typing import Dict, List, Set, Tuple
+from typing import List, Set
 
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import EntityWalks, SWalk
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -42,9 +42,7 @@ class HALKWalker(RandomWalker):
         ),
     )
 
-    def _extract(
-        self, kg: KG, instance: Vertex
-    ) -> Dict[str, Tuple[Tuple[str, ...], ...]]:
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided instances which are then each
         transformed into a numerical representation.
 
@@ -62,7 +60,7 @@ class HALKWalker(RandomWalker):
         """
         walks = self.extract_walks(kg, instance)
 
-        canonical_walks: Set[Tuple[str, ...]] = set()
+        canonical_walks: Set[SWalk] = set()
         hop_to_freq = defaultdict(set)
         for i in range(len(walks)):
             for hop in walks[i]:
@@ -75,7 +73,7 @@ class HALKWalker(RandomWalker):
                     uniformative_hops.add(hop)
 
             for walk in walks:
-                canonical_walk: List[str] = []
+                canonical_walk = []
                 for i, hop in enumerate(walk):
                     if i == 0:
                         canonical_walk.append(hop.name)
