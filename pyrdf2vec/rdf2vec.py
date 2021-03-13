@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 import asyncio
 import pickle
 import time
-from typing import List, Sequence
+from typing import List, Sequence, Tuple
 
 import attr
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.typings import Embeddings, Entities, Literals
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
@@ -19,9 +22,10 @@ class RDF2VecTransformer:
             Defaults to pyrdf2vec.embedders.Word2Vec.
         walkers: The walking strategy.
             Defaults to pyrdf2vec.walkers.RandomWalker(2, None).
-        verbose: If True, display a progress bar for the extraction of the
-            walks and display the number of these extracted walks for the
-            number of entities with the extraction time.
+        verbose: The verbosity level.
+            0: does not display anything;
+            1: display of the progress of extraction and training of walks;
+            2: debugging.
             Defaults to 0.
 
     """
@@ -43,29 +47,32 @@ class RDF2VecTransformer:
         kw_only=True, default=0, validator=attr.validators.in_([0, 1, 2])
     )
 
-    _embeddings: List[str] = attr.ib(init=False, factory=list)
-    _entities: List[str] = attr.ib(init=False, factory=list)
-    _literals: List[List[str]] = attr.ib(init=False, factory=list)
+    _embeddings: Embeddings = attr.ib(init=False, factory=list)
+    _entities: Entities = attr.ib(init=False, factory=list)
+    _literals: Literals = attr.ib(init=False, factory=list)
     _walks: List[str] = attr.ib(init=False, factory=list)
 
+    # Useful to know when to close the SPARQL connector session.
+    _is_extract_walks_literals = attr.ib(
+        init=False,
+        repr=False,
+        default=False,
+        validator=attr.validators.instance_of(bool),
+    )
+
     def fit(
-        self,
-        kg: KG,
-        entities: List[str],
-        is_update: bool = False,
-    ) -> "RDF2VecTransformer":
-        """Fits the embedding network based on provided entities.
+        self, kg: KG, entities: Entities, is_update: bool = False
+    ) -> RDF2VecTransformer:
+        """Fits the embeddings based on the provided entities.
 
         Args:
             kg: The Knowledge Graph.
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
-            entities: The entities to create the embedding.
-                The test entities should be passed to the fit method as well.
-
-                Due to RDF2Vec being unsupervised, there is no label leakage.
-            is_update: If true, the new corpus will be added to old model's
-                corpus.
+            entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
+            is_update: True if the new corpus should be added to old model's
+                corpus, False otherwise.
+                Defaults to False.
 
         Returns:
             The RDF2VecTransformer.
@@ -85,7 +92,7 @@ class RDF2VecTransformer:
 
         self._entities.extend(entities)
 
-        walks = []
+        walks: List[str] = []
         tic = time.perf_counter()
         for walker in self.walkers:
             walks += walker.extract(kg, entities, self.verbose)
@@ -101,39 +108,60 @@ class RDF2VecTransformer:
                 f"Extracted {len(walks)} walks "
                 + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
             )
+
+        tic = time.perf_counter()
+        self.embedder.fit([list(map(str, walk)) for walk in walks], is_update)
+        toc = time.perf_counter()
+
+        if self.verbose >= 1:
+            print(f"Fitted {len(walks)} walks ({toc - tic:0.4f}s)")
             if len(self._walks) != len(walks):
                 print(
                     f"> {len(self._walks)} walks extracted "
                     + f"for {len(self._entities)} entities."
                 )
 
-        corpus = [list(map(str, walk)) for walk in self._walks]
+        if kg._is_remote and not self._is_extract_walks_literals:
+            asyncio.run(kg.connector.close())
 
-        tic = time.perf_counter()
-        self.embedder.fit(corpus, is_update)
-        toc = time.perf_counter()
-        if self.verbose >= 1:
-            print(f"Fitted {len(walks)} walks ({toc - tic:0.4f}s)")
         return self
 
-    def transform(self, kg: KG, entities: List[str]) -> List[str]:
-        """Constructs a feature vector for the provided entities.
+    def fit_transform(
+        self, kg: KG, entities: Entities, is_update: bool = False
+    ) -> Tuple[Embeddings, Literals]:
+        """Creates a model and generates embeddings and literals for the
+        provided entities.
 
         Args:
             kg: The Knowledge Graph.
-                The graph from which we will extract neighborhoods for the
-                provided instances.
-            entities: The entities to create the embeddings.
-                The test entities should be passed to the fit method as well.
-
-                Due to RDF2Vec being unsupervised, there is no label leakage.
-            verbose: If True, display a progress bar for the extraction of the
-                walks and display the number of these extracted walks for the
-                number of entities with the extraction time.
-                Defaults to 0.
+            entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
+            is_update: True if the new corpus should be added to old model's
+                corpus, False otherwise.
+                Defaults to False.
 
         Returns:
-            The embeddings of the provided entities.
+            The embeddings and the literals of the provided entities.
+
+        """
+        self._is_extract_walks_literals = True
+        self.fit(kg, entities, is_update)
+        return self.transform(kg, entities)
+
+    def transform(
+        self, kg: KG, entities: Entities
+    ) -> Tuple[Embeddings, Literals]:
+        """Transforms the provided entities into embeddings and literals.
+
+        Args:
+            kg: The Knowledge Graph.
+            entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
+
+        Returns:
+            The embeddings and the literals of the provided entities.
 
         """
         assert self.embedder is not None
@@ -149,61 +177,39 @@ class RDF2VecTransformer:
         else:
             self._literals += literals
 
+        if kg._is_remote:
+            self._is_extract_walks_literals = False
+            asyncio.run(kg.connector.close())
+
         if self.verbose >= 1 and len(literals) > 0:
             print(
-                f"Extracted {len(literals)} "
-                + f"literals for {len(entities)} entities "
-                + f"({toc - tic:0.4f}s)"
+                f"Extracted {len(literals)} literals for {len(entities)} "
+                + f"entities ({toc - tic:0.4f}s)"
             )
         return embeddings, literals
-
-    def fit_transform(
-        self,
-        kg: KG,
-        entities: List[str],
-        is_update: bool = False,
-    ) -> List[str]:
-        """Creates a Word2Vec model and generates embeddings for the provided
-        entities.
-
-        Args:
-            kg: The Knowledge Graph.
-                The graph from which we will extract neighborhoods for the
-                provided instances.
-            entities: The entities to create the embeddings.
-                The test entities should be passed to the fit method as well.
-
-                Due to RDF2Vec being unsupervised, there is no label leakage.
-            is_update: If true, the new corpus will be added to old model's
-                corpus.
-
-        Returns:
-            The embeddings of the provided entities.
-
-        """
-        self.fit(kg, entities, is_update)
-        return self.transform(kg, entities)
 
     def save(self, filename: str = "transformer_data") -> None:
         """Saves a RDF2VecTransformer object.
 
         Args:
-            filename: The binary file to save the RDF2VecTransformer
-            object.
+            filename: The binary file to save the RDF2VecTransformer object.
 
         """
         with open(filename, "wb") as f:
             pickle.dump(self, f)
 
     @staticmethod
-    def load(filename: str = "transformer_data") -> "RDF2VecTransformer":
+    def load(filename: str = "transformer_data") -> RDF2VecTransformer:
         """Loads a RDF2VecTransformer object.
 
         Args:
-            filename: The binary file to load the RDF2VecTransformer
-            object.
+            filename: The binary file to load the RDF2VecTransformer object.
+
+        Returns:
+            The loaded RDF2VecTransformer.
 
         """
+
         with open(filename, "rb") as f:
             transformer = pickle.load(f)
             if not isinstance(transformer, RDF2VecTransformer):

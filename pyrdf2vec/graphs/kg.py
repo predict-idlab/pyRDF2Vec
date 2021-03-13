@@ -2,7 +2,7 @@ import asyncio
 import operator
 from collections import defaultdict
 from functools import partial
-from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple, Union
+from typing import DefaultDict, List, Optional, Set, Tuple, Union
 
 import attr
 import numpy as np
@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from pyrdf2vec.connectors import SPARQLConnector
 from pyrdf2vec.graphs.vertex import Vertex
+from pyrdf2vec.typings import Entities, Hop, Literal, Literals
 from pyrdf2vec.utils.validation import _check_location
 
 
@@ -25,10 +26,16 @@ class KG:
             Defaults to None.
         skip_predicates: The label predicates to skip from the KG.
             Defaults to None.
+        literals: The predicate chains to get the literals.
         fmt: Used if format can not be determined from source.
             Defaults to None.
-        mul_req: If True allows to bundle SPARQL requests.
+        mul_req: True to allow bundling of SPARQL queries, False otherwise.
+            Accelerates the extraction of walks for remote Knowledge Graphs.
+            Beware that this may violate the policy of some SPARQL endpoint
+            server.
             Defaults to True.
+        cache: The policy and size cache to use.
+            Defaults to cachetools.TTLCache(maxsize=1024, ttl=1200)
 
     """
 
@@ -45,7 +52,7 @@ class KG:
             member_validator=attr.validators.instance_of(str)
         ),
     )
-    literals: Optional[List[List]] = attr.ib(
+    literals: List[List[str]] = attr.ib(  # type: ignore
         factory=list,
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(List)
@@ -67,15 +74,18 @@ class KG:
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
 
-    _inv_transition_matrix: DefaultDict[Any, Any] = attr.ib(
-        init=False, repr=False, factory=lambda: defaultdict(set)
-    )
+    connector: SPARQLConnector = attr.ib(default=None, init=False, repr=False)
     _is_remote: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
-    _transition_matrix: DefaultDict[Any, Any] = attr.ib(
+
+    _inv_transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
     )
+    _transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(set)
+    )
+
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
 
@@ -157,7 +167,7 @@ class KG:
     @cachedmethod(
         operator.attrgetter("cache"), key=partial(hashkey, "fetch_hops")
     )
-    def fetch_hops(self, vertex: Vertex) -> List[Tuple[Vertex, Vertex]]:
+    def fetch_hops(self, vertex: Vertex) -> List[Hop]:
         """Fetchs the hops of the vertex from a SPARQL endpoint server and
         add the hops for this vertex in a cache dictionary.
 
@@ -168,22 +178,22 @@ class KG:
             The hops of the vertex.
 
         """
-        hops = []
+        hops: List[Hop] = []
         if not self._is_remote:
             return hops
         elif vertex.name.startswith("http://") or vertex.name.startswith(
             "https://"
         ):
-            res = self.connector.query(self.connector.get_query(vertex.name))
+            res = asyncio.run(
+                self.connector.fetch(self.connector.get_query(vertex.name))
+            )
             hops = self._res2hops(vertex, res)
         return hops
 
     @cachedmethod(
         operator.attrgetter("cache"), key=partial(hashkey, "get_hops")
     )
-    def get_hops(
-        self, vertex: Vertex, is_reverse: bool = False
-    ) -> List[Tuple[Vertex, Vertex]]:
+    def get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex.
 
         Args:
@@ -209,17 +219,17 @@ class KG:
             if len(matrix[pred]) != 0
         ]
 
-    def get_literals(
-        self,
-        entities: Union[str, List[Union[str, Tuple[str, ...]]]],
-        verbose: int = 0,
-    ):
+    def get_literals(self, entities: Entities, verbose: int = 0) -> Literals:
         """Gets the literals for one or more entities for all the predicates
         chain.
 
         Args:
             entities: The entity or entities to get the literals.
-
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
         Returns:
             The literals.
 
@@ -228,10 +238,11 @@ class KG:
             return []
 
         if self._is_remote:
-            e = [entities] if isinstance(entities, str) else entities
             queries = [
                 self.connector.get_query(entity, pchain)
-                for entity in tqdm(e)
+                for entity in tqdm(
+                    entities, disable=True if verbose == 0 else False
+                )
                 for pchain in self.literals
                 if len(pchain) > 0
             ]
@@ -248,31 +259,13 @@ class KG:
                 for i in range(len(entities))
             ]
 
-        t = []
-        for entity in tqdm(entities):
-            tmp2 = []
+        entity_literals = []
+        for entity in tqdm(entities, disable=True if verbose == 0 else False):
+            entity_literal = []
             for pred in self.literals:
-                tmp2 += self.get_pliterals(entity, pred)
-            t.append(tmp2)
-
-        lit = []
-        for literal in t:
-            tmp = []
-            if len(literal) == 0:
-                tmp += ["nan"]
-            else:
-                tmp2 = []
-                for value in literal:
-                    try:
-                        tmp2.append(float(value))
-                    except:
-                        tmp2.append(value)
-                if len(tmp2) > 1:
-                    tmp += tuple(tmp2)
-                else:
-                    tmp += tmp2
-            lit.append(tmp)
-        return lit
+                entity_literal += self.get_pliterals(entity, pred)
+            entity_literals.append(entity_literal)
+        return self._cast_literals(entity_literals)
 
     def get_neighbors(
         self, vertex: Vertex, is_reverse: bool = False
@@ -293,6 +286,28 @@ class KG:
             return self._inv_transition_matrix[vertex]
         return self._transition_matrix[vertex]
 
+    def get_pliterals(self, entity: str, preds: List[str]) -> List[str]:
+        """Gets the literals for an entity and a local KG based on a chain of
+        predicates.
+
+        Args:
+            entity: The entity.
+            preds: The chain of predicates.
+
+        Returns:
+            The literals for the given entity.
+
+        """
+        frontier = {entity}
+        for p in preds:
+            new_frontier = set()
+            for node in frontier:
+                for pred, obj in self.get_hops(Vertex(node)):
+                    if pred.name == p:
+                        new_frontier.add(obj.name)
+            frontier = new_frontier
+        return list(frontier)
+
     def remove_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Removes the edge (v1 -> v2) if present.
 
@@ -310,18 +325,45 @@ class KG:
             return True
         return False
 
-    def get_pliterals(self, entity: str, pchain: str) -> List[Vertex]:
-        frontier = {entity}
-        for p in pchain:
-            new_frontier = set()
-            for node in frontier:
-                for pred, obj in self.get_hops(Vertex(node)):
-                    if pred.name == p:
-                        new_frontier.add(obj.name)
-            frontier = new_frontier
-        return list(frontier)
+    def _cast_literals(self, entity_literals: List[List[str]]) -> Literals:
+        """Converts the raw literals of entity according to their real types.
 
-    def _res2hops(self, vertex: Vertex, res) -> List[Tuple[Vertex, Vertex]]:
+        Args:
+            entity_literals: The raw literals.
+
+        Returns:
+            The literals with their type for the given entity.
+
+        """
+        literals = []
+        for literal in entity_literals:
+            casted_literal: List[Union[Literal, Tuple[Literal, ...]]] = []
+            if len(literal) == 0:
+                casted_literal += [np.NaN]
+            else:
+                casted_value: List[Literal] = []
+                for value in literal:
+                    try:
+                        casted_value.append(float(value))
+                    except Exception:
+                        casted_value.append(value)
+                if len(casted_value) > 1:
+                    casted_literal += tuple(casted_value)
+                else:
+                    casted_literal += casted_value
+            literals.append(casted_literal)
+        return literals
+
+    def _res2hops(self, vertex: Vertex, res) -> List[Hop]:
+        """Converts a JSON response from a SPARQL endpoint server to hops.
+
+        Args:
+            res: The JSON response of the SPARQL endpoint server.
+
+        Returns:
+            The hops.
+
+        """
         hops = []
         for value in res:
             obj = Vertex(value["o"]["value"])
