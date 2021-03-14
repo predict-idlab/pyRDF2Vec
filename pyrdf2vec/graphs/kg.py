@@ -25,8 +25,9 @@ class KG:
         location: The location of the file to load.
             Defaults to None.
         skip_predicates: The label predicates to skip from the KG.
-            Defaults to None.
+            Defaults to set().
         literals: The predicate chains to get the literals.
+            Defaults to [].
         fmt: Used if format can not be determined from source.
             Defaults to None.
         mul_req: True to allow bundling of SPARQL queries, False otherwise.
@@ -75,6 +76,7 @@ class KG:
     )
 
     connector: SPARQLConnector = attr.ib(default=None, init=False, repr=False)
+
     _is_remote: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
