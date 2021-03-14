@@ -77,9 +77,26 @@ tox = "^3.19.0"
 yamllint = "^1.24.2"
 
 [tool.poetry.extras]
-docs = ["gensim", "rdflib", "scikit-learn", "sphinx", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
+docs = [
+    "gensim",
+    "rdflib",
+    "scikit-learn",
+    "sphinx",
+    "sphinx-autodoc-typehints",
+    "sphinx-rtd-theme",
+    "sphinxcontrib-apidoc",
+]
 lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
-tests = ["aiohttp", "codecov", "gensim", "numpy", "pandas", "pytest", "pytest-cov", "rdflib"]
+tests = [
+    "aiohttp",
+    "codecov",
+    "gensim",
+    "numpy",
+    "pandas",
+    "pytest",
+    "pytest-cov",
+    "rdflib",
+]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/IBCNServices/pyRDF2Vec/issues"
