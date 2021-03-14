@@ -26,21 +26,21 @@ class Benchmark:
         factory=list, validator=attr.validators.instance_of(list)
     )
 
-    embedder: Embedder = attr.ib(
-        factory=lambda: Word2Vec.init(workers=1),
-        validator=attr.validators.instance_of(Embedder),  # type: ignore
-    )
-
     walker: List[Walker] = attr.ib(
         factory=lambda: [RandomWalker(2, random_state=RANDOM_STATE)],
         validator=attr.validators.instance_of(list),
+    )
+
+    embedder: Embedder = attr.ib(
+        factory=lambda: Word2Vec.init(workers=1),
+        validator=attr.validators.instance_of(Embedder),  # type: ignore
     )
 
     tests_itr = attr.ib(default=10, validator=attr.validators.instance_of(int))
 
     def evaluate(
         self,
-        verbose=0,
+        verbose=1,
     ):
         times = []
         for _ in tqdm(
@@ -55,8 +55,8 @@ class Benchmark:
             times.append(toc - tic)
         return [
             round(np.mean(times), 2),
-            round(np.stdev(times), 2),
-            round(np.stdev(times, ddof=1), 2),
+            round(np.std(times), 2),
+            round(np.std(times, ddof=1), 2),
         ]
 
 
@@ -71,7 +71,11 @@ if __name__ == "__main__":
         [10, 25, 50],
     ):
         if not is_cache:
-            kg = KG(f"http://10.2.35.70:5820/{db}", mul_req=False, cache=None)
+            kg = KG(
+                f"http://10.2.35.70:5820/{db}",
+                mul_req=False,
+                cache=None,
+            )
         else:
             kg = KG(f"http://10.2.35.70:5820/{db}", mul_req=False)
 
@@ -89,15 +93,11 @@ if __name__ == "__main__":
                     f"benchmarks/{db}/{db}-{entities}.tsv", sep="\t"
                 )[label]
             ],
-            walker=[
-                RandomWalker(
-                    depth, max_walks=max_walks, random_state=RANDOM_STATE
-                )
-            ],
+            walker=[RandomWalker(depth, max_walks, random_state=RANDOM_STATE)],
         ).evaluate()
 
         print(
-            f"(db={db}, is_cache={is_cache}, entities={entities},"
+            f"(db={db}, is_cache={is_cache}, entities={entities}, "
             + f"depth={depth}, max_walks={max_walks}) = "
             + f"{avg_stdev[0]} +/- {avg_stdev[1]}"
         )
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     for k, v in dcemd_to_avg_stdev.items():
         print(
-            f"(db={k[0]}, is_cache={k[1]}, entities={k[2]},"
+            f"(db={k[0]}, is_cache={k[1]}, entities={k[2]}, "
             + f"depth={k[3]}, max_walks={k[4]}) = "
             + f"{v[0]} +/- {v[1]} ({v[2]})"
         )
