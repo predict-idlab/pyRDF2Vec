@@ -84,6 +84,8 @@ class SPARQLConnector(Connector):
             The response of the query in a JSON format.
 
         """
+        if self._session.closed:
+            self._session = aiohttp.ClientSession(raise_for_status=True)
         url = f"{self.endpoint}/query?query={parse.quote(query)}"
         async with self._session.get(url, headers=self._headers) as res:
             res = await res.json()

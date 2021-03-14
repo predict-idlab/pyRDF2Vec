@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict, List, Set, Tuple, Union
 
 if TYPE_CHECKING:
-    from pyrdf2vec.graphs import Vertex
+    from pyrdf2vec.graphs import Vertex  # noqa: F401
 
 Hop = Tuple["Vertex", "Vertex"]
 SWalk = Tuple[str, ...]
