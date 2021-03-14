@@ -26,7 +26,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -130,7 +129,7 @@ legacy_tox_ini = """
 [tox]
 envlist =
     docs
-    py{36,37,38,39}
+    py{37,38,39}
     lint
     tests
 isolated_build = True
