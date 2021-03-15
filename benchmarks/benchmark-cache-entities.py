@@ -40,12 +40,11 @@ class Benchmark:
 
     def evaluate(
         self,
-        verbose=1,
+        verbose=0,
     ):
         times = []
         for _ in tqdm(
-            range(self.tests_itr),
-            disable=True if verbose == 0 else False,
+            range(self.tests_itr), disable=True if verbose == 0 else False
         ):
             tic = time.perf_counter()
             RDF2VecTransformer(Word2Vec(workers=1), self.walker).fit_transform(
@@ -56,7 +55,6 @@ class Benchmark:
         return [
             round(np.mean(times), 2),
             round(np.std(times), 2),
-            round(np.std(times, ddof=1), 2),
         ]
 
 
@@ -94,7 +92,7 @@ if __name__ == "__main__":
                 )[label]
             ],
             walker=[RandomWalker(depth, max_walks, random_state=RANDOM_STATE)],
-        ).evaluate()
+        ).evaluate(verbose=1)
 
         print(
             f"(db={db}, is_cache={is_cache}, entities={entities}, "
@@ -109,5 +107,5 @@ if __name__ == "__main__":
         print(
             f"(db={k[0]}, is_cache={k[1]}, entities={k[2]}, "
             + f"depth={k[3]}, max_walks={k[4]}) = "
-            + f"{v[0]} +/- {v[1]} ({v[2]})"
+            + f"{v[0]} +/- {v[1]}"
         )
