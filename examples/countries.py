@@ -19,7 +19,7 @@ transformer = RDF2VecTransformer(
     # Extract a maximum of 10 walks of depth 4 for each entity using two
     # processes and use a random state to ensure that the same walks are
     # generated for the entities.
-    walkers=[RandomWalker(4, 10, n_jobs=1, random_state=RANDOM_STATE)],
+    walkers=[RandomWalker(4, 10, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 )
 
@@ -30,7 +30,6 @@ embeddings, _ = transformer.fit_transform(
     # predicates to exclude from this KG.
     KG(
         "https://dbpedia.org/sparql",
-        # mul_req=False,
         skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
         literals=[
             [
