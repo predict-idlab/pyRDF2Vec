@@ -28,7 +28,7 @@ labels = train_labels + test_labels
 embeddings, literals = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
-    Word2Vec.init(workers=1),
+    Word2Vec(workers=1),
     # Extract all walks of depth 2 for each entity using two processes
     # and use a random state to ensure that the same walks are generated for
     # the entities.

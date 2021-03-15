@@ -9,38 +9,26 @@ from pyrdf2vec.embedders import Embedder
 from pyrdf2vec.typings import Embeddings, Entities
 
 
-@attr.s
+@attr.s(init=False)
 class Word2Vec(Embedder):
     """Defines the Word2Vec embedding technique.
 
     SEE: https://radimrehurek.com/gensim_3.8.3/models/word2vec.html
 
+    By default, size=500 and negative=20
+
     """
 
-    kwargs = attr.ib(kw_only=True, default=None)
-    _model: W2V = attr.ib(kw_only=True, default=None, repr=False)
+    kwargs = attr.ib(init=False, default=None)
+    _model: W2V = attr.ib(init=False, default=None, repr=False)
 
-    @classmethod
-    def init(cls, **kwargs) -> Word2Vec:
-        """Initializes a Word2Vec model according to the keyword arguments.
-
-        Args:
-            cls: The Word2Vec class.
-            kwargs: The keyword arguments.
-                Defaults: size=500, negative=20.
-
-        Returns:
-            The Word2vec model according to the keyword arguments.
-
-        """
-        return cls(
-            kwargs={
-                "size": 500,
-                "negative": 20,
-                **kwargs,
-            },
-            model=W2V(**kwargs),
-        )
+    def __init__(self, **kwargs):
+        self.kwargs = {
+            "size": 500,
+            "negative": 20,
+            **kwargs,
+        }
+        self._model = W2V(**kwargs)
 
     def fit(self, corpus: List[Entities], is_update: bool = False) -> Embedder:
         """Fits the Word2Vec model based on provided corpus.
@@ -66,8 +54,8 @@ class Word2Vec(Embedder):
     def transform(self, entities: Entities) -> Embeddings:
         """The features vector of the provided entities.
 
-                Args:
-            entities: The entities including test entities to create the
+            Args:
+                entities: The entities including test entities to create the
                 embeddings. Since RDF2Vec is unsupervised, there is no label
                 leakage.
 

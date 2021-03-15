@@ -36,7 +36,7 @@ kg = KG(
 transformer = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
-    Word2Vec.init(workers=1),
+    Word2Vec(workers=1),
     # Extract all walks of depth 2 for each entity by using two processes and a
     # random state to ensure that the same walks are generated for the
     # entities.
@@ -73,7 +73,7 @@ new_entities = [entity for entity in new_data["bond"]]
 new_labels = list(new_data["label_mutagenic"])
 
 transformer = RDF2VecTransformer(
-    Word2Vec.init(workers=1),
+    Word2Vec(workers=1),
     walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 ).load("mutag")
@@ -109,7 +109,7 @@ print(confusion_matrix(test_labels, predictions))
 print("\nTrain all the entities.")
 
 transformer = RDF2VecTransformer(
-    Word2Vec.init(workers=1),
+    Word2Vec(workers=1),
     walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 )

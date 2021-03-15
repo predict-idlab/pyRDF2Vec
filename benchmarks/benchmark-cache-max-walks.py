@@ -32,7 +32,7 @@ class Benchmark:
     )
 
     embedder: Embedder = attr.ib(
-        factory=lambda: Word2Vec.init(workers=1),
+        factory=lambda: Word2Vec(workers=1),
         validator=attr.validators.instance_of(Embedder),  # type: ignore
     )
 
@@ -48,9 +48,9 @@ class Benchmark:
             disable=True if verbose == 0 else False,
         ):
             tic = time.perf_counter()
-            RDF2VecTransformer(
-                Word2Vec.init(workers=1), self.walker
-            ).fit_transform(self.kg, self.entities)
+            RDF2VecTransformer(Word2Vec(workers=1), self.walker).fit_transform(
+                self.kg, self.entities
+            )
             toc = time.perf_counter()
             times.append(toc - tic)
         return [

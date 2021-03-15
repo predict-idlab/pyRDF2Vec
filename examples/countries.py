@@ -15,7 +15,7 @@ data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 transformer = RDF2VecTransformer(
     # Use one worker threads for Word2Vec to ensure random determinism.
     # Must be used with PYTHONHASHSEED.
-    Word2Vec.init(workers=1),
+    Word2Vec(workers=1),
     # Extract a maximum of 10 walks of depth 4 for each entity using two
     # processes and use a random state to ensure that the same walks are
     # generated for the entities.
