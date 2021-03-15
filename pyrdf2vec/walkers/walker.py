@@ -1,4 +1,3 @@
-# import asyncio
 import multiprocessing
 import warnings
 from abc import ABC, abstractmethod
@@ -133,14 +132,7 @@ class Walker(ABC):
             )
 
         if kg._is_remote and kg.mul_req:
-            pass
-            # queries = [
-            #     kg.connector.get_query(vertex)
-            #     for vertex in instances
-            #     if kg._is_remote
-            # ]
-            # RuntimeError: cannot reuse already awaited coroutine
-            # asyncio.run(kg.connector.afetch(queries))
+            kg._fill_hops(instances)
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(

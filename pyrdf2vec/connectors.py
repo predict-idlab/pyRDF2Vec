@@ -8,8 +8,11 @@ from urllib import parse
 import aiohttp
 import attr
 import numpy as np
+import requests
 from cachetools import Cache, TTLCache, cachedmethod
 from cachetools.keys import hashkey
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util import Retry
 
 from pyrdf2vec.typings import Literal, Response
 
@@ -31,17 +34,20 @@ class Connector(ABC):
     _headers: Dict[str, str] = attr.ib(
         init=False,
         repr=False,
-        default={"Accept": "application/sparql-results+json"},
+        default={
+            "Accept": "application/sparql-results+json",
+        },
     )
 
     _session = attr.ib(
         init=False,
-        factory=lambda: aiohttp.ClientSession(raise_for_status=True),
+        factory=lambda: requests.Session(),
     )
 
-    async def close(self) -> None:
-        """Closes the session."""
-        await self._session.close()
+    _asession = attr.ib(
+        init=False,
+        factory=lambda: aiohttp.ClientSession(),
+    )
 
     @abstractmethod
     def fetch(self, query: str):
@@ -56,10 +62,25 @@ class Connector(ABC):
         """
         raise NotImplementedError("This must be implemented!")
 
+    async def close(self):
+        """Closes the aiohttp session."""
+        await self._asession.close()
+
 
 @attr.s
 class SPARQLConnector(Connector):
     """Represents a SPARQL connector."""
+
+    def __attrs_post_init__(self):
+        adapter = HTTPAdapter(
+            Retry(
+                total=3,
+                status_forcelist=[429, 500, 502, 503, 504],
+                method_whitelist=["HEAD", "GET", "OPTIONS"],
+            )
+        )
+        self._session.mount("http", adapter)
+        self._session.mount("https", adapter)
 
     async def afetch(self, queries: List[str]) -> List[List[Response]]:
         """Fetchs the result of SPARQL queries asynchronously.
@@ -71,10 +92,29 @@ class SPARQLConnector(Connector):
             The response of the queries.
 
         """
-        return await asyncio.gather(*(self.fetch(query) for query in queries))
+        return await asyncio.gather(*(self._fetch(query) for query in queries))
+
+    async def _fetch(self, query) -> Response:
+        """Fetchs the result of a SPARQL query with the aiohttp session.
+
+        This function is useful only to avoid unnecessarily filling the fetch
+        function's cache with values that can never be retrieved because of a
+        different session that uses a coroutine.
+
+        Args:
+            query: The query to fetch the result.
+
+        Returns:
+            The response of the query in a JSON format.
+
+        """
+        url = f"{self.endpoint}/query?query={parse.quote(query)}"
+        async with self._asession.get(url, headers=self._headers) as res:
+            res = await res.json()
+            return res["results"]["bindings"]
 
     @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "fetch"))
-    async def fetch(self, query: str) -> Response:
+    def fetch(self, query: str):
         """Fetchs the result of a SPARQL query.
 
         Args:
@@ -84,12 +124,9 @@ class SPARQLConnector(Connector):
             The response of the query in a JSON format.
 
         """
-        if self._session.closed:
-            self._session = aiohttp.ClientSession(raise_for_status=True)
         url = f"{self.endpoint}/query?query={parse.quote(query)}"
-        async with self._session.get(url, headers=self._headers) as res:
-            res = await res.json()
-            return res["results"]["bindings"]
+        res = self._session.get(url, headers=self._headers).json()
+        return res["results"]["bindings"]
 
     def get_query(
         self, entity: str, preds: Optional[Union[str, List[str]]] = None

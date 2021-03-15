@@ -2,7 +2,7 @@ import asyncio
 import operator
 from collections import defaultdict
 from functools import partial
-from typing import DefaultDict, List, Optional, Set, Tuple, Union
+from typing import DefaultDict, Dict, List, Optional, Set, Tuple, Union
 
 import attr
 import numpy as np
@@ -86,6 +86,10 @@ class KG:
     )
     _transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
+    )
+
+    _entity_hops: Dict[str, List[Hop]] = attr.ib(
+        init=False, repr=False, factory=dict
     )
 
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
@@ -183,12 +187,12 @@ class KG:
         hops: List[Hop] = []
         if not self._is_remote:
             return hops
+        elif vertex.name in self._entity_hops:
+            return self._entity_hops[vertex.name]
         elif vertex.name.startswith("http://") or vertex.name.startswith(
             "https://"
         ):
-            res = asyncio.run(
-                self.connector.fetch(self.connector.get_query(vertex.name))
-            )
+            res = self.connector.fetch(self.connector.get_query(vertex.name))
             hops = self._res2hops(vertex, res)
         return hops
 
@@ -248,7 +252,12 @@ class KG:
                 for pchain in self.literals
                 if len(pchain) > 0
             ]
-            responses = asyncio.run(self.connector.afetch(queries))
+
+            if self.mul_req:
+                responses = asyncio.run(self.connector.afetch(queries))
+            else:
+                responses = [self.connector.fetch(query) for query in queries]
+
             literals_responses = [
                 self.connector.res2literals(res) for res in responses
             ]
@@ -355,6 +364,21 @@ class KG:
                     casted_literal += casted_value
             literals.append(casted_literal)
         return literals
+
+    def _fill_hops(self, entities: Entities) -> None:
+        """Fills the entity hops in cache.
+
+        Args:
+            vertices: The vertices to get the hops.
+
+        """
+        queries = [self.connector.get_query(entity) for entity in entities]
+        for entity, res in zip(
+            entities,
+            asyncio.run(self.connector.afetch(queries)),
+        ):
+            hops = self._res2hops(Vertex(entity), res)
+            self._entity_hops.update({entity: hops})
 
     def _res2hops(self, vertex: Vertex, res) -> List[Hop]:
         """Converts a JSON response from a SPARQL endpoint server to hops.
