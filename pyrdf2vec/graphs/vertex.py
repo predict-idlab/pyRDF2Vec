@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 from typing import Any, Optional
 
 import attr
@@ -17,11 +16,6 @@ class Vertex:
     vprev: Optional[Vertex] = attr.ib(default=None, repr=False)
     vnext: Optional[Vertex] = attr.ib(default=None, repr=False)
 
-    _counter = itertools.count()
-    id: int = attr.ib(
-        init=False, factory=lambda: next(Vertex._counter), repr=False
-    )
-
     def __eq__(self, other: Any) -> bool:
         """Defines behavior for the equality operator, ==.
 
@@ -32,11 +26,10 @@ class Vertex:
             True if the hash of the vertices are equal, False otherwise.
 
         """
-        if other is None:
+        if not isinstance(other, Vertex):
             return False
         elif self.predicate:
-            return (self.id, self.vprev, self.vnext, self.name) == (
-                other.id,
+            return (self.vprev, self.vnext, self.name) == (
                 other.vprev,
                 other.vnext,
                 other.name,
@@ -53,7 +46,7 @@ class Vertex:
 
         """
         if self.predicate:
-            return hash((self.id, self.vprev, self.vnext, self.name))
+            return hash((self.vprev, self.vnext, self.name))
         return hash(self.name)
 
     def __lt__(self, other: "Vertex") -> bool:

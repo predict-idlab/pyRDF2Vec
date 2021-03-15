@@ -10,6 +10,7 @@ c = Vertex("c", predicate=True, vprev=a, vnext=b)
 class TestVertex:
     def test_eq(self):
         assert a == a
+        assert a != 5
         assert b == b
         assert c == c
 
@@ -17,13 +18,6 @@ class TestVertex:
         assert a is not None
         assert b is not None
         assert c is not None
-
-    def test_id_incremental(self):
-        assert b.id == 1
-        assert c.id == 2
-
-    def test_id_init(self):
-        assert a.id == 0
 
     def test_lt(self):
         assert a < b
