@@ -25,10 +25,11 @@ class Word2Vec(Embedder):
     def __init__(self, **kwargs):
         self.kwargs = {
             "size": 500,
+            "min_count": 0,
             "negative": 20,
             **kwargs,
         }
-        self._model = W2V(**kwargs)
+        self._model = W2V(**self.kwargs)
 
     def fit(self, corpus: List[Entities], is_update: bool = False) -> Embedder:
         """Fits the Word2Vec model based on provided corpus.
