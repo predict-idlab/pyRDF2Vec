@@ -113,7 +113,7 @@ class Sampler(ABC):
     def sample_neighbor(
         self, kg: KG, walk: Walk, is_last_depth: bool, is_reverse: bool = False
     ) -> Optional[Hop]:
-        """Samples an unvisited random neighbor in the (predicate, object)
+        """Samples an unvisited random hop in the (predicate, object)
         form, according to the weight of hops for a given walk.
 
         Args:
@@ -130,11 +130,13 @@ class Sampler(ABC):
 
         """
         subj = walk[0] if is_reverse else walk[-1]
+
         untagged_neighbors = [
             pred_obj
             for pred_obj in kg.get_hops(subj, is_reverse)
             if (pred_obj, len(walk)) not in self.visited
         ]
+
         if len(untagged_neighbors) == 0:
             if len(walk) > 2:
                 pred_obj = (

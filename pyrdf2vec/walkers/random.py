@@ -13,7 +13,7 @@ class RandomWalker(Walker):
     """Defines the random walking strategy.
 
     Args:
-        depth: The depth per entity.
+        depth: The maximum depth for walks per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().

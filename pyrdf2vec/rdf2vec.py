@@ -108,7 +108,6 @@ class RDF2VecTransformer:
                 f"Extracted {len(walks)} walks "
                 + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
             )
-
         tic = time.perf_counter()
         self.embedder.fit([list(map(str, walk)) for walk in walks], is_update)
         toc = time.perf_counter()
