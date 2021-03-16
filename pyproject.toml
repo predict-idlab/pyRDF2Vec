@@ -91,6 +91,7 @@ tests = [
     "aiohttp",
     "codecov",
     "gensim",
+    "nest-asyncio",
     "numpy",
     "pandas",
     "pytest",
@@ -184,6 +185,7 @@ deps =
     aiohttp
     codecov
     gensim
+    nest-asyncio
     numpy
     pandas
     pytest
