@@ -1,23 +1,18 @@
-import functools
 import itertools
-import random
 
-import numpy as np
-import pandas as pd
 import pytest
-import rdflib
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
 
 from pyrdf2vec.walkers import (  # isort: skip
     AnonymousWalker,
     CommunityWalker,
-    HalkWalker,
+    HALKWalker,
     NGramWalker,
     RandomWalker,
     WalkletWalker,
-    WeisfeilerLehmanWalker,
+    WLWalker,
 )
 from pyrdf2vec.samplers import (  # isort: skip
     ObjFreqSampler,
@@ -27,55 +22,87 @@ from pyrdf2vec.samplers import (  # isort: skip
     UniformSampler,
 )
 
-np.random.seed(42)
-random.seed(42)
 
-KNOWLEDGE_GRAPH = KG(
-    "samples/mutag/mutag.owl",
-    label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
-)
-TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
-ENTITIES_SUBSET = ENTITIES[:5]
+LOOP = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Dean"],
+    ["Dean", "loves", "Alice"],
+]
+LONG_CHAIN = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Mathilde"],
+    ["Mathilde", "knows", "Alfy"],
+    ["Alfy", "knows", "Stephane"],
+    ["Stephane", "knows", "Alfred"],
+    ["Alfred", "knows", "Emma"],
+    ["Emma", "knows", "Julio"],
+]
+URL = "http://pyRDF2Vec"
+
+KG_LOOP = KG()
+KG_CHAIN = KG()
+
+IS_INVERSE = [False, True]
+IS_SPLIT = [False, True]
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
+SAMPLERS = [
+    ObjFreqSampler,
+    ObjPredFreqSampler,
+    PageRankSampler,
+    PredFreqSampler,
+    UniformSampler,
+]
+WALKERS = [
+    AnonymousWalker,
+    CommunityWalker,
+    HALKWalker,
+    NGramWalker,
+    RandomWalker,
+    WalkletWalker,
+    WLWalker,
+]
 
 
-SAMPLER_CLASSES = {
-    ObjFreqSampler: "Object Frequency",
-    ObjPredFreqSampler: "Predicate-Object Frequency",
-    PageRankSampler: "PageRank",
-    PredFreqSampler: "Predicate Frequency",
-    UniformSampler: "Uniform",
-}
+class TestWalkerSampler:
+    @pytest.fixture(scope="session")
+    def setup(self):
+        for i, graph in enumerate([LOOP, LONG_CHAIN]):
+            for row in graph:
+                subj = Vertex(f"{URL}#{row[0]}")
+                obj = Vertex((f"{URL}#{row[2]}"))
+                pred = Vertex(
+                    (f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj
+                )
+                if i == 0:
+                    KG_LOOP.add_walk(subj, pred, obj)
+                else:
+                    KG_CHAIN.add_walk(subj, pred, obj)
 
-SAMPLERS = {
-    **SAMPLER_CLASSES,
-}
-
-SAMPLERS.update(
-    {
-        functools.partial(samp, inverse=True): (  # type: ignore
-            "Inverse %s" % desc
-        )
-        for samp, desc in SAMPLERS.items()
-        if samp is not UniformSampler
-    }
-)
-
-WALKER_CLASSES = {
-    AnonymousWalker: "Anonymous",
-    CommunityWalker: "Community",
-    HalkWalker: "HALK",
-    NGramWalker: "NGram",
-    RandomWalker: "Random",
-    WalkletWalker: "Walklet",
-    WeisfeilerLehmanWalker: "Weisfeiler-Lehman",
-}
-
-
-class TestRDF2Vec:
     @pytest.mark.parametrize(
-        "walker, sampler", itertools.product(WALKER_CLASSES, SAMPLERS)
+        "kg, walker, sampler, is_inverse, is_split",
+        list(
+            itertools.product(
+                KGS,
+                WALKERS,
+                SAMPLERS,
+                IS_INVERSE,
+                IS_SPLIT,
+            )
+        ),
     )
-    def test_fit_transform(self, walker, sampler):
-        transformer = RDF2VecTransformer(walkers=[walker(2, 5, sampler())])
-        assert transformer.fit_transform(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
+    def test_fit_transform(
+        self, setup, kg, walker, sampler, is_inverse, is_split
+    ):
+        if "UniformSampler" in str(sampler):
+            sampler = sampler()
+        else:
+            sampler = sampler(is_inverse, is_split)
+
+        assert RDF2VecTransformer(
+            walkers=[walker(2, 5, sampler, random_state=42)]
+        ).fit_transform(
+            kg, [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
+        )

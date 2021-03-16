@@ -1,13 +1,10 @@
-import random
-import warnings
-
-import numpy as np
 import pandas as pd
-import rdflib
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
+from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
@@ -19,27 +16,17 @@ from pyrdf2vec.samplers import (  # isort: skip
     UniformSampler,
 )
 
-np.random.seed(42)
-random.seed(42)
+# Ensure the determinism of this script by initializing a pseudo-random number.
+RANDOM_STATE = 42
 
-warnings.filterwarnings("ignore")
-
-LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
-
-# Load our train & test instances and labels
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
 
-train_entities = [rdflib.URIRef(x) for x in train_data["bond"]]
-train_labels = train_data["label_mutagenic"]
+train_entities = [entity for entity in train_data["bond"]]
+train_labels = list(train_data["label_mutagenic"])
 
-test_entities = [rdflib.URIRef(x) for x in test_data["bond"]]
-test_labels = test_data["label_mutagenic"]
-
-entities = train_entities + test_entities
-
-# Convert the rdflib to our KnowledgeGraph object
-kg = KG("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
+test_entities = [entity for entity in test_data["bond"]]
+test_labels = list(test_data["label_mutagenic"])
 
 samplers = [
     ("Uniform", UniformSampler()),
@@ -59,18 +46,41 @@ samplers = [
     ("Inverse PageRank Split", PageRankSampler(inverse=True, split=True)),
 ]
 
-for name, sampler in samplers:
-    # Create embeddings with random walks
-    transformer = RDF2VecTransformer(walkers=[RandomWalker(4, 100, sampler)])
-    walk_embeddings = transformer.fit_transform(kg, entities, verbose=True)
+print(f"Prediction of {len(test_entities)} entities:")
 
-    # Split into train and test embeddings
-    train_embeddings = walk_embeddings[: len(train_entities)]
-    test_embeddings = walk_embeddings[len(train_entities) :]
+for _, sampler in samplers:
+    sampler.random_state = RANDOM_STATE
+    embeddings = RDF2VecTransformer(
+        # Use one worker threads for Word2Vec to ensure random determinism.
+        # Must be used with PYTHONHASHSEED.
+        Word2Vec(workers=1),
+        # Extract a maximum of 100 walks of a maximum depth of 4 for each
+        # entity, use a random state to ensure that the same walks are
+        # generated for the entities.
+        walkers=[RandomWalker(4, 100, sampler, random_state=RANDOM_STATE)],
+    ).fit_transform(
+        KG(
+            "samples/mutag/mutag.owl",
+            skip_predicates={
+                "http://dl-learner.org/carcinogenesis#isMutagenic"
+            },
+        ),
+        train_entities + test_entities,
+    )
 
-    # Fit a support vector machine on train embeddings and evaluate on test
-    clf = SVC(random_state=42)
+    train_embeddings = embeddings[: len(train_entities)]
+    test_embeddings = embeddings[len(train_entities) :]
+
+    # Fit a Support Vector Machine on train embeddings and pick the best
+    # C-parameters (regularization strength).
+    clf = GridSearchCV(
+        SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+    )
     clf.fit(train_embeddings, train_labels)
 
-    print(end=f"[{name}] Support Vector Machine: Accuracy = ")
-    print(accuracy_score(test_labels, clf.predict(test_embeddings)))
+    # Evaluate the Support Vector Machine on test embeddings.
+    predictions = clf.predict(test_embeddings)
+    print(
+        f"{sampler}\naccuracy="
+        + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
+    )

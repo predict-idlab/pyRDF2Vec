@@ -1,116 +1,78 @@
-import random
-import warnings
-from typing import List, Sequence, Tuple
-
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import rdflib
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.walkers import RandomWalker, Walker
+from pyrdf2vec.walkers import RandomWalker
 
-DATASET = {
-    "test": ["samples/mutag/test.tsv", "bond", "label_mutagenic"],
-    "train": ["samples/mutag/train.tsv", "bond", "label_mutagenic"],
-}
-LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
-OUTPUT = "samples/mutag/mutag.owl"
+# Ensure the determinism of this script by initializing a pseudo-random number.
+RANDOM_STATE = 42
 
-# We'll extract all possible walks of depth 2 with 4 processes.
-WALKERS = [RandomWalker(2, None, n_jobs=4)]
-# We'll extract all possible walks of depth 2 (without multi-processing)
-# WALKERS = [RandomWalker(2, None)]
+test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
+train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
 
-PLOT_SAVE = "embeddings.png"
-PLOT_TITLE = "pyRDF2Vec"
+train_entities = [entity for entity in train_data["bond"]]
+train_labels = list(train_data["label_mutagenic"])
 
-warnings.filterwarnings("ignore")
-
-np.random.seed(42)
-random.seed(42)
-
-
-def create_embeddings(
-    kg: KG,
-    entities: List[rdflib.URIRef],
-    split: int,
-    walkers: Sequence[Walker],
-    sg: int = 1,
-) -> Tuple[List[str], List[str]]:
-    """Creates embeddings for a list of entities according to a knowledge
-    graphs and a walking strategy.
-
-    Args:
-        kg: The knowledge graph.
-            The graph from which the neighborhoods are extracted for the
-            provided instances.
-        entities: The train and test instances to create the embedding.
-        split: Split value for train and test embeddings.
-        walker: The list of walkers strategies.
-        sg: The training algorithm. 1 for skip-gram; otherwise CBOW.
-            Defaults to 1.
-
-    Returns:
-        The embeddings of the provided instances.
-
-    """
-    transformer = RDF2VecTransformer(Word2Vec(sg=sg), walkers=walkers)
-    walk_embeddings = transformer.fit_transform(kg, entities, verbose=True)
-    return walk_embeddings[:split], walk_embeddings[split:]
-
-
-def load_data(
-    filename: str, col_entity: str, col_label: str, sep: str = "\t"
-) -> Tuple[List[rdflib.URIRef], List[str]]:
-    """Loads entities and labels from a file.
-
-    Args:
-        filename: The file name.
-        col_entity: The name of the column header related to the entities.
-        col_label: The name of the column header related to the labels.
-        sep: The delimiter to use.
-            Defaults to "\t".
-
-    Returns:
-        The URIs of the entities with their labels.
-
-    """
-    data = pd.read_csv(filename, sep=sep, header=0)
-    return [rdflib.URIRef(x) for x in data[col_entity]], list(data[col_label])
-
-
-test_entities, test_labels = load_data(
-    DATASET["test"][0], DATASET["test"][1], DATASET["test"][2]
-)
-train_entities, train_labels = load_data(
-    DATASET["train"][0], DATASET["train"][1], DATASET["train"][2]
-)
+test_entities = [entity for entity in test_data["bond"]]
+test_labels = list(test_data["label_mutagenic"])
 
 entities = train_entities + test_entities
 labels = train_labels + test_labels
 
-kg = KG("samples/mutag/mutag.owl", label_predicates=LABEL_PREDICATES)
-train_embeddings, test_embeddings = create_embeddings(
-    kg, entities, len(train_entities), WALKERS
+embeddings, literals = RDF2VecTransformer(
+    # Ensure random determinism for Word2Vec.
+    # Must be used with PYTHONHASHSEED.
+    Word2Vec(workers=1),
+    # Extract all walks with a maximum depth of 2 for each entity using two
+    # processes and use a random state to ensure that the same walks are
+    # generated for the entities.
+    walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
+    verbose=1,
+).fit_transform(
+    KG(
+        "samples/mutag/mutag.owl",
+        skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
+        literals=[
+            [
+                "http://dl-learner.org/carcinogenesis#hasBond",
+                "http://dl-learner.org/carcinogenesis#inBond",
+            ],
+            [
+                "http://dl-learner.org/carcinogenesis#hasAtom",
+                "http://dl-learner.org/carcinogenesis#charge",
+            ],
+        ],
+    ),
+    entities,
 )
 
-# Fit a support vector machine on train embeddings and evaluate on test
-clf = SVC(random_state=42)
+train_embeddings = embeddings[: len(train_entities)]
+test_embeddings = embeddings[len(train_entities) :]
+
+# Fit a Support Vector Machine on train embeddings and pick the best
+# C-parameters (regularization strength).
+clf = GridSearchCV(
+    SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+)
 clf.fit(train_embeddings, train_labels)
-print("Support Vector Machine:")
-print(
-    f"Accuracy = {accuracy_score(test_labels, clf.predict(test_embeddings))}"
-)
-print(confusion_matrix(test_labels, clf.predict(test_embeddings)))
 
-# Create t-SNE embeddings from RDF2Vec embeddings (dimensionality reduction)
-X_walk_tsne = TSNE(random_state=42).fit_transform(
+# Evaluate the Support Vector Machine on test embeddings.
+predictions = clf.predict(test_embeddings)
+print(
+    f"Predicted {len(test_entities)} entities with an accuracy of "
+    + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
+)
+print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
+print(confusion_matrix(test_labels, predictions))
+
+# Reduce the dimensions of entity embeddings to represent them in a 2D plane.
+X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
     train_embeddings + test_embeddings
 )
 
@@ -120,38 +82,38 @@ color_map = {}
 for i, label in enumerate(set(labels)):
     color_map[label] = colors[i]
 
+# Set the graph with a certain size.
 plt.figure(figsize=(10, 4))
 
 # Plot the train embeddings
 plt.scatter(
-    X_walk_tsne[: len(train_entities), 0],
-    X_walk_tsne[: len(train_entities), 1],
+    X_tsne[: len(train_entities), 0],
+    X_tsne[: len(train_entities), 1],
     edgecolors=[color_map[i] for i in labels[: len(train_entities)]],
     facecolors=[color_map[i] for i in labels[: len(train_entities)]],
 )
 
-# Plot the test embeddings
+# Plot the test embeddings.
 plt.scatter(
-    X_walk_tsne[len(train_entities) :, 0],
-    X_walk_tsne[len(train_entities) :, 1],
+    X_tsne[len(train_entities) :, 0],
+    X_tsne[len(train_entities) :, 1],
     edgecolors=[color_map[i] for i in labels[len(train_entities) :]],
     facecolors="none",
 )
 
-# Annotate a few points
+# Annotate few points.
 plt.annotate(
     entities[25].split("/")[-1],
-    xy=(X_walk_tsne[25, 0], X_walk_tsne[25, 1]),
+    xy=(X_tsne[25, 0], X_tsne[25, 1]),
     xycoords="data",
     xytext=(0.01, 0.0),
     fontsize=8,
     textcoords="axes fraction",
     arrowprops=dict(arrowstyle="->", facecolor="black"),
 )
-
 plt.annotate(
     entities[35].split("/")[-1],
-    xy=(X_walk_tsne[35, 0], X_walk_tsne[35, 1]),
+    xy=(X_tsne[35, 0], X_tsne[35, 1]),
     xycoords="data",
     xytext=(0.4, 0.0),
     fontsize=8,
@@ -166,8 +128,8 @@ plt.scatter([], [], edgecolors="r", facecolors="none", label="test -")
 plt.scatter([], [], edgecolors="g", facecolors="none", label="test +")
 plt.legend(loc="upper right", ncol=2)
 
-# Show & save the figure
-plt.title(PLOT_TITLE, fontsize=32)
+# Display the graph with a title, removing the axes for
+# better readability.
+plt.title("pyRDF2Vec", fontsize=32)
 plt.axis("off")
-plt.savefig(PLOT_SAVE)
 plt.show()

@@ -1,426 +1,420 @@
-import itertools
-import json
+import asyncio
 import operator
-import os
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
-from urllib import parse
+from functools import partial
+from typing import DefaultDict, Dict, List, Optional, Set, Tuple, Union
 
-import matplotlib.pyplot as plt
-import networkx as nx
+import attr
+import numpy as np
 import rdflib
-import requests
 from cachetools import Cache, TTLCache, cachedmethod
-from requests.adapters import HTTPAdapter
+from cachetools.keys import hashkey
+from tqdm import tqdm
 
-try:
-    import asyncio
-
-    import aiohttp
-
-    is_aiohttp = True
-except ModuleNotFoundError:
-    is_aiohttp = False
+from pyrdf2vec.connectors import SPARQLConnector
+from pyrdf2vec.graphs.vertex import Vertex
+from pyrdf2vec.typings import Entities, Hop, Literal, Literals
+from pyrdf2vec.utils.validation import _check_location
 
 
-class Vertex:
-    """Represents a vertex in a Knowledge Graph.
-
-    Attributes:
-        name: The name of the vertex.
-        predicate: The predicate of the vertex.
-            Defaults to False.
-        vprev: The previous Vertex.
-            Defaults to None
-        vnext: The next Vertex.
-            Defaults to None.
-
-    """
-
-    vertex_counter = itertools.count()
-
-    def __init__(
-        self,
-        name: str,
-        predicate: bool = False,
-        vprev: Optional["Vertex"] = None,
-        vnext: Optional["Vertex"] = None,
-    ):
-        self.name = name
-        self.predicate = predicate
-        self.vprev = vprev
-        self.vnext = vnext
-        self.id = next(self.vertex_counter)
-
-    def __eq__(self, other: object) -> bool:
-        """Defines behavior for the equality operator, ==.
-
-        Args:
-            other: The other vertex to test the equality.
-
-        Returns:
-            True if the hash of the vertices are equal. False otherwise.
-
-        """
-        if other is None:
-            return False
-        return self.__hash__() == other.__hash__()
-
-    def __hash__(self) -> int:
-        """Defines behavior for when hash() is called on a vertex.
-
-        Returns:
-            The identifier and name of the vertex, as well as its previous
-            and next neighbor if the vertex has a predicate. The hash of
-            the name of the vertex otherwise.
-
-        """
-        if self.predicate:
-            return hash((self.id, self.vprev, self.vnext, self.name))
-        return hash(self.name)
-
-    def __lt__(self, other: "Vertex") -> bool:
-        return self.name < other.name
-
-    def __str__(self) -> str:
-        return self.name
-
-
+@attr.s
 class KG:
     """Represents a Knowledge Graph.
 
-    Attributes:
+    Args:
         location: The location of the file to load.
             Defaults to None.
-        file_type: The type of the file to load.
+        skip_predicates: The label predicates to skip from the KG.
+            Defaults to set().
+        literals: The predicate chains to get the literals.
+            Defaults to [].
+        fmt: Used if format can not be determined from source.
             Defaults to None.
-        label_predicates: The label predicates.
-            Defaults to None.
-        is_remote: True if the file is in a SPARQL endpoint server.
-            False otherwise.
-            Defaults to False.
-        cache: The cache policy to use for remote Knowledge Graphs.
-            Defaults to TTLCache(maxsize=1024, ttl=1200)
+        mul_req: True to allow bundling of SPARQL queries, False otherwise.
+            Accelerates the extraction of walks for remote Knowledge Graphs.
+            Beware that this may violate the policy of some SPARQL endpoint
+            server.
+            Defaults to True.
+        cache: The policy and size cache to use.
+            Defaults to cachetools.TTLCache(maxsize=1024, ttl=1200)
 
     """
 
-    def __init__(
-        self,
-        location: str,
-        file_type: Optional[str] = None,
-        label_predicates=None,
-        is_remote: bool = False,
-        cache: Cache = TTLCache(maxsize=1024, ttl=1200),
-    ):
-        self.cache = cache
-        self.file_type = file_type
-        if label_predicates is None:
-            self.label_predicates = set()
-        else:
-            self.label_predicates = set(label_predicates)
-        self.is_remote = is_remote
-        self.location = location
+    location: Optional[str] = attr.ib(  # type: ignore
+        default=None,
+        validator=[
+            attr.validators.optional(attr.validators.instance_of(str)),
+            _check_location,
+        ],
+    )
+    skip_predicates: Set[str] = attr.ib(
+        factory=set,
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(str)
+        ),
+    )
+    literals: List[List[str]] = attr.ib(  # type: ignore
+        factory=list,
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(List)
+        ),
+    )
+    fmt: Optional[str] = attr.ib(
+        kw_only=True,
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(str)),
+    )
+    mul_req: bool = attr.ib(
+        kw_only=True,
+        default=True,
+        validator=attr.validators.instance_of(bool),
+    )
+    cache: Cache = attr.ib(
+        kw_only=True,
+        factory=lambda: TTLCache(maxsize=1024, ttl=1200),
+        validator=attr.validators.optional(attr.validators.instance_of(Cache)),
+    )
 
-        self._inv_transition_matrix: DefaultDict[Any, Any] = defaultdict(set)
-        self._transition_matrix: DefaultDict[Any, Any] = defaultdict(set)
-        self._entities: Set[Vertex] = set()
-        self._vertices: Set[Vertex] = set()
+    connector: SPARQLConnector = attr.ib(default=None, init=False, repr=False)
 
-        if is_remote:
-            if is_valid_url(location):
-                self.session = requests.Session()
-                self.session.mount("http://", HTTPAdapter())
-                self._headers = {"Accept": "application/sparql-results+json"}
-                self.endpoint = location
-            else:
-                raise ValueError(f"Invalid URL: {location}")
-        else:
-            self.read_file()
+    _is_remote: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
 
-    async def fetch(self, session, url: str):
-        """Fetchs the hops for a URL
+    _inv_transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(set)
+    )
+    _transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(set)
+    )
 
-        Args:
-            session: The session.
-            url: The URL that contains the query.
+    _entity_hops: Dict[str, List[Hop]] = attr.ib(
+        init=False, repr=False, factory=dict
+    )
 
-        Returns:
-            The hops of a URL.
+    _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
+    _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
 
-        """
-        async with session.get(
-            url,
-            headers=self._headers,
-            raise_for_status=True,
-        ) as response:
-            return await response.text()
+    def __attrs_post_init__(self):
+        if self.location is not None:
+            self._is_remote = self.location.startswith(
+                "http://"
+            ) or self.location.startswith("https://")
 
-    @cachedmethod(operator.attrgetter("cache"))
-    def fetch_hops(self, vertex: str):
-        """Fetchs the hops of the vertex.
-
-        Args:
-            vertex: The vertex to get the hops.
-
-        """
-        if not vertex.startswith("http://"):
-            return []
-        query = parse.quote(
-            "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
-        )
-
-        url = self.endpoint + "/query?query=" + query
-
-        res = self.session.get(url, headers=self._headers)
-        if res.status_code != 200:
-            res.raise_for_status()
-
-        hops = []
-        for result in json.loads(res.text)["results"]["bindings"]:
-            pred, obj = result["p"]["value"], result["o"]["value"]
-            if obj not in self.label_predicates:
-                hops.append((pred, obj))
-                s_v = Vertex(str(vertex))
-                o_v = Vertex(str(obj))
-                p_v = Vertex(str(pred), predicate=True, vprev=s_v, vnext=o_v)
-                self.add_vertex(s_v)
-                self.add_vertex(o_v)
-                self.add_vertex(p_v)
-                self.add_edge(s_v, p_v)
-                self.add_edge(p_v, o_v)
-        return hops
-
-    async def fetch_ehops(
-        self, session, vertices: List[str]
-    ) -> Dict[str, List[Tuple[Any, Any]]]:
-        """Fetchs the hops of the vertices according to a session.
-
-        Args:
-            session: The session.
-            vertices: The vertices to get the hops.
-
-        Returns:
-            The hops of the vertices.
-
-        """
-        urls = [
-            self.endpoint
-            + "/query?query="
-            + parse.quote(
-                "SELECT ?p ?o WHERE { <" + str(vertex) + "> ?p ?o . }"
-            )
-            for vertex in vertices
-        ]
-
-        entity_hops = {}
-        for vertex, res in zip(
-            vertices,
-            await asyncio.gather(*(self.fetch(session, url) for url in urls)),
-        ):
-            hops = []
-            for result in json.loads(res)["results"]["bindings"]:
-                pred, obj = result["p"]["value"], result["o"]["value"]
-                if obj not in self.label_predicates:
-                    hops.append((pred, obj))
-                    s_v = Vertex(str(vertex))
-                    o_v = Vertex(str(obj))
-                    p_v = Vertex(
-                        str(pred), predicate=True, vprev=s_v, vnext=o_v
+            if self._is_remote is True:
+                self.connector = SPARQLConnector(
+                    self.location, cache=self.cache
+                )
+            elif self.location is not None:
+                for subj, pred, obj in rdflib.Graph().parse(
+                    self.location, format=self.fmt
+                ):
+                    subj = Vertex(str(subj))
+                    obj = Vertex(str(obj))
+                    self.add_walk(
+                        subj,
+                        Vertex(
+                            str(pred), predicate=True, vprev=subj, vnext=obj
+                        ),
+                        obj,
                     )
-                    self.add_vertex(s_v)
-                    self.add_vertex(o_v)
-                    self.add_vertex(p_v)
-                    self.add_edge(s_v, p_v)
-                    self.add_edge(p_v, o_v)
-            entity_hops.update({str(vertex): hops})
-        return entity_hops
 
-    async def _fill_entity_hops(self, vertices):
-        """Fills the entity hops.
-
-        Args:
-            vertices: The vertices to get the hops.
-
-        """
-        if is_aiohttp:
-            async with aiohttp.ClientSession() as session:
-                self.entity_hops = await self.fetch_ehops(session, vertices)
-        else:
-            self.entity_hops = {}
-
-    def _get_rhops(self, vertex: str) -> List[Tuple[str, str]]:
-        """Gets the hops for a vertex.
-
-        Args:
-            vertex: The name of the vertex to get the hops.
-
-        Returns:
-            The hops of a vertex in a (predicate, object) form.
-
-        """
-        if isinstance(vertex, rdflib.term.URIRef):
-            vertex = Vertex(str(vertex))  # type: ignore
-        elif isinstance(vertex, str):
-            vertex = Vertex(vertex)  # type: ignore
-        hops = []
-
-        predicates = self._transition_matrix[vertex]
-        for pred in predicates:
-            assert len(self._transition_matrix[pred]) == 1
-            for obj in self._transition_matrix[pred]:
-                hops.append((pred, obj))
-        return hops
-
-    def _get_shops(self, vertex: str) -> List[Tuple[str, str]]:
-        if str(vertex) in self.entity_hops:
-            return self.entity_hops[str(vertex)]
-        return self.fetch_hops(vertex)
-
-    def add_edge(self, v1: Vertex, v2: Vertex) -> None:
+    def add_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Adds a uni-directional edge.
 
         Args:
             v1: The first vertex.
             v2: The second vertex.
 
+        Returns:
+            True if the edge has been added, False otherwise.
+
         """
         self._transition_matrix[v1].add(v2)
         self._inv_transition_matrix[v2].add(v1)
+        return True
 
-    def add_vertex(self, vertex: Vertex) -> None:
+    def add_vertex(self, vertex: Vertex) -> bool:
         """Adds a vertex to the Knowledge Graph.
 
         Args:
-            vertex: The vertex
+            vertex: The vertex to add.
+
+        Returns:
+            True if the vertex has been added, False otherwise.
 
         """
         self._vertices.add(vertex)
         if not vertex.predicate:
             self._entities.add(vertex)
+        return True
 
-    def get_hops(self, vertex: str) -> List[Tuple[str, str]]:
+    def add_walk(self, subj: Vertex, pred: Vertex, obj: Vertex) -> bool:
+        """Adds a walk.
+
+        Args:
+            subj: The vertex of the subject.
+            pred: The vertex of the predicate.
+            obj: The vertex of the object.
+
+        Returns:
+            True if the walk has been added, False otherwise.
+
+        """
+        if pred.name not in self.skip_predicates:
+            self.add_vertex(subj)
+            self.add_vertex(pred)
+            self.add_vertex(obj)
+            self.add_edge(subj, pred)
+            self.add_edge(pred, obj)
+            return True
+        return False
+
+    @cachedmethod(
+        operator.attrgetter("cache"), key=partial(hashkey, "fetch_hops")
+    )
+    def fetch_hops(self, vertex: Vertex) -> List[Hop]:
+        """Fetchs the hops of the vertex from a SPARQL endpoint server and
+        add the hops for this vertex in a cache dictionary.
+
+        Args:
+            vertex: The vertex to get the hops.
+
+        Returns:
+            The hops of the vertex.
+
+        """
+        hops: List[Hop] = []
+        if not self._is_remote:
+            return hops
+        elif vertex.name in self._entity_hops:
+            return self._entity_hops[vertex.name]
+        elif vertex.name.startswith("http://") or vertex.name.startswith(
+            "https://"
+        ):
+            res = self.connector.fetch(self.connector.get_query(vertex.name))
+            hops = self._res2hops(vertex, res)
+        return hops
+
+    def get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex.
 
         Args:
             vertex: The name of the vertex to get the hops.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
 
         Returns:
             The hops of a vertex in a (predicate, object) form.
 
         """
-        if self.is_remote:
-            return self._get_shops(vertex)
-        return self._get_rhops(vertex)
+        if self._is_remote:
+            return self.fetch_hops(vertex)
+        return self._get_hops(vertex)
 
-    def get_inv_neighbors(self, vertex: Vertex) -> Set[Vertex]:
-        """Gets the reverse neighbors of a vertex.
+    def get_literals(self, entities: Entities, verbose: int = 0) -> Literals:
+        """Gets the literals for one or more entities for all the predicates
+        chain.
+
+        Args:
+            entities: The entity or entities to get the literals.
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
+        Returns:
+            The literals.
+
+        """
+        if len(self.literals) == 0:
+            return []
+
+        if self._is_remote:
+            queries = [
+                self.connector.get_query(entity, pchain)
+                for entity in tqdm(
+                    entities, disable=True if verbose == 0 else False
+                )
+                for pchain in self.literals
+                if len(pchain) > 0
+            ]
+
+            if self.mul_req:
+                responses = asyncio.run(self.connector.afetch(queries))
+            else:
+                responses = [self.connector.fetch(query) for query in queries]
+
+            literals_responses = [
+                self.connector.res2literals(res) for res in responses
+            ]
+            if isinstance(entities, str):
+                return literals_responses
+            return [
+                literals_responses[
+                    len(self.literals) * i : len(self.literals) * (i + 1) :
+                ]
+                for i in range(len(entities))
+            ]
+
+        entity_literals = []
+        for entity in tqdm(entities, disable=True if verbose == 0 else False):
+            entity_literal = []
+            for pred in self.literals:
+                entity_literal += self.get_pliterals(entity, pred)
+            entity_literals.append(entity_literal)
+        return self._cast_literals(entity_literals)
+
+    def get_neighbors(
+        self, vertex: Vertex, is_reverse: bool = False
+    ) -> Set[Vertex]:
+        """Gets the children or parents neighbors of a vertex.
 
         Args:
             vertex: The vertex.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
 
         Returns:
-            The reverse neighbors of a vertex.
+            The children or parents neighbors of a vertex.
 
         """
-        if isinstance(vertex, str):
-            vertex = Vertex(vertex)
-        return self._inv_transition_matrix[vertex]
-
-    def get_neighbors(self, vertex: Vertex) -> Set[Vertex]:
-        """Gets the neighbors of a vertex.
-
-        Args:
-            vertex: The vertex.
-
-        Returns:
-            The neighbors of a vertex.
-
-        """
-        if isinstance(vertex, str):
-            vertex = Vertex(vertex)
+        if is_reverse:
+            return self._inv_transition_matrix[vertex]
         return self._transition_matrix[vertex]
 
-    def read_file(self) -> None:
-        """Parses a file with rdflib."""
-        if not os.path.exists(self.location) or not os.path.isfile(
-            self.location
-        ):
-            raise FileNotFoundError(self.location)
+    def get_pliterals(self, entity: str, preds: List[str]) -> List[str]:
+        """Gets the literals for an entity and a local KG based on a chain of
+        predicates.
 
-        self.graph = rdflib.Graph()
-        try:
-            if self.file_type is None:
-                self.graph.parse(
-                    self.location, format=self.location.split(".")[-1]
-                )
-            else:
-                self.graph.parse(self.location, format=self.file_type)
-        except Exception:
-            self.graph.parse(self.location)
+        Args:
+            entity: The entity.
+            preds: The chain of predicates.
 
-        for (s, p, o) in self.graph:
-            if p not in self.label_predicates:
-                s_v = Vertex(str(s))
-                o_v = Vertex(str(o))
-                p_v = Vertex(str(p), predicate=True, vprev=s_v, vnext=o_v)
-                self.add_vertex(s_v)
-                self.add_vertex(p_v)
-                self.add_vertex(o_v)
-                self.add_edge(s_v, p_v)
-                self.add_edge(p_v, o_v)
+        Returns:
+            The literals for the given entity.
 
-    def remove_edge(self, v1: str, v2: str) -> None:
+        """
+        frontier = {entity}
+        for p in preds:
+            new_frontier = set()
+            for node in frontier:
+                for pred, obj in self.get_hops(Vertex(node)):
+                    if pred.name == p:
+                        new_frontier.add(obj.name)
+            frontier = new_frontier
+        return list(frontier)
+
+    def remove_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Removes the edge (v1 -> v2) if present.
 
         Args:
             v1: The first vertex.
             v2: The second vertex.
 
+        Returns:
+            True if the edge has been removed, False otherwise.
+
         """
+        if self._is_remote:
+            raise ValueError(
+                "Can remove an edge only for a local Knowledge Graph."
+            )
+
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)
             self._inv_transition_matrix[v2].remove(v1)
-
-    def visualise(self) -> None:
-        """Visualises the Knowledge Graph."""
-        nx_graph = nx.DiGraph()
-
-        for v in self._vertices:
-            if not v.predicate:
-                name = v.name.split("/")[-1]
-                nx_graph.add_node(name, name=name, pred=v.predicate)
-
-        for v in self._vertices:
-            if not v.predicate:
-                v_name = v.name.split("/")[-1]
-                # Neighbors are predicates
-                for pred in self.get_neighbors(v):
-                    pred_name = pred.name.split("/")[-1]
-                    for obj in self.get_neighbors(pred):
-                        obj_name = obj.name.split("/")[-1]
-                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
-
-        plt.figure(figsize=(10, 10))
-        _pos = nx.circular_layout(nx_graph)
-        nx.draw_networkx_nodes(nx_graph, pos=_pos)
-        nx.draw_networkx_edges(nx_graph, pos=_pos)
-        nx.draw_networkx_labels(nx_graph, pos=_pos)
-        names = nx.get_edge_attributes(nx_graph, "name")
-        nx.draw_networkx_edge_labels(nx_graph, pos=_pos, edge_labels=names)
-
-
-def is_valid_url(url: str) -> bool:
-    """Checks if a URL is valid.
-
-    Args:
-        url: The URL to validate.
-
-    Returns:
-        True if the URL is valid. False otherwise.
-
-    """
-    try:
-        requests.get(url)
-    except Exception:
+            return True
         return False
-    return True
+
+    def _cast_literals(self, entity_literals: List[List[str]]) -> Literals:
+        """Converts the raw literals of entity according to their real types.
+
+        Args:
+            entity_literals: The raw literals.
+
+        Returns:
+            The literals with their type for the given entity.
+
+        """
+        literals = []
+        for literal in entity_literals:
+            casted_literal: List[Union[Literal, Tuple[Literal, ...]]] = []
+            if len(literal) == 0:
+                casted_literal += [np.NaN]
+            else:
+                casted_value: List[Literal] = []
+                for value in literal:
+                    try:
+                        casted_value.append(float(value))
+                    except Exception:
+                        casted_value.append(value)
+                if len(casted_value) > 1:
+                    casted_literal += tuple(casted_value)
+                else:
+                    casted_literal += casted_value
+            literals.append(casted_literal)
+        return literals
+
+    def _fill_hops(self, entities: Entities) -> None:
+        """Fills the entity hops in cache.
+
+        Args:
+            vertices: The vertices to get the hops.
+
+        """
+        queries = [self.connector.get_query(entity) for entity in entities]
+        for entity, res in zip(
+            entities,
+            asyncio.run(self.connector.afetch(queries)),
+        ):
+            hops = self._res2hops(Vertex(entity), res)
+            self._entity_hops.update({entity: hops})
+
+    def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
+        """Returns the hops of a vertex for a local Knowledge Graph.
+
+        Args:
+            vertex: The name of the vertex to get the hops.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
+
+        Returns:
+            The hops of a vertex in a (predicate, object) form.
+
+        """
+        matrix = self._transition_matrix
+        if is_reverse:
+            matrix = self._inv_transition_matrix
+        return [
+            (pred, obj)
+            for pred in matrix[vertex]
+            for obj in matrix[pred]
+            if len(matrix[pred]) != 0
+        ]
+
+    def _res2hops(self, vertex: Vertex, res) -> List[Hop]:
+        """Converts a JSON response from a SPARQL endpoint server to hops.
+
+        Args:
+            res: The JSON response of the SPARQL endpoint server.
+
+        Returns:
+            The hops.
+
+        """
+        hops = []
+        for value in res:
+            obj = Vertex(value["o"]["value"])
+            pred = Vertex(
+                value["p"]["value"],
+                predicate=True,
+                vprev=vertex,
+                vnext=obj,
+            )
+            if self.add_walk(vertex, pred, obj):
+                hops.append((pred, obj))
+        return hops

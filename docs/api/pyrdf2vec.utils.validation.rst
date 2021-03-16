@@ -1,7 +1,7 @@
-pyrdf2vec.walkers.walklets module
+pyrdf2vec.utils.validation module
 =================================
 
-.. automodule:: pyrdf2vec.walkers.walklets
+.. automodule:: pyrdf2vec.utils.validation
    :members:
    :undoc-members:
    :show-inheritance:

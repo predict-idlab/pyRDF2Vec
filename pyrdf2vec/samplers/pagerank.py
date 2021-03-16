@@ -1,11 +1,14 @@
 from typing import Dict
 
+import attr
 import networkx as nx
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
+from pyrdf2vec.typings import Hop
 
 
+@attr.s
 class PageRankSampler(Sampler):
     """Defines the Object Frequency Weight sampling strategy.
 
@@ -13,24 +16,28 @@ class PageRankSampler(Sampler):
     nodes are more important than others and hence there will be resources
     which are more frequent in the walks as others.
 
-    Attributes:
+    Args:
         inverse: True if Inverse PageRank Weight must be used, False otherwise.
-            Default to False.
+            Defaults to False.
         split: True if PageRank Split Weight must be used, False otherwise.
-            Default to False.
-        alpha: The threshold.
-            Default to 0.85.
+            Defaults to False.
+        alpha: The damping for PageRank.
+            Defaults to 0.85.
 
     """
 
-    def __init__(
-        self, inverse: bool = False, split: bool = False, alpha: float = 0.85
-    ):
-        super().__init__(inverse, split)
-        self.alpha = alpha
+    alpha: float = attr.ib(
+        kw_only=True,
+        default=0.85,
+        validator=attr.validators.instance_of(float),
+    )
+    _pageranks: Dict[str, float] = attr.ib(
+        init=False, repr=False, factory=dict
+    )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by running PageRank on a provided KG
+        according to the specified damping.
 
         Args:
             kg: The Knowledge Graph.
@@ -47,20 +54,25 @@ class PageRankSampler(Sampler):
                         nx_graph.add_edge(
                             vertex.name, obj.name, name=predicate.name
                         )
-        self.pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
+        self._pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
-    def get_weight(self, hop) -> Dict:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Hop) -> float:
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
-        return self.pageranks[hop[1].name]
+        if len(self._pageranks) == 0:
+            raise ValueError(
+                "You must call the `fit(kg)` function before get the weight of"
+                + " a hop."
+            )
+        return self._pageranks[hop[1].name]

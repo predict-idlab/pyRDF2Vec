@@ -1,95 +1,197 @@
-import abc
-from typing import Any, Set
+import random
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional, Set, Tuple
 
+import attr
 import numpy as np
 
 from pyrdf2vec.graphs import KG
+from pyrdf2vec.typings import Hop, Walk
 
 
-class Sampler(metaclass=abc.ABCMeta):
-    """Base class for the sampling strategies.
-
-    Attributes:
-        inverse: True if the inverse sampling strategy must be used,
-            False otherwise. Default to False.
-        split: True if the split sampling strategy must be used,
-            False otherwise. Default to False.
+class SamplerNotSupported(Exception):
+    """Base exception class for the lack of support of a sampling strategy for
+    the extraction of walks via a SPARQL endpoint server.
 
     """
 
-    def __init__(self, inverse=False, split=False):
-        self.inverse = inverse
-        self.split = split
-        self.remote_supported = False
+    pass
 
-    @abc.abstractmethod
+
+@attr.s
+class Sampler(ABC):
+    """Base class for the sampling strategies."""
+
+    inverse: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
+    split: bool = attr.ib(
+        default=False, validator=attr.validators.instance_of(bool)
+    )
+
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+
+    _random_state: Optional[int] = attr.ib(
+        init=False,
+        repr=False,
+        default=None,
+    )
+
+    _vertices_deg: Dict[str, int] = attr.ib(
+        init=False, repr=False, factory=dict
+    )
+    # Tags vertices that appear at the max depth or of which all their children
+    # are tagged.
+    _visited: Set[Tuple[Hop, int]] = attr.ib(
+        init=False, repr=False, factory=set
+    )
+
+    @abstractmethod
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy.
 
         Args:
             kg: The Knowledge Graph.
 
+        Raises:
+            SamplerNotSupported: If there is an attempt to use an invalid
+                sampling strategy to a remote Knowledge Graph.
+
         """
-        if kg.is_remote and not self.remote_supported:
-            raise ValueError("This sampler is not supported for remote KGs.")
+        if kg._is_remote and not self._is_support_remote:
+            raise SamplerNotSupported(
+                "Invalid sampling strategy. Please, choose a sampling strategy"
+                + " that can fetch walks via a SPARQL endpoint server."
+            )
         if self.split:
-            self.degrees = {}
             for vertex in kg._vertices:
                 if not vertex.predicate:
-                    self.degrees[vertex.name] = len(
-                        kg.get_inv_neighbors(vertex)
+                    self._vertices_deg[vertex.name] = len(
+                        kg.get_neighbors(vertex, is_reverse=True)
                     )
 
-    def initialize(self) -> None:
-        """Tags vertices that appear at the max depth or of which all their
-        children are tagged.
-
-        """
-        self.visited: Set[Any] = set()  #
-
-    def sample_neighbor(self, kg: KG, walk, last):
-        not_tag_neighbors = [
-            x
-            for x in kg.get_hops(walk[-1])
-            if (x, len(walk)) not in self.visited
-        ]
-
-        # If there are no untagged neighbors, then tag
-        # this vertex and return None
-        if len(not_tag_neighbors) == 0:
-            if len(walk) > 2:
-                self.visited.add(((walk[-2], walk[-1]), len(walk) - 2))
-            return None
-
-        weights = [self.get_weight(hop) for hop in not_tag_neighbors]
-        if self.inverse:
-            weights = [max(weights) - (x - min(weights)) for x in weights]
-        if self.split:
-            weights = [
-                w / self.degrees[v[1]]
-                for w, v in zip(weights, not_tag_neighbors)
-            ]
-        weights = [x / sum(weights) for x in weights]
-
-        # Sample a random neighbor and add them to visited if needed.
-        rand_ix = np.random.choice(range(len(not_tag_neighbors)), p=weights)
-        if last:
-            self.visited.add((not_tag_neighbors[rand_ix], len(walk)))
-        return not_tag_neighbors[rand_ix]
-
-    @abc.abstractmethod
-    def get_weight(self, hop):
-        """Gets the weights to the edge of the Knowledge Graph.
+    @abstractmethod
+    def get_weight(self, hop: Hop):
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
+            hop: The hop (pred, obj) to get the weight.
 
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+        Returns:
+            The weight for a given hop.
+
+        """
+        raise NotImplementedError("This has to be implemented")
+
+    def get_weights(self, hops: List[Hop]) -> Optional[List[float]]:
+        """Gets the weights of the provided hops.
+
+        Args:
+            hops: The hops to get the weights.
 
         Returns:
             The weights to the edge of the Knowledge Graph.
 
         """
-        raise NotImplementedError("This has to be implemented")
+        weights: List[float] = [self.get_weight(hop) for hop in hops]
+        if {} in weights:
+            return []
+        if self.inverse:
+            weights = [
+                max(weights) - (weight - min(weights)) for weight in weights
+            ]
+        if self.split:
+            weights = [
+                weight / self._vertices_deg[hop[1].name]
+                for weight, hop in zip(weights, hops)
+                if self._vertices_deg[hop[1].name] != 0
+            ]
+        return [
+            weight / sum(weights) for weight in weights if sum(weights) != 0
+        ]
+
+    def sample_neighbor(
+        self, kg: KG, walk: Walk, is_last_depth: bool, is_reverse: bool = False
+    ) -> Optional[Hop]:
+        """Samples an unvisited random hop in the (predicate, object)
+        form, according to the weight of hops for a given walk.
+
+        Args:
+            kg: The Knowledge Graph.
+            walk: The walk with one or several vertices.
+            is_last_hop: True if the next neighbor to be visited is the last
+                one for the desired depth, False otherwise.
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors, False otherwise.
+                Defaults to False.
+
+        Returns:
+            An unvisited neighbor in the (predicate, object) form.
+
+        """
+        subj = walk[0] if is_reverse else walk[-1]
+
+        untagged_neighbors = [
+            pred_obj
+            for pred_obj in kg.get_hops(subj, is_reverse)
+            if (pred_obj, len(walk)) not in self.visited
+        ]
+
+        if len(untagged_neighbors) == 0:
+            if len(walk) > 2:
+                pred_obj = (
+                    (walk[1], walk[0]) if is_reverse else (walk[-2], walk[-1])
+                )
+                self.visited.add((pred_obj, len(walk) - 2))
+            return None
+
+        rnd_id = np.random.RandomState(self._random_state).choice(
+            range(len(untagged_neighbors)),
+            p=self.get_weights(untagged_neighbors),
+        )
+
+        if is_last_depth:
+            self.visited.add((untagged_neighbors[rnd_id], len(walk)))
+        return untagged_neighbors[rnd_id]
+
+    @property
+    def visited(self) -> Set[Tuple[Hop, int]]:
+        """Gets the tagged vertices that appear at the max depth or of which
+        all their children are tagged.
+
+        Returns:
+            The tagged vertices.
+
+        """
+        return self._visited
+
+    @visited.setter
+    def visited(self, visited: Set[Tuple[Hop, int]]) -> None:
+        """Sets the value of the tagged vertices.
+
+        Args:
+            visited: The tagged vertices.
+
+        """
+        self._visited = set() if visited is None else visited
+
+    @property
+    def random_state(self) -> Optional[int]:
+        """Gets the random state.
+
+        Returns:
+            The random state.
+
+        """
+        return self._random_state
+
+    @random_state.setter
+    def random_state(self, random_state: Optional[int]):
+        """Sets the random state.
+
+        Args:
+            random_state: The random state.
+
+        """
+        self._random_state = random_state
+        random.seed(random_state)

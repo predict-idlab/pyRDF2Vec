@@ -1,16 +1,23 @@
-import abc
-import asyncio
 import multiprocessing
-from typing import Any, Dict, List, Optional, Set, Tuple
+import warnings
+from abc import ABC, abstractmethod
+from typing import List, Optional
 
-import rdflib
+import attr
 from tqdm import tqdm
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
+from pyrdf2vec.typings import Entities, EntityWalks
+
+from pyrdf2vec.utils.validation import (  # isort: skip
+    _check_max_depth,
+    _check_jobs,
+    _check_max_walks,
+)
 
 
-class RemoteNotSupported(Exception):
+class WalkerNotSupported(Exception):
     """Base exception class for the lack of support of a walking strategy for
     the extraction of walks via a SPARQL endpoint server.
 
@@ -19,121 +26,149 @@ class RemoteNotSupported(Exception):
     pass
 
 
-class Walker(metaclass=abc.ABCMeta):
-    """Base class for the walking strategies.
+@attr.s
+class Walker(ABC):
+    """Base class of the walking strategies.
 
-    Attributes:
-        depth: The depth per entity.
+    Args:
+        max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
-        n_jobs: The number of processes to use for multiprocessing. Use -1 to
-            allocate as many processes as there are CPU cores available in the
-            machine.
+        n_jobs: The number of CPU cores used when parallelizing. None means 1.
+            -1 means using all processors.
             Defaults to 1.
-        is_support_remote: If true, indicate that the walking strategy can be
-            used to retrieve walks via a SPARQL endpoint server.
+        with_reverse: extracts children's and parents' walks from the root,
+            creating (max_walks * max_walks) more walks of 2 * depth.
             Defaults to False.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
+            Defaults to None.
 
     """
 
     # Global KG used later on for the worker process.
-    kg = None
+    kg: Optional[KG] = None
 
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Optional[Sampler] = None,
-        n_jobs: int = 1,
-        is_support_remote: bool = True,
-    ):
-        self.depth = depth
-        self.is_support_remote = is_support_remote
-        if n_jobs == -1:
+    depth: int = attr.ib(
+        validator=[attr.validators.instance_of(int), _check_max_depth]
+    )
+    max_walks: Optional[int] = attr.ib(  # type: ignore
+        default=None,
+        validator=[
+            attr.validators.optional(attr.validators.instance_of(int)),
+            _check_max_walks,
+        ],
+    )
+    sampler: Sampler = attr.ib(
+        factory=lambda: UniformSampler(),
+        validator=attr.validators.instance_of(Sampler),  # type: ignore
+    )
+    n_jobs: Optional[int] = attr.ib(  # type: ignore
+        default=None,
+        validator=[
+            attr.validators.optional(attr.validators.instance_of(int)),
+            _check_jobs,
+        ],
+    )
+    with_reverse: Optional[bool] = attr.ib(
+        kw_only=True,
+        default=False,
+        validator=attr.validators.instance_of(bool),
+    )
+    random_state: Optional[int] = attr.ib(
+        kw_only=True,
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(int)),
+    )
+
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
+
+    def __attrs_post_init__(self):
+        if self.n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
-        else:
-            self.n_jobs = n_jobs
-        self.max_walks = max_walks
-        if sampler is not None:
-            self.sampler = sampler
-        else:
-            self.sampler = UniformSampler()
+        self.sampler.random_state = self.random_state
 
     def extract(
-        self, kg: KG, instances: List[rdflib.URIRef], verbose=False
-    ) -> Set[Tuple[Any, ...]]:
+        self, kg: KG, entities: Entities, verbose: int = 0
+    ) -> List[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to be extracted from the Knowledge Graph.
-            verbose: If true, display a progress bar for the extraction of the
-                walks.
+            entities: The entities to be extracted from the Knowledge Graph.
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
+
+        Raises:
+            WalkerNotSupported: If there is an attempt to use an invalid
+                walking strategy to a remote Knowledge Graph.
 
         """
-        if kg.is_remote and not self.is_support_remote:
-            raise RemoteNotSupported(
+        if kg._is_remote and not self._is_support_remote:
+            raise WalkerNotSupported(
                 "Invalid walking strategy. Please, choose a walking strategy "
-                + "that can retrieve walks via a SPARQL endpoint server."
+                + "that can fetch walks via a SPARQL endpoint server."
             )
         self.sampler.fit(kg)
-        canonical_walks = set()
 
-        # To avoid circular imports
-        if "CommunityWalker" in str(self):
-            self._community_detection(kg)  # type: ignore
+        process = self.n_jobs if self.n_jobs is not None else 1
+        if (kg._is_remote and kg.mul_req) and process >= 2:
+            warnings.warn(
+                "Using 'mul_req=True' and/or 'n_jobs>=2' speed up the "
+                + "extraction of entity's walks, but may violate the policy "
+                + "of some SPARQL endpoint servers.",
+                category=RuntimeWarning,
+                stacklevel=2,
+            )
 
-        if kg.is_remote:
-            asyncio.run(kg._fill_entity_hops(instances))  # type: ignore
+        if kg._is_remote and kg.mul_req:
+            kg._fill_hops(entities)
 
-        with multiprocessing.Pool(
-            self.n_jobs, self._init_worker, [kg]
-        ) as pool:
+        with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
                 tqdm(
-                    pool.imap_unordered(self._proc, instances),
-                    total=len(instances),
-                    disable=not verbose,
+                    pool.imap_unordered(self._proc, entities),
+                    total=len(entities),
+                    disable=True if verbose == 0 else False,
                 )
             )
-        res = {k: v for elm in res for k, v in elm.items()}  # type: ignore
 
-        for instance in instances:
-            canonical_walks.update(res[instance])
-        return canonical_walks
+        entity_walks = {
+            entity: walks for elm in res for entity, walks in elm.items()
+        }
 
-    @abc.abstractmethod
-    def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
-        """Extracts walks rooted at the provided instances which are then each
+        canonical_walks = set()
+        for entity in entities:
+            canonical_walks.update(entity_walks[entity])
+        return list(canonical_walks)
+
+    @abstractmethod
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The entity to be extracted from the Knowledge Graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         raise NotImplementedError("This must be implemented!")
 
-    def _init_worker(self, init_kg):
+    def _init_worker(self, init_kg: KG) -> None:
         """Initializes each worker process.
 
         Args:
@@ -141,66 +176,17 @@ class Walker(metaclass=abc.ABCMeta):
 
         """
         global kg
-        kg = init_kg
+        kg = init_kg  # type: ignore
 
-    def info(self):
-        """Gets informations related to a Walker.
-
-        Returns:
-            A friendly display of the Walker.
-
-        """
-        return (
-            f"{type(self).__name__}(depth={self.depth},"
-            + f"max_walks={self.max_walks},"
-            + f"sampler={type(self.sampler).__name__},"
-            + f"n_jobs={self.n_jobs},"
-            + f"is_support_remote={self.is_support_remote})"
-        )
-
-    def print_walks(
-        self,
-        kg: KG,
-        instances: List[rdflib.URIRef],
-        filename: str,
-    ) -> None:
-        """Prints the walks of a Knowledge Graph.
-
-        Args:
-            kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to be extracted from the Knowledge Graph.
-            filename: The filename that contains the rdflib.Graph
-
-        """
-        walks = self.extract(kg, instances)
-        walk_strs = []
-        for _, walk in enumerate(walks):
-            s = ""
-            for i in range(len(walk)):
-                s += f"{walk[i]} "
-                if i < len(walk) - 1:
-                    s += "--> "
-            walk_strs.append(s)
-
-        with open(filename, "w+") as f:
-            for s in walk_strs:
-                f.write(s)
-                f.write("\n\n")
-
-    def _proc(
-        self, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
+    def _proc(self, entity: str) -> EntityWalks:
         """Executed by each process.
 
         Args:
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The entity to be extracted from the Knowledge Graph.
 
         Returns:
             The extraction of walk by the process.
 
         """
         global kg
-        return self._extract(kg, instance)  # type:ignore
+        return self._extract(kg, Vertex(entity))  # type: ignore

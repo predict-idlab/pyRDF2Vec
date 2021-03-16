@@ -1,6 +1,5 @@
-"""isort:skip_file"""
-
-from .kg import KG, Vertex
+from .kg import KG
+from .vertex import Vertex
 
 __all__ = [
     "KG",

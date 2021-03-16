@@ -1,26 +1,30 @@
+import attr
+
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
+from pyrdf2vec.typings import Hop
 
 
+@attr.s
 class UniformSampler(Sampler):
-    """Defines the Uniform Weight Weight sampling strategy.
+    """Sampler that assigns a uniform weight to each hop in a Knowledge Graph.
 
     This sampling strategy is the most straight forward approach. With this
     strategy, strongly connected entities will have a higher influence on the
     resulting embeddings.
 
-    Attributes:
-        inverse: True if Inverse Uniform Weight sampling satrategy must be
-            used, False otherwise. Default to False.
-
     """
 
-    def __init__(self, inverse=False):
-        super().__init__(inverse)
-        self.remote_supported = True
+    inverse: bool = attr.ib(
+        init=False, default=False, validator=attr.validators.instance_of(bool)
+    )
+    split: bool = attr.ib(
+        init=False, default=False, validator=attr.validators.instance_of(bool)
+    )
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Since the weights are uniform, this function does nothing.
 
         Args:
             kg: The Knowledge Graph.
@@ -28,18 +32,14 @@ class UniformSampler(Sampler):
         """
         pass
 
-    def get_weight(self, hop):
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Hop) -> int:
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for a given hop.
 
         """
         return 1

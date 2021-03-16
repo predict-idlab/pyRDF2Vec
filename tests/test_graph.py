@@ -1,7 +1,4 @@
-import os
-
 import pytest
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
 
@@ -13,21 +10,25 @@ c = Vertex("c", predicate=True, vprev=a, vnext=b)
 class TestVertex:
     def test_eq(self):
         assert a == a
+        assert a != 5
+        assert b == b
+        assert c == c
 
     def test_eq_with_none(self):
         assert a is not None
+        assert b is not None
+        assert c is not None
 
-    def test_id_incremental(self):
-        assert b.id == 1
-
-    def test_id_init(self):
-        assert a.id == 0
+    def test_lt(self):
+        assert a < b
+        assert b < c
+        assert a < c
 
     def test_neq(self):
         assert a != b
+        assert b != c
+        assert a != c
 
-
-SPARQL_ENDPOINT = "https://dbpedia.org/sparql"
 
 GRAPH = [
     ["Alice", "knows", "Bob"],
@@ -36,66 +37,124 @@ GRAPH = [
 ]
 URL = "http://pyRDF2Vec"
 
-g = rdflib.Graph()
-for t in GRAPH:
-    triple: rdflib.URIRef = tuple()
-    for entity in t:
-        triple = triple + (rdflib.URIRef(f"{URL}#{entity}"),)
-    g.add(triple)
-g.serialize("tmp.ttl", format="turtle")
-
-LABEL_PREDICATES = {"http://dl-learner.org/carcinogenesis#isMutagenic"}
-LOCAL_KG = KG("tmp.ttl", file_type="turtle")
+LOCAL_KG = KG(cache=None)
 
 
 class TestKG:
-    def test_get_neighbors(self):
-        # remote_kg = KG(SPARQL_ENDPOINT, is_remote=True)
-        for graph in [LOCAL_KG]:
-            neighbors = graph.get_hops(f"{URL}#Alice")
+    @pytest.fixture(scope="session")
+    def setup(self):
+        for row in GRAPH:
+            subj = Vertex(f"{URL}#{row[0]}")
+            obj = Vertex((f"{URL}#{row[2]}"))
+            pred = Vertex(
+                (f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj
+            )
+            LOCAL_KG.add_walk(subj, pred, obj)
 
-            predicates = [neighbor[0] for neighbor in neighbors]
-            assert {str(predicate) for predicate in predicates} == {
-                f"{URL}#knows"
-            }
+    def test_get_hops(self, setup):
+        neighbors = LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))
+        predicates = [neighbor[0] for neighbor in neighbors]
+        objects = [neighbor[1] for neighbor in neighbors]
+        assert {predicate.name for predicate in predicates} == {f"{URL}#knows"}
+        assert Vertex(f"{URL}#Bob") in objects
+        assert Vertex(f"{URL}#Dean") in objects
 
-            objects = [neighbor[1] for neighbor in neighbors]
-            assert Vertex(f"{URL}#Bob") in objects
-            assert Vertex(f"{URL}#Dean") in objects
+    def test_get_neighbors(self, setup):
+        alice_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Alice"))
+        ]
+        assert len(alice_predicates) == 2
+        assert Vertex(f"{URL}#Alice") == alice_predicates[0].vprev
+        assert Vertex(f"{URL}#Bob") and Vertex(f"{URL}#Dean") in {
+            alice_predicates[0].vnext,
+            alice_predicates[1].vnext,
+        }
+        assert Vertex(f"{URL}#Alice") == alice_predicates[1].vprev
+        assert (
+            len(
+                [
+                    neighbor
+                    for neighbor in LOCAL_KG.get_neighbors(
+                        Vertex(f"{URL}#Alice"), is_reverse=True
+                    )
+                ]
+            )
+            == 0
+        )
+
+        bob_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(Vertex(f"{URL}#Bob"))
+        ]
+        assert len(bob_predicates) == 1
+        assert Vertex(f"{URL}#Bob") == bob_predicates[0].vprev
+        assert Vertex(f"{URL}#Casper") == bob_predicates[0].vnext
+
+        bob_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(
+                Vertex(f"{URL}#Bob"), is_reverse=True
+            )
+        ]
+        assert len(bob_predicates) == 1
+        assert Vertex(f"{URL}#Bob") == bob_predicates[0].vnext
+        assert Vertex(f"{URL}#Alice") == bob_predicates[0].vprev
+
+        dean_predicates = [
+            neighbor
+            for neighbor in LOCAL_KG.get_neighbors(
+                Vertex(f"{URL}#Dean"), is_reverse=True
+            )
+        ]
+        assert len(dean_predicates) == 1
+        assert Vertex(f"{URL}#Dean") == dean_predicates[0].vnext
+        assert Vertex(f"{URL}#Alice") == dean_predicates[0].vprev
+        assert (
+            len(
+                [
+                    neighbor
+                    for neighbor in LOCAL_KG.get_neighbors(
+                        Vertex(f"{URL}#Dean")
+                    )
+                ]
+            )
+            == 0
+        )
 
     def test_invalid_file(self):
         with pytest.raises(FileNotFoundError):
-            KG(
-                "foo",
-                label_predicates=LABEL_PREDICATES,
-            )
+            KG("foo")
 
         with pytest.raises(FileNotFoundError):
-            KG(
-                "samples/mutag/",
-                label_predicates=LABEL_PREDICATES,
-            )
+            KG("samples/mutag/")
 
     def test_invalid_url(self):
         with pytest.raises(ValueError):
-            KG(
-                "foo",
-                label_predicates=LABEL_PREDICATES,
-                is_remote=True,
-            )
+            KG("http://foo")
 
-    def test_valid_file(self):
-        assert KG(
-            "samples/mutag/mutag.owl",
-            label_predicates=LABEL_PREDICATES,
+    def test_remove_edge(self, setup):
+        vtx_alice = Vertex(f"{URL}#Alice")
+
+        neighbors = LOCAL_KG.get_hops(vtx_alice)
+        assert len(LOCAL_KG.get_hops(vtx_alice)) == 2
+
+        predicates = [
+            vertex
+            for hops in neighbors
+            for vertex in hops
+            if vertex.predicate is True
+        ]
+
+        assert LOCAL_KG.remove_edge(vtx_alice, predicates[0]) is True
+        assert len(LOCAL_KG.get_hops(vtx_alice)) == 1
+
+        assert LOCAL_KG.remove_edge(vtx_alice, predicates[1]) is True
+        assert len(LOCAL_KG.get_hops(Vertex(f"{URL}#Alice"))) == 0
+
+        assert (
+            LOCAL_KG.remove_edge(vtx_alice, Vertex(f"{URL}#Unknown")) is False
         )
 
     def test_valid_url(self):
-        KG(
-            "https://dbpedia.org/sparql",
-            label_predicates=LABEL_PREDICATES,
-            is_remote=True,
-        )
-
-
-os.remove("tmp.ttl")
+        KG("https://dbpedia.org/sparql")

@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    pyrdf2vec.graphs.kg
+   pyrdf2vec.graphs.vertex
 
 Module contents
 ---------------

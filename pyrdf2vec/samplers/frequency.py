@@ -1,10 +1,14 @@
 from collections import defaultdict
-from typing import Any, DefaultDict
+from typing import DefaultDict, Tuple
+
+import attr
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
+from pyrdf2vec.typings import Hop
 
 
+@attr.s
 class ObjFreqSampler(Sampler):
     """Defines the Object Frequency Weight sampling strategy.
 
@@ -12,54 +16,64 @@ class ObjFreqSampler(Sampler):
     this strategy, entities which have a high in degree get visisted more
     often.
 
-    Attributes:
+    Args:
         inverse: True if Inverse Object Frequency Weight sampling strategy
-            must be used, False otherwise. Default to False.
+            must be used, False otherwise.
+            Defaults to False.
         split: True if Split Object Frequency Weight sampling strategy must
-            be used, False otherwise. Default to False.
+            be used, False otherwise.
+            Defaults to False.
 
     """
 
-    def __init__(self, inverse=False, split=False):
-        super().__init__(inverse, split)
+    _counts: DefaultDict[str, int] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(dict)
+    )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by counting the number of available
+        neighbors for each vertex.
 
         Args:
             kg: The Knowledge Graph.
 
         """
         super().fit(kg)
-        self.counts = {}
         for vertex in kg._vertices:
             if not vertex.predicate:
-                self.counts[vertex.name] = len(kg.get_inv_neighbors(vertex))
+                self._counts[vertex.name] = len(
+                    kg.get_neighbors(vertex, is_reverse=True)
+                )
 
-    def get_weight(self, hop) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Hop) -> int:
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
-        return self.counts[hop[1].name]
+        if len(self._counts) == 0:
+            raise ValueError(
+                "You must call the `fit(kg)` function before get the weight of"
+                + " a hop."
+            )
+        return self._counts[hop[1].name]
 
 
+@attr.s
 class PredFreqSampler(Sampler):
     """Defines the Predicate Frequency Weight sampling strategy.
 
     This sampling strategy is an edge-centric approach. With this strategy,
     edges with predicates which are commonly used in the dataset are more often
     followed.
-
     Attributes:
         inverse: True if Inverse Predicate Frequency Weight sampling strategy
             must be used, False otherwise. Default to False.
@@ -68,39 +82,49 @@ class PredFreqSampler(Sampler):
 
     """
 
-    def __init__(self, inverse: bool = False, split: bool = False):
-        super().__init__(inverse, split)
+    _counts: DefaultDict[str, int] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(dict)
+    )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by counting the number of occurance that
+        a predicate appears in the Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
 
         """
         super().fit(kg)
-        self.counts: DefaultDict[Any, Any] = defaultdict(int)
         for vertex in kg._vertices:
             if vertex.predicate:
-                self.counts[vertex.name] += 1
+                if vertex.name in self._counts:
+                    self._counts[vertex.name] += 1
+                else:
+                    self._counts[vertex.name] = 1
 
-    def get_weight(self, hop) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Hop) -> int:
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
-        return self.counts[hop[0].name]
+        if len(self._counts) == 0:
+            raise ValueError(
+                "You must call the `fit(kg)` function before get the weight of"
+                + " a hop."
+            )
+        return self._counts[hop[0].name]
 
 
+@attr.s
 class ObjPredFreqSampler(Sampler):
     """Defines the Predicate-Object Frequency Weight sampling strategy.
 
@@ -110,42 +134,54 @@ class ObjPredFreqSampler(Sampler):
 
     Args:
         inverse: True if Inverse Predicate-Object Frequency Weight sampling
-            strategy must be used, False otherwise. Default to False.
+            strategy must be used, False otherwise.
+            Defaults to False.
          split: True if Split Predicate-Object Frequency Weight sampling
-            strategy must be used, False otherwise. Default to False.
+            strategy must be used, False otherwise.
+            Defaults to False.
 
     """
 
-    def __init__(self, inverse: bool = False, split: bool = False):
-        super().__init__(inverse, split)
+    _counts: DefaultDict[Tuple[str, str], int] = attr.ib(
+        init=False, repr=False, factory=lambda: defaultdict(dict)
+    )
 
     def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        """Fits the sampling strategy by counting the number of occurance of
+        having two neighboring vertices.
 
         Args:
             kg: The Knowledge Graph.
 
         """
         super().fit(kg)
-        self.counts: DefaultDict[Any, Any] = defaultdict(int)
         for vertex in kg._vertices:
             if vertex.predicate:
-                # Always one object associated with this predicate
-                obj = list(kg.get_neighbors(vertex))[0]
-                self.counts[(vertex.name, obj.name)] += 1
+                neighbors = list(kg.get_neighbors(vertex))
+                if len(neighbors) > 0:
+                    obj = neighbors[0]
+                    if (vertex.name, obj.name) in self._counts:
+                        self._counts[(vertex.name, obj.name)] += 1
+                    else:
+                        self._counts[(vertex.name, obj.name)] = 1
 
-    def get_weight(self, hop) -> int:
-        """Gets the weights to the edge of the Knowledge Graph.
+    def get_weight(self, hop: Hop) -> int:
+        """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The depth of the Knowledge Graph.
-
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            hop: The hop (pred, obj) to get the weight.
 
         Returns:
-            The weights to the edge of the Knowledge Graph.
+            The weight for a given hop.
+
+        Raises:
+            ValueError: If there is an attempt to access the weight of a hop
+                without the sampling strategy having been trained.
 
         """
-        return self.counts[(hop[0].name, hop[1].name)]
+        if len(self._counts) == 0:
+            raise ValueError(
+                "You must call the `fit(kg)` function before get the weight of"
+                + " a hop."
+            )
+        return self._counts[(hop[0].name, hop[1].name)]

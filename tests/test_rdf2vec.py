@@ -1,72 +1,99 @@
 import os
 import pickle
-import random
-from collections import defaultdict
-from typing import DefaultDict
 
 import numpy as np
-import pandas as pd
 import pytest
-import rdflib
-from sklearn.exceptions import NotFittedError
 
-from pyrdf2vec.graphs import KG
+from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.rdf2vec import RDF2VecTransformer
-from pyrdf2vec.walkers import RandomWalker, WeisfeilerLehmanWalker
+from pyrdf2vec.walkers import RandomWalker, WLWalker
 
-np.random.seed(42)
-random.seed(42)
+LOOP = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Dean"],
+    ["Dean", "loves", "Alice"],
+]
+LONG_CHAIN = [
+    ["Alice", "knows", "Bob"],
+    ["Alice", "knows", "Dean"],
+    ["Bob", "knows", "Mathilde"],
+    ["Mathilde", "knows", "Alfy"],
+    ["Alfy", "knows", "Stephane"],
+    ["Stephane", "knows", "Alfred"],
+    ["Alfred", "knows", "Emma"],
+    ["Emma", "knows", "Julio"],
+]
+URL = "http://pyRDF2Vec"
 
-KNOWLEDGE_GRAPH = KG(
-    "samples/mutag/mutag.owl",
-    label_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
-)
+KG_LOOP = KG()
+KG_CHAIN = KG()
 
-TRAIN_DF = pd.read_csv("samples/mutag/train.tsv", sep="\t", header=0)
-
-ENTITIES = [rdflib.URIRef(x) for x in TRAIN_DF["bond"]]
-ENTITIES_SUBSET = ENTITIES[:5]
-
-WALKS: DefaultDict[rdflib.URIRef, rdflib.URIRef] = defaultdict(list)
+KGS = [KG_LOOP, KG_CHAIN]
+ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
 
 
 class TestRDF2VecTransformer:
+    @pytest.fixture(scope="session")
+    def setup(self):
+        for i, graph in enumerate([LOOP, LONG_CHAIN]):
+            for row in graph:
+                subj = Vertex(f"{URL}#{row[0]}")
+                obj = Vertex((f"{URL}#{row[2]}"))
+                pred = Vertex(
+                    (f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj
+                )
+                if i == 0:
+                    KG_LOOP.add_walk(subj, pred, obj)
+                else:
+                    KG_CHAIN.add_walk(subj, pred, obj)
+
     def test_fail_load_transformer(self):
         pickle.dump([0, 1, 2], open("tmp", "wb"))
         with pytest.raises(ValueError):
             RDF2VecTransformer.load("tmp")
         os.remove("tmp")
 
-    def test_fit(self):
+    @pytest.mark.parametrize("kg", KGS)
+    def test_get_walks(self, setup, kg):
         transformer = RDF2VecTransformer()
+        assert len(transformer._walks) == 0
         with pytest.raises(ValueError):
-            transformer.fit(KNOWLEDGE_GRAPH, ["does", "not", "exist"])
-        transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
+            transformer.get_walks(kg, ["does", "not", "exist"])
+        transformer.get_walks(
+            kg, [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
+        )
+        assert len(transformer._walks) > 0
 
-    def test_fit_transform(self):
+    @pytest.mark.parametrize("kg", KGS)
+    def test_fit_transform(self, kg):
+        entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
+        transformer = RDF2VecTransformer()
+        walks = transformer.get_walks(kg, entities)
         np.testing.assert_array_equal(
-            RDF2VecTransformer().fit_transform(
-                KNOWLEDGE_GRAPH, ENTITIES_SUBSET
-            ),
-            RDF2VecTransformer()
-            .fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
-            .transform(ENTITIES_SUBSET),
+            RDF2VecTransformer().fit_transform(kg, entities)[0],
+            transformer.fit(walks).transform(kg, entities)[0],
         )
 
     def test_load_save_transformer(self):
         RDF2VecTransformer(
-            walkers=[RandomWalker(2, None), WeisfeilerLehmanWalker(2, 2)]
+            walkers=[
+                RandomWalker(2, None, random_state=42),
+                WLWalker(2, 2, random_state=42),
+            ]
         ).save()
         transformer = RDF2VecTransformer.load()
         assert len(transformer.walkers) == 2
         assert isinstance(transformer.walkers[0], RandomWalker)
-        assert isinstance(transformer.walkers[1], WeisfeilerLehmanWalker)
+        assert isinstance(transformer.walkers[1], WLWalker)
         os.remove("transformer_data")
 
-    def test_transform(self):
+    @pytest.mark.parametrize("kg", KGS)
+    def test_transform(self, setup, kg):
+        entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         transformer = RDF2VecTransformer()
-        with pytest.raises(NotFittedError):
-            transformer.transform(ENTITIES_SUBSET)
-        transformer.fit(KNOWLEDGE_GRAPH, ENTITIES_SUBSET)
-        features = transformer.transform(ENTITIES_SUBSET)
-        assert type(features) == list
+        walks = transformer.get_walks(kg, entities)
+        assert (
+            type(RDF2VecTransformer().fit(walks).transform(kg, entities))
+            == tuple
+        )

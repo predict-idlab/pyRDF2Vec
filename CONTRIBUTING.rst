@@ -274,14 +274,14 @@ to ``pyRDF2Vec``:
    from .anonymous import AnonymousWalker
    # ...
    from .walklets import WalkletWalker
-   from .weisfeiler_lehman import WeisfeilerLehmanWalker
+   from .weisfeiler_lehman import WLWalker
    from .foo import FooWalker
 
    __all__ = [
        "AnonymousWalker",
        # ...
        "WalkletWalker",
-       "WeisfeilerLehmanWalker",
+       "WLWalker",
        "FooWalker",
   ]
 
@@ -319,19 +319,19 @@ to ``pyRDF2Vec``:
         super().__init__(depth, walks_per_graph, sampler)
 
     def _extract(
-        self, kg: KG, instances: List[rdflib.URIRef]
+        self, kg: KG, entities: List[rdflib.URIRef]
     ) -> Set[Tuple[Any, ...]]:
         """Extracts the walks and processes them for the embedding model.
 
         Args:
             kg: The knowledge graph.
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to extract the knowledge graph.
+                provided entities.
+            entities: The entities to extract the knowledge graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         # TODO: to be implemented

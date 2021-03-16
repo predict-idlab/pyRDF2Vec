@@ -2,15 +2,15 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Set
 
+import attr
 import community
 import networkx as nx
 import numpy as np
-import rdflib
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.samplers import Sampler, UniformSampler
+from pyrdf2vec.typings import Entities, EntityWalks, SWalk, Walk
 from pyrdf2vec.walkers import Walker
 
 
@@ -33,35 +33,37 @@ def sample_from_iterable(x):
 np.random.permutation = lambda x: next(itertools.permutations(x))
 
 
+@attr.s
 class CommunityWalker(Walker):
     """Defines the community walking strategy.
 
-    Attributes:
-        depth: The depth per entity.
+    Args:
+        max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
+        n_jobs: The number of process to use for multiprocessing.
+            Defaults to 1.
+        with_reverse: extracts children's and parents' walks from the root,
+            creating (max_walks * max_walks) more walks of 2 * depth.
+            Defaults to False.
+        random_state: The random state to use to ensure ensure random
+            determinism to generate the same walks for entities.
+            Defaults to None.
         hop_prob: The probability to hop.
             Defaults to 0.1.
         resolution: The resolution.
             Defaults to 1.
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
 
     """
 
-    def __init__(
-        self,
-        depth: int,
-        max_walks: Optional[int] = None,
-        sampler: Sampler = UniformSampler(),
-        hop_prob: float = 0.1,
-        resolution: int = 1,
-        n_jobs: int = 1,
-    ):
-        super().__init__(depth, max_walks, sampler, n_jobs, False)
-        self.hop_prob = hop_prob
-        self.resolution = resolution
+    hop_prob: float = attr.ib(
+        kw_only=True, default=0.1, validator=attr.validators.instance_of(float)
+    )
+    resolution: int = attr.ib(
+        kw_only=True, default=1, validator=attr.validators.instance_of(int)
+    )
+    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.
@@ -73,28 +75,23 @@ class CommunityWalker(Walker):
         Args:
             kg: The Knowledge Graph.
 
-                The graph from which the neighborhoods are extracted for the
-                provided instances.
-
         """
         nx_graph = nx.Graph()
 
-        for v in kg._vertices:
-            if not v.predicate:
-                name = str(v)
-                nx_graph.add_node(name, vertex=v)
+        for vertex in kg._vertices:
+            if not vertex.predicate:
+                nx_graph.add_node(str(vertex), vertex=vertex)
 
-        for v in kg._vertices:
-            if not v.predicate:
-                v_name = str(v)
+        for vertex in kg._vertices:
+            if not vertex.predicate:
                 # Neighbors are predicates
-                for pred in kg.get_neighbors(v):
-                    pred_name = str(pred)
+                for pred in kg.get_neighbors(vertex):
                     for obj in kg.get_neighbors(pred):
-                        obj_name = str(obj)
-                        nx_graph.add_edge(v_name, obj_name, name=pred_name)
+                        nx_graph.add_edge(
+                            str(vertex), str(obj), name=str(pred)
+                        )
 
-        # This will create a dictionary that maps the URI on a community
+        # Create a dictionary that maps the URI on a community
         partition = community.best_partition(
             nx_graph, resolution=self.resolution
         )
@@ -109,114 +106,235 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
-    def extract_random_community_walks_bfs(self, kg, root):
-        """Extract random walks of depth - 1 hops rooted in root."""
-        # Initialize one walk of length 1 (the root)
-
-        walks = {(root,)}
-
-        for i in range(self.depth):
-            # In each iteration, iterate over the walks, grab the
-            # last hop, get all its neighbors and extend the walks
-            walks_copy = walks.copy()
-            for walk in walks_copy:
-                hops = kg.get_hops(walk[-1])
-                if len(hops) > 0:
-                    walks.remove(walk)
-                for (pred, obj) in hops:
-                    walks.add(walk + (pred, obj))
-                    if (
-                        obj in self.communities
-                        and np.random.random() < self.hop_prob
-                    ):
-                        community_nodes = self.labels_per_community[
-                            self.communities[obj]
-                        ]
-                        rand_jump = np.random.choice(community_nodes)
-                        walks.add(walk + (rand_jump,))
-
-        # Return a numpy array of these walks
-        return list(walks)
-
-    def extract_random_community_walks_dfs(self, kg, root):
-        """Extract random walks of depth - 1 hops rooted in root."""
-        # Initialize one walk of length 1 (the root)
-        self.sampler.initialize()
-
-        walks = []
-        while len(walks) < self.max_walks:
-            new = (root,)
-            d = 1
-            while d // 2 < self.depth:
-                last = d // 2 == self.depth - 1
-                hop = self.sampler.sample_neighbor(kg, new, last)
-                if hop is None:
-                    break
-                if (
-                    hop[1] in self.communities
-                    and np.random.random() < self.hop_prob
-                ):
-                    community_nodes = self.labels_per_community[
-                        self.communities[hop[1]]
-                    ]
-                    rand_jump = np.random.choice(community_nodes)
-                    new = new + (hop[0], rand_jump)
-                else:
-                    new = new + (hop[0], hop[1])
-                d = len(new) - 1
-            walks.append(new)
-        return list(set(walks))
-
-    def extract_random_community_walks(
-        self, kg: KG, root: str
-    ) -> List[Vertex]:
-        """Extracts random walks of depth - 1 hops rooted in root.
-
-        Note:
-            You can create a `graph.KnowledgeGraph` object from an
-            `rdflib.Graph` object by using a converter method.
+    def _bfs(
+        self, kg: KG, root: Vertex, is_reverse: bool = False
+    ) -> List[Walk]:
+        """Extracts random walks of depth - 1 hops rooted in root with
+        Breadth-first search.
 
         Args:
-            kg: The knowledge graph.
+            kg: The Knowledge Graph.
+
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
-            root: The root.
+                provided entities.
+            root: The root node to extract walks.
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors, False otherwise.
+                Defaults to False.
+
+        Returns:
+            The list of walks for the root node according to the depth and
+            max_walks.
+
+        """
+        walks: Set[Walk] = {(root,)}
+        for i in range(self.depth):
+            for walk in walks.copy():
+                if is_reverse:
+                    hops = kg.get_hops(walk[0], True)
+                    for pred, obj in hops:
+                        walks.add((obj, pred) + walk)
+                        if (
+                            obj in self.communities
+                            and np.random.RandomState(
+                                self.random_state
+                            ).random()
+                            < self.hop_prob
+                        ):
+                            walks.add(
+                                (
+                                    np.random.RandomState(
+                                        self.random_state
+                                    ).choice(
+                                        self.labels_per_community[
+                                            self.communities[obj]
+                                        ]
+                                    ),
+                                )
+                                + walk
+                            )
+                else:
+                    hops = kg.get_hops(walk[-1])
+                    for pred, obj in hops:
+                        walks.add(walk + (pred, obj))
+                        if (
+                            obj in self.communities
+                            and np.random.RandomState(
+                                self.random_state
+                            ).random()
+                            < self.hop_prob
+                        ):
+                            walks.add(
+                                walk
+                                + (
+                                    np.random.RandomState(
+                                        self.random_state
+                                    ).choice(
+                                        self.labels_per_community[
+                                            self.communities[obj]
+                                        ]
+                                    ),
+                                )
+                            )
+                if len(hops) > 0:
+                    walks.remove(walk)
+        return list(walks)
+
+    def _dfs(
+        self, kg: KG, root: Vertex, is_reverse: bool = False
+    ) -> List[Walk]:
+        """Extracts a random limited number of walks of depth - 1 hops rooted
+        in root with Depth-first search.
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            root: The root node to extract walks.
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors, False otherwise.
+                Defaults to False
+
+        Returns:
+            The list of walks for the root node according to the depth and
+            max_walks.
+
+        """
+        self.sampler.visited = set()
+        walks: List[Walk] = []
+        assert self.max_walks is not None
+        while len(walks) < self.max_walks:
+            sub_walk: Walk = (root,)
+            d = 1
+            while d // 2 < self.depth:
+                pred_obj = self.sampler.sample_neighbor(
+                    kg, sub_walk, d // 2 == self.depth - 1, is_reverse
+                )
+                if pred_obj is None:
+                    break
+
+                if is_reverse:
+                    if (
+                        pred_obj[0] in self.communities
+                        and np.random.RandomState(self.random_state).random()
+                        < self.hop_prob
+                    ):
+                        community_nodes = self.labels_per_community[
+                            self.communities[pred_obj[0]]
+                        ]
+                        sub_walk = (
+                            pred_obj[1],
+                            np.random.RandomState(self.random_state).choice(
+                                community_nodes
+                            ),
+                            community_nodes,
+                        ) + sub_walk
+                    else:
+                        sub_walk = (pred_obj[1], pred_obj[0]) + sub_walk
+                else:
+                    if (
+                        pred_obj[1] in self.communities
+                        and np.random.RandomState(self.random_state).random()
+                        < self.hop_prob
+                    ):
+                        community_nodes = self.labels_per_community[
+                            self.communities[pred_obj[1]]
+                        ]
+                        sub_walk += (
+                            pred_obj[0],
+                            np.random.RandomState(self.random_state).choice(
+                                community_nodes
+                            ),
+                            community_nodes,
+                        )
+                    else:
+                        sub_walk += (pred_obj[0], pred_obj[1])
+                d = len(sub_walk) - 1
+            walks.append(sub_walk)
+        return list(set(walks))
+
+    def extract(
+        self, kg: KG, entities: Entities, verbose: int = 0
+    ) -> List[str]:
+        """Fits the provided sampling strategy and then calls the
+        private _extract method that is implemented for each of the
+        walking strategies.
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            entities: The entities to be extracted from the Knowledge Graph.
+            verbose: The verbosity level.
+                0: does not display anything;
+                1: display of the progress of extraction and training of walks;
+                2: debugging.
+                Defaults to 0.
+
+        Returns:
+            The 2D matrix with its number of rows equal to the number of
+            provided entities; number of column equal to the embedding size.
+
+        """
+        self._community_detection(kg)
+        return super().extract(kg, entities, verbose)
+
+    def extract_walks(self, kg: KG, root: Vertex) -> List[Walk]:
+        """Extracts random walks of depth - 1 hops rooted in root.
+
+        Args:
+            kg: The Knowledge Graph.
+
+                The graph from which the neighborhoods are extracted for the
+                provided entities.
+            root: The root node to extract walks.
 
         Returns:
             The list of walks.
 
         """
         if self.max_walks is None:
-            return self.extract_random_community_walks_bfs(kg, root)
-        return self.extract_random_community_walks_dfs(kg, root)
+            fct_search = self._bfs
+        else:
+            fct_search = self._dfs
+        if self.with_reverse:
+            return [
+                r_walk[:-1] + walk
+                for walk in fct_search(kg, root)
+                for r_walk in fct_search(kg, root, is_reverse=True)
+            ]
+        return [walk for walk in fct_search(kg, root)]
 
-    def _extract(
-        self, kg: KG, instance: rdflib.URIRef
-    ) -> Dict[Any, Tuple[Tuple[str, ...], ...]]:
-        """Extracts walks rooted at the provided instances which are then each
+    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
+        """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
+                provided entities.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
-        canonical_walks = set()
-        for walk in self.extract_random_community_walks(kg, str(instance)):
-            canonical_walk = []
-            for i, hop in enumerate(walk):  # type: ignore
+        canonical_walks: Set[SWalk] = set()
+        for walk in self.extract_walks(kg, instance):
+            canonical_walk: List[str] = []
+            for i, hop in enumerate(walk):
                 if i == 0 or i % 2 == 1:
-                    canonical_walk.append(str(hop))
+                    canonical_walk.append(hop.name)
                 else:
+                    # Use a hash to reduce memory usage of long texts by using
+                    # 8 bytes per hop, except for the first hop and odd
+                    # hops (predicates).
                     canonical_walk.append(
-                        str(md5(str(hop).encode()).digest()[:8])
+                        str(md5(hop.name.encode()).digest()[:8])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance: tuple(canonical_walks)}
+        return {instance.name: tuple(canonical_walks)}

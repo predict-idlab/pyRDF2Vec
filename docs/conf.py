@@ -12,6 +12,8 @@ import tomlkit
 root = Path(__file__).parent.parent.absolute()
 toml = tomlkit.loads((root / "pyproject.toml").read_text(encoding="utf8"))
 
+autodoc_mock_imports = ["aiohttp", "cachetools"]
+
 
 def find(key: str) -> str:
     """Finds a value defined in the tool.poetry section of the pyproject.toml
@@ -43,18 +45,11 @@ extensions = [
     "sphinxcontrib.apidoc",
 ]
 intersphinx_mapping = {
+    "aiohttp": ("https://docs.aiohttp.org/en/stable", None),
+    "cachetools": ("https://cachetools.readthedocs.io/en/stable/", None),
+    "python": ("https://docs.python.org/3", None),
     "rdflib": ("http://rdflib.readthedocs.org/en/latest/", None),
 }
-nitpick_ignore = [
-    ("py:data", "typing.Any"),
-    ("py:data", "typing.Dict"),
-    ("py:data", "typing.Iterable"),
-    ("py:data", "typing.List"),
-    ("py:data", "typing.Optional"),
-    ("py:data", "typing.Sequence"),
-    ("py:data", "typing.Tuple"),
-    ("py:data", "typing.Union"),
-]
 pygments_style = "sphinx"
 templates_path = ["_templates"]
 
