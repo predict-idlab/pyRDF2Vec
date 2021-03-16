@@ -15,7 +15,7 @@ random.seed(RANDOM_STATE)
 
 dcemd_to_avg_stdev = {}  # type: ignore
 
-for db, is_cache, entities, depth, max_walks in itertools.product(
+for db, is_cache, entities, max_depth, max_walks in itertools.product(
     ["mutag", "am", "dbpedia"],
     [False, True],
     [25],
@@ -40,7 +40,7 @@ for db, is_cache, entities, depth, max_walks in itertools.product(
         cache = TTLCache(maxsize=1024, ttl=1200) if is_cache else None
         tic = time.perf_counter()
         walks = RandomWalker(
-            depth, max_walks, random_state=RANDOM_STATE
+            max_depth, max_walks, random_state=RANDOM_STATE
         ).extract(
             KG(f"http://10.2.35.70:5820/{db}", mul_req=False, cache=cache), e
         )
@@ -54,14 +54,16 @@ for db, is_cache, entities, depth, max_walks in itertools.product(
 
     print(
         f"(db={db},is_cache={is_cache},entities={entities},"
-        + f"depth={depth},max_walks={max_walks}) = "
+        + f"max_depth={max_depth},max_walks={max_walks}) = "
         + f"{avg_stdev[0]} +/- {avg_stdev[1]} (for {len(walks)} walks)"
     )
-    dcemd_to_avg_stdev[(db, is_cache, entities, depth, max_walks)] = avg_stdev
+    dcemd_to_avg_stdev[
+        (db, is_cache, entities, max_depth, max_walks)
+    ] = avg_stdev
 
 for k, v in dcemd_to_avg_stdev.items():
     print(
         f"(db={k[0]}, is_cache={k[1]}, entities={k[2]}, "
-        + f"depth={k[3]}, max_walks={k[4]}) = "
+        + f"max_depth={k[3]}, max_walks={k[4]}) = "
         + f"{v[0]} +/- {v[1]}"
     )

@@ -16,7 +16,7 @@ class HALKWalker(RandomWalker):
     memory usage.
 
     Args:
-        depth: The depth per entity.
+        max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to pyrdf2vec.samplers.UniformSampler().
@@ -43,19 +43,19 @@ class HALKWalker(RandomWalker):
     )
 
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided instances which are then each
+        """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
+                provided entities.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         walks = self.extract_walks(kg, instance)

@@ -11,7 +11,7 @@ from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.typings import Entities, EntityWalks
 
 from pyrdf2vec.utils.validation import (  # isort: skip
-    _check_depth,
+    _check_max_depth,
     _check_jobs,
     _check_max_walks,
 )
@@ -31,7 +31,7 @@ class Walker(ABC):
     """Base class of the walking strategies.
 
     Args:
-        depth: The depth per entity.
+        max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
@@ -51,7 +51,7 @@ class Walker(ABC):
     kg: Optional[KG] = None
 
     depth: int = attr.ib(
-        validator=[attr.validators.instance_of(int), _check_depth]
+        validator=[attr.validators.instance_of(int), _check_max_depth]
     )
     max_walks: Optional[int] = attr.ib(  # type: ignore
         default=None,
@@ -90,7 +90,7 @@ class Walker(ABC):
         self.sampler.random_state = self.random_state
 
     def extract(
-        self, kg: KG, instances: Entities, verbose: int = 0
+        self, kg: KG, entities: Entities, verbose: int = 0
     ) -> List[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
@@ -98,7 +98,7 @@ class Walker(ABC):
 
         Args:
             kg: The Knowledge Graph.
-            instances: The instances to be extracted from the Knowledge Graph.
+            entities: The entities to be extracted from the Knowledge Graph.
             verbose: The verbosity level.
                 0: does not display anything;
                 1: display of the progress of extraction and training of walks;
@@ -107,7 +107,7 @@ class Walker(ABC):
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         Raises:
             WalkerNotSupported: If there is an attempt to use an invalid
@@ -132,38 +132,38 @@ class Walker(ABC):
             )
 
         if kg._is_remote and kg.mul_req:
-            kg._fill_hops(instances)
+            kg._fill_hops(entities)
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
                 tqdm(
-                    pool.imap_unordered(self._proc, instances),
-                    total=len(instances),
+                    pool.imap_unordered(self._proc, entities),
+                    total=len(entities),
                     disable=True if verbose == 0 else False,
                 )
             )
 
-        instance_walks = {
-            instance: walks for elm in res for instance, walks in elm.items()
+        entity_walks = {
+            entity: walks for elm in res for entity, walks in elm.items()
         }
 
         canonical_walks = set()
-        for instance in instances:
-            canonical_walks.update(instance_walks[instance])
+        for entity in entities:
+            canonical_walks.update(entity_walks[entity])
         return list(canonical_walks)
 
     @abstractmethod
-    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided instances which are then each
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The entity to be extracted from the Knowledge Graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         raise NotImplementedError("This must be implemented!")
@@ -178,15 +178,15 @@ class Walker(ABC):
         global kg
         kg = init_kg  # type: ignore
 
-    def _proc(self, instance: str) -> EntityWalks:
+    def _proc(self, entity: str) -> EntityWalks:
         """Executed by each process.
 
         Args:
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The entity to be extracted from the Knowledge Graph.
 
         Returns:
             The extraction of walk by the process.
 
         """
         global kg
-        return self._extract(kg, Vertex(instance))  # type: ignore
+        return self._extract(kg, Vertex(entity))  # type: ignore

@@ -4,15 +4,15 @@ import attr
 import requests
 
 
-def _check_depth(self, attribute: attr.Attribute, depth: int) -> None:
-    """Checks if a given depth is valid for a walking strategy.
+def _check_max_depth(self, attribute: attr.Attribute, depth: int) -> None:
+    """Checks if a given max depth is valid for a walking strategy.
 
     Args:
         attribute: The attribute.
-        depth: The depth to check the validity.
+        max_depth: The maximum depth of the walk to check the validity.
 
     Raises:
-        ValueError: If the depth is invalid.
+        ValueError: If the maximum depth is invalid.
 
     """
     if depth < 0:

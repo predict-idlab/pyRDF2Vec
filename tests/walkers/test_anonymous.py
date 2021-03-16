@@ -26,7 +26,7 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
-DEPTHS = range(15)
+MAX_DEPTHS = range(15)
 KGS = [KG_LOOP, KG_CHAIN]
 MAX_WALKS = [None, 0, 1, 2, 3, 4, 5]
 ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
@@ -49,17 +49,19 @@ class TestAnonymousWalker:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "kg, root, depth, max_walks, with_reverse",
+        "kg, root, max_depth, max_walks, with_reverse",
         list(
             itertools.product(
-                KGS, ROOTS_WITHOUT_URL, DEPTHS, MAX_WALKS, WITH_REVERSE
+                KGS, ROOTS_WITHOUT_URL, MAX_DEPTHS, MAX_WALKS, WITH_REVERSE
             )
         ),
     )
-    def test_extract(self, setup, kg, root, depth, max_walks, with_reverse):
+    def test_extract(
+        self, setup, kg, root, max_depth, max_walks, with_reverse
+    ):
         root = f"{URL}#{root}"
         walks = AnonymousWalker(
-            depth, max_walks, with_reverse=with_reverse, random_state=42
+            max_depth, max_walks, with_reverse=with_reverse, random_state=42
         )._extract(kg, Vertex(root))[root]
         if max_walks is not None:
             if with_reverse:
@@ -72,6 +74,6 @@ class TestAnonymousWalker:
                 assert obj.isnumeric()
             if not with_reverse:
                 assert walk[0] == root
-                assert len(walk) <= (depth * 2) + 1
+                assert len(walk) <= (max_depth * 2) + 1
             else:
-                assert len(walk) <= ((depth * 2) + 1) * 2
+                assert len(walk) <= ((max_depth * 2) + 1) * 2

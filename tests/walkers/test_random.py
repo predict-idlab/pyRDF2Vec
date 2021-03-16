@@ -27,7 +27,7 @@ KG_LOOP = KG()
 KG_CHAIN = KG()
 
 
-DEPTHS = range(15)
+MAX_DEPTHS = range(15)
 KGS = [KG_LOOP, KG_CHAIN]
 MAX_WALKS = [0, 1, 2, 3, 4, 5]
 ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
@@ -50,52 +50,56 @@ class TestRandomWalker:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "kg, root, depth, is_reverse",
-        list(itertools.product(KGS, ROOTS_WITHOUT_URL, DEPTHS, WITH_REVERSE)),
+        "kg, root, max_depth, is_reverse",
+        list(
+            itertools.product(KGS, ROOTS_WITHOUT_URL, MAX_DEPTHS, WITH_REVERSE)
+        ),
     )
-    def test_bfs(self, setup, kg, root, depth, is_reverse):
+    def test_bfs(self, setup, kg, root, max_depth, is_reverse):
         root = f"{URL}#{root}"
-        walks = RandomWalker(depth, None, random_state=42)._bfs(
+        walks = RandomWalker(max_depth, None, random_state=42)._bfs(
             kg, Vertex(root), is_reverse
         )
         for walk in walks:
-            assert len(walk) <= (depth * 2) + 1
+            assert len(walk) <= (max_depth * 2) + 1
             if is_reverse:
                 assert walk[-1].name == root
             else:
                 assert walk[0].name == root
 
     @pytest.mark.parametrize(
-        "kg, root, depth, max_walks, is_reverse",
+        "kg, root, max_depth, max_walks, is_reverse",
         list(
             itertools.product(
-                KGS, ROOTS_WITHOUT_URL, DEPTHS, MAX_WALKS, WITH_REVERSE
+                KGS, ROOTS_WITHOUT_URL, MAX_DEPTHS, MAX_WALKS, WITH_REVERSE
             ),
         ),
     )
-    def test_dfs(self, setup, kg, root, depth, max_walks, is_reverse):
+    def test_dfs(self, setup, kg, root, max_depth, max_walks, is_reverse):
         root = f"{URL}#{root}"
-        for walk in RandomWalker(depth, max_walks, random_state=42)._dfs(
+        for walk in RandomWalker(max_depth, max_walks, random_state=42)._dfs(
             kg, Vertex(root), is_reverse
         ):
-            assert len(walk) <= (depth * 2) + 1
+            assert len(walk) <= (max_depth * 2) + 1
             if is_reverse:
                 assert walk[-1].name == root
             else:
                 assert walk[0].name == root
 
     @pytest.mark.parametrize(
-        "kg, root, depth, max_walks, with_reverse",
+        "kg, root, max_depth, max_walks, with_reverse",
         list(
             itertools.product(
-                KGS, ROOTS_WITHOUT_URL, DEPTHS, MAX_WALKS, WITH_REVERSE
+                KGS, ROOTS_WITHOUT_URL, MAX_DEPTHS, MAX_WALKS, WITH_REVERSE
             )
         ),
     )
-    def test_extract(self, setup, kg, root, depth, max_walks, with_reverse):
+    def test_extract(
+        self, setup, kg, root, max_depth, max_walks, with_reverse
+    ):
         root = f"{URL}#{root}"
         walks = RandomWalker(
-            depth, max_walks, with_reverse=with_reverse, random_state=42
+            max_depth, max_walks, with_reverse=with_reverse, random_state=42
         )._extract(kg, Vertex(root))[root]
         if max_walks is not None:
             if with_reverse:
@@ -107,6 +111,6 @@ class TestRandomWalker:
                 assert obj.startswith("b'")
             if not with_reverse:
                 assert walk[0] == root
-                assert len(walk) <= (depth * 2) + 1
+                assert len(walk) <= (max_depth * 2) + 1
             else:
-                assert len(walk) <= ((depth * 2) + 1) * 2
+                assert len(walk) <= ((max_depth * 2) + 1) * 2

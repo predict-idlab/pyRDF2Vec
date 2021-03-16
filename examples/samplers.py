@@ -54,9 +54,9 @@ for _, sampler in samplers:
         # Use one worker threads for Word2Vec to ensure random determinism.
         # Must be used with PYTHONHASHSEED.
         Word2Vec(workers=1),
-        # Extract a maximum of 100 walks of depth 4 for each entity, use a
-        # random state to ensure that the same walks are generated for the
-        # entities.
+        # Extract a maximum of 100 walks of a maximum depth of 4 for each
+        # entity, use a random state to ensure that the same walks are
+        # generated for the entities.
         walkers=[RandomWalker(4, 100, sampler, random_state=RANDOM_STATE)],
     ).fit_transform(
         KG(

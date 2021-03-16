@@ -38,7 +38,7 @@ class CommunityWalker(Walker):
     """Defines the community walking strategy.
 
     Args:
-        depth: The depth per entity.
+        max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to UniformSampler().
@@ -255,7 +255,7 @@ class CommunityWalker(Walker):
         return list(set(walks))
 
     def extract(
-        self, kg: KG, instances: Entities, verbose: int = 0
+        self, kg: KG, entities: Entities, verbose: int = 0
     ) -> List[str]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
@@ -265,8 +265,8 @@ class CommunityWalker(Walker):
             kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
-            instances: The instances to be extracted from the Knowledge Graph.
+                provided entities.
+            entities: The entities to be extracted from the Knowledge Graph.
             verbose: The verbosity level.
                 0: does not display anything;
                 1: display of the progress of extraction and training of walks;
@@ -275,11 +275,11 @@ class CommunityWalker(Walker):
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         self._community_detection(kg)
-        return super().extract(kg, instances, verbose)
+        return super().extract(kg, entities, verbose)
 
     def extract_walks(self, kg: KG, root: Vertex) -> List[Walk]:
         """Extracts random walks of depth - 1 hops rooted in root.
@@ -288,7 +288,7 @@ class CommunityWalker(Walker):
             kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
+                provided entities.
             root: The root node to extract walks.
 
         Returns:
@@ -308,19 +308,19 @@ class CommunityWalker(Walker):
         return [walk for walk in fct_search(kg, root)]
 
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided instances which are then each
+        """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
 
         Args:
             kg: The Knowledge Graph.
 
                 The graph from which the neighborhoods are extracted for the
-                provided instances.
+                provided entities.
             instance: The instance to be extracted from the Knowledge Graph.
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         canonical_walks: Set[SWalk] = set()

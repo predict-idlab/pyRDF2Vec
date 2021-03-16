@@ -26,7 +26,7 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
-DEPTHS = range(5)
+MAX_DEPTHS = range(5)
 KGS = [KG_LOOP, KG_CHAIN]
 MAX_WALKS = [None, 0, 1, 2, 3, 4, 5]
 ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
@@ -50,12 +50,12 @@ class TestWLWalker:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
     @pytest.mark.parametrize(
-        "kg, root, depth, max_walks, with_reverse, wl_iterations",
+        "kg, root, max_depth, max_walks, with_reverse, wl_iterations",
         list(
             itertools.product(
                 KGS,
                 ROOTS_WITHOUT_URL,
-                DEPTHS,
+                MAX_DEPTHS,
                 MAX_WALKS,
                 WITH_REVERSE,
                 WL_ITERATIONS,
@@ -63,11 +63,18 @@ class TestWLWalker:
         ),
     )
     def test_extract(
-        self, setup, kg, root, depth, max_walks, with_reverse, wl_iterations
+        self,
+        setup,
+        kg,
+        root,
+        max_depth,
+        max_walks,
+        with_reverse,
+        wl_iterations,
     ):
         root = f"{URL}#{root}"
         walker = WLWalker(
-            depth,
+            max_depth,
             max_walks,
             with_reverse=with_reverse,
             random_state=42,
@@ -78,7 +85,7 @@ class TestWLWalker:
         if max_walks is not None:
             if not with_reverse:
                 assert len(walks) <= (max_walks * wl_iterations) + max(
-                    depth, max_walks
+                    max_depth, max_walks
                 )
         for walk in walks:
             if not with_reverse:

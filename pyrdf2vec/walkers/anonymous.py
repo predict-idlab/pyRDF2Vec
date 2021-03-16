@@ -13,7 +13,7 @@ class AnonymousWalker(RandomWalker):
     order to anonymize the random walks.
 
     Args:
-        depth: The depth per entity.
+        max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
             Defaults to pyrdf2vec.samplers.UniformSampler().
@@ -29,7 +29,7 @@ class AnonymousWalker(RandomWalker):
     """
 
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided instances which are then each
+        """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
 
         Args:
@@ -38,7 +38,7 @@ class AnonymousWalker(RandomWalker):
 
         Returns:
             The 2D matrix with its number of rows equal to the number of
-            provided instances; number of column equal to the embedding size.
+            provided entities; number of column equal to the embedding size.
 
         """
         canonical_walks: Set[SWalk] = set()
