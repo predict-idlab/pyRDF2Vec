@@ -104,4 +104,4 @@ class NGramWalker(RandomWalker):
                     canonical_walks.add(
                         tuple(self._take_n_grams(new_walk))  # type: ignore
                     )
-        return {instance.name: canonical_walks}
+        return {instance.name: tuple(canonical_walks)}

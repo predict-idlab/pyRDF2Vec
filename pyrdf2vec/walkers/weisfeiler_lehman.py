@@ -149,4 +149,4 @@ class WLWalker(RandomWalker):
                     else:
                         canonical_walk.append(self._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: canonical_walks}
+        return {instance.name: tuple(canonical_walks)}

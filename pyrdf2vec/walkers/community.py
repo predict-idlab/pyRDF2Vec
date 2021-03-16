@@ -337,4 +337,4 @@ class CommunityWalker(Walker):
                         str(md5(hop.name.encode()).digest()[:8])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: canonical_walks}
+        return {instance.name: tuple(canonical_walks)}
