@@ -27,7 +27,7 @@ class Connector(ABC):
 
     cache: Cache = attr.ib(
         kw_only=True,
-        default=TTLCache(maxsize=1024, ttl=1200),
+        factory=lambda: TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
 

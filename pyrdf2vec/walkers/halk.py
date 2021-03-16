@@ -19,7 +19,7 @@ class HALKWalker(RandomWalker):
         depth: The depth per entity.
         max_walks: The maximum number of walks per entity.
         sampler: The sampling strategy.
-            Defaults to UniformSampler().
+            Defaults to pyrdf2vec.samplers.UniformSampler().
         freq_thresholds: The minimum frequency thresholds of a hop to be kept.
             Defaults to [0.001].
         n_jobs: The number of process to use for multiprocessing.

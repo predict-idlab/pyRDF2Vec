@@ -19,9 +19,9 @@ class RDF2VecTransformer:
 
     Args:
         embedder: The embedding technique.
-            Defaults to pyrdf2vec.embedders.Word2Vec.
+            Defaults to Word2Vec().
         walkers: The walking strategy.
-            Defaults to pyrdf2vec.walkers.RandomWalker(2, None).
+            Defaults to [RandomWalker(2)].
         verbose: The verbosity level.
             0: does not display anything;
             1: display of the progress of extraction and training of walks;
