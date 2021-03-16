@@ -69,8 +69,8 @@ class TestRDF2VecTransformer:
     def test_fit_transform(self, kg):
         entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         np.testing.assert_array_equal(
-            RDF2VecTransformer().fit_transform(kg, entities),
-            RDF2VecTransformer().fit(kg, entities).transform(entities),
+            RDF2VecTransformer().fit_transform(kg, entities)[0],
+            RDF2VecTransformer().fit(kg, entities).transform(kg, entities)[0],
         )
 
     def test_load_save_transformer(self):
@@ -90,6 +90,8 @@ class TestRDF2VecTransformer:
     def test_transform(self, setup, kg):
         entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         assert (
-            type(RDF2VecTransformer().fit(kg, entities).transform(entities))
-            == list
+            type(
+                RDF2VecTransformer().fit(kg, entities).transform(kg, entities)
+            )
+            == tuple
         )

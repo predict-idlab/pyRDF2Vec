@@ -37,7 +37,7 @@ GRAPH = [
 ]
 URL = "http://pyRDF2Vec"
 
-LOCAL_KG = KG()
+LOCAL_KG = KG(cache=None)
 
 
 class TestKG:
@@ -124,20 +124,14 @@ class TestKG:
 
     def test_invalid_file(self):
         with pytest.raises(FileNotFoundError):
-            KG(
-                "foo",
-            )
+            KG("foo")
 
         with pytest.raises(FileNotFoundError):
-            KG(
-                "samples/mutag/",
-            )
+            KG("samples/mutag/")
 
     def test_invalid_url(self):
         with pytest.raises(ValueError):
-            KG(
-                "http://foo",
-            )
+            KG("http://foo")
 
     def test_remove_edge(self, setup):
         vtx_alice = Vertex(f"{URL}#Alice")
