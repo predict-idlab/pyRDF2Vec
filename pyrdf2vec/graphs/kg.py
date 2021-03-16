@@ -196,9 +196,6 @@ class KG:
             hops = self._res2hops(vertex, res)
         return hops
 
-    @cachedmethod(
-        operator.attrgetter("cache"), key=partial(hashkey, "get_hops")
-    )
     def get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex.
 
@@ -214,16 +211,7 @@ class KG:
         """
         if self._is_remote:
             return self.fetch_hops(vertex)
-
-        matrix = self._transition_matrix
-        if is_reverse:
-            matrix = self._inv_transition_matrix
-        return [
-            (pred, obj)
-            for pred in matrix[vertex]
-            for obj in matrix[pred]
-            if len(matrix[pred]) != 0
-        ]
+        return self._get_hops(vertex)
 
     def get_literals(self, entities: Entities, verbose: int = 0) -> Literals:
         """Gets the literals for one or more entities for all the predicates
@@ -330,6 +318,11 @@ class KG:
             True if the edge has been removed, False otherwise.
 
         """
+        if self._is_remote:
+            raise ValueError(
+                "Can remove an edge only for a local Knowledge Graph."
+            )
+
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)
             self._inv_transition_matrix[v2].remove(v1)
@@ -379,6 +372,29 @@ class KG:
         ):
             hops = self._res2hops(Vertex(entity), res)
             self._entity_hops.update({entity: hops})
+
+    def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
+        """Returns the hops of a vertex for a local Knowledge Graph.
+
+        Args:
+            vertex: The name of the vertex to get the hops.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
+
+        Returns:
+            The hops of a vertex in a (predicate, object) form.
+
+        """
+        matrix = self._transition_matrix
+        if is_reverse:
+            matrix = self._inv_transition_matrix
+        return [
+            (pred, obj)
+            for pred in matrix[vertex]
+            for obj in matrix[pred]
+            if len(matrix[pred]) != 0
+        ]
 
     def _res2hops(self, vertex: Vertex, res) -> List[Hop]:
         """Converts a JSON response from a SPARQL endpoint server to hops.

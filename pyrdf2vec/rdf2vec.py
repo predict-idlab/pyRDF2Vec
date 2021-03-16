@@ -60,22 +60,18 @@ class RDF2VecTransformer:
         validator=attr.validators.instance_of(bool),
     )
 
-    def fit(
-        self, kg: KG, entities: Entities, is_update: bool = False
-    ) -> RDF2VecTransformer:
-        """Fits the embeddings based on the provided entities.
+    def get_walks(self, kg: KG, entities: Entities) -> List[str]:
+        """Gets the walks of an entity based on a Knowledge Graph and a
+        list of walkers
 
         Args:
             kg: The Knowledge Graph.
             entities: The entities including test entities to create the
                 embeddings. Since RDF2Vec is unsupervised, there is no label
                 leakage.
-            is_update: True if the new corpus should be added to old model's
-                corpus, False otherwise.
-                Defaults to False.
 
         Returns:
-            The RDF2VecTransformer.
+            The walks for the given entities.
 
         """
         if not kg._is_remote and not all(
@@ -85,12 +81,14 @@ class RDF2VecTransformer:
                 "The provided entities must be in the Knowledge Graph."
             )
 
+        is_new_entities = False
+        if not all(entity in self._entities for entity in entities):
+            self._entities.extend(entities)
+            is_new_entities = True
+
         if self.verbose == 2:
             print(kg)
             print(self.walkers[0])
-            print(self.embedder)
-
-        self._entities.extend(entities)
 
         walks: List[str] = []
         tic = time.perf_counter()
@@ -100,7 +98,7 @@ class RDF2VecTransformer:
 
         if self._walks is None:
             self._walks = walks
-        else:
+        elif is_new_entities:
             self._walks += walks
 
         if self.verbose >= 1:
@@ -108,6 +106,32 @@ class RDF2VecTransformer:
                 f"Extracted {len(walks)} walks "
                 + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
             )
+        if (
+            kg._is_remote
+            and kg.mul_req
+            and not self._is_extract_walks_literals
+        ):
+            asyncio.run(kg.connector.close())
+        return walks
+
+    def fit(
+        self, walks: List[str], is_update: bool = False
+    ) -> RDF2VecTransformer:
+        """Fits the embeddings based on the provided entities.
+
+        Args:
+            walks: The walks to fit.
+            is_update: True if the new corpus should be added to old model's
+                corpus, False otherwise.
+                Defaults to False.
+
+        Returns:
+            The RDF2VecTransformer.
+
+        """
+        if self.verbose == 2:
+            print(self.embedder)
+
         tic = time.perf_counter()
         self.embedder.fit([list(map(str, walk)) for walk in walks], is_update)
         toc = time.perf_counter()
@@ -119,10 +143,6 @@ class RDF2VecTransformer:
                     f"> {len(self._walks)} walks extracted "
                     + f"for {len(self._entities)} entities."
                 )
-
-        if kg._is_remote and not self._is_extract_walks_literals:
-            asyncio.run(kg.connector.close())
-
         return self
 
     def fit_transform(
@@ -145,7 +165,7 @@ class RDF2VecTransformer:
 
         """
         self._is_extract_walks_literals = True
-        self.fit(kg, entities, is_update)
+        self.fit(self.get_walks(kg, entities), is_update)
         return self.transform(kg, entities)
 
     def transform(
@@ -176,7 +196,7 @@ class RDF2VecTransformer:
         else:
             self._literals += literals
 
-        if kg._is_remote:
+        if kg._is_remote and kg.mul_req:
             self._is_extract_walks_literals = False
             asyncio.run(kg.connector.close())
 

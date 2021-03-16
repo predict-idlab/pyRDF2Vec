@@ -44,10 +44,7 @@ class Connector(ABC):
         factory=lambda: requests.Session(),
     )
 
-    _asession = attr.ib(
-        init=False,
-        factory=lambda: aiohttp.ClientSession(),
-    )
+    _asession = attr.ib(init=False, default=None)
 
     @abstractmethod
     def fetch(self, query: str):
@@ -92,6 +89,8 @@ class SPARQLConnector(Connector):
             The response of the queries.
 
         """
+        if self._asession is None:
+            self._asession = aiohttp.ClientSession(raise_for_status=True)
         return await asyncio.gather(*(self._fetch(query) for query in queries))
 
     async def _fetch(self, query) -> Response:

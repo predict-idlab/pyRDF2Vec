@@ -55,12 +55,12 @@ class TestRDF2VecTransformer:
         os.remove("tmp")
 
     @pytest.mark.parametrize("kg", KGS)
-    def test_fit(self, setup, kg):
+    def test_get_walks(self, setup, kg):
         transformer = RDF2VecTransformer()
         assert len(transformer._walks) == 0
         with pytest.raises(ValueError):
-            transformer.fit(kg, ["does", "not", "exist"])
-        transformer.fit(
+            transformer.get_walks(kg, ["does", "not", "exist"])
+        transformer.get_walks(
             kg, [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
         )
         assert len(transformer._walks) > 0
@@ -68,9 +68,11 @@ class TestRDF2VecTransformer:
     @pytest.mark.parametrize("kg", KGS)
     def test_fit_transform(self, kg):
         entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
+        transformer = RDF2VecTransformer()
+        walks = transformer.get_walks(kg, entities)
         np.testing.assert_array_equal(
             RDF2VecTransformer().fit_transform(kg, entities)[0],
-            RDF2VecTransformer().fit(kg, entities).transform(kg, entities)[0],
+            transformer.fit(walks).transform(kg, entities)[0],
         )
 
     def test_load_save_transformer(self):
@@ -89,9 +91,9 @@ class TestRDF2VecTransformer:
     @pytest.mark.parametrize("kg", KGS)
     def test_transform(self, setup, kg):
         entities = [f"{URL}#{entity}" for entity in ROOTS_WITHOUT_URL]
+        transformer = RDF2VecTransformer()
+        walks = transformer.get_walks(kg, entities)
         assert (
-            type(
-                RDF2VecTransformer().fit(kg, entities).transform(kg, entities)
-            )
+            type(RDF2VecTransformer().fit(walks).transform(kg, entities))
             == tuple
         )
