@@ -9,7 +9,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.typings import Hop, Walk
 
 
-class RemoteNotSupported(Exception):
+class SamplerNotSupported(Exception):
     """Base exception class for the lack of support of a sampling strategy for
     the extraction of walks via a SPARQL endpoint server.
 
@@ -54,12 +54,12 @@ class Sampler(ABC):
             kg: The Knowledge Graph.
 
         Raises:
-            RemoteNotSupported: If there is an attempt to use an invalid
+            SamplerNotSupported: If there is an attempt to use an invalid
                 sampling strategy to a remote Knowledge Graph.
 
         """
         if kg._is_remote and not self._is_support_remote:
-            raise RemoteNotSupported(
+            raise SamplerNotSupported(
                 "Invalid sampling strategy. Please, choose a sampling strategy"
                 + " that can fetch walks via a SPARQL endpoint server."
             )

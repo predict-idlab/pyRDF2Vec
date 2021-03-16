@@ -17,7 +17,7 @@ from pyrdf2vec.utils.validation import (  # isort: skip
 )
 
 
-class RemoteNotSupported(Exception):
+class WalkerNotSupported(Exception):
     """Base exception class for the lack of support of a walking strategy for
     the extraction of walks via a SPARQL endpoint server.
 
@@ -110,12 +110,12 @@ class Walker(ABC):
             provided instances; number of column equal to the embedding size.
 
         Raises:
-            RemoteNotSupported: If there is an attempt to use an invalid
+            WalkerNotSupported: If there is an attempt to use an invalid
                 walking strategy to a remote Knowledge Graph.
 
         """
         if kg._is_remote and not self._is_support_remote:
-            raise RemoteNotSupported(
+            raise WalkerNotSupported(
                 "Invalid walking strategy. Please, choose a walking strategy "
                 + "that can fetch walks via a SPARQL endpoint server."
             )
