@@ -1,3 +1,133 @@
+0.2.0
+-----
+
+Features
+^^^^^^^^
+
+- Add the ``Connector`` generic class to simplify the implementation of new
+  connectors.
+- Add the ``SPARQLConnector`` class to delegate the connection part to the
+  SPARQL endpoint server.
+- Add the ``WalkerNotSupported`` and ``SamplerNotSupported`` exceptions in the
+  ``Walker`` and ``Sampler`` classes when a walking strategy and a sampling
+  strategy is not supported.
+- Add the ``_cast_literals`` private method to the ``KG`` class to convert the
+  raw literals of an entity according to their real types.
+- Add the ``_embeddings``, ``_entities``, ``_literals``, and ``_walks``,
+  attributes in the ``RDF2VecTransformer`` class to be able to get all the
+  embeddings, entities, literals, and walks after the online training of a
+  model.
+- Add the ``_fill_hops`` private method in the ``KG`` class to fill the entity
+  hops in cache when ``mul_req=True`` is provided for a remote Knowledge Graph.
+- Add the ``_get_hops`` private method in the ``KG`` class to get the hops of a
+  vertex for a local Knowledge Graph.
+- Add the ``_is_support_remote`` (default to ``False``) private attribute in
+  the ``Walker`` and ``Sampler`` classes to restrict the use of walking and
+  sampling strategies for some remote/local Knowledge Graph.
+- Add the ``_res2hops`` private method in the ``KG`` class to convert a JSON
+  response from a SPARQL endpoint server to hops.
+- Add the ``add_walk`` method to the ``KG`` class to simplify the addition of
+  walk in a Knowledge Graph.
+- Add the `attr <https://github.com/python-attrs/attrs>`__ decorator for all
+  classes.
+- Add the ``cache`` (default to ``cachetools.TTLCache(maxsize=1024,
+  ttl=1200))`` attribute to the ``KG`` class to specify the cache policy and
+  the desired size to significantly increase the performance of the walks
+  extraction.
+- Add the ``examples/online-training`` and ``examples/literals`` files to
+  illustrate the use of online-training and literals with ``pyRDF2Vec``.
+- Add the ``fetch_hops`` method to the ``KG`` class to fetch to get the hops of
+  a vertex on a remote Knowledge Graph.
+- Add the ``get_pliterals`` method to the ``KG`` class to gets the literals for
+  an entity and a local KG based on a chain of predicates.
+- Add the ``get_walks`` method in the ``RDF2VecTransformer`` class to get the
+  walks of a given entities in a Knowledge Graph.
+- Add the ``get_weights`` method in the ``Sampler`` class to get the hops weights.
+- Add the ``is_update`` (default to ``False``) hyper-parameter in the ``fit``
+  method of the ``Embedder`` and ``Word2Vec`` classes to update an existing
+  vocabulary.
+- Add the ``literals`` (default to ``[]``) attribute in the ``KG`` class to
+  support a basic literal extraction support.
+- Add the ``mul_req`` (default to ``True``) attribute to the ``KG`` class to
+  speed up the extraction of walks and literals for remote Knowledge Graph by
+  sending asynchronous requests.
+- Add the ``n_jobs`` (default to ``None``) attribute to the ``Walker`` class
+  to speed up the extraction of walks with multiprocessing.
+- Add the ``pyrdf2vec.typings`` file to contains the aliases of the most
+  commonly used typing with `mypy <https://github.com/python/mypy>`__.
+- Add a ``random_state`` (default to ``None``) parameter for the ``Walker``
+  class to handle better random determinism with walking and sampling
+  strategies.
+- Add the ``verbose`` (default to ``0``) attribute to the
+  ``RDF2VecTransformer`` class to display useful debugging information and to
+  measure the time of extraction, fit and generation of embeddings and
+  literals.
+- Add the ``with_reverse`` (default to ``False``) parameter for the ``Walker``
+  class to generate more walks and improve the accuracy with ``Word2Vec``, by
+  including the parents of the entities in the walks.
+- Add the possibility to do online learning of a model with the ``save`` and
+  the ``load`` methods in the ``RDF2VecTransformer`` class.
+- Add the support for Python 3.9
+- Add the validators for class parameter attributes.
+
+Fixed
+^^^^^
+
+- Fix the ``get_weight`` method in the ``PageRankSampler`` to raise an error if
+  the method is called before the ``fit`` method.
+- Fix the ``remove_edge`` method of the ``KG`` class to also remove the edge of
+  a children for a parent node.
+- Fix the addition of predicate in memory for remote Knowledge Graphs.
+- Fix the initialization of the ``_counts`` dictionary with the
+  ``PredFreqSampler`` and ``ObjPredFreqSampler`` classes.
+
+Changed
+^^^^^^^
+
+- Remove support for Python 3.6
+- Remove the ``_get_shops`` and ``_get_rhops`` functions in the ``KG`` class.
+- Remove the ``id`` attribute of the ``Vertex`` class.
+- Remove the ``print_walks`` method of the ``Walker`` class.
+- Remove the ``read_file`` method in the ``KG`` class.
+- Remove the ``visualise`` method in the ``KG`` class.
+- Replace the ``HalkWalker`` class by ``HALKWalker``.
+- Replace the ``SPARQLWrapper`` library in favor of using ``requests`` for
+  synchronous requests and ``aiohttp`` for asynchronous requests.
+- Replace the ``WeisfeilerLehmanWalker`` class by ``WLWalker``.
+- Replaces the ``add_edge``, ``add_vertex``, and ``remove_edge`` methods in the
+  ``KG`` class to return a boolean value indicating that the addition/removal
+  of an edge/vertex has been performed.
+- Replace the ``depth`` parameter with ``max_depth`` for the ``Walker`` class.
+- Replace the ``extract_random_community_walks``,
+  ``extract_random_community_walks_bfs``, and
+  ``extract_random_community_walks_dfs`` methods in the ``CommunityWalker``
+  class by ``extract_walks``, ``_bfs``, and ``_dfs`` methods.
+- Replace the ``extract_random_walks``, ``extract_random_walks_bfs``, and
+  ``extract_random_walks_dfs`` methods in the ``RandomWalker`` class by
+  ``extract_walks``, ``_bfs``, and ``_dfs`` methods.
+- Replace the ``file_type`` attribute in the ``KG`` class by ``fmt``.
+- Replace the ``get_inv_neighbors`` method in the ``KG`` class by a
+  ``is_reverse`` (default to ``False``) parameter in the ``get_neighbors``
+  method.
+- Replace the ``initialize`` method in the ``Sampler`` class by the use of ``@property``.
+- Replace the ``is_remote`` parameter in the ``KG`` class for automatic link
+  detection based on the http and https prefix.
+- Replace the ``last`` parameter with ``is_last_depth`` in the
+  ``sample_neighbor`` method of the ``Sampler`` class.
+- Replace the ``label_predicates`` attribute in the ``KG`` class by
+  ``skip_predicates``  .
+- Replace the ``pyrdf2vec.graphs.kg.Vertex`` class with
+  ``pyrdf2vec.graphs.Vertex``.
+- Replace the ``fit_transform`` and ``transform`` functions in the
+  ``RDF2VecTransformer`` class to return a tuple containing the list of
+  embeddings and literals.
+- Replace the default embedding technique in the ``RDF2VecTransformer`` class
+  for ``Word2Vec``.
+- Replace the default hyper-parameters of the ``Word2Vec`` class to
+  ``size=500``, ``min_count=0``, and ``negative=20``.
+- Replace the default list of walkers in the ``RDF2VecTransformer`` class to
+  ``[RandomWalker(2)]``.
+
 0.1.0 (2020-11-02)
 -------------------
 
