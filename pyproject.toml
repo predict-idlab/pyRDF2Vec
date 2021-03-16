@@ -181,6 +181,7 @@ commands = pre-commit run --all-files
 [testenv:tests]
 description = Runs unit tests and performs coverage.
 deps =
+    aiohttp
     codecov
     gensim
     numpy
