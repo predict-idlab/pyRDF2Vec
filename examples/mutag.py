@@ -76,7 +76,7 @@ X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
     train_embeddings + test_embeddings
 )
 
-# Define the color map
+# Define the color map.
 colors = ["r", "g"]
 color_map = {}
 for i, label in enumerate(set(labels)):
@@ -85,7 +85,7 @@ for i, label in enumerate(set(labels)):
 # Set the graph with a certain size.
 plt.figure(figsize=(10, 4))
 
-# Plot the train embeddings
+# Plot the train embeddings.
 plt.scatter(
     X_tsne[: len(train_entities), 0],
     X_tsne[: len(train_entities), 1],
@@ -121,7 +121,7 @@ plt.annotate(
     arrowprops=dict(arrowstyle="->", facecolor="black"),
 )
 
-# Create a legend
+# Create a legend.
 plt.scatter([], [], edgecolors="r", facecolors="r", label="train -")
 plt.scatter([], [], edgecolors="g", facecolors="g", label="train +")
 plt.scatter([], [], edgecolors="r", facecolors="none", label="test -")
