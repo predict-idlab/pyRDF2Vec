@@ -40,7 +40,7 @@ class Benchmark:
 
     def evaluate(
         self,
-        verbose=0,
+        verbose=1,
     ):
         times = []
         for _ in tqdm(
@@ -92,7 +92,7 @@ if __name__ == "__main__":
                 )[label]
             ],
             walker=[RandomWalker(depth, max_walks, random_state=RANDOM_STATE)],
-        ).evaluate(verbose=1)
+        ).evaluate()
 
         print(
             f"(db={db}, is_cache={is_cache}, entities={entities}, "
