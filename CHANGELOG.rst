@@ -116,7 +116,7 @@ Changed
 - Replace the ``last`` parameter with ``is_last_depth`` in the
   ``sample_neighbor`` method of the ``Sampler`` class.
 - Replace the ``label_predicates`` attribute in the ``KG`` class by
-  ``skip_predicates``  .
+  ``skip_predicates`` and now use a set instead of a list.
 - Replace the ``pyrdf2vec.graphs.kg.Vertex`` class with
   ``pyrdf2vec.graphs.Vertex``.
 - Replace the ``fit_transform`` and ``transform`` functions in the
