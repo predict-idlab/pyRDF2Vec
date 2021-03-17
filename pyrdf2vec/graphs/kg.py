@@ -257,14 +257,13 @@ class KG:
                 ]
                 for i in range(len(entities))
             ]
-        entity_literals = [
-            self.get_pliterals(entity, pred)
-            for entity in tqdm(
-                entities, disable=True if verbose == 0 else False
-            )
-            for pred in self.literals
-        ]
-        return self._cast_literals(entity_literals)
+        entity_literals = []
+        for entity in tqdm(entities, disable=True if verbose == 0 else False):
+            entity_literal = [
+                self.get_pliterals(entity, pred) for pred in self.literals
+            ]
+            entity_literals.append(self._cast_literals(entity_literal))
+        return entity_literals
 
     def get_neighbors(
         self, vertex: Vertex, is_reverse: bool = False
