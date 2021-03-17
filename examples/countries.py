@@ -8,7 +8,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-RANDOM_STATE = 42
+RANDOM_STATE = 22
 
 data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 

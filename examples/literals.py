@@ -12,7 +12,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-RANDOM_STATE = 10
+RANDOM_STATE = 22
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
@@ -72,7 +72,7 @@ print(confusion_matrix(test_labels, predictions))
 print("\nUsing literals:")
 features = []
 for charges in literals:
-    charges = list(map(float, charges))
+    charges = list(map(float, *charges))  # type: ignore
     features.append(
         [
             np.max(charges),
@@ -83,22 +83,19 @@ for charges in literals:
             np.sum(charges),
         ]
     )
-features = np.array(features)
+features = np.array(features)  # type: ignore
 
 train_features = features[: len(train_entities)]
 test_features = features[len(train_entities) :]
 
-train_embeddings = np.hstack((train_embeddings, train_features))
-test_embeddings = np.hstack((test_embeddings, test_features))
+train_embeddings = np.hstack((train_embeddings, train_features))  # type: ignore
+test_embeddings = np.hstack((test_embeddings, test_features))  # type: ignore
 
-# Fit a Support Vector Machine on train embeddings and pick the best
-# C-parameters (regularization strength).
 clf = GridSearchCV(
     SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
 )
 clf.fit(train_embeddings, train_labels)
 
-# Evaluate the Support Vector Machine on test embeddings.
 predictions = clf.predict(test_embeddings)
 print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
@@ -136,3 +133,44 @@ plt.scatter(
     edgecolors=[color_map[i] for i in labels[len(train_entities) :]],
     facecolors="none",
 )
+
+# Annotate few points.
+plt.annotate(
+    entities[25].split("/")[-1],
+    xy=(X_tsne[25, 0], X_tsne[25, 1]),
+    xycoords="data",
+    xytext=(0.01, 0.0),
+    fontsize=8,
+    textcoords="axes fraction",
+    arrowprops=dict(arrowstyle="->", facecolor="black"),
+)
+plt.annotate(
+    entities[35].split("/")[-1],
+    xy=(X_tsne[35, 0], X_tsne[35, 1]),
+    xycoords="data",
+    xytext=(0.4, 0.0),
+    fontsize=8,
+    textcoords="axes fraction",
+    arrowprops=dict(arrowstyle="->", facecolor="black"),
+)
+
+# Create a legend.
+plt.scatter([], [], edgecolors="r", facecolors="r", label="train -")
+plt.scatter([], [], edgecolors="g", facecolors="g", label="train +")
+plt.scatter([], [], edgecolors="r", facecolors="none", label="test -")
+plt.scatter([], [], edgecolors="g", facecolors="none", label="test +")
+plt.legend(loc="upper right", ncol=2)
+
+# Plot the test embeddings.
+plt.scatter(
+    X_tsne[len(train_entities) :, 0],
+    X_tsne[len(train_entities) :, 1],
+    edgecolors=[color_map[i] for i in labels[len(train_entities) :]],
+    facecolors="none",
+)
+
+# Display the graph with a title, removing the axes for
+# better readability.
+plt.title("pyRDF2Vec", fontsize=32)
+plt.axis("off")
+plt.show()

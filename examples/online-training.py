@@ -1,5 +1,4 @@
 import os
-import random
 
 import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -12,7 +11,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-RANDOM_STATE = 10
+RANDOM_STATE = 22
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
@@ -89,14 +88,11 @@ train_embeddings = embeddings[: len(train_entities)]
 new_embeddings = embeddings[-len(new_entities) :]
 test_embeddings = embeddings[len(train_entities) :][: -len(new_entities)]
 
-# Fit a Support Vector Machine on train embeddings and pick the best
-# C-parameters (regularization strength).
 clf = GridSearchCV(
     SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
 )
 clf.fit(train_embeddings + new_embeddings, train_labels + new_labels)
 
-# Evaluate the Support Vector Machine on test embeddings.
 predictions = clf.predict(test_embeddings)
 print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
@@ -119,14 +115,11 @@ embeddings, _ = transformer.fit_transform(
 train_embeddings = embeddings[: len(train_entities) + len(new_entities)]
 test_embeddings = embeddings[len(train_entities) + len(new_entities) :]
 
-# Fit a Support Vector Machine on train embeddings and pick the best
-# C-parameters (regularization strength).
 clf = GridSearchCV(
     SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
 )
 clf.fit(train_embeddings, train_labels + new_labels)
 
-# Evaluate the Support Vector Machine on test embeddings.
 predictions = clf.predict(test_embeddings)
 print(
     f"Predicted {len(test_entities)} entities with an accuracy of "

@@ -17,7 +17,7 @@ from pyrdf2vec.samplers import (  # isort: skip
 )
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-RANDOM_STATE = 10
+RANDOM_STATE = 22
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
