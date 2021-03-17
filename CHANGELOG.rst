@@ -1,10 +1,40 @@
 0.2.0
 -----
 
-Features
-^^^^^^^^
+🚀 Features
+^^^^^^^^^^^
 
 - Add support for Python 3.9
+- Add the ``cache`` (default to ``cachetools.TTLCache(maxsize=1024,
+  ttl=1200)``) attribute to the ``KG`` class to significantly speed up the walks
+  extraction through caching.
+- Add the ``is_update`` (default to ``False``) hyper-parameter in the ``fit``
+  method of the ``Embedder`` and ``Word2Vec`` classes to update an existing
+  vocabulary.
+- Add the ``literals`` (default to ``[]``) attribute in the ``KG`` class to
+  support a basic literal extraction.
+- Add the ``mul_req`` (default to ``True``) attribute to the ``KG`` class to
+  speed up the extraction of walks and literals for remote Knowledge Graph by
+  sending asynchronous requests.
+- Add the ``n_jobs`` (default to ``None``) attribute to the ``Walker`` class
+  to speed up the extraction of walks with multiprocessing.
+- Add the ``random_state`` (default to ``None``) parameter for the ``Walker``
+  class to handle better random determinism with walking and sampling
+  strategies.
+- Add the ``verbose`` (default to ``0``) attribute to the
+  ``RDF2VecTransformer`` class to display useful debugging information and to
+  measure the time of extraction, fit and generation of embeddings and
+  literals.
+- Add the ``with_reverse`` (default to ``False``) parameter for the ``Walker``
+  class to generate more walks and improve the accuracy with ``Word2Vec``, by
+  including the parents of the entities in the walks.
+- Add the possibility to do online learning of a model with the ``load`` and
+  the ``save`` methods in the ``RDF2VecTransformer`` class.
+- Add the validators for class parameter attributes.
+
+Added
+^^^^^
+
 - Add the ``Connector`` generic class to simplify the implementation of new
   connectors.
 - Add the ``SPARQLConnector`` class to delegate the connection part to the
@@ -32,10 +62,6 @@ Features
   walk in a Knowledge Graph.
 - Add the `attr <https://github.com/python-attrs/attrs>`__ decorator for all
   classes.
-- Add the ``cache`` (default to ``cachetools.TTLCache(maxsize=1024,
-  ttl=1200)``) attribute to the ``KG`` class to specify the cache policy and
-  the desired size to significantly increase the performance of the walks
-  extraction.
 - Add the ``examples/online-training`` and ``examples/literals`` files to
   illustrate the use of online training and literals with ``pyRDF2Vec``.
 - Add the ``fetch_hops`` method to the ``KG`` class to fetch to get the hops of
@@ -45,31 +71,8 @@ Features
 - Add the ``get_walks`` method in the ``RDF2VecTransformer`` class to get the
   walks of a given entities in a Knowledge Graph.
 - Add the ``get_weights`` method in the ``Sampler`` class to get the hops weights.
-- Add the ``is_update`` (default to ``False``) hyper-parameter in the ``fit``
-  method of the ``Embedder`` and ``Word2Vec`` classes to update an existing
-  vocabulary.
-- Add the ``literals`` (default to ``[]``) attribute in the ``KG`` class to
-  support a basic literal extraction.
-- Add the ``mul_req`` (default to ``True``) attribute to the ``KG`` class to
-  speed up the extraction of walks and literals for remote Knowledge Graph by
-  sending asynchronous requests.
-- Add the ``n_jobs`` (default to ``None``) attribute to the ``Walker`` class
-  to speed up the extraction of walks with multiprocessing.
 - Add the ``pyrdf2vec.typings`` file to contains the aliases of the most
   commonly used typing with `mypy <https://github.com/python/mypy>`__.
-- Add a ``random_state`` (default to ``None``) parameter for the ``Walker``
-  class to handle better random determinism with walking and sampling
-  strategies.
-- Add the ``verbose`` (default to ``0``) attribute to the
-  ``RDF2VecTransformer`` class to display useful debugging information and to
-  measure the time of extraction, fit and generation of embeddings and
-  literals.
-- Add the ``with_reverse`` (default to ``False``) parameter for the ``Walker``
-  class to generate more walks and improve the accuracy with ``Word2Vec``, by
-  including the parents of the entities in the walks.
-- Add the possibility to do online learning of a model with the ``load`` and
-  the ``save`` methods in the ``RDF2VecTransformer`` class.
-- Add the validators for class parameter attributes.
 
 Fixed
 ^^^^^
