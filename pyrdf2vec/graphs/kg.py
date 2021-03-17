@@ -257,13 +257,13 @@ class KG:
                 ]
                 for i in range(len(entities))
             ]
-
-        entity_literals = []
-        for entity in tqdm(entities, disable=True if verbose == 0 else False):
-            entity_literal = []
-            for pred in self.literals:
-                entity_literal += self.get_pliterals(entity, pred)
-            entity_literals.append(entity_literal)
+        entity_literals = [
+            self.get_pliterals(entity, pred)
+            for entity in tqdm(
+                entities, disable=True if verbose == 0 else False
+            )
+            for pred in self.literals
+        ]
         return self._cast_literals(entity_literals)
 
     def get_neighbors(
