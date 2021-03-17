@@ -34,7 +34,7 @@ embeddings, _ = transformer.fit_transform(
         literals=[
             [
                 "http://dbpedia.org/ontology/wikiPageWikiLink",
-                "http://www.w3.orgb/2004/02/skos/core#prefLabel",
+                "http://www.w3.org/2004/02/skos/core#prefLabel",
             ],
             ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
         ],
