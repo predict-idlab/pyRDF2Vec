@@ -26,8 +26,8 @@ transformer = RDF2VecTransformer(
 # Train and save the Word2Vec model according to the KG, the entities, and
 # a walking strategy.
 embeddings, _ = transformer.fit_transform(
-    # Defined that the KG is remotely located, as well as a set of
-    # predicates to exclude from this KG.
+    # Defined the DBpedia endpoint server, as well as a set of predicates to
+    # exclude from this KG.
     KG(
         "https://dbpedia.org/sparql",
         skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
