@@ -12,8 +12,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-RANDOM_STATE = 1
-np.random.seed(RANDOM_STATE)
+RANDOM_STATE = 10
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
@@ -30,11 +29,11 @@ labels = train_labels + test_labels
 embeddings, literals = RDF2VecTransformer(
     # Ensure random determinism for Word2Vec.
     # Must be used with PYTHONHASHSEED.
-    Word2Vec(workers=1, negative=25, iter=10, min_count=1, sg=1),
-    # Extract all walks with a maximum depth of 2 for each entity using one
-    # process and use a random state to ensure that the same walks are
+    Word2Vec(workers=1),
+    # Extract all walks with a maximum depth of 2 for each entity using two
+    # processes and use a random state to ensure that the same walks are
     # generated for the entities.
-    walkers=[RandomWalker(2, None, random_state=RANDOM_STATE, n_jobs=1)],
+    walkers=[RandomWalker(2, None, n_jobs=2, random_state=RANDOM_STATE)],
     verbose=1,
 ).fit_transform(
     KG(
@@ -50,7 +49,27 @@ embeddings, literals = RDF2VecTransformer(
     entities,
 )
 
+train_embeddings = embeddings[: len(train_entities)]
+test_embeddings = embeddings[len(train_entities) :]
 
+print("\nWithout using literals:")
+# Fit a Support Vector Machine on train embeddings and pick the best
+# C-parameters (regularization strength).
+clf = GridSearchCV(
+    SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+)
+clf.fit(train_embeddings, train_labels)
+
+# Evaluate the Support Vector Machine on test embeddings.
+predictions = clf.predict(test_embeddings)
+print(
+    f"Predicted {len(test_entities)} entities with an accuracy of "
+    + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
+)
+print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
+print(confusion_matrix(test_labels, predictions))
+
+print("\nUsing literals:")
 features = []
 for charges in literals:
     charges = list(map(float, charges))
@@ -65,9 +84,6 @@ for charges in literals:
         ]
     )
 features = np.array(features)
-
-train_embeddings = embeddings[: len(train_entities)]
-test_embeddings = embeddings[len(train_entities) :]
 
 train_features = features[: len(train_entities)]
 test_features = features[len(train_entities) :]

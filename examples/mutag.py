@@ -11,7 +11,7 @@ from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
-RANDOM_STATE = 42
+RANDOM_STATE = 10
 
 test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
 train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
