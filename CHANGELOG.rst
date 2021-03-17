@@ -2,7 +2,7 @@
 -----
 
 🚀 Features
-^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 - Add support for Python 3.9
 - Add the ``cache`` (default to ``cachetools.TTLCache(maxsize=1024,
