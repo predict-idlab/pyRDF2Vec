@@ -77,19 +77,19 @@ for charges in literals:
         [
             np.max(charges),
             np.min(charges),
-            np.mean(charges),
-            np.std(charges),
-            len(charges),
-            np.sum(charges),
+            np.mean(charges),  # type: ignore
+            np.std(charges),  # type: ignore
+            len(charges),  # type: ignore
+            np.sum(charges),  # type: ignore
         ]
     )
 features = np.array(features)  # type: ignore
-
-train_features = features[: len(train_entities)]
-test_features = features[len(train_entities) :]
-
-train_embeddings = np.hstack((train_embeddings, train_features))  # type: ignore
-test_embeddings = np.hstack((test_embeddings, test_features))  # type: ignore
+train_embeddings = np.hstack(
+    (train_embeddings, features[: len(train_entities)])  # type: ignore
+)
+test_embeddings = np.hstack(
+    (test_embeddings, features[len(train_entities) :])  # type: ignore
+)
 
 clf = GridSearchCV(
     SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
