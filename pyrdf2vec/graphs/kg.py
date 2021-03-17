@@ -225,7 +225,7 @@ class KG:
                 2: debugging.
                 Defaults to 0.
         Returns:
-            The literals.
+            The list that contains literals for each entity.
 
         """
         if len(self.literals) == 0:
@@ -249,8 +249,6 @@ class KG:
             literals_responses = [
                 self.connector.res2literals(res) for res in responses
             ]
-            if isinstance(entities, str):
-                return literals_responses
             return [
                 literals_responses[
                     len(self.literals) * i : len(self.literals) * (i + 1) :
@@ -328,7 +326,9 @@ class KG:
             return True
         return False
 
-    def _cast_literals(self, entity_literals: List[List[str]]) -> Literals:
+    def _cast_literals(
+        self, entity_literals: List[List[str]]
+    ) -> List[Union[Literal, Tuple[Literal, ...]]]:
         """Converts the raw literals of entity according to their real types.
 
         Args:
@@ -338,23 +338,21 @@ class KG:
             The literals with their type for the given entity.
 
         """
-        literals = []
+        literals: List[Union[Literal, Tuple[Literal, ...]]] = []
         for literal in entity_literals:
-            casted_literal: List[Union[Literal, Tuple[Literal, ...]]] = []
             if len(literal) == 0:
-                casted_literal += [np.NaN]
+                literals.append(np.NaN)
             else:
-                casted_value: List[Literal] = []
+                casted_value: Union[Literal, List[Literal]] = []
                 for value in literal:
                     try:
-                        casted_value.append(float(value))
+                        casted_value.append(float(value))  # type:ignore
                     except Exception:
-                        casted_value.append(value)
-                if len(casted_value) > 1:
-                    casted_literal += tuple(casted_value)
+                        casted_value.append(value)  # type:ignore
+                if len(casted_value) > 1:  # type:ignore
+                    literals.append(tuple(casted_value))  # type:ignore
                 else:
-                    casted_literal += casted_value
-            literals.append(casted_literal)
+                    literals.append(casted_value)  # type:ignore
         return literals
 
     def _fill_hops(self, entities: Entities) -> None:
