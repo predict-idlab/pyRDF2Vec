@@ -56,7 +56,7 @@ class TestRDF2VecTransformer:
 
     @pytest.mark.parametrize("kg", KGS)
     def test_get_walks(self, setup, kg):
-        transformer = RDF2VecTransformer()
+        transformer = RDF2VecTransformer(verbose=2)
         assert len(transformer._walks) == 0
         with pytest.raises(ValueError):
             transformer.get_walks(kg, ["does", "not", "exist"])
