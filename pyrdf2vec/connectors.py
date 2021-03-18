@@ -127,9 +127,7 @@ class SPARQLConnector(Connector):
         res = self._session.get(url, headers=self._headers).json()
         return res["results"]["bindings"]
 
-    def get_query(
-        self, entity: str, preds: Optional[Union[str, List[str]]] = None
-    ) -> str:
+    def get_query(self, entity: str, preds: Optional[List[str]] = None) -> str:
         """Gets the SPARQL query for an entity.
 
         Args:
