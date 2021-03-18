@@ -247,5 +247,30 @@ class TestKG:
             LOCAL_KG.remove_edge(vtx_alice, Vertex(f"{URL}#Unknown")) is False
         )
 
+    def test_res2hops(self, setup):
+        subj = Vertex("subj")
+        obj = Vertex("obj")
+        hops = LOCAL_KG._res2hops(
+            subj,
+            [
+                {
+                    "o": {
+                        "type": "literal",
+                        "xml:lang": "en",
+                        "value": "obj",
+                    },
+                    "p": {
+                        "type": "literal",
+                        "xml:lang": "en",
+                        "value": "pred",
+                    },
+                },
+            ],
+        )
+        assert isinstance(hops, list)
+        assert len(hops) == 1
+        pred = Vertex("pred", predicate=True, vprev=subj, vnext=obj)
+        assert hops == [(pred, obj)]
+
     def test_valid_url(self):
         KG("https://dbpedia.org/sparql")
