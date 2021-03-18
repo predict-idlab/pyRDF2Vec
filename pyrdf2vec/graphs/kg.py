@@ -397,6 +397,7 @@ class KG:
         """Converts a JSON response from a SPARQL endpoint server to hops.
 
         Args:
+            vertex: The vertex to get the hops.
             res: The JSON response of the SPARQL endpoint server.
 
         Returns:
