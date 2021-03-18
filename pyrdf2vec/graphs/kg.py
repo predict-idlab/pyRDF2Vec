@@ -352,7 +352,7 @@ class KG:
                 if len(casted_value) > 1:  # type:ignore
                     literals.append(tuple(casted_value))  # type:ignore
                 else:
-                    literals.append(casted_value)  # type:ignore
+                    literals += casted_value  # type:ignore
         return literals
 
     def _fill_hops(self, entities: Entities) -> None:
