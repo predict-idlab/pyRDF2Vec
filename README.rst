@@ -70,9 +70,45 @@ code] <http://data.dws.informatik.uni-mannheim.de/rdf2vec/>`__).
 Getting Started
 ---------------
 
-We provide a blog post with a tutorial on how to use ``pyRDF2Vec``
-`here <https://towardsdatascience.com/how-to-create-representations-of-entities-in-a-knowledge-graph-using-pyrdf2vec-82e44dad1a0>`__. Below
-is a short overview of the different functionalities.
+For most uses-cases, here is how ``pyRDF2Vec`` should be used to generate
+embeddings and get literals from a given Knowledge Graph (KG) and entities:
+
+.. code:: python
+
+   import pandas as pd
+
+   from pyrdf2vec import RDF2VecTransformer
+   from pyrdf2vec.embedders import Word2Vec
+   from pyrdf2vec.graphs import KG
+   from pyrdf2vec.walkers import RandomWalker
+
+   data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
+
+   embeddings, literals = RDF2VecTransformer(
+       Word2Vec(iter=10),
+       walkers=[RandomWalker(4, 10, n_jobs=2)],
+       # verbose=1
+   ).fit_transform(
+       KG(
+           "https://dbpedia.org/sparql",
+           skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+           literals=[
+               [
+                   "http://dbpedia.org/ontology/wikiPageWikiLink",
+                   "http://www.w3.orgb/2004/02/skos/core#prefLabel",
+               ],
+               ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
+           ],
+       ),
+       [entity for entity in data["location"]],
+   )
+
+In a more concrete way, we provide a blog post with a tutorial on how to use
+``pyRDF2Vec`` `here
+<https://towardsdatascience.com/how-to-create-representations-of-entities-in-a-knowledge-graph-using-pyrdf2vec-82e44dad1a0>`__.
+
+**NOTE:** this blog uses some an older version of ``pyRDF2Vec``, some commands
+need be to adapted
 
 Installation
 ~~~~~~~~~~~~
@@ -97,42 +133,82 @@ Introduction
 To create embeddings for a list of entities, there are two steps to do
 beforehand:
 
-1. **create a Knowledge Graph object**;
+1. **use a KG**;
 2. **define a walking strategy**.
 
-For a more elaborate example, check at the
-`example.py <https://github.com/IBCNServices/pyRDF2Vec/blob/master/example.py>`__
-file:
+For more elaborate examples, check the `examples
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/examples>`__ folder.
 
-.. code:: bash
+If no sampling strategy is defined, ``UniformSampler`` is used. Similarly for
+the embedding techniques, ``Word2Vec`` is used by default.
 
-   PYTHONHASHSEED=42 python example.py
+Use a Knowledge Graph
+~~~~~~~~~~~~~~~~~~~~~
 
-**NOTE:** the ``PYTHONHASHSEED`` (e.g., 42) is to ensure determinism.
+To use a KG, you can initialize it in three ways:
 
-Create a Knowledge Graph Object
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To create a Knowledge Graph object, you can initialize it in two ways.
-
-1. **from a file using RDFlib**:
+1. **from a endpoint server using SPARQL**:
 
 .. code:: python
 
    from pyrdf2vec.graphs import KG
 
-   # Define the label predicates, all triples with these predicates
-   # will be excluded from the graph
-   label_predicates = ["http://dl-learner.org/carcinogenesis#isMutagenic"]
-   kg = KG("samples/mutag/mutag.owl", label_predicates=label_predicates)
+   # Defined the DBpedia endpoint server, as well as a set of predicates to
+   # exclude from this KG and a list of predicate chains to fetch the literals.
+   KG(
+       "https://dbpedia.org/sparql",
+       skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+       literals=[
+           [
+               "http://dbpedia.org/ontology/wikiPageWikiLink",
+               "http://www.w3.orgb/2004/02/skos/core#prefLabel",
+           ],
+           ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
+        ],
+    ),
 
-2. **from a server using SPARQL**:
+2. **from a file using RDFLib**:
 
 .. code:: python
 
    from pyrdf2vec.graphs import KG
 
-   kg = KG("https://dbpedia.org/sparql", is_remote=True)
+   # Defined the MUTAG KG, as well as a set of predicates to exclude from
+   # this KG and a list of predicate chains to get the literals.
+   KG(
+       "samples/mutag/mutag.owl",
+       skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
+       literals=[
+           [
+               "http://dl-learner.org/carcinogenesis#hasBond",
+               "http://dl-learner.org/carcinogenesis#inBond",
+           ],
+           [
+               "http://dl-learner.org/carcinogenesis#hasAtom",
+               "http://dl-learner.org/carcinogenesis#charge",
+           ],
+       ],
+   ),
+
+3. **from scratch**:
+
+.. code:: python
+
+   from pyrdf2vec.graphs import KG, Vertex
+
+   GRAPH = [
+      ["Alice", "knows", "Bob"],
+      ["Alice", "knows", "Dean"],
+      ["Dean", "loves", "Alice"],
+   ]
+   URL = "http://pyRDF2Vec"
+   CUSTOM_KG = KG()
+
+   for row in GRAPH:
+      subj = Vertex(f"{URL}#{row[0]}")
+      obj = Vertex((f"{URL}#{row[2]}"))
+      pred = Vertex((f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj)
+      CUSTOM_KG.add_walk(subj, pred, obj)
 
 Define Walking Strategies With Their Sampling Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,37 +219,23 @@ page <https://github.com/IBCNServices/pyRDF2Vec/wiki/Walking-Strategies>`__.
 
 As the number of walks grows exponentially in function of the depth,
 exhaustively extracting all walks quickly becomes infeasible for larger
-Knowledge Graphs. In order to circumvent this issue, `sampling strategies
+Knowledge Graphs. In order to avoid this issue, `sampling strategies
 <http://www.heikopaulheim.com/docs/wims2017.pdf>`__ can be applied. These will
-extract a fixed maximum number of walks per entity. The walks are sampled
+extract a fixed maximum number of walks per entity and sampling the walks
 according to a certain metric.
 
-For example, if one wants to extract a maximum of 5 walks of depth 4 for each
-entity using the Random walking strategy and Uniform sampling strategy (**SEE:**
-the `Wiki page
+For example, if one wants to extract a maximum of 10 walks of a maximum depth
+of 4 for each entity using the Random walking strategy and Page Rank sampling
+strategy (**SEE:** the `Wiki page
 <https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__ for
 other sampling strategies), the following code snippet can be used:
 
 .. code:: python
 
-   from pyrdf2vec.samplers import UniformSampler
+   from pyrdf2vec.samplers import PageRankSampler
    from pyrdf2vec.walkers import RandomWalker
 
-   walkers = [RandomWalker(4, 5, UniformSampler())]
-
-Create Embeddings
-~~~~~~~~~~~~~~~~~
-
-Finally, the creation of embeddings for a list of entities simply goes
-like this:
-
-.. code:: python
-
-   from pyrdf2vec import RDF2VecTransformer
-
-   transformer = RDF2VecTransformer(walkers=walkers)
-   # Entities should be a list of URIs that can be found in the Knowledge Graph
-   embeddings = transformer.fit_transform(kg, entities)
+   walkers = [RandomWalker(4, 10, PageRankSampler())]
 
 .. getting-started-end
 
@@ -198,37 +260,49 @@ file.
 
 FAQ
 ---
-
-How can I load my large KG in memory and avoid the slowness of the SPARQL endpoint server?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Loading large RDF files into memory will cause memory issues as the code is not
-optimized for larger files. We welcome any PRs that better optimize the memory
-usage! Remote KGs serve as a solution for larger KGs, but using a public
-endpoint will be **very** slow due to overhead caused by HTTP requests. For
-that reason, it is better to set-up your own local server and use that for your
-"Remote" KG. Please find a guide `on our wiki
-<https://github.com/IBCNServices/pyRDF2Vec/wiki/Fast-generation-of-RDF2Vec-embeddings-with-a-SPARQL-endpoint>`__.
-
-How to ensure the generation of similar embeddings?
+How to Ensure the Generation of Similar Embeddings?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``pyRDF2Vec``'s walking strategies and sampling strategies work with randomness. To
-get reproducible embeddings, you have to use a seed to ensure determinism:
+``pyRDF2Vec``'s walking strategies, sampling strategies and Word2Vec work with
+randomness. To get reproducible embeddings, you firstly need to **use a seed** to
+ensure determinism:
 
 .. code:: bash
 
    PYTHONHASHSEED=42 python foo.py
 
-However, you **must also fix** the randomness of the sampler after importing
-``numpy``, by adding the following code:
+Added to this, you must **also specify a random state** to the walking strategy
+which will implicitly use it for the sampling strategy:
 
 .. code:: python
 
-   import numpy as np
-   np.random.seed(42)
+   from pyrdf2vec.walkers import RandomWalker
 
-This will ensure the ``np.random`` calls in ``pyRDF2Vec`` are seeded.
+   RandomWalker(2, None, random_state=42)
+
+**NOTE:** the ``PYTHONHASHSEED`` (e.g., 42) is to ensure determinism.
+
+Finally, to ensure random determinism for Word2Vec, you must **specify a single
+worker** to Word2Vec:
+
+.. code:: python
+
+   from pyrdf2vec.embedders import Word2Vec
+
+   Word2Vec(workers=1)
+
+**NOTE:** using the ``n_jobs`` and ``mul_req`` parameters does not affect the
+random determinism.
+
+Why the extraction time of walks is faster if ``max_walks=None``?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently, the BFS function (using the Breadth-first search algorithm) is used
+when ``max_walks=None`` which is significantly faster than the DFS function
+(using the Depth-first search algorithm).
+
+We hope that this algorithmic complexity issue will be solved for the next
+release of ``pyRDf2Vec``
 
 Referencing
 -----------
