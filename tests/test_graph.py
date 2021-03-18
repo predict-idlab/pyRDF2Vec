@@ -92,6 +92,9 @@ class TestKG:
         assert len(literals) == 1
         assert (0.42, 0.37) in literals
 
+    def test_fetch_hops(self):
+        assert LOCAL_KG.fetch_hops(Vertex(f"{URL}#Alice")) == []
+
     def test_get_pliterals(self, setup):
         alice_literals = LOCAL_KG.get_pliterals(
             f"{URL}#Alice", LOCAL_KG.literals[0]
