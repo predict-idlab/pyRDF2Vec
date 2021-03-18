@@ -66,7 +66,7 @@ class KG:
     )
     mul_req: bool = attr.ib(
         kw_only=True,
-        default=True,
+        default=False,
         validator=attr.validators.instance_of(bool),
     )
     cache: Cache = attr.ib(

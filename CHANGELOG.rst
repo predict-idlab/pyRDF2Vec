@@ -13,7 +13,7 @@
   vocabulary.
 - Add the ``literals`` (default to ``[]``) attribute in the ``KG`` class to
   support a basic literal extraction.
-- Add the ``mul_req`` (default to ``True``) attribute to the ``KG`` class to
+- Add the ``mul_req`` (default to ``False``) attribute to the ``KG`` class to
   speed up the extraction of walks and literals for remote Knowledge Graph by
   sending asynchronous requests.
 - Add the ``n_jobs`` (default to ``None``) attribute to the ``Walker`` class
