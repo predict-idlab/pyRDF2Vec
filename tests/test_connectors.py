@@ -1,7 +1,9 @@
 import asyncio
 
 import aiohttp
+import numpy as np
 import pytest
+from numpy.testing import assert_almost_equal
 
 from pyrdf2vec.connectors import Connector, SPARQLConnector
 
@@ -18,6 +20,12 @@ class TestConnector:
 
 
 class TestSPARQLConnector:
+    def test_close(self):
+        connector._asession = aiohttp.ClientSession(raise_for_status=True)
+        assert connector._asession.closed is False
+        asyncio.run(connector.close())
+        assert connector._asession.closed is True
+
     def test_get_query(self):
         entity = f"{URL}#Bob"
         query = connector.get_query(entity)
@@ -33,8 +41,59 @@ class TestSPARQLConnector:
             + f"?o1 <{preds[1]}> ?o . }}"
         )
 
-    def test_close(self):
-        connector._asession = aiohttp.ClientSession(raise_for_status=True)
-        assert connector._asession.closed is False
-        asyncio.run(connector.close())
-        assert connector._asession.closed is True
+    def test_res2literals(self):
+        assert_almost_equal(connector.res2literals([]), np.NaN)
+        assert (
+            connector.res2literals(
+                [
+                    {
+                        "o": {
+                            "type": "literal",
+                            "xml:lang": "en",
+                            "value": "foo",
+                        }
+                    }
+                ]
+            )
+            == "foo"
+        )
+        assert (
+            connector.res2literals(
+                [
+                    {
+                        "o": {
+                            "type": "literal",
+                            "xml:lang": "en",
+                            "value": "foo",
+                        }
+                    },
+                    {
+                        "o": {
+                            "type": "literal",
+                            "xml:lang": "en",
+                            "value": "egg",
+                        }
+                    },
+                ]
+            )
+        ) == ("foo", "egg")
+        assert (
+            connector.res2literals(
+                [
+                    {
+                        "o": {
+                            "type": "literal",
+                            "xml:lang": "en",
+                            "value": 42,
+                        }
+                    },
+                    {
+                        "o": {
+                            "type": "literal",
+                            "xml:lang": "en",
+                            "value": "foo",
+                        }
+                    },
+                ]
+            )
+        ) == (42, "foo")
