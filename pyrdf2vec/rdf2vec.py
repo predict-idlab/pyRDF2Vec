@@ -96,9 +96,7 @@ class RDF2VecTransformer:
             walks += walker.extract(kg, entities, self.verbose)
         toc = time.perf_counter()
 
-        if self._walks is None:
-            self._walks = walks
-        elif is_new_entities:
+        if is_new_entities:
             self._walks += walks
 
         if self.verbose >= 1:
@@ -191,9 +189,7 @@ class RDF2VecTransformer:
         literals = kg.get_literals(entities, self.verbose)
         toc = time.perf_counter()
 
-        if self._literals is None:
-            self._literals = literals
-        else:
+        if not all(entity in self._entities for entity in entities):
             self._literals += literals
 
         if kg._is_remote and kg.mul_req:
