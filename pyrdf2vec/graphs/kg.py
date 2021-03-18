@@ -211,7 +211,7 @@ class KG:
         """
         if self._is_remote:
             return self.fetch_hops(vertex)
-        return self._get_hops(vertex)
+        return self._get_hops(vertex, is_reverse)
 
     def get_literals(self, entities: Entities, verbose: int = 0) -> Literals:
         """Gets the literals for one or more entities for all the predicates
