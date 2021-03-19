@@ -37,7 +37,9 @@
            <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
        </a>
    </p>
-   <p align="center">Python implementation and extension of <a href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from a Knowledge Graph</b> for downstream ML tasks.<p>
+   <p align="center">Python implementation and extension of <a
+   href="http://rdf2vec.org/">RDF2Vec</a> <b>to create a 2D feature matrix from
+   a Knowledge Graph</b> for downstream ML tasks.<p>
 
 --------------
 
@@ -142,6 +144,10 @@ In a more concrete way, we provide a blog post with a tutorial on how to use
 **NOTE:** this blog uses an older version of ``pyRDF2Vec``, some commands need
 be to adapted.
 
+If you run the above snippet, you will not necessarily have the same
+embeddings, because there is no conservation of the random determinism, however
+it remains possible to do it (**SEE:** `FAQ <#faq>`__).
+
 Installation
 ~~~~~~~~~~~~
 
@@ -179,7 +185,7 @@ Use a Knowledge Graph
 
 To use a KG, you can initialize it in three ways:
 
-1. **from a endpoint server using SPARQL**:
+1. **From a endpoint server using SPARQL**:
 
 .. code:: python
 
@@ -193,13 +199,13 @@ To use a KG, you can initialize it in three ways:
        literals=[
            [
                "http://dbpedia.org/ontology/wikiPageWikiLink",
-               "http://www.w3.orgb/2004/02/skos/core#prefLabel",
+               "http://www.w3.org/2004/02/skos/core#prefLabel",
            ],
            ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
         ],
     ),
 
-2. **from a file using RDFLib**:
+2. **From a file using RDFLib**:
 
 .. code:: python
 
@@ -222,25 +228,25 @@ To use a KG, you can initialize it in three ways:
        ],
    ),
 
-3. **from scratch**:
+3. **From scratch**:
 
 .. code:: python
 
    from pyrdf2vec.graphs import KG, Vertex
 
-   GRAPH = [
-      ["Alice", "knows", "Bob"],
-      ["Alice", "knows", "Dean"],
-      ["Dean", "loves", "Alice"],
-   ]
-   URL = "http://pyRDF2Vec"
-   CUSTOM_KG = KG()
+    GRAPH = [
+        ["Alice", "knows", "Bob"],
+        ["Alice", "knows", "Dean"],
+        ["Dean", "loves", "Alice"],
+    ]
+    URL = "http://pyRDF2Vec"
+    CUSTOM_KG = KG()
 
-   for row in GRAPH:
-      subj = Vertex(f"{URL}#{row[0]}")
-      obj = Vertex((f"{URL}#{row[2]}"))
-      pred = Vertex((f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj)
-      CUSTOM_KG.add_walk(subj, pred, obj)
+    for row in GRAPH:
+        subj = Vertex(f"{URL}#{row[0]}")
+        obj = Vertex((f"{URL}#{row[2]}"))
+        pred = Vertex((f"{URL}#{row[1]}"), predicate=True, vprev=subj, vnext=obj)
+        CUSTOM_KG.add_walk(subj, pred, obj)
 
 Define Walking Strategies With Their Sampling Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -257,10 +263,8 @@ extract a fixed maximum number of walks per entity and sampling the walks
 according to a certain metric.
 
 For example, if one wants to extract a maximum of 10 walks of a maximum depth
-of 4 for each entity using the Random walking strategy and Page Rank sampling
-strategy (**SEE:** the `Wiki page
-<https://github.com/IBCNServices/pyRDF2Vec/wiki/Sampling-Strategies>`__ for
-other sampling strategies), the following code snippet can be used:
+of 4 for each entity using the random walking strategy and Page Rank sampling
+strategy, the following code snippet can be used:
 
 .. code:: python
 
@@ -278,9 +282,10 @@ The extraction of walks can take hours, days if not more in some cases. That's
 why it is important to use certain attributes and optimize ``pyRDF2Vec``
 parameters as much as possible according to your use cases.
 
-This section aims to help you to set up these parameters with some advice:
+This section aims to help you to set up these parameters with some advice.
 
-- Configure the ``n_jobs`` attribute to use multiple processors:
+Configure the ``n_jobs`` attribute to use multiple processors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default multiprocessing is disabled (``n_jobs=1``). If your machine allows
 it, it is recommended to use multiprocessing by incrementing the number of
@@ -303,7 +308,8 @@ a short time, this server could consider them as a Denial-Of-Service attack
 (DOS). Of course, these risks are multiplied in the absence of cache and when
 the entities to be treated are of a consequent number.
 
-- Bundle SPARQL requests:
+Bundle SPARQL requests
+~~~~~~~~~~~~~~~~~~~~~~
 
 By default the SPARQL requests bundling is disabled
 (``mul_req=False``). However, if you are using a remote KG and have a large
@@ -337,10 +343,11 @@ large number of SPARQL requests simultaneously could be seen by a server as a
 DOS. Be aware that the number of entities you have in your file corresponds to
 the number of simultaneous requests that will be made and stored in cache.
 
-- Modify the Cache Settings
+Modify the Cache Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, ``pyRDF2Vec`` uses a cache that provides a `Least Recently Used
-(LRU)<https://www.interviewcake.com/concept/java/lru-cache>`__ policy, with a
+(LRU) <https://www.interviewcake.com/concept/java/lru-cache>`__ policy, with a
 size that can hold 1024 entries, and a Time To Live (TTL) of 1200 seconds.
 
 For some use cases, you would probably want to modify the `cache policy
@@ -363,17 +370,16 @@ cache size and/or change the TTL:
        [entity for entity in data["location"]],
    )
 
-- Modify the Walking Strategy Settings
+Modify the Walking Strategy Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, ``pyRDF2Vec`` uses ``[RandomWalker(2, None, UniformSampler())]`` as
 walking strategy. Using a greater maximum depth indicates a longer extraction
 time for walks. Add to this that using ``max_walks=None``, extracts more walks
-and is faster in most cases than when giving a number (**SEE:**
-:ref:`faq-max-walks`).
+and is faster in most cases than when giving a number (**SEE:** `FAQ <#faq>`__).
 
 In some cases, using another sampling strategy can speed up the extraction of
 walks by assigning a higher weight to some paths than others:
-
 
 .. code:: python
 
@@ -392,6 +398,17 @@ walks by assigning a higher weight to some paths than others:
        KG("https://dbpedia.org/sparql"),
        [entity for entity in data["location"]],
    )
+
+Set Up a Local Server
+~~~~~~~~~~~~~~~~~~~~~
+
+Loading large RDF files into memory will cause memory issues. Remote KGs serve
+as a solution for larger KGs, but **using a public endpoint will be slower**
+due to overhead caused by HTTP requests. For that reason, it is better to set
+up your own local server and use that for your "Remote" KG.
+
+To set up such a server, a tutorial has been made `on our wiki
+<https://github.com/IBCNServices/pyRDF2Vec/wiki/Fast-generation-of-RDF2Vec-embeddings-with-a-SPARQL-endpoint>`__.
 
 Documentation
 -------------
@@ -447,8 +464,6 @@ worker**:
 
 **NOTE:** using the ``n_jobs`` and ``mul_req`` parameters does not affect the
 random determinism.
-
-.. _faq-max-walks:
 
 Why the extraction time of walks is faster if ``max_walks=None``?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
