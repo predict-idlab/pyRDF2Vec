@@ -61,7 +61,7 @@ golden rules that you should know before you contribute to ``pyRDF2Vec``:
    ``master`` into your branch, do whatever is more comfortable for you.
 
 
-CHANGELOG
+Changelog
 ---------
 
 If your change is noteworthy, there needs to be a changelog entry so our users
