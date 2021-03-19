@@ -195,7 +195,7 @@ class CommunityWalker(Walker):
             sub_walk: Walk = (root,)
             d = 1
             while d // 2 < self.max_depth:
-                pred_obj = self.sampler.sample_neighbor(
+                pred_obj = self.sampler.sample_hop(
                     kg, sub_walk, d // 2 == self.max_depth - 1, is_reverse
                 )
                 if pred_obj is None:

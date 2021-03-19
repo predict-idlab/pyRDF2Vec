@@ -126,7 +126,7 @@ class Sampler(ABC):
             weight / sum(weights) for weight in weights if sum(weights) != 0
         ]
 
-    def sample_neighbor(
+    def sample_hop(
         self, kg: KG, walk: Walk, is_last_depth: bool, is_reverse: bool = False
     ) -> Optional[Hop]:
         """Samples an unvisited random hop in the (predicate, object)
