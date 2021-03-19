@@ -348,9 +348,8 @@ Modify the Cache Settings
 
 By default, ``pyRDF2Vec`` uses a cache that provides a `Least Recently Used
 (LRU) <https://www.interviewcake.com/concept/java/lru-cache>`__ policy, with a
-size that can hold 1024 entries, and a Time To Live (TTL) of 1200 seconds.
-
-For some use cases, you would probably want to modify the `cache policy
+size that can hold 1024 entries, and a Time To Live (TTL) of 1200 seconds. For
+some use cases, you would probably want to modify the `cache policy
 <https://cachetools.readthedocs.io/en/stable/>`__, increase (or decrease) the
 cache size and/or change the TTL:
 
