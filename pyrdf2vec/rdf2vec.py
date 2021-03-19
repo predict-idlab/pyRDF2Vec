@@ -15,25 +15,14 @@ from pyrdf2vec.walkers import RandomWalker, Walker
 
 @attr.s
 class RDF2VecTransformer:
-    """Transforms nodes in a Knowledge Graph into an embedding.
-
-    Args:
-        embedder: The embedding technique.
-            Defaults to Word2Vec().
-        walkers: The walking strategy.
-            Defaults to [RandomWalker(2)].
-        verbose: The verbosity level.
-            0: does not display anything;
-            1: display of the progress of extraction and training of walks;
-            2: debugging.
-            Defaults to 0.
-
-    """
+    """Transforms nodes in a Knowledge Graph into an embedding."""
 
     embedder: Embedder = attr.ib(
         factory=lambda: Word2Vec(),
         validator=attr.validators.instance_of(Embedder),  # type: ignore
     )
+    """The embedding technique."""
+
     walkers: Sequence[Walker] = attr.ib(
         factory=lambda: [RandomWalker(2)],  # type: ignore
         validator=attr.validators.deep_iterable(
@@ -43,76 +32,38 @@ class RDF2VecTransformer:
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
+    """The walking strategy."""
+
     verbose: int = attr.ib(
         kw_only=True, default=0, validator=attr.validators.in_([0, 1, 2])
     )
+    """The verbosity level.
+           0: does not display anything;
+           1: display of the progress of extraction and training of walks;
+           2: debugging.
+    """
 
     _embeddings: Embeddings = attr.ib(init=False, factory=list)
-    _entities: Entities = attr.ib(init=False, factory=list)
-    _literals: Literals = attr.ib(init=False, factory=list)
-    _walks: List[str] = attr.ib(init=False, factory=list)
+    """All the embeddings of the model."""
 
-    # Useful to know when to close the SPARQL connector session.
+    _entities: Entities = attr.ib(init=False, factory=list)
+    """All the entities of the model."""
+
+    _literals: Literals = attr.ib(init=False, factory=list)
+    """All the literals of the model."""
+
+    _walks: List[str] = attr.ib(init=False, factory=list)
+    """All the walks of the model."""
+
     _is_extract_walks_literals = attr.ib(
         init=False,
         repr=False,
         default=False,
         validator=attr.validators.instance_of(bool),
     )
-
-    def get_walks(self, kg: KG, entities: Entities) -> List[str]:
-        """Gets the walks of an entity based on a Knowledge Graph and a
-        list of walkers
-
-        Args:
-            kg: The Knowledge Graph.
-            entities: The entities including test entities to create the
-                embeddings. Since RDF2Vec is unsupervised, there is no label
-                leakage.
-
-        Returns:
-            The walks for the given entities.
-
-        """
-        if not kg._is_remote and not all(
-            [Vertex(entity) in kg._vertices for entity in entities]
-        ):
-            raise ValueError(
-                "The provided entities must be in the Knowledge Graph."
-            )
-
-        is_new_entities = False
-        if not all(entity in self._entities for entity in entities):
-            self._entities.extend(entities)
-            is_new_entities = True
-
-        if self.verbose == 2:
-            print(kg)
-            print(self.walkers[0])
-
-        walks: List[str] = []
-        tic = time.perf_counter()
-        for walker in self.walkers:
-            walks += walker.extract(kg, entities, self.verbose)
-        toc = time.perf_counter()
-
-        if self._walks is None:
-            self._walks = walks
-        elif is_new_entities:
-            self._walks += walks
-
-        if self.verbose >= 1:
-            print(
-                f"Extracted {len(walks)} walks "
-                + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
-            )
-        if (
-            kg._is_remote
-            and kg.mul_req
-            and not self._is_extract_walks_literals
-        ):
-            asyncio.run(kg.connector.close())
-        return walks
+    """True if the session must be closed after the call to the `transform`
+    function. False, otherwise.
+    """
 
     def fit(
         self, walks: List[str], is_update: bool = False
@@ -167,6 +118,60 @@ class RDF2VecTransformer:
         self._is_extract_walks_literals = True
         self.fit(self.get_walks(kg, entities), is_update)
         return self.transform(kg, entities)
+
+    def get_walks(self, kg: KG, entities: Entities) -> List[str]:
+        """Gets the walks of an entity based on a Knowledge Graph and a
+        list of walkers
+
+        Args:
+            kg: The Knowledge Graph.
+            entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
+
+        Returns:
+            The walks for the given entities.
+
+        """
+        if not kg._is_remote and not all(
+            [Vertex(entity) in kg._vertices for entity in entities]
+        ):
+            raise ValueError(
+                "The provided entities must be in the Knowledge Graph."
+            )
+
+        is_new_entities = False
+        if not all(entity in self._entities for entity in entities):
+            self._entities.extend(entities)
+            is_new_entities = True
+
+        if self.verbose == 2:
+            print(kg)
+            print(self.walkers[0])
+
+        walks: List[str] = []
+        tic = time.perf_counter()
+        for walker in self.walkers:
+            walks += walker.extract(kg, entities, self.verbose)
+        toc = time.perf_counter()
+
+        if self._walks is None:
+            self._walks = walks
+        elif is_new_entities:
+            self._walks += walks
+
+        if self.verbose >= 1:
+            print(
+                f"Extracted {len(walks)} walks "
+                + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
+            )
+        if (
+            kg._is_remote
+            and kg.mul_req
+            and not self._is_extract_walks_literals
+        ):
+            asyncio.run(kg.connector.close())
+        return walks
 
     def transform(
         self, kg: KG, entities: Entities

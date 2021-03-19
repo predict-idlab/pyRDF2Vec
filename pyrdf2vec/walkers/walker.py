@@ -28,31 +28,16 @@ class WalkerNotSupported(Exception):
 
 @attr.s
 class Walker(ABC):
-    """Base class of the walking strategies.
+    """Base class of the walking strategies."""
 
-    Args:
-        max_depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to UniformSampler().
-        n_jobs: The number of CPU cores used when parallelizing. None means 1.
-            -1 means using all processors.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
-
-    """
-
-    # Global KG used later on for the worker process.
     kg: Optional[KG] = None
+    """Global KG used later on for the worker process."""
 
-    depth: int = attr.ib(
+    max_depth: int = attr.ib(
         validator=[attr.validators.instance_of(int), _check_max_depth]
     )
+    """The maximum depth of one walk."""
+
     max_walks: Optional[int] = attr.ib(  # type: ignore
         default=None,
         validator=[
@@ -60,10 +45,14 @@ class Walker(ABC):
             _check_max_walks,
         ],
     )
+    """The maximum number of walks per entity."""
+
     sampler: Sampler = attr.ib(
         factory=lambda: UniformSampler(),
         validator=attr.validators.instance_of(Sampler),  # type: ignore
     )
+    """The sampling strategy."""
+
     n_jobs: Optional[int] = attr.ib(  # type: ignore
         default=None,
         validator=[
@@ -71,18 +60,32 @@ class Walker(ABC):
             _check_jobs,
         ],
     )
+    """The number of CPU cores used when parallelizing.
+    None means 1. -1 means using all processors.
+    """
+
     with_reverse: Optional[bool] = attr.ib(
         kw_only=True,
         default=False,
         validator=attr.validators.instance_of(bool),
     )
+    """True to extracts children's and parents' walks from the root,
+    creating (max_walks * max_walks) more walks of 2 * depth, False otherwise.
+    """
+
     random_state: Optional[int] = attr.ib(
         kw_only=True,
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
+    """The random state to use to keep random determinism with the walking
+    strategy.
+    """
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
+    """True if the walking strategy can be used with a remote Knowledge Graph,
+    False Otherwise.
+    """
 
     def __attrs_post_init__(self):
         if self.n_jobs == -1:
@@ -164,6 +167,10 @@ class Walker(ABC):
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided entities; number of column equal to the embedding size.
+
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
 
         """
         raise NotImplementedError("This must be implemented!")

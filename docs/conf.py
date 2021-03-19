@@ -12,7 +12,7 @@ import tomlkit
 root = Path(__file__).parent.parent.absolute()
 toml = tomlkit.loads((root / "pyproject.toml").read_text(encoding="utf8"))
 
-autodoc_mock_imports = ["aiohttp", "cachetools"]
+autodoc_mock_imports = ["aiohttp", "cachetools", "nest_asyncio"]
 
 
 def find(key: str) -> str:

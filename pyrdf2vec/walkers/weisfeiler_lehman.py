@@ -11,38 +11,27 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class WLWalker(RandomWalker):
-    """Defines the Weisfeler-Lehman walking strategy.
-
-    Args:
-        max_depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to pyrdf2vec.samplers.UniformSampler().
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
-        wl_iterations: The Weisfeiler Lehman's iteration.
-            Defaults to 4.
-
-    """
+    """Defines the Weisfeler-Lehman walking strategy."""
 
     wl_iterations: int = attr.ib(
         kw_only=True, default=4, validator=attr.validators.instance_of(int)
     )
+    """The Weisfeiler Lehman's iteration."""
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+    """True if the walking strategy can be used with a remote Knowledge Graph,
+    False Otherwise.
+    """
 
     _inv_label_map: DefaultDict[
         Vertex, Dict[Union[str, int], Union[str, int]]
     ] = attr.ib(init=False, repr=False, factory=lambda: defaultdict(dict))
+    """Stores the mapping of the inverse labels."""
+
     _label_map: DefaultDict[Vertex, Dict[int, str]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
+    """Stores the mapping of the labels."""
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int) -> str:
         """Creates a label according to a vertex and its neighbors.

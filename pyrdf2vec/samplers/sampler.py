@@ -20,31 +20,43 @@ class SamplerNotSupported(Exception):
 
 @attr.s
 class Sampler(ABC):
-    """Base class for the sampling strategies."""
+    """Base class of the sampling strategies.."""
 
     inverse: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
+    """True if the inverse algorithm must be used, False otherwise."""
+
     split: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
+    """True if the split algorithm must be used, False otherwise."""
 
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+    """True if the sampling strategy can be used with a remote Knowledge Graph,
+    False Otherwise.
+    """
 
     _random_state: Optional[int] = attr.ib(
         init=False,
         repr=False,
         default=None,
     )
+    """The random state to use to keep random determinism with the sampling
+    strategy.
+    """
 
     _vertices_deg: Dict[str, int] = attr.ib(
         init=False, repr=False, factory=dict
     )
-    # Tags vertices that appear at the max depth or of which all their children
-    # are tagged.
+    """The degree of the vertices."""
+
     _visited: Set[Tuple[Hop, int]] = attr.ib(
         init=False, repr=False, factory=set
     )
+    """Tags vertices that appear at the max depth or of which all their
+    children are tagged.
+    """
 
     @abstractmethod
     def fit(self, kg: KG) -> None:
@@ -79,6 +91,10 @@ class Sampler(ABC):
 
         Returns:
             The weight for a given hop.
+
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
 
         """
         raise NotImplementedError("This has to be implemented")

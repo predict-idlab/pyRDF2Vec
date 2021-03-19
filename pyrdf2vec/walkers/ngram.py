@@ -16,38 +16,26 @@ class NGramWalker(RandomWalker):
     The intuition behind this is that the predecessors of a node that two
     different walks have in common can be different.
 
-    Args:
-        max_depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to pyrdf2vec.samplers.UniformSampler().
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
-        grams: The N-grams to relabel.
-            Defaults to 3.
-        wildcards: The wildcards to be used to match sub-sequences with small
-            differences to be mapped onto the same label.
-            Defaults to None.
-
     """
 
     grams: int = attr.ib(
         kw_only=True, default=3, validator=attr.validators.instance_of(int)
     )
+    """The N-gram to relabel."""
+
     wildcards: list = attr.ib(
         kw_only=True,
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(list)),
     )
+    """The wildcards to be used to match sub-sequences with small differences
+    to be mapped onto the same label.
+    """
+
     _n_gram_map: Dict[Tuple, str] = attr.ib(
         init=False, repr=False, factory=dict
     )
+    """Stores the mapping of N-gram."""
 
     def _take_n_grams(self, walk: Walk) -> List[str]:
         """Takes the N-Grams.

@@ -10,7 +10,7 @@ from pyrdf2vec.typings import Embeddings, Entities
 
 @attr.s
 class Embedder(metaclass=abc.ABCMeta):
-    """Base class for the embedding technique."""
+    """Base class of the embedding techniques."""
 
     @abc.abstractmethod
     def fit(self, corpus: List[Entities], is_update: bool = False) -> Embedder:
@@ -21,6 +21,10 @@ class Embedder(metaclass=abc.ABCMeta):
 
         Returns:
             The fitted model according to an embedding technique.
+
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
 
         """
         raise NotImplementedError("This has to be implemented")
@@ -36,6 +40,10 @@ class Embedder(metaclass=abc.ABCMeta):
 
         Returns:
             The features vector of the provided entities.
+
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
 
         """
         raise NotImplementedError("This has to be implemented")

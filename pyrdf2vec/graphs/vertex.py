@@ -10,11 +10,20 @@ class Vertex:
     """Represents a vertex in a Knowledge Graph."""
 
     name: str = attr.ib(validator=attr.validators.instance_of(str))
+    """The name of vertex."""
+
     predicate: bool = attr.ib(
-        default=False, validator=attr.validators.instance_of(bool), repr=False
+        default=False,
+        validator=attr.validators.instance_of(bool),
+        repr=False,
     )
+    """True if the vertex is a predicate. False, otherwise."""
+
     vprev: Optional[Vertex] = attr.ib(default=None, repr=False)
+    """The previous vertex."""
+
     vnext: Optional[Vertex] = attr.ib(default=None, repr=False)
+    """The next vertex."""
 
     def __eq__(self, other: Any) -> bool:
         """Defines behavior for the equality operator, ==.

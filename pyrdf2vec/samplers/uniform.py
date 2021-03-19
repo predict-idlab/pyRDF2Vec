@@ -18,10 +18,17 @@ class UniformSampler(Sampler):
     inverse: bool = attr.ib(
         init=False, default=False, validator=attr.validators.instance_of(bool)
     )
+    """True if the inverse algorithm must be used, False otherwise."""
+
     split: bool = attr.ib(
         init=False, default=False, validator=attr.validators.instance_of(bool)
     )
+    """True if the split algorithm must be used, False otherwise."""
+
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
+    """True if the sampling strategy can be used with a remote Knowledge Graph,
+    False Otherwise.
+    """
 
     def fit(self, kg: KG) -> None:
         """Since the weights are uniform, this function does nothing.

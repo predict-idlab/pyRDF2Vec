@@ -19,26 +19,7 @@ from pyrdf2vec.utils.validation import _check_location
 
 @attr.s
 class KG:
-    """Represents a Knowledge Graph.
-
-    Args:
-        location: The location of the file to load.
-            Defaults to None.
-        skip_predicates: The label predicates to skip from the KG.
-            Defaults to set().
-        literals: The predicate chains to get the literals.
-            Defaults to [].
-        fmt: Used if format can not be determined from source.
-            Defaults to None.
-        mul_req: True to allow bundling of SPARQL queries, False otherwise.
-            Accelerates the extraction of walks for remote Knowledge Graphs.
-            Beware that this may violate the policy of some SPARQL endpoint
-            server.
-            Defaults to True.
-        cache: The policy and size cache to use.
-            Defaults to cachetools.TTLCache(maxsize=1024, ttl=1200)
-
-    """
+    """Represents a Knowledge Graph."""
 
     location: Optional[str] = attr.ib(  # type: ignore
         default=None,
@@ -47,53 +28,81 @@ class KG:
             _check_location,
         ],
     )
+    """The location of the file to load."""
+
     skip_predicates: Set[str] = attr.ib(
         factory=set,
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(str)
         ),
     )
+    """The label predicates to skip from the KG."""
+
     literals: List[List[str]] = attr.ib(  # type: ignore
         factory=list,
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(List)
         ),
     )
+    """The predicate chains to get the literals."""
+
     fmt: Optional[str] = attr.ib(
         kw_only=True,
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
+    """The format of the file.
+    It should be used only if the format can not be determined from source.
+    """
+
     mul_req: bool = attr.ib(
         kw_only=True,
         default=False,
         validator=attr.validators.instance_of(bool),
     )
+    """True to allow bundling of SPARQL queries, False otherwise.
+    This attribute accelerates the extraction of walks for remote Knowledge
+    Graphs. Beware that this may violate the policy of some SPARQL endpoint
+    server.
+    """
+
     cache: Cache = attr.ib(
         kw_only=True,
         factory=lambda: TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
+    """The policy and size cache to use.
+    Defaults to TTLCache(maxsize=1024, ttl=1200)
+    """
 
     connector: SPARQLConnector = attr.ib(default=None, init=False, repr=False)
+    """The connector to use."""
 
     _is_remote: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )
+    """True if the Knowledge Graph is in remote, False otherwise."""
 
     _inv_transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
     )
+    """Contains the parents of vertices."""
+
     _transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(set)
     )
+    """Contains the children of vertices."""
 
     _entity_hops: Dict[str, List[Hop]] = attr.ib(
         init=False, repr=False, factory=dict
     )
+    """Caches the results of asynchronous requests."""
 
     _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
+    """Stores the entities."""
+
     _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
+    """Stores the vertices."""
 
     def __attrs_post_init__(self):
         if self.location is not None:
@@ -150,7 +159,7 @@ class KG:
         return True
 
     def add_walk(self, subj: Vertex, pred: Vertex, obj: Vertex) -> bool:
-        """Adds a walk.
+        """Adds a walk to the Knowledge Graph.
 
         Args:
             subj: The vertex of the subject.
@@ -158,7 +167,8 @@ class KG:
             obj: The vertex of the object.
 
         Returns:
-            True if the walk has been added, False otherwise.
+            True if the walk has been added to the Knowledge Graph, False
+            otherwise.
 
         """
         if pred.name not in self.skip_predicates:
