@@ -38,6 +38,7 @@
    readme
    glossary
    license
+   posts-papers
    API <api/pyrdf2vec>
 
 .. toctree::
