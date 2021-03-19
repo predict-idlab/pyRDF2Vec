@@ -12,23 +12,23 @@ We will be happy to help you and thank you for your work!
 
 The project being new, there are many opportunities for contributions:
 
-1. `Add a new embedding technique <#add-a-new-embedding-technique>`__:
-   the field of natural language processing is advancing rapidly. As
-   such, many of the techniques used in the original implementation of
-   RDF2Vec were outdated.
-2. `Add a new walking strategy <#add-a-new-walking-strategy>`__: add
-   your own custom walking algorithm.
-3. `Add a new sampling strategy <#add-a-new-sampling-strategy>`__:
-   heuristically sample when extracting walks for scalability.
-4. `Improve the online
-   documentation <#improve-the-online-documentation>`__: correcting
-   spelling mistakes and using better sentence structures may help to
-   better understand the use of ``pyRDF2Vec``.
-5. `Submit your bugs and
-   suggestions <#submit-your-bugs-and-suggestions>`__: reproduce the bug
-   you encountered with ``pyRDF2Vec`` and/or suggest your ideas for the
-   development of ``pyRDF2Vec``, would help us to improve this library.
-6. `Improve the code <#improve-the-code>`__: whether by refactoring or
+1. `Add a new embedding technique <#add-a-new-embedding-technique>`__: offer a
+   new possibility to have potentially better results when training a corpus of
+   walks.
+2. `Add a new walking strategy <#add-a-new-walking-strategy>`__: offer a
+   new possibility to extract walks in a Knowledge Graph.
+3. `Add a new sampling strategy <#add-a-new-sampling-strategy>`__: offer a new
+   possibility of assigning weights to links in a Knowledge Graph.
+4. `Add a new connector <#add-a-new-connector>`__: offer a new possibility to
+   extend the use of ``pyRDF2Vec`` to other syntax and file formats in RDF.
+5. `Improve the online documentation <#improve-the-online-documentation>`__:
+   correcting spelling mistakes and using better sentence structures may help
+   to better understand the use of ``pyRDF2Vec``.
+6. `Submit your bugs and suggestions <#submit-your-bugs-and-suggestions>`__:
+   reproduce the bug you encountered with ``pyRDF2Vec`` and/or suggest your
+   ideas for the development of ``pyRDF2Vec``, would help us to improve this
+   library.
+7. `Improve the code <#improve-the-code>`__: whether by refactoring or
    optimizing the complexity of certain functions, if an implementation
    seems not adequate to you, do not hesitate to modify it by opening a
    pull request, or to inform us by opening an issue.
@@ -61,7 +61,7 @@ golden rules that you should know before you contribute to ``pyRDF2Vec``:
    ``master`` into your branch, do whatever is more comfortable for you.
 
 
-Changelog
+CHANGELOG
 ---------
 
 If your change is noteworthy, there needs to be a changelog entry so our users
@@ -150,318 +150,400 @@ Here are the conventions established for ``pyRDF2Vec``:
 These checks are done by ``tox`` using `pre-commit
 <https://github.com/pre-commit/pre-commit>`__.
 
-Add a new embedding technique
------------------------------
+Install the Dependencies
+------------------------
 
-1. **Install the dependencies:** before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure that `poetry
-   <https://python-poetry.org/>`__ is installed:
+Before contributing, it is important that you can install the pyRDF2Vec
+dependencies in your environment. Whether you are using a Notebook or directly
+your text editor, here is the preferred method:
+
+1. **Install `poetry <https://python-poetry.org/>`__**:
 
 .. code:: bash
 
    pip install poetry
 
 With ``poetry`` installed, you can now install the dependencies related
-to ``pyRDF2Vec``:
+to ``pyRDF2Vec`` in a virtual environment:
 
 .. code:: bash
 
    poetry install
 
-2. **Create your embedder** (e.g., ``foo.py``) in ``pyrdf2vec/embedders``.
-3. **Import your embedder** in the ``pyrdf2vec/embedders/__init__.py`` file and
+Now all you have to do is spawn a terminal to your virtual environment:
+
+.. code:: bash
+
+   poetry shell
+
+Add a New Embedding Technique
+-----------------------------
+
+Adding a new embedding technique offers the possibility to have potentially
+better results for some uses-cases when training a corpus of walks.
+
+To achieve this, there are 5 points there are 5 points to follow:
+
+1. **Create your embedder** (e.g., ``Foo``) in ``pyrdf2vec/embedders``.
+2. **Import your embedder** in the ``pyrdf2vec/embedders/__init__.py`` file and
    in the ``__all__`` list:
 
 .. code:: python
 
-   from .embedder import Embedder
-   from .foo import FooEmbedder
-   from .word2vec import Word2Vec
+    from .embedder import Embedder
+    from .foo import FooEmbedder
+    from .word2vec import Word2Vec
 
-   __all__ = [
-      "Embedder",
-      "FooEmbedder",
-      "Word2Vec",
-  ]
+    __all__ = [
+        "Embedder",
+        "FooEmbedder",
+        "Word2Vec",
+    ]
 
-4. in your embedder's class, **extend the** `Embedder
+3. **Extend the** `Embedder
    <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/embedders/embedder.py>`__
-   **class** and implement at least the ``fit`` and ``transform`` functions:
+   **class** in your embedder's class and implement at least the ``fit`` and
+   ``transform`` functions:
 
-.. code:: python3
+.. code:: python
 
-   from typing import List
+    from typing import List
 
-   import rdflib
+    import attr
 
-   from pyrdf2vec.embedders import Embedder
+    from pyrdf2vec.embedders import Embedder
+    from pyrdf2vec.typings import Embeddings, Entities
 
-   class FooEmbedder(Embedder):
-    """Defines Foo embedding technique."""
+    @attr.s
+    class Foo(Embedder):
+        """Defines Foo embedding technique."""
 
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
+        def fit(self, corpus: List[Entities], is_updated: bool = False) -> Embedder:
+           """Fits the model based on provided corpus.
 
-    def __init__(self):
-        pass
+           Args:
+               corpus: The corpus to fit the model.
+               is_update: True if the new corpus should be added to old model's
+                   corpus, False otherwise.
+                   Defaults to False.
 
-    def fit(self, corpus: List[List[str]]):
-        """Fits the Foo model based on provided corpus.
-
-        Args:
-            corpus: The corpus.
-
-        Returns:
-            The fitted model according to an embedding technique.
-
-        """
-        # TODO: to be implemented
-
-    def transform(self, entities: List[rdflib.URIRef]) -> List[str]:
-        """Constructs a features vector for the provided entities.
-
-        Args:
-            entities: The entities to create the embeddings.
-                The test entities should be passed to the fit method as well.
-
-                Due to RDF2Vec being unsupervised, there is no label leakage.
-
-        Returns:
-            The embeddings of the provided entities.
+           Returns:
+               The fitted Word2Vec model.
 
         """
         # TODO: to be implemented
 
-**NOTE:** don't forget to update the docstring of your embedder.
+        def transform(self, entities: Entities) -> Embeddings:
+            """The features vector of the provided entities.
 
-5. **Check that the code style and documentation are still correct:**
+            Args:
+                entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
+
+            Returns:
+                The features vector of the provided entities.
+
+        """
+        # TODO: to be implemented
+
+4. **Create unit tests of your embedding technique:**
+
+Create a ``tests/embedders/foo.py`` file and see `how the tests are done for
+Word2Vec
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/embedders/word2vec.py>`__
+as an example.
+
+Once this is done, run your tests:
+
+.. code:: bash
+
+   pytest tests/samplers/foo.py
+
+5. **Check that the code style and the documentation are still correct:**
 
 .. code:: bash
 
    tox -e lint,docs
 
+
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
 
 
-Add a new walking strategy
+Add a New Walking Strategy
 --------------------------
 
-To add your own sampling strategy, the steps are almost similar to those for
+Adding a new walking strategy allows to perform on a new possibility to
+extract walks for a given Knowledge Graph.
+
+To add your own walking strategy, the steps are almost similar to those for
 adding an embedding technique:
 
-1. **Install the dependencies:** before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure that `poetry
-   <https://python-poetry.org/>`__ is installed:
-
-.. code:: bash
-
-   pip install poetry
-
-With ``poetry`` installed, you can now install the dependencies related
-to ``pyRDF2Vec``:
-
-.. code:: bash
-
-   poetry install
-
-2. **Create your walker** (e.g., ``foo.py``) in ``pyrdf2vec/walkers``.
-3. **Import your walker** in the ``pyrdf2vec/walkers/__init__.py`` file and in
+1. **Create your walker** (e.g., ``FooWalker``) in ``pyrdf2vec/walkers``.
+2. **Import your walker** in the ``pyrdf2vec/walkers/__init__.py`` file and in
    the ``__all__`` list:
 
 .. code:: python
 
-   from .anonymous import AnonymousWalker
-   # ...
-   from .walklets import WalkletWalker
-   from .weisfeiler_lehman import WLWalker
-   from .foo import FooWalker
+    from .walker import Walker
 
-   __all__ = [
-       "AnonymousWalker",
-       # ...
-       "WalkletWalker",
-       "WLWalker",
-       "FooWalker",
-  ]
+    # ...
+    from .foo import FooWalker
+    # ...
+    from .walklet import WalkletWalker
+    from .weisfeiler_lehman import WLWalker
 
-4. in your walker's class, **extend the** `Walker
+    __all__ = [
+        # ...
+        "FooWalker",
+        # ...
+        "Walker",
+        "WalkletWalker",
+        "WLWalker",
+    ]
+
+3. **Extend the** `Walker
    <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py>`__
-   **class** and implement at least the ``extract`` function:
+   **class** in your walker's class and implement at least the ``_extract``
+   function:
 
-.. code:: python3
+.. code:: python
 
-   from typing import Any, List, Set, Tuple
+    from hashlib import md5
+    from typing import List, Set
 
-   import rdflib
+    import attr
 
-   from pyrdf2vec.graph import KG
-   from pyrdf2vec.samplers import Sampler, UniformSampler
-   from pyrdf2vec.walkers import Walker
+    from pyrdf2vec.graphs import KG, Vertex
+    from pyrdf2vec.typings import EntityWalks, SWalk, Walk
+    from pyrdf2vec.walkers import Walker
 
-   class FooWalker(Walker):
-    """Defines the foo walking strategy.
-
-    Attributes:
-        depth: The depth per entity.
-        walks_per_graph: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Default to UniformSampler().
-
-    """
-
-    def __init__(
-        self,
-        depth: int,
-        walks_per_graph,
-        sampler: Sampler = UniformSampler(),
-    ):
-        super().__init__(depth, walks_per_graph, sampler)
-
-    def _extract(
-        self, kg: KG, entities: List[rdflib.URIRef]
-    ) -> Set[Tuple[Any, ...]]:
-        """Extracts the walks and processes them for the embedding model.
+    @attr.s
+    class FooWalker(Walker):
+        """Defines the foo walking strategy.
 
         Args:
-            kg: The knowledge graph.
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
-            entities: The entities to extract the knowledge graph.
-
-        Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            depth: The maximum depth of one walk.
+            max_walks: The maximum number of walks per entity.
+            sampler: The sampling strategy.
+                Defaults to pyrdf2vec.samplers.UniformSampler().
+            n_jobs: The number of process to use for multiprocessing.
+                Defaults to 1.
+            with_reverse: extracts children's and parents' walks from the root,
+                creating (max_walks * max_walks) more walks of 2 * depth.
+                Defaults to False.
+            random_state: The random state to use to ensure random determinism to
+                generate the same walks for entities.
+                Defaults to None.
 
         """
-        # TODO: to be implemented
 
-**NOTE:** don't forget to update the docstring of your walker.
+        def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
+            """Extracts walks rooted at the provided entities which are then
+            each transformed into a numerical representation.
 
-5. **Run unit tests, check that the code style and documentation are still correct:**
+            Args:
+                kg: The Knowledge Graph.
+                instance: The instance to be extracted from the Knowledge Graph.
+
+            Returns:
+                The 2D matrix with its number of rows equal to the number of
+                provided entities; number of column equal to the embedding size.
+
+            """
+            canonical_walks: Set[SWalk] = set()
+            # TODO: to be implemented
+            return {instance.name: tuple(canonical_walks)}
+
+4. **Create unit tests of your walking strategy:**
+
+Create a ``tests/walkers/foo.py`` file and see `how the tests are done for
+RandomWalker
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/walkers/test_random.py>`__
+as an example.
+
+Once this is done, run your tests:
 
 .. code:: bash
 
-   pytest tests/test_walkers.py
+   pytest tests/walkers/foo.py
+
+5. **Check that the code style and the documentation are still correct:**
+
+.. code:: bash
+
    tox -e lint,docs
-
-In case you had to modify classes from ``pyRDF2Vec``, it will be necessary to
-make sure that all tests still work:
-
-.. code:: bash
-
-   tox -e tests
-
-**NOTE:** this may take some time (between 10-15 minutes), do this step only necessary.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
 
-Add a new sampling strategy
+Add a New Sampling Strategy
 ---------------------------
 
+Adding a new sampling strategy performs a new way of assigning weights to links
+in a Knowledge Graph.
+
 To add your own sampling strategy, the steps are almost similar to those for
-adding a walking strategy:
+adding a walking strategy and a embedding technique:
 
-1. **Install the dependencies:** before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure that `poetry
-   <https://python-poetry.org/>`__ is installed:
-
-.. code:: bash
-
-   pip install poetry
-
-With ``poetry`` installed, you can now install the dependencies related
-to ``pyRDF2Vec``:
-
-.. code:: bash
-
-   poetry install
-
-2. **Create your sampler** (e.g., ``Foo.py``) in ``pyrdf2vec/samplers``.
-3. **Import your sampler** in the ``pyrdf2vec/samplers/__init__.py`` file and
+1. **Create your sampler** (e.g., ``FooSampler``) in ``pyrdf2vec/samplers``.
+2. **Import your sampler** in the ``pyrdf2vec/samplers/__init__.py`` file and
    in the ``__all__`` list:
 
 .. code:: python
 
-   from .sampler import Sampler
-   # ...
-   from .foo import FooSampler
-   from .frequency import ObjFreqSampler, ObjPredFreqSampler, PredFreqSampler
-   from .pagerank import PageRankSampler
+    from .sampler import Sampler
 
-   __all__ = [
-       "FooSampler",
-       # ...
-       "ObjFreqSampler",
-       "ObjPredFreqSampler",
-       "PageRankSampler",
-       "PredFreqSampler",
-       "Sampler",
-  ]
+    # ...
+    from .foo import FooSampler
+    # ...
+    from .uniform import UniformSampler
 
-4. in your sampler's class, **extend the** `Sampler
+    __all__ = [
+        # ...
+        "FooSampler",
+        # ...
+        "Sampler",
+        "UniformSampler",
+    ]
+
+3. **Extend the** `Sampler
    <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/samplers/sampler.py>`__
-   **class** and implement at least the ``fit`` and ``get_weights`` functions:
+   **class** in your sampler's class and implement at least the ``fit`` and
+   ``get_weight`` functions:
 
-.. code:: python3
+.. code:: python
 
-   from pyrdf2vec.graph import KG
-   from pyrdf2vec.samplers import Sampler
+    import attr
 
-   class FooSampler(Sampler):
-    """Defines the Foo sampling strategy."""
+    from pyrdf2vec.graph import KG
+    from pyrdf2vec.samplers import Sampler
+    from pyrdf2vec.typings import Hop
 
-    def __init__(self):
-        super().__init__()
+    @attr.s
+    class FooSampler(Sampler):
+        """Defines the Foo sampling strategy."""
 
-    def fit(self, kg: KG) -> None:
-        """Fits the embedding network based on provided Knowledge Graph.
+        def fit(self, kg: KG) -> None:
+            """Since the weights are uniform, this function does nothing.
 
-        Args:
-            kg: The Knowledge Graph.
+            Args:
+                kg: The Knowledge Graph.
 
-        """
-        pass
+            """
+            # TODO: to be implemented
 
-    def get_weight(self, hop):
-        """Gets the weights to the edge of the Knowledge Graph.
+        def get_weight(self, hop: Hop) -> int:
+            """Gets the weight of a hop in the Knowledge Graph.
 
-        Args:
-            hop: The depth of the Knowledge Graph.
+            Args:
+                hop: The hop (pred, obj) to get the weight.
 
-                A depth of eight means four hops in the graph, as each hop adds
-                two elements to the sequence (i.e., the predicate and the
-                object).
+            Returns:
+                The weight for a given hop.
 
-        Returns:
-            The weights to the edge of the Knowledge Graph.
+            """
+            # TODO: to be implemented
 
-        """
-        # TODO: to be implemented
+4. **Create unit tests of your sampling technique:**
 
-**NOTE:** don't forget to update the docstring of your sampler.
+Create a ``tests/samplers/foo.py`` file and see `how the tests are done for
+UniformSampler
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/samplers/uniform.py>`__
+as an example.
 
-5. **Run unit tests, check that the code style and documentation are still correct:**
+Once this is done, run your tests:
 
 .. code:: bash
 
-   pytest tests/test_samplers.py
+   pytest tests/samplers/foo.py
+
+5. **Check that the code style and the documentation are still correct:**
+
+.. code:: bash
+
    tox -e lint,docs
-
-In case you had to modify classes from ``pyRDF2Vec``, it will be necessary to
-make sure that all tests still work:
-
-.. code:: bash
-
-   tox -e tests
-
-**NOTE:** this may take some time (between 10-15 minutes), do this step only necessary.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
 
-Improve the online documentation
+Add a New Connector
+-------------------
+
+Add a new connector to extend the use of ``pyRDF2Vec`` to other syntax and file
+formats in RDF (e.g., Turtle syntax)
+
+To add your own connector, the steps are almost similar to those previously
+illustrated:
+
+1. **Create your connector** (e.g., ``FooConnector``) in ``pyrdf2vec/connectors``.
+2. **Import your connector** in the ``pyrdf2vec/connector/__init__.py`` file.
+3. **Extend the** `Connector
+   <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/connectors.py>`__
+   **class** in your connector's class and implement at least the ``fetch``
+   function:
+
+.. code:: python
+
+    import attr
+    from requests.adapters import HTTPAdapter
+    from requests.packages.urllib3.util import Retry
+
+    from pyrdf2vec.connectors import Connector
+
+    @attr.s
+    class FooConnector(Connector):
+        """Represents a Foo connector."""
+
+        def __attrs_post_init__(self):
+            adapter = HTTPAdapter(
+                Retry(
+                    total=3,
+                    status_forcelist=[429, 500, 502, 503, 504],
+                    method_whitelist=["HEAD", "GET", "OPTIONS"],
+                )
+            )
+            self._session.mount("http", adapter)
+            self._session.mount("https", adapter)
+
+        def fetch(self, query: str) -> None:
+            """Fetchs the result of a query.
+
+               Args:
+                   query: The query to fetch the result.
+
+               Returns:
+                   The generated dictionary from the ['results']['bindings']
+                   json.
+
+            """
+            # TODO: to be implemented
+
+4. **Create unit tests of your connector:**
+
+Create a ``tests/connectors/foo.py`` file and see `how the tests are done for
+SPARQLConnector
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/connectors.py>`__
+as an example.
+
+Once this is done, run your tests:
+
+.. code:: bash
+
+   pytest tests/connectors/foo.py
+
+5. **Check that the code style and the documentation are still correct:**
+
+.. code:: bash
+
+   tox -e lint,docs
+
+Everything ok? Make a `pull
+request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
+
+
+Improve the Online Documentation
 --------------------------------
 
 The `online documentation of
@@ -475,39 +557,24 @@ documentation, we use:
    as a docstring writing convention.
 - ``mypy``: as a optional static typing for Python.
 
-To update the documentation, 5 steps are essential:
+To update the documentation, 4 steps are essential:
 
-1. **Install the dependencies:** before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure that `poetry
-   <https://python-poetry.org/>`__ is installed:
-
-.. code:: bash
-
-   pip install poetry
-
-With ``poetry`` installed, you can now install the dependencies related
-to the documentation of ``pyRDF2Vec``:
-
-.. code:: bash
-
-   poetry install -E docs
-
-2. **Modify what needed to be modified in the documentation**: available in the
+1. **Modify what needed to be modified in the documentation**: available in the
    ``docs`` folder.
 
-3. **Generate this documentation locally**:
+2. **Generate this documentation locally**:
 
 .. code:: bash
 
    tox -e docs
 
-4. **Check that the changes made are correct with your web browser:**
+3. **Check that the changes made are correct with your web browser:**
 
 .. code:: bash
 
    $BROWSER _build/html/index.html
 
-5. **Check that the code style of the documentation is still correct:**
+4. **Check that the code style of the documentation is still correct:**
 
 .. code:: bash
 
@@ -516,45 +583,27 @@ to the documentation of ``pyRDF2Vec``:
 Everything ok? Make a `pull request
 <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
 
-Submit your bugs and suggestions
+Submit your Bugs and Suggestions
 --------------------------------
 
 Feel free to `open an issue
 <https://github.com/IBCNServices/pyRDF2Vec/issues/new/choose>`__ in case something is
 not working as expected, or if you have any questions/suggestions.
 
-Improve the code
+Improve the Code
 ----------------
 
 The refactoring and optimization of code complexity is an art that must
 be necessary to facilitate future contributions of ``pyRDF2Vec``.
 
-To improve the code, 3 steps are essential:
+To improve the code, 2 steps are essential:
 
-1. **Install the dependencies:** before you can install the dependencies of
-   ``pyRDF2Vec``, you must first make sure that ``poetry`` is installed:
-
-.. code:: bash
-
-   pip install poetry
-
-With ``poetry`` installed, you can now install the dependencies related to
-``pyRDF2Vec``:
-
-.. code:: bash
-
-   poetry install
-
-2. **Make your modifications**.
-
-3. **Run unit tests, check that the code style and documentation are still correct:**
+1. **Make your modifications**.
+2. **Run unit tests, check that the code style and documentation are still correct:**
 
 .. code:: bash
 
    tox
-
-**NOTE:** this may take some time (between 10-15 minutes), do this step when
-your code works.
 
 Everything ok? Make a `pull
 request <https://github.com/IBCNServices/pyRDF2Vec/pulls>`__!
