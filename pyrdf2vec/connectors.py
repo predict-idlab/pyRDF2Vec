@@ -56,10 +56,14 @@ class Connector(ABC):
         Returns:
             The generated dictionary from the ['results']['bindings'] json.
 
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
+
         """
         raise NotImplementedError("This must be implemented!")
 
-    async def close(self):
+    async def close(self) -> None:
         """Closes the aiohttp session."""
         await self._asession.close()
 
