@@ -127,7 +127,7 @@ class Sampler(ABC):
         ]
 
     def sample_hop(
-        self, kg: KG, walk: Walk, is_last_depth: bool, is_reverse: bool = False
+        self, kg: KG, walk: Walk, is_last_hop: bool, is_reverse: bool = False
     ) -> Optional[Hop]:
         """Samples an unvisited random hop in the (predicate, object)
         form, according to the weight of hops for a given walk.
@@ -135,14 +135,14 @@ class Sampler(ABC):
         Args:
             kg: The Knowledge Graph.
             walk: The walk with one or several vertices.
-            is_last_hop: True if the next neighbor to be visited is the last
+            is_last_hop: True if the next hop to be visited is the last
                 one for the desired depth, False otherwise.
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors, False otherwise.
                 Defaults to False.
 
         Returns:
-            An unvisited neighbor in the (predicate, object) form.
+            An unvisited hop in the (predicate, object) form.
 
         """
         subj = walk[0] if is_reverse else walk[-1]
@@ -166,7 +166,7 @@ class Sampler(ABC):
             p=self.get_weights(untagged_neighbors),
         )
 
-        if is_last_depth:
+        if is_last_hop:
             self.visited.add((untagged_neighbors[rnd_id], len(walk)))
         return untagged_neighbors[rnd_id]
 
