@@ -1,3 +1,6 @@
+Preview
+=======
+
 |image1|
 
 .. |image1| image:: ../assets/embeddings.svg
