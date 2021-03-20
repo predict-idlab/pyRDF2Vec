@@ -10,23 +10,7 @@ from pyrdf2vec.walkers import Walker
 
 @attr.s
 class RandomWalker(Walker):
-    """Defines the random walking strategy.
-
-    Args:
-        depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to pyrdf2vec.samplers.UniformSampler().
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure random determinism to
-            generate the same walks for entities.
-            Defaults to None.
-
-    """
+    """Defines the random walking strategy."""
 
     def _bfs(
         self, kg: KG, root: Vertex, is_reverse: bool = False
@@ -45,7 +29,7 @@ class RandomWalker(Walker):
 
         """
         walks: Set[Walk] = {(root,)}
-        for i in range(self.depth):
+        for i in range(self.max_depth):
             for walk in walks.copy():
                 if is_reverse:
                     hops = kg.get_hops(walk[0], True)
@@ -83,9 +67,9 @@ class RandomWalker(Walker):
         while len(walks) < self.max_walks:
             sub_walk: Walk = (root,)
             d = 1
-            while d // 2 < self.depth:
-                pred_obj = self.sampler.sample_neighbor(
-                    kg, sub_walk, d // 2 == self.depth - 1, is_reverse
+            while d // 2 < self.max_depth:
+                pred_obj = self.sampler.sample_hop(
+                    kg, sub_walk, d // 2 == self.max_depth - 1, is_reverse
                 )
                 if pred_obj is None:
                     break

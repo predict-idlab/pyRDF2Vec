@@ -15,22 +15,6 @@ class HALKWalker(RandomWalker):
     increase the quality of the generated embeddings while decreasing the
     memory usage.
 
-    Args:
-        max_depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to pyrdf2vec.samplers.UniformSampler().
-        freq_thresholds: The minimum frequency thresholds of a hop to be kept.
-            Defaults to [0.001].
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
-
     """
 
     freq_thresholds: List[float] = attr.ib(
@@ -41,6 +25,7 @@ class HALKWalker(RandomWalker):
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
+    """The minimum frequency thresholds of a hop to be kept."""
 
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided entities which are then each

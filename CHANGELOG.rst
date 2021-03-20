@@ -13,7 +13,7 @@
   vocabulary.
 - Add the ``literals`` (default to ``[]``) attribute in the ``KG`` class to
   support a basic literal extraction.
-- Add the ``mul_req`` (default to ``True``) attribute to the ``KG`` class to
+- Add the ``mul_req`` (default to ``False``) attribute to the ``KG`` class to
   speed up the extraction of walks and literals for remote Knowledge Graph by
   sending asynchronous requests.
 - Add the ``n_jobs`` (default to ``None``) attribute to the ``Walker`` class
@@ -175,6 +175,8 @@ Changed
 - Replace the ``extract`` methods in ``walkers`` to be private.
 - Replace the ``graph.py`` file for ``graphs/kg.py``.
 - Replace the ``rdf2vec`` module for ``pyrdf2vec``.
+- Replace the ``sample_neighbor`` method of the ``sampler`` class by
+  ``sample_hop``.
 - Replace the imec licence for an MIT licence.
 - Remove ``graph`` hyper-parameter in the ``transform`` method of the ``RDF2VecTransformer`` class.
 - Remove hyper-parameters of ``RDF2VecTransformer`` for ``embedder`` and ``walkers`` ones.

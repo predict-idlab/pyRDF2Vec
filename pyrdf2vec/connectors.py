@@ -24,12 +24,14 @@ class Connector(ABC):
     endpoint: str = attr.ib(
         validator=attr.validators.instance_of(str),
     )
+    """The endpoint to execute the queries."""
 
     cache: Cache = attr.ib(
         kw_only=True,
         factory=lambda: TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
+    """The policy and size cache to use."""
 
     _headers: Dict[str, str] = attr.ib(
         init=False,
@@ -38,13 +40,20 @@ class Connector(ABC):
             "Accept": "application/sparql-results+json",
         },
     )
+    """The HTTP headers to use."""
+
+    _asession = attr.ib(init=False, default=None)
+    """The aiohttp session to use for asynchrone requests."""
 
     _session = attr.ib(
         init=False,
         factory=lambda: requests.Session(),
     )
+    """The requests session to use for synchrone requests."""
 
-    _asession = attr.ib(init=False, default=None)
+    async def close(self) -> None:
+        """Closes the aiohttp session."""
+        await self._asession.close()
 
     @abstractmethod
     def fetch(self, query: str):
@@ -56,12 +65,12 @@ class Connector(ABC):
         Returns:
             The generated dictionary from the ['results']['bindings'] json.
 
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
+
         """
         raise NotImplementedError("This must be implemented!")
-
-    async def close(self):
-        """Closes the aiohttp session."""
-        await self._asession.close()
 
 
 @attr.s
@@ -113,7 +122,7 @@ class SPARQLConnector(Connector):
             return res["results"]["bindings"]
 
     @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "fetch"))
-    def fetch(self, query: str):
+    def fetch(self, query: str) -> Response:
         """Fetchs the result of a SPARQL query.
 
         Args:

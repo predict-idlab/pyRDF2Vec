@@ -1,3 +1,6 @@
+Preview
+=======
+
 |image1|
 
 .. |image1| image:: ../assets/embeddings.svg
@@ -38,6 +41,7 @@
    readme
    glossary
    license
+   posts-papers
    API <api/pyrdf2vec>
 
 .. toctree::

@@ -9,12 +9,13 @@ filterwarnings = [
 
 [tool.poetry]
 name = "pyrdf2vec"
-version = "0.1.1"
+version = "0.2.0"
 description = "Python implementation and extension of RDF2Vec"
 license = "Ghent University and IMEC vzw"
 authors = [
     "Gilles Vandewiele <gilles.vandewiele@ugent.be>",
     "Bram Steenwinckel <bram.steenwinckel@ugent.be>",
+    "Terencio Agozzino <terencio.agozzino@gmail.com>",
     "Michael Weyns <michael.weyns@ugent.be>",
 ]
 maintainers = ["Gilles Vandewiele <gilles.vandewiele@ugent.be>"]

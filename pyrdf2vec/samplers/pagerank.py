@@ -17,10 +17,7 @@ class PageRankSampler(Sampler):
     which are more frequent in the walks as others.
 
     Args:
-        inverse: True if Inverse PageRank Weight must be used, False otherwise.
-            Defaults to False.
-        split: True if PageRank Split Weight must be used, False otherwise.
-            Defaults to False.
+
         alpha: The damping for PageRank.
             Defaults to 0.85.
 
@@ -31,9 +28,12 @@ class PageRankSampler(Sampler):
         default=0.85,
         validator=attr.validators.instance_of(float),
     )
+    """The damping for Page Rank."""
+
     _pageranks: Dict[str, float] = attr.ib(
         init=False, repr=False, factory=dict
     )
+    """The Page Rank dictionary."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by running PageRank on a provided KG

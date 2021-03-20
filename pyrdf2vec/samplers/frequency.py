@@ -16,19 +16,12 @@ class ObjFreqSampler(Sampler):
     this strategy, entities which have a high in degree get visisted more
     often.
 
-    Args:
-        inverse: True if Inverse Object Frequency Weight sampling strategy
-            must be used, False otherwise.
-            Defaults to False.
-        split: True if Split Object Frequency Weight sampling strategy must
-            be used, False otherwise.
-            Defaults to False.
-
     """
 
     _counts: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
+    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of available
@@ -74,17 +67,13 @@ class PredFreqSampler(Sampler):
     This sampling strategy is an edge-centric approach. With this strategy,
     edges with predicates which are commonly used in the dataset are more often
     followed.
-    Attributes:
-        inverse: True if Inverse Predicate Frequency Weight sampling strategy
-            must be used, False otherwise. Default to False.
-        split: True if Split Predicate Frequency Weight sampling strategy
-            must be used, False otherwise. Default to False.
 
     """
 
     _counts: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
+    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of occurance that
@@ -132,19 +121,12 @@ class ObjPredFreqSampler(Sampler):
     to the Predicate Frequency Weigh sampling strategy, but differentiates
     between the objects as well.
 
-    Args:
-        inverse: True if Inverse Predicate-Object Frequency Weight sampling
-            strategy must be used, False otherwise.
-            Defaults to False.
-         split: True if Split Predicate-Object Frequency Weight sampling
-            strategy must be used, False otherwise.
-            Defaults to False.
-
     """
 
     _counts: DefaultDict[Tuple[str, str], int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
+    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of occurance of

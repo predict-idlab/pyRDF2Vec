@@ -12,20 +12,6 @@ class WalkletWalker(RandomWalker):
     """Walker that transforms walks into walklets, which are walks of length
     two consisting of the root of the original walk and one of the hop.
 
-    Args:
-        max_depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to UniformSampler().
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
-
     """
 
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:

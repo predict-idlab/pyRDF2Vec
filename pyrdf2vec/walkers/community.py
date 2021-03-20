@@ -35,35 +35,22 @@ np.random.permutation = lambda x: next(itertools.permutations(x))
 
 @attr.s
 class CommunityWalker(Walker):
-    """Defines the community walking strategy.
-
-    Args:
-        max_depth: The maximum depth of one walk.
-        max_walks: The maximum number of walks per entity.
-        sampler: The sampling strategy.
-            Defaults to UniformSampler().
-        n_jobs: The number of process to use for multiprocessing.
-            Defaults to 1.
-        with_reverse: extracts children's and parents' walks from the root,
-            creating (max_walks * max_walks) more walks of 2 * depth.
-            Defaults to False.
-        random_state: The random state to use to ensure ensure random
-            determinism to generate the same walks for entities.
-            Defaults to None.
-        hop_prob: The probability to hop.
-            Defaults to 0.1.
-        resolution: The resolution.
-            Defaults to 1.
-
-    """
+    """Defines the community walking strategy."""
 
     hop_prob: float = attr.ib(
         kw_only=True, default=0.1, validator=attr.validators.instance_of(float)
     )
+    """The probability to hop."""
+
     resolution: int = attr.ib(
         kw_only=True, default=1, validator=attr.validators.instance_of(int)
     )
+    """The resolution to use."""
+
     _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
+    """True if the walking strategy can be used with a remote Knowledge Graph,
+    False Otherwise.
+    """
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.
@@ -128,7 +115,7 @@ class CommunityWalker(Walker):
 
         """
         walks: Set[Walk] = {(root,)}
-        for i in range(self.depth):
+        for i in range(self.max_depth):
             for walk in walks.copy():
                 if is_reverse:
                     hops = kg.get_hops(walk[0], True)
@@ -207,9 +194,9 @@ class CommunityWalker(Walker):
         while len(walks) < self.max_walks:
             sub_walk: Walk = (root,)
             d = 1
-            while d // 2 < self.depth:
-                pred_obj = self.sampler.sample_neighbor(
-                    kg, sub_walk, d // 2 == self.depth - 1, is_reverse
+            while d // 2 < self.max_depth:
+                pred_obj = self.sampler.sample_hop(
+                    kg, sub_walk, d // 2 == self.max_depth - 1, is_reverse
                 )
                 if pred_obj is None:
                     break

@@ -15,11 +15,13 @@ class Word2Vec(Embedder):
 
     SEE: https://radimrehurek.com/gensim_3.8.3/models/word2vec.html
 
-    By default, size=500 and negative=20
-
     """
 
     kwargs = attr.ib(init=False, default=None)
+    """The keyword arguments dictionary.
+    Defaults to {size=500, min_count=0, negative=20}.
+    """
+
     _model: W2V = attr.ib(init=False, default=None, repr=False)
 
     def __init__(self, **kwargs):
