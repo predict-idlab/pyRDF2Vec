@@ -28,6 +28,8 @@ train_labels = list(train_data["label_mutagenic"])
 test_entities = [entity for entity in test_data["bond"]]
 test_labels = list(test_data["label_mutagenic"])
 
+entities = train_entities + test_entities
+
 samplers = [
     ("Uniform", UniformSampler()),
     ("Object Frequency", ObjFreqSampler()),
@@ -49,15 +51,16 @@ samplers = [
 print(f"Prediction of {len(test_entities)} entities:")
 
 for _, sampler in samplers:
-    sampler.random_state = RANDOM_STATE
-    embeddings = RDF2VecTransformer(
+    embeddings, _ = RDF2VecTransformer(  # type:ignore
         # Use one worker threads for Word2Vec to ensure random determinism.
         # Must be used with PYTHONHASHSEED.
         Word2Vec(workers=1),
         # Extract a maximum of 100 walks of a maximum depth of 4 for each
-        # entity, use a random state to ensure that the same walks are
-        # generated for the entities.
-        walkers=[RandomWalker(4, 100, sampler, random_state=RANDOM_STATE)],
+        # entity using two processes and use a random state to ensure that the
+        # same walks are generated for the entities.
+        walkers=[
+            RandomWalker(4, 100, sampler, n_jobs=2, random_state=RANDOM_STATE)
+        ],
     ).fit_transform(
         KG(
             "samples/mutag/mutag.owl",
@@ -65,7 +68,7 @@ for _, sampler in samplers:
                 "http://dl-learner.org/carcinogenesis#isMutagenic"
             },
         ),
-        train_entities + test_entities,
+        entities,
     )
 
     train_embeddings = embeddings[: len(train_entities)]
