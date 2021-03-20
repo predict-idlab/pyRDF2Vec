@@ -94,6 +94,10 @@ class TestRDF2VecTransformer:
         transformer = RDF2VecTransformer()
         walks = transformer.get_walks(kg, entities)
         assert (
-            type(RDF2VecTransformer().fit(walks).transform(kg, entities))
+            type(
+                RDF2VecTransformer()
+                .fit(walks, verbose=2)
+                .transform(kg, entities, verbose=1)
+            )
             == tuple
         )
