@@ -43,6 +43,12 @@
 
 --------------
 
+.. raw:: html
+
+   <p align="center">
+     <img width="100%" src="./assets/header.svg" alt="text">
+   </p>
+
 .. rdf2vec-begin
 
 What is RDF2Vec?
