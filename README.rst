@@ -101,7 +101,7 @@ embeddings and get literals from a given Knowledge Graph (KG) and entities:
 
    transformer = RDF2VecTransformer(
        Word2Vec(iter=10),
-       walkers=[RandomWalker(4, 10, n_jobs=2)],
+       walkers=[RandomWalker(4, 10, with_reverse=False, n_jobs=2)],
        # verbose=1
    )
    embeddings, literals = transformer.fit_transform(
