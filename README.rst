@@ -143,6 +143,13 @@ embeddings and get literals from a given Knowledge Graph (KG) and entities:
    #       Mediterranean', 'Member states of the United Nations'), 0.939]
    #  ]
 
+If you are using a dataset other than MUTAG (where the interested entities have
+no parents in the KG), it is **highly recommended** to specify
+``with_reverse=True`` (defaults to ``False``) in the walking strategy (e.g.,
+``RandomWalker``). Such a parameter **allows Word2Vec** to have a better
+learning window for an entity based on its parents and children and thus
+**predict test data with better accuracy**.
+
 In a more concrete way, we provide a blog post with a tutorial on how to use
 ``pyRDF2Vec`` `here
 <https://towardsdatascience.com/how-to-create-representations-of-entities-in-a-knowledge-graph-using-pyrdf2vec-82e44dad1a0>`__.
