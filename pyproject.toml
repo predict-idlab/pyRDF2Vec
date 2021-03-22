@@ -9,7 +9,7 @@ filterwarnings = [
 
 [tool.poetry]
 name = "pyrdf2vec"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python implementation and extension of RDF2Vec"
 license = "Ghent University and IMEC vzw"
 authors = [
