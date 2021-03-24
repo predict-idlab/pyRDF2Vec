@@ -28,64 +28,77 @@ class WalkerNotSupported(Exception):
 
 @attr.s
 class Walker(ABC):
-    """Base class of the walking strategies."""
+    """Base class of the walking strategies.
 
-    kg: Optional[KG] = None
-    """Global KG used later on for the worker process."""
+    Attributes:
+        _is_support_remote: True if the walking strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to True.
+        kg: The global KG used later on for the worker process.
+            Defaults to None.
+        max_depth: The maximum depth of one walk.
+        max_walks: The maximum number of walks per entity.
+            Defaults to None.
+        random_state: The random state to use to keep random determinism with
+            the walking strategy.
+            Defaults to None.
+        sampler: The sampling strategy.
+            Defaults to UniformSampler.
+        with_reverse: True to extracts children's and parents' walks from the
+            root, creating (max_walks * max_walks) more walks of 2 * depth,
+            False otherwise.
+            Defaults to False.
 
-    max_depth: int = attr.ib(
-        validator=[attr.validators.instance_of(int), _check_max_depth]
+    """
+
+    kg = attr.ib(init=False, repr=False, type=Optional[KG], default=None)
+
+    max_depth = attr.ib(
+        type=int,
+        validator=[attr.validators.instance_of(int), _check_max_depth],
     )
-    """The maximum depth of one walk."""
 
-    max_walks: Optional[int] = attr.ib(  # type: ignore
+    max_walks = attr.ib(  # type: ignore
         default=None,
+        type=Optional[int],
         validator=[
             attr.validators.optional(attr.validators.instance_of(int)),
             _check_max_walks,
         ],
     )
-    """The maximum number of walks per entity."""
 
-    sampler: Sampler = attr.ib(
+    sampler = attr.ib(
         factory=lambda: UniformSampler(),
+        type=Sampler,
         validator=attr.validators.instance_of(Sampler),  # type: ignore
     )
-    """The sampling strategy."""
 
-    n_jobs: Optional[int] = attr.ib(  # type: ignore
+    n_jobs = attr.ib(  # type: ignore
         default=None,
+        type=Optional[int],
         validator=[
             attr.validators.optional(attr.validators.instance_of(int)),
             _check_jobs,
         ],
     )
-    """The number of CPU cores used when parallelizing.
-    None means 1. -1 means using all processors.
-    """
 
-    with_reverse: Optional[bool] = attr.ib(
+    with_reverse = attr.ib(
         kw_only=True,
+        type=Optional[bool],
         default=False,
         validator=attr.validators.instance_of(bool),
     )
-    """True to extracts children's and parents' walks from the root,
-    creating (max_walks * max_walks) more walks of 2 * depth, False otherwise.
-    """
 
-    random_state: Optional[int] = attr.ib(
+    random_state = attr.ib(
         kw_only=True,
+        type=Optional[int],
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
-    """The random state to use to keep random determinism with the walking
-    strategy.
-    """
 
-    _is_support_remote: bool = attr.ib(init=False, repr=False, default=True)
-    """True if the walking strategy can be used with a remote Knowledge Graph,
-    False Otherwise.
-    """
+    _is_support_remote = attr.ib(
+        init=False, repr=False, type=bool, default=True
+    )
 
     def __attrs_post_init__(self):
         if self.n_jobs == -1:

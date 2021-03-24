@@ -19,90 +19,116 @@ from pyrdf2vec.utils.validation import _check_location
 
 @attr.s
 class KG:
-    """Represents a Knowledge Graph."""
+    """Represents a Knowledge Graph.
 
-    location: Optional[str] = attr.ib(  # type: ignore
+    Attributes:
+        _entity_hops: Caches the results of asynchronous requests.
+            Defaults to {}.
+        _entities: Stores the entities.
+            Defaults to set.
+        _is_remote: True if the Knowledge Graph is in remote, False otherwise.
+            Defaults to False.
+        _vertices: Stores the vertices.
+            Defaults to set.
+        _inv_transition_matrix: Contains the parents of vertices.
+            Defaults to defaultdict.
+        _transition_matrix: Contains the children of vertices.
+            Defaults to defaultdict.
+        cache: The policy and size cache to use.
+            Defaults to TTLCache(maxsize=1024, ttl=1200).
+        connector: The connector to use.
+            Defaults to SPARQLConnector.
+        fmt: The format of the file.
+            It should be used only if the format can not be determined from
+            source.
+            Defaults to None.
+        literals: The predicate chains to get the literals.
+            Defaults to [].
+        location: The location of the file to load.
+            Defaults to None.
+        mul_req: True to allow bundling of SPARQL queries, False otherwise.
+            This attribute accelerates the extraction of walks for remote
+            Knowledge Graphs. Beware that this may violate the policy of some
+            SPARQL endpoint server.
+            Defaults to False.
+        skip_predicates: The label predicates to skip from the KG.
+            Defaults to set.
+
+    """
+
+    location = attr.ib(  # type: ignore
         default=None,
+        type=Optional[str],
         validator=[
             attr.validators.optional(attr.validators.instance_of(str)),
             _check_location,
         ],
     )
-    """The location of the file to load."""
 
-    skip_predicates: Set[str] = attr.ib(
+    skip_predicates = attr.ib(
         factory=set,
+        type=Set[str],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(str)
         ),
     )
-    """The label predicates to skip from the KG."""
 
-    literals: List[List[str]] = attr.ib(  # type: ignore
+    literals = attr.ib(  # type: ignore
         factory=list,
+        type=List[List[str]],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(List)
         ),
     )
-    """The predicate chains to get the literals."""
 
-    fmt: Optional[str] = attr.ib(
+    fmt = attr.ib(
         kw_only=True,
+        type=Optional[str],
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(str)),
     )
-    """The format of the file.
-    It should be used only if the format can not be determined from source.
-    """
 
-    mul_req: bool = attr.ib(
+    mul_req = attr.ib(
         kw_only=True,
+        type=bool,
         default=False,
         validator=attr.validators.instance_of(bool),
     )
-    """True to allow bundling of SPARQL queries, False otherwise.
-    This attribute accelerates the extraction of walks for remote Knowledge
-    Graphs. Beware that this may violate the policy of some SPARQL endpoint
-    server.
-    """
 
-    cache: Cache = attr.ib(
+    cache = attr.ib(
         kw_only=True,
+        type=Cache,
         factory=lambda: TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
-    """The policy and size cache to use.
-    Defaults to TTLCache(maxsize=1024, ttl=1200)
-    """
 
-    connector: SPARQLConnector = attr.ib(default=None, init=False, repr=False)
-    """The connector to use."""
-
-    _is_remote: bool = attr.ib(
-        default=False, validator=attr.validators.instance_of(bool)
+    connector = attr.ib(
+        init=False, default=None, type=SPARQLConnector, repr=False
     )
-    """True if the Knowledge Graph is in remote, False otherwise."""
 
-    _inv_transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
-        init=False, repr=False, factory=lambda: defaultdict(set)
+    _is_remote = attr.ib(
+        default=False, type=bool, validator=attr.validators.instance_of(bool)
     )
-    """Contains the parents of vertices."""
 
-    _transition_matrix: DefaultDict[Vertex, Set[Vertex]] = attr.ib(
-        init=False, repr=False, factory=lambda: defaultdict(set)
+    _inv_transition_matrix = attr.ib(
+        init=False,
+        repr=False,
+        type=DefaultDict[Vertex, Set[Vertex]],
+        factory=lambda: defaultdict(set),
     )
-    """Contains the children of vertices."""
-
-    _entity_hops: Dict[str, List[Hop]] = attr.ib(
-        init=False, repr=False, factory=dict
+    _transition_matrix = attr.ib(
+        init=False,
+        repr=False,
+        type=DefaultDict[Vertex, Set[Vertex]],
+        factory=lambda: defaultdict(set),
     )
-    """Caches the results of asynchronous requests."""
 
-    _entities: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
-    """Stores the entities."""
+    _entity_hops = attr.ib(
+        init=False, repr=False, type=Dict[str, List[Hop]], factory=dict
+    )
 
-    _vertices: Set[Vertex] = attr.ib(init=False, repr=False, factory=set)
-    """Stores the vertices."""
+    _entities = attr.ib(init=False, type=Set[Vertex], repr=False, factory=set)
+    _vertices = attr.ib(init=False, type=Set[Vertex], repr=False, factory=set)
 
     def __attrs_post_init__(self):
         if self.location is not None:

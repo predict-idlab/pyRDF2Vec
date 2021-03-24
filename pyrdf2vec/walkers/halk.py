@@ -15,17 +15,38 @@ class HALKWalker(RandomWalker):
     increase the quality of the generated embeddings while decreasing the
     memory usage.
 
+    Attributes:
+        _is_support_remote: True if the walking strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to True.
+        freq_thresholds: The minimum frequency thresholds of a hop to be kept.
+            Defaults to [0.001].
+        kg: The global KG used later on for the worker process.
+            Defaults to None.
+        max_depth: The maximum depth of one walk.
+        max_walks: The maximum number of walks per entity.
+            Defaults to None.
+        random_state: The random state to use to keep random determinism with
+            the walking strategy.
+            Defaults to None.
+        sampler: The sampling strategy.
+            Defaults to UniformSampler.
+        with_reverse: True to extracts children's and parents' walks from the
+            root, creating (max_walks * max_walks) more walks of 2 * depth,
+            False otherwise.
+            Defaults to False.
+
     """
 
-    freq_thresholds: List[float] = attr.ib(
+    freq_thresholds = attr.ib(
         kw_only=True,
         factory=lambda: [0.001],
+        type=List[float],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(float),
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
-    """The minimum frequency thresholds of a hop to be kept."""
 
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided entities which are then each

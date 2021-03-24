@@ -35,22 +35,50 @@ np.random.permutation = lambda x: next(itertools.permutations(x))
 
 @attr.s
 class CommunityWalker(Walker):
-    """Defines the community walking strategy."""
+    """Defines the community walking strategy.
 
-    hop_prob: float = attr.ib(
-        kw_only=True, default=0.1, validator=attr.validators.instance_of(float)
-    )
-    """The probability to hop."""
+    Attributes:
+        _is_support_remote: True if the walking strategy can be used with a
+            remote Knowledge Graph, False Otherwise.
+            Defaults to True.
+        hop_prob: The probability to hop.
+            Defaults to 0.1.
+        kg: The global KG used later on for the worker process.
+            Defaults to None.
+        max_depth: The maximum depth of one walk.
+        max_walks: The maximum number of walks per entity.
+            Defaults to None.
+        random_state: The random state to use to keep random determinism with
+            the walking strategy.
+            Defaults to None.
+        resolution: The resolution to use.
+            Defaults to The resolution to use.
+        sampler: The sampling strategy.
+            Defaults to UniformSampler.
+        with_reverse: True to extracts children's and parents' walks from the
+            root, creating (max_walks * max_walks) more walks of 2 * depth,
+            False otherwise.
+            Defaults to False.
 
-    resolution: int = attr.ib(
-        kw_only=True, default=1, validator=attr.validators.instance_of(int)
-    )
-    """The resolution to use."""
-
-    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
-    """True if the walking strategy can be used with a remote Knowledge Graph,
-    False Otherwise.
     """
+
+    hop_prob = attr.ib(
+        kw_only=True,
+        default=0.1,
+        type=float,
+        validator=attr.validators.instance_of(float),
+    )
+
+    resolution = attr.ib(
+        kw_only=True,
+        default=1,
+        type=int,
+        validator=attr.validators.instance_of(int),
+    )
+
+    _is_support_remote = attr.ib(
+        init=False, repr=False, type=bool, default=False
+    )
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.

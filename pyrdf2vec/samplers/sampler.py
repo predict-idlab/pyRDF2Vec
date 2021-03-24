@@ -20,43 +20,51 @@ class SamplerNotSupported(Exception):
 
 @attr.s
 class Sampler(ABC):
-    """Base class of the sampling strategies.."""
+    """Base class of the sampling strategies.
 
-    inverse: bool = attr.ib(
-        default=False, validator=attr.validators.instance_of(bool)
-    )
-    """True if the inverse algorithm must be used, False otherwise."""
+    Attributes:
+        _is_support_remote: True if the sampling strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to False.
+        _random_state: The random state to use to keep random determinism with
+            the sampling strategy.
+            Defaults to None.
+        _vertices_deg: The degree of the vertices.
+            Defaults to {}.
+        _visited: Tags vertices that appear at the max depth or of which all
+            their children are tagged.
+            Defaults to set.
+        inverse: True if the inverse algorithm must be used, False otherwise.
+            Defaults to False.
+        split: True if the split algorithm must be used, False otherwise.
+            Defaults to False.
 
-    split: bool = attr.ib(
-        default=False, validator=attr.validators.instance_of(bool)
-    )
-    """True if the split algorithm must be used, False otherwise."""
-
-    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
-    """True if the sampling strategy can be used with a remote Knowledge Graph,
-    False Otherwise.
     """
 
-    _random_state: Optional[int] = attr.ib(
+    inverse = attr.ib(
+        default=False, type=bool, validator=attr.validators.instance_of(bool)
+    )
+
+    split = attr.ib(default=False, validator=attr.validators.instance_of(bool))
+
+    _is_support_remote = attr.ib(
+        init=False, type=bool, repr=False, default=False
+    )
+
+    _random_state = attr.ib(
         init=False,
+        type=Optional[int],
         repr=False,
         default=None,
     )
-    """The random state to use to keep random determinism with the sampling
-    strategy.
-    """
 
-    _vertices_deg: Dict[str, int] = attr.ib(
-        init=False, repr=False, factory=dict
+    _vertices_deg = attr.ib(
+        init=False, type=Dict[str, int], repr=False, factory=dict
     )
-    """The degree of the vertices."""
 
-    _visited: Set[Tuple[Hop, int]] = attr.ib(
-        init=False, repr=False, factory=set
+    _visited = attr.ib(
+        init=False, type=Set[Tuple[Hop, int]], repr=False, factory=set
     )
-    """Tags vertices that appear at the max depth or of which all their
-    children are tagged.
-    """
 
     @abstractmethod
     def fit(self, kg: KG) -> None:

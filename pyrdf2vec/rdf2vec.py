@@ -15,16 +15,41 @@ from pyrdf2vec.walkers import RandomWalker, Walker
 
 @attr.s
 class RDF2VecTransformer:
-    """Transforms nodes in a Knowledge Graph into an embedding."""
+    """Transforms nodes in a Knowledge Graph into an embedding.
 
-    embedder: Embedder = attr.ib(
+    Attributes:
+        _embeddings: All the embeddings of the model.
+            Defaults to [].
+        _entities: All the entities of the model.
+            Defaults to [].
+        _is_extract_walks_literals: True if the session must be closed after
+            the call to the `transform` function. False, otherwise.
+            Defaults to False.
+        _literals: All the literals of the model.
+            Defaults to [].
+        _walks: All the walks of the model.
+            Defaults to [].
+        embedder: The embedding technique.
+            Defaults to Word2Vec.
+        walkers: The walking strategies.
+            Defaults to [RandomWalker(2, None)]
+        verbose: The verbosity level.
+            0: does not display anything;
+            1: display of the progress of extraction and training of walks;
+            2: debugging.
+            Defaults to 0.
+
+    """
+
+    embedder = attr.ib(
         factory=lambda: Word2Vec(),
+        type=Embedder,
         validator=attr.validators.instance_of(Embedder),  # type: ignore
     )
-    """The embedding technique."""
 
-    walkers: Sequence[Walker] = attr.ib(
+    walkers = attr.ib(
         factory=lambda: [RandomWalker(2)],  # type: ignore
+        type=Sequence[Walker],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(
                 Walker  # type: ignore
@@ -32,38 +57,26 @@ class RDF2VecTransformer:
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
-    """The walking strategy."""
 
-    verbose: int = attr.ib(
-        kw_only=True, default=0, validator=attr.validators.in_([0, 1, 2])
+    verbose = attr.ib(
+        kw_only=True,
+        default=0,
+        type=int,
+        validator=attr.validators.in_([0, 1, 2]),
     )
-    """The verbosity level.
-           0: does not display anything;
-           1: display of the progress of extraction and training of walks;
-           2: debugging.
-    """
-
-    _embeddings: Embeddings = attr.ib(init=False, factory=list)
-    """All the embeddings of the model."""
-
-    _entities: Entities = attr.ib(init=False, factory=list)
-    """All the entities of the model."""
-
-    _literals: Literals = attr.ib(init=False, factory=list)
-    """All the literals of the model."""
-
-    _walks: List[str] = attr.ib(init=False, factory=list)
-    """All the walks of the model."""
 
     _is_extract_walks_literals = attr.ib(
         init=False,
-        repr=False,
         default=False,
+        type=bool,
+        repr=False,
         validator=attr.validators.instance_of(bool),
     )
-    """True if the session must be closed after the call to the `transform`
-    function. False, otherwise.
-    """
+
+    _embeddings = attr.ib(init=False, type=Embeddings, factory=list)
+    _entities = attr.ib(init=False, type=Entities, factory=list)
+    _literals = attr.ib(init=False, type=Literals, factory=list)
+    _walks = attr.ib(init=False, type=List[str], factory=list)
 
     def fit(
         self, walks: List[str], is_update: bool = False

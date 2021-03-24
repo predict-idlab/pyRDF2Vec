@@ -171,7 +171,7 @@ deps =
     sphinxcontrib-apidoc
     tomlkit
 commands =
-    sphinx-build -n -T docs docs/_build/html
+    sphinx-build -n -T -W docs docs/_build/html
     python -m doctest README.rst
 
 [testenv:lint]
