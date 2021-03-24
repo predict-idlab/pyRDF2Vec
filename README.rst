@@ -338,7 +338,6 @@ number of entities, this option can greatly speed up the extraction of walks:
 
    data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
 
-
    RDF2VecTransformer(walkers=[RandomWalker(4, 10)]).fit_transform(
        KG("https://dbpedia.org/sparql", mul_req=True),
        [entity for entity in data["location"]],
