@@ -9,22 +9,47 @@ import attr
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.typings import Embeddings, Entities, Literals
+from pyrdf2vec.typings import Embeddings, Entities, Literals, SWalk
 from pyrdf2vec.walkers import RandomWalker, Walker
 
 
 @attr.s
 class RDF2VecTransformer:
-    """Transforms nodes in a Knowledge Graph into an embedding."""
+    """Transforms nodes in a Knowledge Graph into an embedding.
 
-    embedder: Embedder = attr.ib(
+    Attributes:
+        _embeddings: All the embeddings of the model.
+            Defaults to [].
+        _entities: All the entities of the model.
+            Defaults to [].
+        _is_extract_walks_literals: True if the session must be closed after
+            the call to the `transform` function. False, otherwise.
+            Defaults to False.
+        _literals: All the literals of the model.
+            Defaults to [].
+        _walks: All the walks of the model.
+            Defaults to [].
+        embedder: The embedding technique.
+            Defaults to Word2Vec.
+        walkers: The walking strategies.
+            Defaults to [RandomWalker(2, None)]
+        verbose: The verbosity level.
+            0: does not display anything;
+            1: display of the progress of extraction and training of walks;
+            2: debugging.
+            Defaults to 0.
+
+    """
+
+    embedder = attr.ib(
         factory=lambda: Word2Vec(),
+        type=Embedder,
         validator=attr.validators.instance_of(Embedder),  # type: ignore
     )
-    """The embedding technique."""
 
-    walkers: Sequence[Walker] = attr.ib(
+    walkers = attr.ib(
         factory=lambda: [RandomWalker(2)],  # type: ignore
+        type=Sequence[Walker],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(
                 Walker  # type: ignore
@@ -32,41 +57,29 @@ class RDF2VecTransformer:
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
-    """The walking strategy."""
 
-    verbose: int = attr.ib(
-        kw_only=True, default=0, validator=attr.validators.in_([0, 1, 2])
+    verbose = attr.ib(
+        kw_only=True,
+        default=0,
+        type=int,
+        validator=attr.validators.in_([0, 1, 2]),
     )
-    """The verbosity level.
-           0: does not display anything;
-           1: display of the progress of extraction and training of walks;
-           2: debugging.
-    """
-
-    _embeddings: Embeddings = attr.ib(init=False, factory=list)
-    """All the embeddings of the model."""
-
-    _entities: Entities = attr.ib(init=False, factory=list)
-    """All the entities of the model."""
-
-    _literals: Literals = attr.ib(init=False, factory=list)
-    """All the literals of the model."""
-
-    _walks: List[str] = attr.ib(init=False, factory=list)
-    """All the walks of the model."""
 
     _is_extract_walks_literals = attr.ib(
         init=False,
-        repr=False,
         default=False,
+        type=bool,
+        repr=False,
         validator=attr.validators.instance_of(bool),
     )
-    """True if the session must be closed after the call to the `transform`
-    function. False, otherwise.
-    """
+
+    _embeddings = attr.ib(init=False, type=Embeddings, factory=list)
+    _entities = attr.ib(init=False, type=Entities, factory=list)
+    _literals = attr.ib(init=False, type=Literals, factory=list)
+    _walks = attr.ib(init=False, type=List[List[SWalk]], factory=list)
 
     def fit(
-        self, walks: List[str], is_update: bool = False
+        self, walks: List[List[SWalk]], is_update: bool = False
     ) -> RDF2VecTransformer:
         """Fits the embeddings based on the provided entities.
 
@@ -80,16 +93,21 @@ class RDF2VecTransformer:
             The RDF2VecTransformer.
 
         """
+        print(walks)
         if self.verbose == 2:
             print(self.embedder)
 
         tic = time.perf_counter()
-        self.embedder.fit([list(map(str, walk)) for walk in walks], is_update)
+        self.embedder.fit(walks, is_update)
         toc = time.perf_counter()
 
         if self.verbose >= 1:
-            print(f"Fitted {len(walks)} walks ({toc - tic:0.4f}s)")
+            n_walks = sum([len(entity_walks) for entity_walks in walks])
+            print(f"Fitted {n_walks} walks ({toc - tic:0.4f}s)")
             if len(self._walks) != len(walks):
+                n_walks = sum(
+                    [len(entity_walks) for entity_walks in self._walks]
+                )
                 print(
                     f"> {len(self._walks)} walks extracted "
                     + f"for {len(self._entities)} entities."
@@ -119,7 +137,7 @@ class RDF2VecTransformer:
         self.fit(self.get_walks(kg, entities), is_update)
         return self.transform(kg, entities)
 
-    def get_walks(self, kg: KG, entities: Entities) -> List[str]:
+    def get_walks(self, kg: KG, entities: Entities) -> List[List[SWalk]]:
         """Gets the walks of an entity based on a Knowledge Graph and a
         list of walkers
 
@@ -143,6 +161,9 @@ class RDF2VecTransformer:
                 "The provided entities must be in the Knowledge Graph."
             )
 
+        # Avoids duplicate entities for unnecessary path extractions.
+        entities = list(set(entities))
+
         is_new_entities = False
         if not all(entity in self._entities for entity in entities):
             self._entities.extend(entities)
@@ -152,7 +173,7 @@ class RDF2VecTransformer:
             print(kg)
             print(self.walkers[0])
 
-        walks: List[str] = []
+        walks: List[List[SWalk]] = []
         tic = time.perf_counter()
         for walker in self.walkers:
             walks += walker.extract(kg, entities, self.verbose)
@@ -164,8 +185,9 @@ class RDF2VecTransformer:
             self._walks += walks
 
         if self.verbose >= 1:
+            n_walks = sum([len(entity_walks) for entity_walks in walks])
             print(
-                f"Extracted {len(walks)} walks "
+                f"Extracted {n_walks} walks "
                 + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
             )
         if (
