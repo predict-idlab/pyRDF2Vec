@@ -19,37 +19,47 @@ from pyrdf2vec.typings import Literal, Response
 
 @attr.s
 class Connector(ABC):
-    """Base class of the connectors."""
+    """Base class of the connectors.
 
-    endpoint: str = attr.ib(
+    Attributes:
+        _asession: The aiohttp session to use for asynchrone requests.
+            Defaults to None.
+        _session: The requests session to use for synchrone requests.
+            Defaults to requests.Session.
+        _headers: The HTTP headers to use.
+            Defaults to {"Accept": "application/sparql-results+json"}.
+        cache: The policy and size cache to use.
+            Defaults to TTLCache(maxsize=1024, ttl=1200).
+        endpoint: The endpoint to execute the queries.
+
+    """
+
+    endpoint = attr.ib(
+        type=str,
         validator=attr.validators.instance_of(str),
     )
-    """The endpoint to execute the queries."""
 
-    cache: Cache = attr.ib(
+    cache = attr.ib(
         kw_only=True,
+        type=Cache,
         factory=lambda: TTLCache(maxsize=1024, ttl=1200),
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
-    """The policy and size cache to use."""
 
-    _headers: Dict[str, str] = attr.ib(
+    _headers = attr.ib(
         init=False,
+        type=Dict[str, str],
         repr=False,
         default={
             "Accept": "application/sparql-results+json",
         },
     )
-    """The HTTP headers to use."""
 
     _asession = attr.ib(init=False, default=None)
-    """The aiohttp session to use for asynchrone requests."""
-
     _session = attr.ib(
         init=False,
         factory=lambda: requests.Session(),
     )
-    """The requests session to use for synchrone requests."""
 
     async def close(self) -> None:
         """Closes the aiohttp session."""
@@ -75,7 +85,20 @@ class Connector(ABC):
 
 @attr.s
 class SPARQLConnector(Connector):
-    """Represents a SPARQL connector."""
+    """Represents a SPARQL connector.
+
+    Attributes:
+        _asession: The aiohttp session to use for asynchrone requests.
+            Defaults to None.
+        _session: The requests session to use for synchrone requests.
+            Defaults to requests.Session.
+        _headers: The HTTP headers to use.
+            Defaults to {"Accept": "application/sparql-results+json"}.
+        cache: The policy and size cache to use.
+            Defaults to connectors.TTLCache(maxsize=1024, ttl=1200).
+        endpoint: The endpoint to execute the queries.
+
+    """
 
     def __attrs_post_init__(self):
         adapter = HTTPAdapter(

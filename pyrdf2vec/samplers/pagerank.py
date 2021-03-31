@@ -11,29 +11,43 @@ from pyrdf2vec.typings import Hop
 @attr.s
 class PageRankSampler(Sampler):
     """Defines the Object Frequency Weight sampling strategy.
-
     This sampling strategy is a node-centric approach. With this strategy, some
     nodes are more important than others and hence there will be resources
     which are more frequent in the walks as others.
 
-    Args:
-
-        alpha: The damping for PageRank.
+    Attributes:
+        _is_support_remote: True if the sampling strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to False.
+        _pageranks: The Page Rank dictionary.
+            Defaults to {}.
+        _random_state: The random state to use to keep random determinism with
+            the sampling strategy.
+            Defaults to None.
+        _vertices_deg: The degree of the vertices.
+            Defaults to {}.
+        _visited: Tags vertices that appear at the max depth or of which all
+            their children are tagged.
+            Defaults to set.
+        alpha: The damping for Page Rank.
             Defaults to 0.85.
+        inverse: True if the inverse algorithm must be used, False otherwise.
+            Defaults to False.
+        split: True if the split algorithm must be used, False otherwise.
+            Defaults to False.
 
     """
 
-    alpha: float = attr.ib(
+    alpha = attr.ib(
         kw_only=True,
         default=0.85,
+        type=float,
         validator=attr.validators.instance_of(float),
     )
-    """The damping for Page Rank."""
 
-    _pageranks: Dict[str, float] = attr.ib(
-        init=False, repr=False, factory=dict
+    _pageranks = attr.ib(
+        init=False, type=Dict[str, float], repr=False, factory=dict
     )
-    """The Page Rank dictionary."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by running PageRank on a provided KG

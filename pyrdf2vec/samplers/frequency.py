@@ -16,12 +16,33 @@ class ObjFreqSampler(Sampler):
     this strategy, entities which have a high in degree get visisted more
     often.
 
+    Attributes:
+        _counts: The counter for vertices.
+            Defaults to defaultdict.
+        _is_support_remote: True if the sampling strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to False.
+        _random_state: The random state to use to keep random determinism with
+            the sampling strategy.
+            Defaults to None.
+        _vertices_deg: The degree of the vertices.
+            Defaults to {}.
+        _visited: Tags vertices that appear at the max depth or of which all
+            their children are tagged.
+            Defaults to set.
+        inverse: True if the inverse algorithm must be used, False otherwise.
+            Defaults to False.
+        split: True if the split algorithm must be used, False otherwise.
+            Defaults to False.
+
     """
 
-    _counts: DefaultDict[str, int] = attr.ib(
-        init=False, repr=False, factory=lambda: defaultdict(dict)
+    _counts = attr.ib(
+        init=False,
+        type=DefaultDict[str, int],
+        repr=False,
+        factory=lambda: defaultdict(dict),
     )
-    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of available
@@ -68,12 +89,30 @@ class PredFreqSampler(Sampler):
     edges with predicates which are commonly used in the dataset are more often
     followed.
 
+    Attributes:
+        _counts: The counter for vertices.
+            Defaults to defaultdict.
+        _is_support_remote: True if the sampling strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to False.
+        _random_state: The random state to use to keep random determinism with
+            the sampling strategy.
+            Defaults to None.
+        _vertices_deg: The degree of the vertices.
+            Defaults to {}.
+        _visited: Tags vertices that appear at the max depth or of which all
+            their children are tagged.
+            Defaults to set.
+        inverse: True if the inverse algorithm must be used, False otherwise.
+            Defaults to False.
+        split: True if the split algorithm must be used, False otherwise.
+            Defaults to False.
+
     """
 
     _counts: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
-    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of occurance that
@@ -121,12 +160,30 @@ class ObjPredFreqSampler(Sampler):
     to the Predicate Frequency Weigh sampling strategy, but differentiates
     between the objects as well.
 
+    Attributes:
+        _counts: The counter for vertices.
+            Defaults to defaultdict.
+        _is_support_remote: True if the sampling strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to False.
+        _random_state: The random state to use to keep random determinism with
+            the sampling strategy.
+            Defaults to None.
+        _vertices_deg: The degree of the vertices.
+            Defaults to {}.
+        _visited: Tags vertices that appear at the max depth or of which all
+            their children are tagged.
+            Defaults to set.
+        inverse: True if the inverse algorithm must be used, False otherwise.
+            Defaults to False.
+        split: True if the split algorithm must be used, False otherwise.
+            Defaults to False.
+
     """
 
     _counts: DefaultDict[Tuple[str, str], int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
-    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of occurance of

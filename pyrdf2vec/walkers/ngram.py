@@ -1,5 +1,5 @@
 import itertools
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import attr
 
@@ -12,30 +12,52 @@ from pyrdf2vec.walkers import RandomWalker
 class NGramWalker(RandomWalker):
     """Walker that relabels the N-grams in random walks to define a mapping
     from one-to-many.
-
     The intuition behind this is that the predecessors of a node that two
     different walks have in common can be different.
-
+    Attributes:
+        _is_support_remote: True if the walking strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to True.
+        _n_gram_map: Stores the mapping of N-gram.
+            Defaults to {}.
+        grams: The N-gram to relabel.
+            Defaults to 3.
+        kg: The global KG used later on for the worker process.
+            Defaults to None.
+        max_depth: The maximum depth of one walk.
+        max_walks: The maximum number of walks per entity.
+            Defaults to None.
+        random_state: The random state to use to keep random determinism with
+            the walking strategy.
+            Defaults to None.
+        sampler: The sampling strategy.
+            Defaults to UniformSampler.
+        wildcards: The wildcards to be used to match sub-sequences with small
+            differences to be mapped onto the same label.
+            Defaults to None.
+        with_reverse: True to extracts children's and parents' walks from the
+            root, creating (max_walks * max_walks) more walks of 2 * depth,
+            False otherwise.
+            Defaults to False.
     """
 
-    grams: int = attr.ib(
-        kw_only=True, default=3, validator=attr.validators.instance_of(int)
+    grams = attr.ib(
+        kw_only=True,
+        default=3,
+        type=int,
+        validator=attr.validators.instance_of(int),
     )
-    """The N-gram to relabel."""
 
-    wildcards: list = attr.ib(
+    wildcards = attr.ib(
         kw_only=True,
         default=None,
+        type=Optional[list],
         validator=attr.validators.optional(attr.validators.instance_of(list)),
     )
-    """The wildcards to be used to match sub-sequences with small differences
-    to be mapped onto the same label.
-    """
 
-    _n_gram_map: Dict[Tuple, str] = attr.ib(
-        init=False, repr=False, factory=dict
+    _n_gram_map = attr.ib(
+        init=False, repr=False, type=Dict[Tuple, str], factory=dict
     )
-    """Stores the mapping of N-gram."""
 
     def _take_n_grams(self, walk: Walk) -> List[str]:
         """Takes the N-Grams.
@@ -92,4 +114,4 @@ class NGramWalker(RandomWalker):
                     canonical_walks.add(
                         tuple(self._take_n_grams(new_walk))  # type: ignore
                     )
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: list(canonical_walks)}

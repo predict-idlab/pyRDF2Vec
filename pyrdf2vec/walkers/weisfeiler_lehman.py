@@ -11,27 +11,58 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class WLWalker(RandomWalker):
-    """Defines the Weisfeler-Lehman walking strategy."""
+    """Defines the Weisfeler-Lehman walking strategy.
 
-    wl_iterations: int = attr.ib(
-        kw_only=True, default=4, validator=attr.validators.instance_of(int)
-    )
-    """The Weisfeiler Lehman's iteration."""
+    Attributes:
+        _inv_label_map: Stores the mapping of the inverse labels.
+            Defaults to defaultdict.
+        _is_support_remote: True if the walking strategy can be used with a
+            remote Knowledge Graph, False Otherwise.
+            Defaults to False.
+        _label_map: Stores the mapping of the inverse labels.
+            Defaults to defaultdict.
+        kg: The global KG used later on for the worker process.
+            Defaults to None.
+        max_depth: The maximum depth of one walk.
+        max_walks: The maximum number of walks per entity.
+            Defaults to None.
+        random_state: The random state to use to keep random determinism with
+            the walking strategy.
+            Defaults to None.
+        sampler: The sampling strategy.
+            Defaults to UniformSampler.
+        with_reverse: True to extracts children's and parents' walks from the
+            root, creating (max_walks * max_walks) more walks of 2 * depth,
+            False otherwise.
+            Defaults to False.
+        wl_iterations: The Weisfeiler Lehman's iteration.
+            Defaults to 4.
 
-    _is_support_remote: bool = attr.ib(init=False, repr=False, default=False)
-    """True if the walking strategy can be used with a remote Knowledge Graph,
-    False Otherwise.
     """
 
-    _inv_label_map: DefaultDict[
-        Vertex, Dict[Union[str, int], Union[str, int]]
-    ] = attr.ib(init=False, repr=False, factory=lambda: defaultdict(dict))
-    """Stores the mapping of the inverse labels."""
-
-    _label_map: DefaultDict[Vertex, Dict[int, str]] = attr.ib(
-        init=False, repr=False, factory=lambda: defaultdict(dict)
+    wl_iterations = attr.ib(
+        kw_only=True,
+        default=4,
+        type=int,
+        validator=attr.validators.instance_of(int),
     )
-    """Stores the mapping of the labels."""
+
+    _is_support_remote = attr.ib(
+        init=False, repr=False, type=bool, default=False
+    )
+
+    _inv_label_map = attr.ib(
+        init=False,
+        repr=False,
+        type=DefaultDict["Vertex", Dict[Union[str, int], Union[str, int]]],
+        factory=lambda: defaultdict(dict),
+    )
+    _label_map = attr.ib(
+        init=False,
+        repr=False,
+        type=DefaultDict["Vertex", Dict[int, str]],
+        factory=lambda: defaultdict(dict),
+    )
 
     def _create_label(self, kg: KG, vertex: Vertex, n: int) -> str:
         """Creates a label according to a vertex and its neighbors.
@@ -90,7 +121,7 @@ class WLWalker(RandomWalker):
 
     def extract(
         self, kg: KG, entities: Entities, verbose: int = 0
-    ) -> List[str]:
+    ) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
@@ -138,4 +169,4 @@ class WLWalker(RandomWalker):
                     else:
                         canonical_walk.append(self._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: list(canonical_walks)}
