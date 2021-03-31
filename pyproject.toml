@@ -43,7 +43,6 @@ include = [
 aiohttp = "^3.7.3"
 attrs = "^20.3.0"
 cachetools = "^4.2.1"
-gensim = "^3.8.3"
 matplotlib = "^3.3.1"
 networkx = "^2.5"
 numpy = "^1.20.0"
@@ -56,6 +55,8 @@ tomlkit = "^0.7.0"
 torch = "^1.7.1"
 tqdm = "^4.48.2"
 transformers = "^4.3.2"
+gensim = "^4.0.0"
+python-Levenshtein = "^0.12.2"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
