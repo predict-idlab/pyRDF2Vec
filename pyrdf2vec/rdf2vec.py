@@ -27,6 +27,10 @@ class RDF2VecTransformer:
             Defaults to False.
         _literals: All the literals of the model.
             Defaults to [].
+        _pos_entities: The positions of existing entities to be updated.
+            Defaults to [].
+        _pos_walks: The positions of existing walks to be updated.
+            Defaults to [].
         _walks: All the walks of the model.
             Defaults to [].
         embedder: The embedding technique.
@@ -78,6 +82,9 @@ class RDF2VecTransformer:
     _literals = attr.ib(init=False, type=Literals, factory=list)
     _walks = attr.ib(init=False, type=List[List[SWalk]], factory=list)
 
+    _pos_entities = attr.ib(init=False, type=List[str], factory=list)
+    _pos_walks = attr.ib(init=False, type=List[int], factory=list)
+
     def fit(
         self, walks: List[List[SWalk]], is_update: bool = False
     ) -> RDF2VecTransformer:
@@ -108,7 +115,7 @@ class RDF2VecTransformer:
                     [len(entity_walks) for entity_walks in self._walks]
                 )
                 print(
-                    f"> {len(self._walks)} walks extracted "
+                    f"> {n_walks} walks extracted "
                     + f"for {len(self._entities)} entities."
                 )
         return self
@@ -163,11 +170,6 @@ class RDF2VecTransformer:
         # Avoids duplicate entities for unnecessary walk extractions.
         entities = list(set(entities))
 
-        is_new_entities = False
-        if not all(entity in self._entities for entity in entities):
-            self._entities.extend(entities)
-            is_new_entities = True
-
         if self.verbose == 2:
             print(kg)
             print(self.walkers[0])
@@ -178,10 +180,8 @@ class RDF2VecTransformer:
             walks += walker.extract(kg, entities, self.verbose)
         toc = time.perf_counter()
 
-        if self._walks is None:
-            self._walks = walks
-        elif is_new_entities:
-            self._walks += walks
+        self._update(self._entities, entities)
+        self._update(self._walks, walks)
 
         if self.verbose >= 1:
             n_walks = sum([len(entity_walks) for entity_walks in walks])
@@ -214,14 +214,14 @@ class RDF2VecTransformer:
         """
         assert self.embedder is not None
         embeddings = self.embedder.transform(entities)
-        self._embeddings += embeddings
 
         tic = time.perf_counter()
         literals = kg.get_literals(entities, self.verbose)
         toc = time.perf_counter()
 
-        if not all(entity in self._entities for entity in entities):
-            self._literals += literals
+        self._update(self._embeddings, embeddings)
+        if len(literals) > 0:
+            self._update(self._literals, literals)
 
         if kg._is_remote and kg.mul_req:
             self._is_extract_walks_literals = False
@@ -243,6 +243,32 @@ class RDF2VecTransformer:
         """
         with open(filename, "wb") as f:
             pickle.dump(self, f)
+
+    def _update(self, attr, values) -> None:
+        """Updates an attribute with a variable.
+
+        This method is useful to keep all entities, walks, literals and
+        embeddings after several online training.
+
+        Args:
+            attr: The attribute to update
+            var: The new values to add.
+
+        """
+        if attr is None:
+            attr = values
+        elif isinstance(values[0], str):
+            for i, entity in enumerate(values):
+                if entity not in attr:
+                    attr.append(entity)
+                else:
+                    self._pos_entities.append(attr.index(entity))
+                    self._pos_walks.append(i)
+        else:
+            tmp = values
+            for i, pos in enumerate(self._pos_entities):
+                attr[pos] = tmp.pop(self._pos_walks[i])
+            attr += tmp
 
     @staticmethod
     def load(filename: str = "transformer_data") -> RDF2VecTransformer:
