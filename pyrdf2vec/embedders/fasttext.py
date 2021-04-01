@@ -20,8 +20,8 @@ class FastText(Embedder):
 
     SEE: https://radimrehurek.com/gensim/models/fasttext.html
 
-    WARNING: The RDF2Vec implementation of FastText does not consider the min_n
-    and max_n parameters for n_gram splitting.
+    The RDF2Vec implementation of FastText does not consider the min_n and
+    max_n parameters for n_gram splitting.
 
     This implementation for RDF2Vec computes ngrams for walks only by splitting
     (by their symbol "#") the URIs of subjects and predicates. Indeed, objects

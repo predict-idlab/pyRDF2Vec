@@ -34,6 +34,7 @@ class RandomWalker(Walker):
             root, creating (max_walks * max_walks) more walks of 2 * depth,
             False otherwise.
             Defaults to False.
+
     """
 
     md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)

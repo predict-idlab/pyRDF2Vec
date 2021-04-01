@@ -72,7 +72,6 @@ class CommunityWalker(Walker):
         type=float,
         validator=attr.validators.instance_of(float),
     )
-
     md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
 
     resolution = attr.ib(

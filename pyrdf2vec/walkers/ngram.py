@@ -12,8 +12,10 @@ from pyrdf2vec.walkers import RandomWalker
 class NGramWalker(RandomWalker):
     """Walker that relabels the N-grams in random walks to define a mapping
     from one-to-many.
+
     The intuition behind this is that the predecessors of a node that two
     different walks have in common can be different.
+
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
             remote Knowledge Graph, False Otherwise
@@ -39,6 +41,7 @@ class NGramWalker(RandomWalker):
             root, creating (max_walks * max_walks) more walks of 2 * depth,
             False otherwise.
             Defaults to False.
+
     """
 
     grams = attr.ib(

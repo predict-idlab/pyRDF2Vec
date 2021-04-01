@@ -1,3 +1,39 @@
+0.2.2 (2021-04-02)
+-------------------
+
+🚀 Features
+^^^^^^^^^^^^^
+
+- Add a first support of FastText as embedding technique.
+
+Fixed
+^^^^^
+
+- Fix the ``size`` hyperparameter by ``vector_size`` of the default dictionary
+  in the ``Word2Vec`` class.
+- Fix random determinism with walking strategies.
+- Fix the calculation of walks for duplicate entities in a file.
+- Fix the total recovery of entities, walks, literals and embeddings of a model
+  after multiple online learning.
+
+Added
+^^^^^
+
+- Add the ``_update`` private method in the ``RDF2VecTransformer`` class.
+
+Changed
+^^^^^^^
+
+- Replace the ``extract`` method in the ``Walker`` to returns a list of
+  entities with their walks instead of a list of walks.
+
+0.2.1 (2021-03-22)
+-------------------
+
+Fixed
+^^^^^
+- Fix the issue with ``nest-asyncio`` as dependency.
+
 0.2.0 (2021-03-20)
 -------------------
 

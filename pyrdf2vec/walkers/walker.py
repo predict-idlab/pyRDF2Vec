@@ -29,6 +29,7 @@ class WalkerNotSupported(Exception):
 @attr.s
 class Walker(ABC):
     """Base class of the walking strategies.
+
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
             remote Knowledge Graph, False Otherwise

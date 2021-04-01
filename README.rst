@@ -101,7 +101,7 @@ embeddings and get literals from a given Knowledge Graph (KG) and entities:
 
    transformer = RDF2VecTransformer(
        Word2Vec(iter=10),
-       walkers=[RandomWalker(4, 10, n_jobs=2)],
+       walkers=[RandomWalker(4, 10, with_reverse=False, n_jobs=2)],
        # verbose=1
    )
    embeddings, literals = transformer.fit_transform(
@@ -142,6 +142,13 @@ embeddings and get literals from a given Knowledge Graph (KG) and entities:
    #       'Member states of the European Union', 'Member states of the Union for the
    #       Mediterranean', 'Member states of the United Nations'), 0.939]
    #  ]
+
+If you are using a dataset other than MUTAG (where the interested entities have
+no parents in the KG), it is **highly recommended** to specify
+``with_reverse=True`` (defaults to ``False``) in the walking strategy (e.g.,
+``RandomWalker``). Such a parameter **allows Word2Vec** to have a better
+learning window for an entity based on its parents and children and thus
+**predict test data with better accuracy**.
 
 In a more concrete way, we provide a blog post with a tutorial on how to use
 ``pyRDF2Vec`` `here
@@ -330,7 +337,6 @@ number of entities, this option can greatly speed up the extraction of walks:
    from pyrdf2vec.walkers import RandomWalker
 
    data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
-
 
    RDF2VecTransformer(walkers=[RandomWalker(4, 10)]).fit_transform(
        KG("https://dbpedia.org/sparql", mul_req=True),

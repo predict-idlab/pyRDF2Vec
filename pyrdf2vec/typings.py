@@ -1,12 +1,12 @@
-from typing import TYPE_CHECKING, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 if TYPE_CHECKING:
     from pyrdf2vec.graphs import Vertex  # noqa: F401
 
-Hop = Tuple["Vertex", "Vertex"]
+Hop = Tuple[Any, Any]
 
 SWalk = Tuple[str, ...]
-Walk = Tuple["Vertex", ...]
+Walk = Tuple[Any, ...]
 
 Embeddings = List[str]
 
