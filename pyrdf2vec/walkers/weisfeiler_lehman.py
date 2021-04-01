@@ -26,6 +26,10 @@ class WLWalker(RandomWalker):
         max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
             Defaults to None.
+        md5_bytes: The number of bytes to keep after hashing objects in
+            MD5. Hasher allows to reduce the memory occupied by a long text. If
+            md5_bytes is None, no hash is applied.
+            Defaults to 8.
         random_state: The random state to use to keep random determinism with
             the walking strategy.
             Defaults to None.
@@ -39,6 +43,8 @@ class WLWalker(RandomWalker):
             Defaults to 4.
 
     """
+
+    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
 
     wl_iterations = attr.ib(
         kw_only=True,
@@ -111,9 +117,16 @@ class WLWalker(RandomWalker):
 
         for n in range(1, self.wl_iterations + 1):
             for vertex in kg._vertices:
-                self._label_map[vertex][n] = str(
-                    md5(self._create_label(kg, vertex, n).encode()).digest()
-                )
+                if self.md5_bytes:
+                    self._label_map[vertex][n] = str(
+                        md5(
+                            self._create_label(kg, vertex, n).encode()
+                        ).digest()[: self.md5_bytes]
+                    )
+                else:
+                    self._label_map[vertex][n] = str(
+                        self._create_label(kg, vertex, n)
+                    )
 
         for vertex in kg._vertices:
             for k, v in self._label_map[vertex].items():
@@ -121,7 +134,7 @@ class WLWalker(RandomWalker):
 
     def extract(
         self, kg: KG, entities: Entities, verbose: int = 0
-    ) -> List[str]:
+    ) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
@@ -169,4 +182,4 @@ class WLWalker(RandomWalker):
                     else:
                         canonical_walk.append(self._label_map[hop][n])
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: list(canonical_walks)}

@@ -85,14 +85,20 @@ class TestFreqSampler:
         assert len(sampler._counts) == 0
         sampler.fit(kg)
         if isinstance(sampler, ObjFreqSampler):
-            assert len(sampler._counts) == 9
+            if kg == KG_LOOP:
+                assert len(sampler._counts) == 3
+            else:
+                assert len(sampler._counts) == 9
         elif isinstance(sampler, ObjPredFreqSampler):
             if kg == KG_LOOP:
                 assert len(sampler._counts) == 3
             else:
                 assert len(sampler._counts) == 8
         else:
-            assert len(sampler._counts) == 2
+            if kg == KG_LOOP:
+                assert len(sampler._counts) == 2
+            else:
+                assert len(sampler._counts) == 1
 
     @pytest.mark.parametrize(
         "kg, root, is_reverse, sampler, is_inverse, is_split",

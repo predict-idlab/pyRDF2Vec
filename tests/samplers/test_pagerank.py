@@ -26,7 +26,7 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
-ALPHA = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+ALPHA = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 IS_INVERSE = [False, True]
 IS_REVERSE = [False, True]
 IS_SPLIT = [False, True]

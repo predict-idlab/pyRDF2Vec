@@ -55,4 +55,4 @@ class WalkletWalker(RandomWalker):
                     canonical_walks.add((walk[i].name, walk[0].name))
                 else:
                     canonical_walks.add((walk[0].name, walk[i].name))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: list(canonical_walks)}

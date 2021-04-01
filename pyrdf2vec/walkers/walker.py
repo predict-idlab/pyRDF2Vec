@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
-from pyrdf2vec.typings import Entities, EntityWalks
+from pyrdf2vec.typings import Entities, EntityWalks, SWalk
 
 from pyrdf2vec.utils.validation import (  # isort: skip
     _check_max_depth,
@@ -107,7 +107,7 @@ class Walker(ABC):
 
     def extract(
         self, kg: KG, entities: Entities, verbose: int = 0
-    ) -> List[str]:
+    ) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.
@@ -153,20 +153,12 @@ class Walker(ABC):
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
                 tqdm(
-                    pool.imap_unordered(self._proc, entities),
+                    pool.imap(self._proc, entities),
                     total=len(entities),
                     disable=True if verbose == 0 else False,
                 )
             )
-
-        entity_walks = {
-            entity: walks for elm in res for entity, walks in elm.items()
-        }
-
-        canonical_walks = set()
-        for entity in entities:
-            canonical_walks.update(entity_walks[entity])
-        return list(canonical_walks)
+        return list(walks for elm in res for walks in elm.values())
 
     @abstractmethod
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:

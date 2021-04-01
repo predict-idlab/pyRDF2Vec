@@ -10,7 +10,7 @@ Walk = Tuple[Any, ...]
 
 Embeddings = List[str]
 
-EntityWalks = Dict[str, Tuple[SWalk, ...]]
+EntityWalks = Dict[str, List[SWalk]]
 Entities = List[str]
 
 Literal = Union[float, str]

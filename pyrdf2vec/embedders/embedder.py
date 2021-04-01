@@ -5,7 +5,7 @@ from typing import List
 
 import attr
 
-from pyrdf2vec.typings import Embeddings, Entities
+from pyrdf2vec.typings import Embeddings, Entities, SWalk
 
 
 @attr.s
@@ -13,7 +13,9 @@ class Embedder(metaclass=abc.ABCMeta):
     """Base class of the embedding techniques."""
 
     @abc.abstractmethod
-    def fit(self, corpus: List[Entities], is_update: bool = False) -> Embedder:
+    def fit(
+        self, corpus: List[List[SWalk]], is_update: bool = False
+    ) -> Embedder:
         """Fits a model based on the provided corpus.
 
         Args:

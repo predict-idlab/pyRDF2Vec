@@ -26,6 +26,10 @@ class HALKWalker(RandomWalker):
         max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
             Defaults to None.
+        md5_bytes: The number of bytes to keep after hashing objects in
+            MD5. Hasher allows to reduce the memory occupied by a long text. If
+            md5_bytes is None, no hash is applied.
+            Defaults to 8.
         random_state: The random state to use to keep random determinism with
             the walking strategy.
             Defaults to None.
@@ -48,6 +52,8 @@ class HALKWalker(RandomWalker):
         ),
     )
 
+    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
+
     def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
         """Extracts walks rooted at the provided entities which are then each
         transformed into a numerical representation.
@@ -58,7 +64,6 @@ class HALKWalker(RandomWalker):
                 The graph from which the neighborhoods are extracted for the
                 provided entities.
             instance: The instance to be extracted from the Knowledge Graph.
-
         Returns:
             The 2D matrix with its number of rows equal to the number of
             provided entities; number of column equal to the embedding size.
@@ -81,14 +86,15 @@ class HALKWalker(RandomWalker):
             for walk in walks:
                 canonical_walk = []
                 for i, hop in enumerate(walk):
-                    if i == 0:
+                    if i == 0 or self.md5_bytes is None:
                         canonical_walk.append(hop.name)
                     elif hop.name not in uniformative_hops:
-                        # Use a hash to reduce memory usage of long texts
-                        # by using 8 bytes per hop, except for the first
-                        # hop and odd hops (predicates).
                         canonical_walk.append(
-                            str(md5(hop.name.encode()).digest()[:8])
+                            str(
+                                md5(hop.name.encode()).digest()[
+                                    : self.md5_bytes
+                                ]
+                            )
                         )
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: list(canonical_walks)}

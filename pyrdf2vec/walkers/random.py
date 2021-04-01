@@ -21,6 +21,10 @@ class RandomWalker(Walker):
         max_depth: The maximum depth of one walk.
         max_walks: The maximum number of walks per entity.
             Defaults to None.
+        md5_bytes: The number of bytes to keep after hashing objects in
+            MD5. Hasher allows to reduce the memory occupied by a long
+            text. If md5_bytes is None, no hash is applied.
+            Defaults to 8.
         random_state: The random state to use to keep random determinism with
             the walking strategy.
             Defaults to None.
@@ -32,6 +36,8 @@ class RandomWalker(Walker):
             Defaults to False.
 
     """
+
+    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
 
     def _bfs(
         self, kg: KG, root: Vertex, is_reverse: bool = False
@@ -142,14 +148,11 @@ class RandomWalker(Walker):
         for walk in self.extract_walks(kg, instance):
             canonical_walk: List[str] = []
             for i, hop in enumerate(walk):
-                if i == 0 or i % 2 == 1:
+                if i == 0 or i % 2 == 1 or self.md5_bytes is None:
                     canonical_walk.append(hop.name)
-                else:
-                    # Use a hash to reduce memory usage of long texts by using
-                    # 8 bytes per hop, except for the first hop and odd
-                    # hops (predicates).
+                elif self.md5_bytes is not None:
                     canonical_walk.append(
-                        str(md5(hop.name.encode()).digest()[:8])
+                        str(md5(hop.name.encode()).digest()[: self.md5_bytes])
                     )
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: tuple(canonical_walks)}
+        return {instance.name: list(canonical_walks)}

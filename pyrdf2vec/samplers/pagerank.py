@@ -11,7 +11,6 @@ from pyrdf2vec.typings import Hop
 @attr.s
 class PageRankSampler(Sampler):
     """Defines the Object Frequency Weight sampling strategy.
-
     This sampling strategy is a node-centric approach. With this strategy, some
     nodes are more important than others and hence there will be resources
     which are more frequent in the walks as others.

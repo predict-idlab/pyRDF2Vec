@@ -113,7 +113,6 @@ class PredFreqSampler(Sampler):
     _counts: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
-    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of occurance that
@@ -185,7 +184,6 @@ class ObjPredFreqSampler(Sampler):
     _counts: DefaultDict[Tuple[str, str], int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
-    """Counter for vertices."""
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by counting the number of occurance of
