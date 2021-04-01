@@ -7,7 +7,6 @@ import attr
 import numpy as np
 from gensim.models.fasttext import FastText as FT
 from gensim.models.fasttext import FastTextKeyedVectors
-from gensim.models.fasttext_inner import ft_hash_bytes
 from numpy import float32 as REAL
 from numpy import ones
 
@@ -200,6 +199,22 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
             return [str.encode(ngram) for ngram in ngrams]
         return [str.encode(entity)]
 
+    def ft_hash_bytes(self, bytez: bytes) -> int:
+        """Computes hash based on `bytez`.
+
+        Args:
+            bytez: The byte to hash
+
+        Returns:
+            The hash of the string.
+
+        """
+        h = 2166136261
+        for b in bytez:
+            h = h ^ b
+            h = h * 16777619
+        return h
+
     def ft_ngram_hashes(
         self,
         entity: str,
@@ -227,5 +242,5 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
 
         """
         encoded_ngrams = self.func_computing_ngrams(entity, minn, maxn)
-        hashes = [ft_hash_bytes(n) % num_buckets for n in encoded_ngrams]
+        hashes = [self.ft_hash_bytes(n) % num_buckets for n in encoded_ngrams]
         return hashes
