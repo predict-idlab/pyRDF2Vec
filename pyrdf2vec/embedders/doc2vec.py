@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import itertools
 from typing import List
 
 import attr
-from gensim.models.doc2vec import Doc2Vec as D2V, TaggedDocument
+import numpy as np
+from gensim.models.doc2vec import Doc2Vec as D2V
+from gensim.models.doc2vec import TaggedDocument
+
 from pyrdf2vec.embedders import Embedder
 from pyrdf2vec.typings import Embeddings, Entities, SWalk
-import numpy as np
 
 
 @attr.s(init=False)
@@ -34,6 +37,8 @@ class Doc2Vec(Embedder):
             **kwargs,
         }
         self._model = D2V(**self.kwargs)
+        self._entity_tags = {}
+        self._counter = itertools.count()
 
     def fit(
         self, walks: List[List[SWalk]], is_update: bool = False
@@ -50,17 +55,10 @@ class Doc2Vec(Embedder):
             The fitted Doc2Vec model.
 
         """
-        if is_update:
-            corpus = [
-                TaggedDocument([walk for walk in e_walk], [8 + i])
-                for i, e_walk in enumerate(walks)
-            ]
-            print(corpus)
-        else:
-            corpus = [
-                TaggedDocument([walk for walk in e_walk], [i])
-                for i, e_walk in enumerate(walks)
-            ]
+        corpus = [
+            TaggedDocument([walk for walk in e_walk], [self.get_tag(e_walk)])
+            for e_walk in walks
+        ]
         self._model.build_vocab(corpus, update=is_update)
         self._model.train(
             corpus,
@@ -68,6 +66,20 @@ class Doc2Vec(Embedder):
             epochs=self._model.epochs,
         )
         return self
+
+    def get_tag(self, e_walk: List[SWalk]) -> int:
+        """Gets the tag for an entity.
+
+        Args:
+            e_walk: The walks of an entity.
+
+        Returns: The tag for an entity.
+
+        """
+        subj = e_walk[0][0]
+        if subj not in self._entity_tags:
+            self._entity_tags[subj] = next(self._counter)
+        return self._entity_tags[subj]
 
     def transform(self, entities: Entities) -> Embeddings:
         """The features vector of the provided entities.

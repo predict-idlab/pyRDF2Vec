@@ -1,24 +1,18 @@
 from __future__ import annotations
 
-from typing import List, Dict, Any
-import numpy as np
-import attr
-from gensim.models.fasttext import (
-    FastText as FT,
-    FastTextKeyedVectors,
-    Word2Vec as W2V,
-)
 import re
+from typing import Any, Dict, List
 
-from gensim import utils
+import attr
+import numpy as np
+from gensim.models.fasttext import FastText as FT
+from gensim.models.fasttext import FastTextKeyedVectors
+from gensim.models.fasttext_inner import ft_hash_bytes
+from numpy import float32 as REAL
+from numpy import ones
 
 from pyrdf2vec.embedders import Embedder
 from pyrdf2vec.typings import Embeddings, Entities, SWalk
-from gensim.models.fasttext_inner import ft_hash_bytes, MAX_WORDS_IN_BATCH
-from numpy import ones, vstack, float32 as REAL
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 @attr.s(init=False)
@@ -35,15 +29,15 @@ class FastText(Embedder):
     being encoded in MD5, splitting in ngrams does not make sense.
 
     It is likely that you want to provide another split strategy for the
-    calculation of the n-grams of the entities. If this is the case, provide your
-    own compute_ngrams_bytes function to FastText.
+    calculation of the n-grams of the entities. If this is the case, provide
+    your own compute_ngrams_bytes function to FastText.
 
     Attributes:
         _model: The gensim.models.word2vec model.
             Defaults to None.
         kwargs: The keyword arguments dictionary.
-            Defaults to { bucket=2000000, min_count=0, max_n=0, min_n=0, negative=20,
-                vector_size=500 }
+            Defaults to { bucket=2000000, min_count=0, max_n=0, min_n=0,
+                negative=20, vector_size=500 }
 
     """
 
@@ -88,7 +82,6 @@ class FastText(Embedder):
             700 if self._model.hs else 500
         )
         report["syn0_vocab"] = len(self._model.wv) * vec_size
-        num_buckets = self._model.wv.bucket
         if self._model.hs:
             report["syn1"] = len(self._model.wv) * l1_size
         if self._model.negative:
@@ -99,20 +92,13 @@ class FastText(Embedder):
             for word in self._model.wv.key_to_index:
                 hashes = ft_ngram_hashes(word, 0, 0, self._model.wv.bucket)
                 num_ngrams += len(hashes)
-            # A list (64 bytes) with one np.array (100 bytes) per key, with a total of
-            # num_ngrams uint32s (4 bytes) amongst them.
-            # Only used during training, not stored with the model.
+            # A list (64 bytes) with one np.array (100 bytes) per key, with a
+            # total of num_ngrams uint32s (4 bytes) amongst them.  Only used
+            # during training, not stored with the model.
             report["buckets_word"] = (
                 64 + (100 * len(self._model.wv)) + (4 * num_ngrams)
             )
         report["total"] = sum(report.values())
-        logger.info(
-            "estimated required memory for %i words, %i buckets and %i dimensions: %i bytes",
-            len(self._model.wv),
-            num_buckets,
-            self._model.vector_size,
-            report["total"],
-        )
         return report
 
     def fit(
@@ -188,10 +174,6 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
                 #
                 # https://github.com/RaRe-Technologies/gensim/issues/2402
                 #
-                logger.warning(
-                    "could not extract any ngrams from %r, returning origin vector",
-                    word,
-                )
                 return word_vec
             for nh in ngram_hashes:
                 word_vec += ngram_weights[nh]
