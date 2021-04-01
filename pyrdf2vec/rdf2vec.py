@@ -160,7 +160,7 @@ class RDF2VecTransformer:
                 "The provided entities must be in the Knowledge Graph."
             )
 
-        # Avoids duplicate entities for unnecessary path extractions.
+        # Avoids duplicate entities for unnecessary walk extractions.
         entities = list(set(entities))
 
         is_new_entities = False
