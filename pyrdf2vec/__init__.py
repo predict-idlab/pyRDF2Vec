@@ -8,4 +8,4 @@ nest_asyncio.apply()
 __all__ = [
     "RDF2VecTransformer",
 ]
-__version__ = "0.2.1"
+__version__ = "0.2.2"
