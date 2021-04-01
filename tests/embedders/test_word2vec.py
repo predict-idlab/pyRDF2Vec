@@ -15,39 +15,48 @@ CORPUS_LOOP = [
             "b'\\x94\\xefX\\x0c\\x04l4E'",
         ),
         (
-            "http://pyRDF2Vec#Bob",
-            "http://pyRDF2Vec#knows",
-            "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
-            "http://pyRDF2Vec#loves",
-            "b'\\x94\\xefX\\x0c\\x04l4E'",
-        ),
-        (
-            "http://pyRDF2Vec#Dean",
-            "http://pyRDF2Vec#loves",
-            "b'\\x94\\xefX\\x0c\\x04l4E'",
-            "http://pyRDF2Vec#knows",
-            "b'\\x1eK\\xad\\xc6\\xb6\\x1cu:'",
-        ),
-        (
-            "http://pyRDF2Vec#Dean",
-            "http://pyRDF2Vec#loves",
-            "b'\\x94\\xefX\\x0c\\x04l4E'",
-            "http://pyRDF2Vec#knows",
-            "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
-        ),
-        (
             "http://pyRDF2Vec#Alice",
             "http://pyRDF2Vec#knows",
             "b'\\x1eK\\xad\\xc6\\xb6\\x1cu:'",
             "http://pyRDF2Vec#knows",
             "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
         ),
-    ]
+    ],
+    [
+        (
+            "http://pyRDF2Vec#Bob",
+            "http://pyRDF2Vec#knows",
+            "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
+            "http://pyRDF2Vec#loves",
+            "b'\\x94\\xefX\\x0c\\x04l4E'",
+        )
+    ],
+    [
+        (
+            "http://pyRDF2Vec#Dean",
+            "http://pyRDF2Vec#loves",
+            "b'\\x94\\xefX\\x0c\\x04l4E'",
+            "http://pyRDF2Vec#knows",
+            "b'\\x1eK\\xad\\xc6\\xb6\\x1cu:'",
+        ),
+        (
+            "http://pyRDF2Vec#Dean",
+            "http://pyRDF2Vec#loves",
+            "b'\\x94\\xefX\\x0c\\x04l4E'",
+            "http://pyRDF2Vec#knows",
+            "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
+        ),
+    ],
 ]
 
 CORPUS_CHAIN = [
+    [("http://pyRDF2Vec#Dean",)],
     [
-        ("http://pyRDF2Vec#Dean",),
+        (
+            "http://pyRDF2Vec#Alice",
+            "http://pyRDF2Vec#knows",
+            "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
+        ),
         (
             "http://pyRDF2Vec#Alice",
             "http://pyRDF2Vec#knows",
@@ -55,6 +64,8 @@ CORPUS_CHAIN = [
             "http://pyRDF2Vec#knows",
             "b'1\\xa1\\x90\\xf2e\\x8a%\\x17'",
         ),
+    ],
+    [
         (
             "http://pyRDF2Vec#Bob",
             "http://pyRDF2Vec#knows",
@@ -62,12 +73,7 @@ CORPUS_CHAIN = [
             "http://pyRDF2Vec#knows",
             "b'\\x87)K\\xbf5!\\x13\\x00'",
         ),
-        (
-            "http://pyRDF2Vec#Alice",
-            "http://pyRDF2Vec#knows",
-            "b'\\x8b\\x93\\x8dx\\x1c\\xc7\\xd3\\xc9'",
-        ),
-    ]
+    ],
 ]
 
 CORPUS = [CORPUS_LOOP, CORPUS_CHAIN]
