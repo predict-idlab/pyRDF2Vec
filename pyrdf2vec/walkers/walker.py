@@ -152,16 +152,12 @@ class Walker(ABC):
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
                 tqdm(
-                    pool.imap_unordered(self._proc, entities),
+                    pool.imap(self._proc, entities),
                     total=len(entities),
                     disable=True if verbose == 0 else False,
                 )
             )
-
-        entity_walks = {
-            entity: walks for elm in res for entity, walks in elm.items()
-        }
-        return list(walks for walks in entity_walks.values())
+        return list(walks for elm in res for walks in elm.values())
 
     @abstractmethod
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:

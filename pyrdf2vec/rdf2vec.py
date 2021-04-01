@@ -93,7 +93,6 @@ class RDF2VecTransformer:
             The RDF2VecTransformer.
 
         """
-        print(walks)
         if self.verbose == 2:
             print(self.embedder)
 
