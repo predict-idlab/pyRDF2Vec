@@ -6,7 +6,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
-from pyrdf2vec.embedders import Word2Vec
+from pyrdf2vec.embedders import *
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
 

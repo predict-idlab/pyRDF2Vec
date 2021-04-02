@@ -195,7 +195,7 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
 
         """
         if "http" in entity:
-            ngrams = " ".join(re.split("[#]", entity)).split()
+            ngrams = " ".join(re.split("[/]", entity)).split()
             return [str.encode(ngram) for ngram in ngrams]
         return [str.encode(entity)]
 
