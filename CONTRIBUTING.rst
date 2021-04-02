@@ -218,17 +218,17 @@ To achieve this, there are 5 points there are 5 points to follow:
     class Foo(Embedder):
         """Defines Foo embedding technique."""
 
-        def fit(self, corpus: List[Entities], is_updated: bool = False) -> Embedder:
-           """Fits the model based on provided corpus.
+        def fit(self,  walks: List[List[SWalk]], is_updated: bool = False) -> Embedder:
+           """Fits the model based on provided walks.
 
            Args:
-               corpus: The corpus to fit the model.
-               is_update: True if the new corpus should be added to old model's
-                   corpus, False otherwise.
+               walks: The walks to create the corpus to to fit the model.
+               is_update: True if the new walks should be added to old model's
+                   walks, False otherwise.
                    Defaults to False.
 
            Returns:
-               The fitted Word2Vec model.
+               The fitted Foo model.
 
         """
         # TODO: to be implemented
@@ -354,7 +354,7 @@ adding an embedding technique:
             """
             canonical_walks: Set[SWalk] = set()
             # TODO: to be implemented
-            return {instance.name: tuple(canonical_walks)}
+            return {instance.name: list(canonical_walks)}
 
 4. **Create unit tests of your walking strategy:**
 

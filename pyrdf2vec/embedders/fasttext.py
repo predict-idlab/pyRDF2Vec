@@ -80,7 +80,7 @@ class FastText(Embedder):
         Args:
             walks: The walks to create the corpus to to fit the model.
             is_update: True if the new corpus should be added to old model's
-                corpus, False otherwise.
+                walks, False otherwise.
                 Defaults to False.
 
         Returns:
