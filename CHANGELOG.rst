@@ -20,6 +20,9 @@ Added
 ^^^^^
 
 - Add the ``_update`` private method in the ``RDF2VecTransformer`` class.
+- Add the ``md5_bytes`` attribute in the ``CommuniWalker``, ``HALKWalker``,
+  ``RandomWalker``, and ``WLWalker`` classes to hash or not an object in MD5
+  and with how many bytes to keep.
 
 Changed
 ^^^^^^^
