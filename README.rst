@@ -476,7 +476,7 @@ worker**:
 **NOTE:** using the ``n_jobs`` and ``mul_req`` parameters does not affect the
 random determinism.
 
-Why the extraction time of walks is faster if ``max_walks=None``?
+Why the Extraction Time of Walks is Faster if ``max_walks=None``?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Currently, **the BFS function** (using the Breadth-first search algorithm) is used
@@ -485,6 +485,12 @@ when ``max_walks=None`` which is significantly **faster** than the DFS function
 
 We hope that this algorithmic complexity issue will be solved for the next
 release of ``pyRDf2Vec``
+
+How to Silence the tcmalloc Warning When Using FastText With Mediums/Large KGs?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sets the ``TCMALLOC_LARGE_ALLOC_REPORT_THRESHOLD`` environment variable to a
+high value.
 
 Referencing
 -----------
