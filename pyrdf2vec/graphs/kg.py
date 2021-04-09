@@ -406,6 +406,9 @@ class KG:
             hops = self._res2hops(Vertex(entity), res)
             self._entity_hops.update({entity: hops})
 
+    @cachedmethod(
+        operator.attrgetter("cache"), key=partial(hashkey, "_get_hops")
+    )
     def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex for a local Knowledge Graph.
 
