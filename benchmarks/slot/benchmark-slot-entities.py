@@ -1,11 +1,11 @@
 import itertools
+import sys
 import time
 
 import numpy as np
 import pandas as pd
 from cachetools import TTLCache
 from tqdm import tqdm
-import sys
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker

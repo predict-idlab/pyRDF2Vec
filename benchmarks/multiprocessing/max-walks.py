@@ -15,11 +15,12 @@ from pyrdf2vec.walkers import RandomWalker
 dcemd_to_avg_stdev = {}  # type: ignore
 
 
-for db, entities, max_depth, max_walks in itertools.product(
+for db, n_jobs, entities, max_depth, max_walks in itertools.product(
     ["mutag", "am", "dbpedia"],
+    [1, 2, 4],
     [50],
-    [2, 4, 6],
-    [500],
+    [4],
+    [100, 500, 1000],
 ):
     label = "bond"
     if db == "am":
@@ -31,12 +32,12 @@ for db, entities, max_depth, max_walks in itertools.product(
     times = []
 
     for _ in tqdm(range(10)):
-        kg = KG(f"http://10.2.35.70:5820/{db}", mul_req=True)
+        kg = KG(f"http://10.2.35.70:5820/{db}")
 
         tic = time.perf_counter()
-        entity_walks = RandomWalker(max_depth, max_walks, n_jobs=4).extract(
-            kg, e
-        )
+        entity_walks = RandomWalker(
+            max_depth, max_walks, n_jobs=n_jobs
+        ).extract(KG(f"http://10.2.35.70:5820/{db}", cache=None), e)
         toc = time.perf_counter()
         times.append(toc - tic)
 
@@ -49,15 +50,17 @@ for db, entities, max_depth, max_walks in itertools.product(
 
     num_walks = sum([len(e_walk) for e_walk in entity_walks])
     print(
-        f"(db={db},entities={len(e)},"
+        f"(db={db},n_jobs={n_jobs},entities={len(e)},"
         + f"max_depth={max_depth},max_walks={max_walks}) = "
         + f"{avg_stdev[0]} +/- {avg_stdev[1]} > {num_walks} walks"
     )
-    dcemd_to_avg_stdev[(db, entities, max_depth, max_walks)] = avg_stdev
+    dcemd_to_avg_stdev[
+        (db, n_jobs, entities, max_depth, max_walks, num_walks)
+    ] = avg_stdev
 
 for k, v in dcemd_to_avg_stdev.items():
     print(
-        f"(db={k[0]},entities={k[2]},"
+        f"(db={k[0]},n_jobs={k[1]},entities={k[2]},"
         + f"max_depth={k[3]},max_walks={k[4]}) = "
         + f"{v[0]} +/- {v[1]} > {k[5]} walks"
     )
