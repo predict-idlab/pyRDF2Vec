@@ -449,6 +449,6 @@ class KG:
                 vprev=vertex,
                 vnext=obj,
             )
-            if self.add_walk(vertex, pred, obj):
+            if pred.name not in self.skip_predicates:
                 hops.append((pred, obj))
         return hops
