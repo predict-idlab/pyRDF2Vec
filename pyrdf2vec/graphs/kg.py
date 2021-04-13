@@ -452,11 +452,11 @@ class KG:
     def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex for a local Knowledge Graph.
 
-        is Args:
-             vertex: The name of the vertex to get the hops.
-             is_reverse: If True, this function gets the parent nodes of a
-                 vertex. Otherwise, get the child nodes for this vertex.
-                 Defaults to False.
+        Args:
+            vertex: The name of the vertex to get the hops.
+            is_reverse: If True, this function gets the parent nodes of a
+                vertex. Otherwise, get the child nodes for this vertex.
+                Defaults to False.
 
          Returns:
              The hops of a vertex in a (predicate, object) form.
