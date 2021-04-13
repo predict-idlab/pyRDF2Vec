@@ -53,7 +53,7 @@ class KG:
             Defaults to False.
         skip_predicates: The label predicates to skip from the KG.
             Defaults to set.
-        skip_verif: To skip or not the verification of existing entities in a
+        skip_verify: To skip or not the verification of existing entities in a
             Knowledge Graph. Its deactivation can improve HTTP latency for KG
             remotes.
             Defaults to False.
@@ -99,7 +99,7 @@ class KG:
         validator=attr.validators.instance_of(bool),
     )
 
-    skip_verif = attr.ib(
+    skip_verify = attr.ib(
         kw_only=True,
         type=bool,
         default=False,
