@@ -91,6 +91,9 @@ def is_valid_url(url: str) -> bool:
 
     """
     try:
-        return requests.get(url).status_code == requests.codes.ok
+        return (
+            requests.head(url, headers={"Accept": "text/html"}).status_code
+            == requests.codes.ok
+        )
     except Exception:
         return False
