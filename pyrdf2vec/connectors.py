@@ -73,7 +73,7 @@ class Connector(ABC):
             query: The query to fetch the result
 
         Returns:
-            The generated dictionary from the ['results']['bindings'] json.
+            The JSON response.
 
         Raises:
             NotImplementedError: If this method is called, without having
@@ -141,8 +141,7 @@ class SPARQLConnector(Connector):
         """
         url = f"{self.endpoint}/query?query={parse.quote(query)}"
         async with self._asession.get(url, headers=self._headers) as res:
-            res = await res.json()
-            return res["results"]["bindings"]
+            return await res.json()
 
     @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "fetch"))
     def fetch(self, query: str) -> Response:
@@ -156,8 +155,7 @@ class SPARQLConnector(Connector):
 
         """
         url = f"{self.endpoint}/query?query={parse.quote(query)}"
-        res = self._session.get(url, headers=self._headers).json()
-        return res["results"]["bindings"]
+        return self._session.get(url, headers=self._headers).json()
 
     def get_query(self, entity: str, preds: Optional[List[str]] = None) -> str:
         """Gets the SPARQL query for an entity.
