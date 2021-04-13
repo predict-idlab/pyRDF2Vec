@@ -53,6 +53,10 @@ class KG:
             Defaults to False.
         skip_predicates: The label predicates to skip from the KG.
             Defaults to set.
+        skip_verif: To skip or not the verification of existing entities in a
+            Knowledge Graph. Its deactivation can improve HTTP latency for KG
+            remotes.
+            Defaults to False.
 
     """
 
@@ -89,6 +93,13 @@ class KG:
     )
 
     mul_req = attr.ib(
+        kw_only=True,
+        type=bool,
+        default=False,
+        validator=attr.validators.instance_of(bool),
+    )
+
+    skip_verif = attr.ib(
         kw_only=True,
         type=bool,
         default=False,
@@ -206,9 +217,6 @@ class KG:
             return True
         return False
 
-    @cachedmethod(
-        operator.attrgetter("cache"), key=partial(hashkey, "fetch_hops")
-    )
     def fetch_hops(self, vertex: Vertex) -> List[Hop]:
         """Fetchs the hops of the vertex from a SPARQL endpoint server and
         add the hops for this vertex in a cache dictionary.
@@ -229,7 +237,7 @@ class KG:
             "https://"
         ):
             res = self.connector.fetch(self.connector.get_query(vertex.name))
-            hops = self._res2hops(vertex, res)
+            hops = self._res2hops(vertex, res["results"]["bindings"])
         return hops
 
     def get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
@@ -283,7 +291,8 @@ class KG:
                 responses = [self.connector.fetch(query) for query in queries]
 
             literals_responses = [
-                self.connector.res2literals(res) for res in responses
+                self.connector.res2literals(res["results"]["bindings"])
+                for res in responses
             ]
             return [
                 literals_responses[
@@ -339,6 +348,33 @@ class KG:
                         new_frontier.add(obj.name)
             frontier = new_frontier
         return list(frontier)
+
+    def is_exist(self, entities: Entities) -> bool:
+        """Checks that all provided entities exists in the Knowledge Graph.
+
+        Args:
+            entities: The entities to check the existence
+
+        Returns:
+            True if all the entities exists, False otherwise.
+
+        """
+        if self._is_remote:
+            queries = [
+                f"ASK WHERE {{ <{entity}> ?p ?o . }}" for entity in entities
+            ]
+            if self.mul_req:
+                responses = [
+                    res["boolean"]
+                    for res in asyncio.run(self.connector.afetch(queries))
+                ]
+            else:
+                responses = [self.connector.fetch(query) for query in queries]
+                responses = [res["boolean"] for res in responses]
+            return False not in responses
+        return not all(
+            [Vertex(entity) in self._vertices for entity in entities]
+        )
 
     def remove_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Removes the edge (v1 -> v2) if present.
@@ -403,7 +439,7 @@ class KG:
             entities,
             asyncio.run(self.connector.afetch(queries)),
         ):
-            hops = self._res2hops(Vertex(entity), res)
+            hops = self._res2hops(Vertex(entity), res["results"]["bindings"])
             self._entity_hops.update({entity: hops})
 
     @cachedmethod(
@@ -412,14 +448,14 @@ class KG:
     def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex for a local Knowledge Graph.
 
-        Args:
-            vertex: The name of the vertex to get the hops.
-            is_reverse: If True, this function gets the parent nodes of a
-                vertex. Otherwise, get the child nodes for this vertex.
-                Defaults to False.
+        is Args:
+             vertex: The name of the vertex to get the hops.
+             is_reverse: If True, this function gets the parent nodes of a
+                 vertex. Otherwise, get the child nodes for this vertex.
+                 Defaults to False.
 
-        Returns:
-            The hops of a vertex in a (predicate, object) form.
+         Returns:
+             The hops of a vertex in a (predicate, object) form.
 
         """
         matrix = self._transition_matrix
@@ -452,6 +488,6 @@ class KG:
                 vprev=vertex,
                 vnext=obj,
             )
-            if self.add_walk(vertex, pred, obj):
+            if pred.name not in self.skip_predicates:
                 hops.append((pred, obj))
         return hops

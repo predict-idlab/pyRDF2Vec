@@ -160,15 +160,15 @@ class RDF2VecTransformer:
             ValueError: If the provided entities aren't in the Knowledge Graph.
 
         """
-        if not kg._is_remote and not all(
-            [Vertex(entity) in kg._vertices for entity in entities]
-        ):
-            raise ValueError(
-                "The provided entities must be in the Knowledge Graph."
-            )
-
         # Avoids duplicate entities for unnecessary walk extractions.
         entities = list(set(entities))
+        if kg.skip_verif is False and not kg.is_exist(entities):
+            if kg.mul_req:
+                asyncio.run(kg.connector.close())
+            raise ValueError(
+                "At least one provided entity does not exist in the "
+                + "Knowledge Graph."
+            )
 
         if self.verbose == 2:
             print(kg)
