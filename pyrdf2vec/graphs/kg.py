@@ -374,9 +374,7 @@ class KG:
                 responses = [self.connector.fetch(query) for query in queries]
                 responses = [res["boolean"] for res in responses]
             return False not in responses
-        return not all(
-            [Vertex(entity) in self._vertices for entity in entities]
-        )
+        return all([Vertex(entity) in self._vertices for entity in entities])
 
     def remove_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Removes the edge (v1 -> v2) if present.
