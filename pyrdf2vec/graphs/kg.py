@@ -291,7 +291,9 @@ class KG:
                 responses = [self.connector.fetch(query) for query in queries]
 
             literals_responses = [
-                self.connector.res2literals(res["results"]["bindings"])
+                self.connector.res2literals(
+                    res["results"]["bindings"]  # type: ignore
+                )
                 for res in responses
             ]
             return [
@@ -365,7 +367,7 @@ class KG:
             ]
             if self.mul_req:
                 responses = [
-                    res["boolean"]
+                    res["boolean"]  # type: ignore
                     for res in asyncio.run(self.connector.afetch(queries))
                 ]
             else:
@@ -439,7 +441,9 @@ class KG:
             entities,
             asyncio.run(self.connector.afetch(queries)),
         ):
-            hops = self._res2hops(Vertex(entity), res["results"]["bindings"])
+            hops = self._res2hops(
+                Vertex(entity), res["results"]["bindings"]  # type: ignore
+            )
             self._entity_hops.update({entity: hops})
 
     @cachedmethod(

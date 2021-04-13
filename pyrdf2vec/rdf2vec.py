@@ -8,7 +8,7 @@ from typing import List, Sequence, Tuple
 import attr
 
 from pyrdf2vec.embedders import Embedder, Word2Vec
-from pyrdf2vec.graphs import KG, Vertex
+from pyrdf2vec.graphs import KG
 from pyrdf2vec.typings import Embeddings, Entities, Literals, SWalk
 from pyrdf2vec.walkers import RandomWalker, Walker
 
