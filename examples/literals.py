@@ -156,7 +156,8 @@ ax[0].set_title(
     f"Without Literals ({accuracy_score(test_labels, predictions) * 100:.2f}%)"
 )
 
-# Reduce the dimensions of entity embeddings without literals to represent them in a 2D plane.
+# Reduce the dimensions of entity embeddings without literals to represent them
+# in a 2D plane.
 X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
     np.vstack((train_embeddings, test_embeddings))
 )
@@ -188,7 +189,8 @@ ax[1].set_title(
     f"With Literals ({accuracy_score(test_labels, predictions2) * 100 :.2f}%)"
 )
 
-# Reduce the dimensions of entity embeddings with literals to represent them in a 2D plane.
+# Reduce the dimensions of entity embeddings with literals to represent them in
+# a 2D plane.
 X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
     np.vstack((train_embeddings2, test_embeddings2))
 )
