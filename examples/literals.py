@@ -44,6 +44,11 @@ embeddings, literals = RDF2VecTransformer(
                 "http://dl-learner.org/carcinogenesis#hasAtom",
                 "http://dl-learner.org/carcinogenesis#charge",
             ],
+            ["http://dl-learner.org/carcinogenesis#salmonella"],
+            ["http://dl-learner.org/carcinogenesis#cytogen_sce"],
+            ["http://dl-learner.org/carcinogenesis#cytogen_ca"],
+            ["http://dl-learner.org/carcinogenesis#mouse_lymph"],
+            ["http://dl-learner.org/carcinogenesis#amesTestPositive"],
         ],
     ),
     entities,
@@ -71,8 +76,27 @@ print(confusion_matrix(test_labels, predictions))
 
 print("\nUsing literals:")
 features = []
-for charges in literals:
-    charges = list(map(float, *charges))  # type: ignore
+
+for literal in literals:
+    charges, salmonella, sce, ca, lymph, pos_test = literal
+
+    charges = list(charges)  # type: ignore
+
+    salmonella_feat = int(salmonella == "true")
+    salmonella_missing = int(salmonella == np.NaN)
+
+    sce_feat = int(sce == "true")
+    sce_missing = int(sce == np.NaN)
+
+    ca_feat = int(ca == "true")
+    ca_missing = int(ca == np.NaN)
+
+    lymph_feat = int(lymph == "true")
+    lymph_missing = int(lymph == np.NaN)
+
+    pos_test_feat = int(pos_test == "true")
+    pos_test_missing = int(pos_test == np.NaN)
+
     features.append(
         [
             np.max(charges),
@@ -81,33 +105,46 @@ for charges in literals:
             np.std(charges),  # type: ignore
             len(charges),  # type: ignore
             np.sum(charges),  # type: ignore
+            salmonella_feat,
+            salmonella_missing,
+            sce_feat,
+            sce_missing,
+            ca_feat,
+            ca_missing,
+            lymph_feat,
+            lymph_missing,
+            pos_test_feat,
+            pos_test_missing,
         ]
     )
 features = np.array(features)  # type: ignore
-train_embeddings = np.hstack(
+
+train_embeddings2 = np.hstack(
     (train_embeddings, features[: len(train_entities)])  # type: ignore
 )
-test_embeddings = np.hstack(
+test_embeddings2 = np.hstack(
     (test_embeddings, features[len(train_entities) :])  # type: ignore
 )
 
+train_features = features[: len(train_entities)]
+test_features = features[len(train_entities) :]
+
+# fit a Support Vector Machine on train embeddings.
 clf = GridSearchCV(
     SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
 )
-clf.fit(train_embeddings, train_labels)
+clf.fit(train_embeddings2, train_labels)
 
-predictions = clf.predict(test_embeddings)
+# Evaluate the Support Vector Machine on test embeddings.
+predictions2 = clf.predict(test_embeddings2)
 print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
-    + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
+    + f"{accuracy_score(test_labels, predictions2) * 100 :.4f}%"
 )
 print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
-print(confusion_matrix(test_labels, predictions))
+print(confusion_matrix(test_labels, predictions2))
 
-# Reduce the dimensions of entity embeddings to represent them in a 2D plane.
-X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
-    np.vstack((train_embeddings, test_embeddings))
-)
+f, ax = plt.subplots(1, 2, figsize=(15, 6))
 
 # Define the color map.
 colors = ["r", "g"]
@@ -115,62 +152,68 @@ color_map = {}
 for i, label in enumerate(set(labels)):
     color_map[label] = colors[i]
 
-# Set the graph with a certain size.
-plt.figure(figsize=(10, 4))
+ax[0].set_title(
+    f"Without Literals ({accuracy_score(test_labels, predictions) * 100:.2f}%)"
+)
 
-# Plot the train embeddings.
-plt.scatter(
+# Reduce the dimensions of entity embeddings without literals to represent them in a 2D plane.
+X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
+    np.vstack((train_embeddings, test_embeddings))
+)
+
+# Plot the train embeddings without literals.
+ax[0].scatter(
     X_tsne[: len(train_entities), 0],
     X_tsne[: len(train_entities), 1],
     edgecolors=[color_map[i] for i in labels[: len(train_entities)]],
     facecolors=[color_map[i] for i in labels[: len(train_entities)]],
 )
 
-# Plot the test embeddings.
-plt.scatter(
+# Plot the test embeddings without literals.
+ax[0].scatter(
     X_tsne[len(train_entities) :, 0],
     X_tsne[len(train_entities) :, 1],
     edgecolors=[color_map[i] for i in labels[len(train_entities) :]],
     facecolors="none",
-)
-
-# Annotate few points.
-plt.annotate(
-    entities[25].split("/")[-1],
-    xy=(X_tsne[25, 0], X_tsne[25, 1]),
-    xycoords="data",
-    xytext=(0.01, 0.0),
-    fontsize=8,
-    textcoords="axes fraction",
-    arrowprops=dict(arrowstyle="->", facecolor="black"),
-)
-plt.annotate(
-    entities[35].split("/")[-1],
-    xy=(X_tsne[35, 0], X_tsne[35, 1]),
-    xycoords="data",
-    xytext=(0.4, 0.0),
-    fontsize=8,
-    textcoords="axes fraction",
-    arrowprops=dict(arrowstyle="->", facecolor="black"),
 )
 
 # Create a legend.
-plt.scatter([], [], edgecolors="r", facecolors="r", label="train -")
-plt.scatter([], [], edgecolors="g", facecolors="g", label="train +")
-plt.scatter([], [], edgecolors="r", facecolors="none", label="test -")
-plt.scatter([], [], edgecolors="g", facecolors="none", label="test +")
-plt.legend(loc="upper right", ncol=2)
+ax[0].scatter([], [], edgecolors="r", facecolors="r", label="train -")
+ax[0].scatter([], [], edgecolors="g", facecolors="g", label="train +")
+ax[0].scatter([], [], edgecolors="r", facecolors="none", label="test -")
+ax[0].scatter([], [], edgecolors="g", facecolors="none", label="test +")
+ax[0].legend(loc="upper right", ncol=2)
 
-# Plot the test embeddings.
-plt.scatter(
+ax[1].set_title(
+    f"With Literals ({accuracy_score(test_labels, predictions2) * 100 :.2f}%)"
+)
+
+# Reduce the dimensions of entity embeddings with literals to represent them in a 2D plane.
+X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
+    np.vstack((train_embeddings2, test_embeddings2))
+)
+
+# Plot the train embeddings with literals.
+ax[1].scatter(
+    X_tsne[: len(train_entities), 0],
+    X_tsne[: len(train_entities), 1],
+    edgecolors=[color_map[i] for i in labels[: len(train_entities)]],
+    facecolors=[color_map[i] for i in labels[: len(train_entities)]],
+)
+
+# Plot the test embeddings with literals.
+ax[1].scatter(
     X_tsne[len(train_entities) :, 0],
     X_tsne[len(train_entities) :, 1],
     edgecolors=[color_map[i] for i in labels[len(train_entities) :]],
     facecolors="none",
 )
 
-# Display the graph with a title, removing the axes for
-# better readability.
-plt.title("pyRDF2Vec", fontsize=32)
-plt.axis("off")
+# Create a legend.
+ax[1].scatter([], [], edgecolors="r", facecolors="r", label="train -")
+ax[1].scatter([], [], edgecolors="g", facecolors="g", label="train +")
+ax[1].scatter([], [], edgecolors="r", facecolors="none", label="test -")
+ax[1].scatter([], [], edgecolors="g", facecolors="none", label="test +")
+ax[1].legend(loc="upper right", ncol=2)
+
 plt.show()
