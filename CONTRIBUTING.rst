@@ -219,19 +219,19 @@ To achieve this, there are 5 points there are 5 points to follow:
         """Defines Foo embedding technique."""
 
         def fit(self,  walks: List[List[SWalk]], is_updated: bool = False) -> Embedder:
-           """Fits the model based on provided walks.
+            """Fits the model based on provided walks.
 
-           Args:
-               walks: The walks to create the corpus to to fit the model.
-               is_update: True if the new walks should be added to old model's
-                   walks, False otherwise.
-                   Defaults to False.
+            Args:
+                walks: The walks to create the corpus to to fit the model.
+                is_update: True if the new walks should be added to old model's
+                    walks, False otherwise.
+                    Defaults to False.
 
-           Returns:
-               The fitted Foo model.
+            Returns:
+                The fitted Foo model.
 
-        """
-        # TODO: to be implemented
+            """
+            # TODO: to be implemented
 
         def transform(self, entities: Entities) -> Embeddings:
             """The features vector of the provided entities.
@@ -244,14 +244,14 @@ To achieve this, there are 5 points there are 5 points to follow:
             Returns:
                 The features vector of the provided entities.
 
-        """
-        # TODO: to be implemented
+            """
+            # TODO: to be implemented
 
 4. **Create unit tests of your embedding technique:**
 
 Create a ``tests/embedders/foo.py`` file and see `how the tests are done for
 Word2Vec
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/embedders/word2vec.py>`__
+<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/embedders/test_word2vec.py>`__
 as an example.
 
 Once this is done, run your tests:

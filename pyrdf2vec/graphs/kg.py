@@ -53,7 +53,7 @@ class KG:
             Defaults to False.
         skip_predicates: The label predicates to skip from the KG.
             Defaults to set.
-        skip_verif: To skip or not the verification of existing entities in a
+        skip_verify: To skip or not the verification of existing entities in a
             Knowledge Graph. Its deactivation can improve HTTP latency for KG
             remotes.
             Defaults to False.
@@ -99,7 +99,7 @@ class KG:
         validator=attr.validators.instance_of(bool),
     )
 
-    skip_verif = attr.ib(
+    skip_verify = attr.ib(
         kw_only=True,
         type=bool,
         default=False,
@@ -217,9 +217,6 @@ class KG:
             return True
         return False
 
-    @cachedmethod(
-        operator.attrgetter("cache"), key=partial(hashkey, "fetch_hops")
-    )
     def fetch_hops(self, vertex: Vertex) -> List[Hop]:
         """Fetchs the hops of the vertex from a SPARQL endpoint server and
         add the hops for this vertex in a cache dictionary.
@@ -294,7 +291,9 @@ class KG:
                 responses = [self.connector.fetch(query) for query in queries]
 
             literals_responses = [
-                self.connector.res2literals(res["results"]["bindings"])
+                self.connector.res2literals(
+                    res["results"]["bindings"]  # type: ignore
+                )
                 for res in responses
             ]
             return [
@@ -368,17 +367,14 @@ class KG:
             ]
             if self.mul_req:
                 responses = [
-                    res["boolean"]
+                    res["boolean"]  # type: ignore
                     for res in asyncio.run(self.connector.afetch(queries))
                 ]
             else:
-                responses = [
-                    self.connector.fetch(query)["boolean"] for query in queries
-                ]
-            return False in responses
-        return not all(
-            [Vertex(entity) in self._vertices for entity in entities]
-        )
+                responses = [self.connector.fetch(query) for query in queries]
+                responses = [res["boolean"] for res in responses]
+            return False not in responses
+        return all([Vertex(entity) in self._vertices for entity in entities])
 
     def remove_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Removes the edge (v1 -> v2) if present.
@@ -443,9 +439,14 @@ class KG:
             entities,
             asyncio.run(self.connector.afetch(queries)),
         ):
-            hops = self._res2hops(Vertex(entity), res["results"]["bindings"])
+            hops = self._res2hops(
+                Vertex(entity), res["results"]["bindings"]  # type: ignore
+            )
             self._entity_hops.update({entity: hops})
 
+    @cachedmethod(
+        operator.attrgetter("cache"), key=partial(hashkey, "_get_hops")
+    )
     def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex for a local Knowledge Graph.
 
@@ -455,8 +456,8 @@ class KG:
                 vertex. Otherwise, get the child nodes for this vertex.
                 Defaults to False.
 
-        Returns:
-            The hops of a vertex in a (predicate, object) form.
+         Returns:
+             The hops of a vertex in a (predicate, object) form.
 
         """
         matrix = self._transition_matrix

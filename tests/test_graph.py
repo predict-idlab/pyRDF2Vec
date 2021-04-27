@@ -219,6 +219,20 @@ class TestKG:
         with pytest.raises(ValueError):
             KG("http://foo")
 
+    def test_is_exist(self, setup):
+        assert LOCAL_KG.is_exist([f"{URL}#Alice", "foo"]) is False
+        assert (
+            LOCAL_KG.is_exist(
+                [
+                    f"{URL}#Alice",
+                    f"{URL}#Bob",
+                    f"{URL}#Casper",
+                    f"{URL}#Dean",
+                ]
+            )
+            is True
+        )
+
     def test_remove_edge(self, setup):
         vtx_alice = Vertex(f"{URL}#Alice")
 
