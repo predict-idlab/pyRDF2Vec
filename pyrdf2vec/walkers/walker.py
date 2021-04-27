@@ -153,7 +153,7 @@ class Walker(ABC):
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(
                 tqdm(
-                    pool.map(self._proc, entities),
+                    pool.imap(self._proc, entities),
                     total=len(entities),
                     disable=True if verbose == 0 else False,
                 )
