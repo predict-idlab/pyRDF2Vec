@@ -11,8 +11,6 @@ import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
 from cachetools.keys import hashkey
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util import Retry
 
 from pyrdf2vec.typings import Literal, Response
 
@@ -24,8 +22,6 @@ class Connector(ABC):
     Attributes:
         _asession: The aiohttp session to use for asynchrone requests.
             Defaults to None.
-        _session: The requests session to use for synchrone requests.
-            Defaults to requests.Session.
         _headers: The HTTP headers to use.
             Defaults to {"Accept": "application/sparql-results+json"}.
         cache: The policy and size cache to use.
@@ -50,16 +46,10 @@ class Connector(ABC):
         init=False,
         type=Dict[str, str],
         repr=False,
-        default={
-            "Accept": "application/sparql-results+json",
-        },
+        default={"Accept": "application/sparql-results+json"},
     )
 
     _asession = attr.ib(init=False, default=None)
-    _session = attr.ib(
-        init=False,
-        factory=lambda: requests.Session(),
-    )
 
     async def close(self) -> None:
         """Closes the aiohttp session."""
@@ -90,8 +80,6 @@ class SPARQLConnector(Connector):
     Attributes:
         _asession: The aiohttp session to use for asynchrone requests.
             Defaults to None.
-        _session: The requests session to use for synchrone requests.
-            Defaults to requests.Session.
         _headers: The HTTP headers to use.
             Defaults to {"Accept": "application/sparql-results+json"}.
         cache: The policy and size cache to use.
@@ -99,17 +87,6 @@ class SPARQLConnector(Connector):
         endpoint: The endpoint to execute the queries.
 
     """
-
-    def __attrs_post_init__(self):
-        adapter = HTTPAdapter(
-            Retry(
-                total=3,
-                status_forcelist=[429, 500, 502, 503, 504],
-                method_whitelist=["HEAD", "GET", "OPTIONS"],
-            )
-        )
-        self._session.mount("http", adapter)
-        self._session.mount("https", adapter)
 
     async def afetch(self, queries: List[str]) -> List[List[Response]]:
         """Fetchs the result of SPARQL queries asynchronously.
@@ -155,7 +132,8 @@ class SPARQLConnector(Connector):
 
         """
         url = f"{self.endpoint}/query?query={parse.quote(query)}"
-        return self._session.get(url, headers=self._headers).json()
+        with requests.get(url, headers=self._headers) as res:
+            return res.json()
 
     def get_query(self, entity: str, preds: Optional[List[str]] = None) -> str:
         """Gets the SPARQL query for an entity.
