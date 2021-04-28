@@ -5,6 +5,7 @@ from sklearn.utils.validation import check_is_fitted
 from torch.utils.data import Dataset
 
 from pyrdf2vec.embedders import Embedder
+from pyrdf2vec.typings import Embeddings, Entities, SWalk
 
 from transformers import (  # isort:skip
     DataCollatorForLanguageModeling,
@@ -63,24 +64,45 @@ class BERT(Embedder):
     )
 
     def _build_vocabulary(
-        self, hops: List[str], is_update: bool = False
+        self, nodes: List[str], is_update: bool = False
     ) -> None:
+        """Build the BERT vocabulary with entities.
+
+        Args:
+            nodes: The nodes to build the vocabulary
+            is_update: True if the new walks should be added to old model's
+                walks, False otherwise.
+
+        """
         with open(self.vocab_filename, "w") as f:
             if not is_update:
                 for token in ["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]"]:
-                    f.write("%s\n" % token)
+                    f.write(f"{token}\n")
                     self._vocabulary_size += 1
-            for hop in hops:
-                f.write("%s\n" % hop)
+            for node in nodes:
+                f.write(f"{node}\n")
                 self._vocabulary_size += 1
 
-    def fit(self, corpus, is_update=False):
-        unique_hops = list({hop for walk in corpus for hop in walk})
-        self._build_vocabulary(unique_hops, is_update)
+    def fit(self, walks: List[List[SWalk]], is_update: bool = False):
+        """Fits the BERT model based on provided walks.
+
+        Args:
+            walks: The walks to create the corpus to to fit the model.
+            is_update: True if the new walks should be added to old model's
+                walks, False otherwise.
+                Defaults to False.
+
+        Returns:
+            The fitted Word2Vec model.
+
+        """
+        walks = [walk for entity_walks in walks for walk in entity_walks]
+        nodes = list({node for walk in walks for node in walk})
+        self._build_vocabulary(nodes, is_update)
         self.tokenizer = DistilBertTokenizer(
             vocab_file=self.vocab_filename,
             do_lower_case=False,
-            never_split=unique_hops,
+            never_split=nodes,
         )
         self.model_ = DistilBertForMaskedLM(
             DistilBertConfig(
@@ -95,11 +117,22 @@ class BERT(Embedder):
             data_collator=DataCollatorForLanguageModeling(
                 tokenizer=self.tokenizer
             ),
-            train_dataset=WalkDataset(corpus, self.tokenizer),
+            train_dataset=WalkDataset(walks, self.tokenizer),
         ).train()
         return self
 
-    def transform(self, entities: List[str]):
+    def transform(self, entities: Entities) -> Embeddings:
+        """The features vector of the provided entities.
+
+            Args:
+                entities: The entities including test entities to create the
+                embeddings. Since RDF2Vec is unsupervised, there is no label
+                leakage.
+
+        Returns:
+            The features vector of the provided entities.
+
+        """
         check_is_fitted(self, ["model_"])
         return [
             self.model_.distilbert.embeddings.word_embeddings.weight[
