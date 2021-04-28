@@ -281,7 +281,6 @@ class RDF2VecTransformer:
             The loaded RDF2VecTransformer.
 
         """
-
         with open(filename, "rb") as f:
             transformer = pickle.load(f)
             if not isinstance(transformer, RDF2VecTransformer):
