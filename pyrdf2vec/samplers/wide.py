@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import DefaultDict, Tuple
+from typing import DefaultDict
 
 import attr
 
@@ -11,15 +11,15 @@ from pyrdf2vec.typings import Hop
 @attr.s
 class WideSampler(Sampler):
 
-    _pred_degs: DefaultDict[Tuple[str, str], int] = attr.ib(
+    _pred_degs: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
 
-    _obj_degs: DefaultDict[Tuple[str, str], int] = attr.ib(
+    _obj_degs: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
 
-    _neighbor_counts: DefaultDict[Tuple[str, str], int] = attr.ib(
+    _neighbor_counts: DefaultDict[str, int] = attr.ib(
         init=False, repr=False, factory=lambda: defaultdict(dict)
     )
 
@@ -49,7 +49,7 @@ class WideSampler(Sampler):
             else:
                 counter[vertex.name] = 1
 
-    def get_weight(self, hop: Hop) -> int:
+    def get_weight(self, hop: Hop) -> float:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
