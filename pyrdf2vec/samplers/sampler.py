@@ -95,10 +95,11 @@ class Sampler(ABC):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The hop (pred, obj) to get the weight.
+            hop: The hop of a vertex in a (predicate, object) form to get the
+                weight.
 
         Returns:
-            The weight for a given hop.
+            The weight of a given hop.
 
         Raises:
             NotImplementedError: If this method is called, without having
