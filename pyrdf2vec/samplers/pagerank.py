@@ -61,14 +61,11 @@ class PageRankSampler(Sampler):
         super().fit(kg)
         nx_graph = nx.DiGraph()
 
-        for vertex in kg._vertices:
-            if not vertex.predicate:
-                nx_graph.add_node(vertex.name, vertex=vertex)
-                for predicate in kg.get_neighbors(vertex):
-                    for obj in kg.get_neighbors(predicate):
-                        nx_graph.add_edge(
-                            vertex.name, obj.name, name=predicate.name
-                        )
+        subs_objs = [vertex for vertex in kg._vertices if not vertex.predicate]
+        for vertex in subs_objs:
+            nx_graph.add_node(vertex.name, vertex=vertex)
+            for hop in kg.get_hops(vertex):
+                nx_graph.add_edge(vertex.name, hop[1].name, name=hop[0].name)
         self._pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
     def get_weight(self, hop: Hop) -> float:
