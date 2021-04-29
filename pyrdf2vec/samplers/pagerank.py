@@ -10,11 +10,10 @@ from pyrdf2vec.typings import Hop
 
 @attr.s
 class PageRankSampler(Sampler):
-    """Sampler that assigns a weight to each edge in a Knowledge Graph
-    according to the ranking of vertices. This ranking is done by giving
-    higher weights to the object vertices being more frequent. From then on,
-    this node-centric approach sampling strategy prioritizes walks where
-    object vertices are more frequent than others.
+    """PageRank node-centric sampling strategy which prioritizes walks
+    containing the most frequent objects. This frequency being defined by
+    assigning a higher weight to the most frequent objects using the
+    PageRank ranking.
 
     Attributes:
         _is_support_remote: True if the sampling strategy can be used with a

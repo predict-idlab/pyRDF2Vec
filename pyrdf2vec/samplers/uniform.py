@@ -7,10 +7,9 @@ from pyrdf2vec.typings import Hop
 
 @attr.s
 class UniformSampler(Sampler):
-    """Sampler that assigns a uniform weight to each edge in a Knowledge
-    Graph. This sampling strategy is the most straight forward approach where
-    strongly connected entities will have a greater influence on the resulting
-    embeddings.
+    """Uniform sampling strategy that assigns a uniform weight to each edge in
+    a Knowledge Graph, in order to prioritizes walks with strongly connected
+    entities.
 
     Attributes:
         _is_support_remote: True if the sampling strategy can be used with a
