@@ -20,6 +20,7 @@ from pyrdf2vec.samplers import (  # isort: skip
     PageRankSampler,
     PredFreqSampler,
     UniformSampler,
+    WideSampler,
 )
 
 
@@ -54,6 +55,7 @@ SAMPLERS = [
     PageRankSampler,
     PredFreqSampler,
     UniformSampler,
+    WideSampler,
 ]
 WALKERS = [
     AnonymousWalker,
