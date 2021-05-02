@@ -10,30 +10,29 @@ from pyrdf2vec.typings import Hop
 
 @attr.s
 class ObjFreqSampler(Sampler):
-    """Defines the Object Frequency Weight sampling strategy.
+    """Object Frequency Weight node-centric sampling strategy which prioritizes
+    walks containing edges with the highest degree objects. The degree of an
+    object being defined by the number of predicates present in its
+    neighborhood.
 
-    This sampling strategy is a node-centric object frequency approach. With
-    this strategy, entities which have a high in degree get visisted more
-    often.
-
-    Attributes:
-        _counts: The counter for vertices.
-            Defaults to defaultdict.
-        _is_support_remote: True if the sampling strategy can be used with a
-            remote Knowledge Graph, False Otherwise
-            Defaults to False.
-        _random_state: The random state to use to keep random determinism with
-            the sampling strategy.
-            Defaults to None.
-        _vertices_deg: The degree of the vertices.
-            Defaults to {}.
-        _visited: Tags vertices that appear at the max depth or of which all
-            their children are tagged.
-            Defaults to set.
-        inverse: True if the inverse algorithm must be used, False otherwise.
-            Defaults to False.
-        split: True if the split algorithm must be used, False otherwise.
-            Defaults to False.
+     Attributes:
+         _counts: The counter for vertices.
+             Defaults to defaultdict.
+         _is_support_remote: True if the sampling strategy can be used with a
+             remote Knowledge Graph, False Otherwise
+             Defaults to False.
+         _random_state: The random state to use to keep random determinism with
+             the sampling strategy.
+             Defaults to None.
+         _vertices_deg: The degree of the vertices.
+             Defaults to {}.
+         _visited: Tags vertices that appear at the max depth or of which all
+             their children are tagged.
+             Defaults to set.
+         inverse: True if the inverse algorithm must be used, False otherwise.
+             Defaults to False.
+         split: True if the split algorithm must be used, False otherwise.
+             Defaults to False.
 
     """
 
@@ -45,8 +44,8 @@ class ObjFreqSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the sampling strategy by counting the number of available
-        neighbors for each vertex.
+        """Fits the sampling strategy by counting the number of parent
+        predicates present in the neighborhood of each vertex.
 
         Args:
             kg: The Knowledge Graph.
@@ -63,10 +62,11 @@ class ObjFreqSampler(Sampler):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The hop (pred, obj) to get the weight.
+            hop: The hop of a vertex in a (predicate, object) form to get the
+                weight.
 
         Returns:
-            The weight for a given hop.
+            The weight of a given hop.
 
         Raises:
             ValueError: If there is an attempt to access the weight of a hop
@@ -83,11 +83,10 @@ class ObjFreqSampler(Sampler):
 
 @attr.s
 class PredFreqSampler(Sampler):
-    """Defines the Predicate Frequency Weight sampling strategy.
-
-    This sampling strategy is an edge-centric approach. With this strategy,
-    edges with predicates which are commonly used in the dataset are more often
-    followed.
+    """Predicate Frequency Weight edge-centric sampling strategy which
+    prioritizes walks containing edges with the highest degree predicates. The
+    degree of a predicate being defined by the number of occurences that a
+    predicate appears in a Knowledge Graph.
 
     Attributes:
         _counts: The counter for vertices.
@@ -115,7 +114,7 @@ class PredFreqSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the sampling strategy by counting the number of occurance that
+        """Fits the sampling strategy by counting the number of occurences that
         a predicate appears in the Knowledge Graph.
 
         Args:
@@ -134,19 +133,20 @@ class PredFreqSampler(Sampler):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The hop (pred, obj) to get the weight.
+            hop: The hop of a vertex in a (predicate, object) form to get the
+                weight.
 
         Returns:
-            The weight for a given hop.
+            The weight of a given hop.
 
         Raises:
             ValueError: If there is an attempt to access the weight of a hop
                 without the sampling strategy having been trained.
 
         """
-        if len(self._counts) == 0:
+        if self._counts:
             raise ValueError(
-                "You must call the `fit(kg)` function before get the weight of"
+                "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
             )
         return self._counts[hop[0].name]
@@ -154,11 +154,11 @@ class PredFreqSampler(Sampler):
 
 @attr.s
 class ObjPredFreqSampler(Sampler):
-    """Defines the Predicate-Object Frequency Weight sampling strategy.
-
-    This sampling strategy is a edge-centric approach. This strategy is similar
-    to the Predicate Frequency Weigh sampling strategy, but differentiates
-    between the objects as well.
+    """Predicate-Object Frequency Weight edge-centric sampling strategy which
+    prioritizes walks containing edges with the highest degree of (predicate,
+    object) relations. The degree of a such relation being defined by the
+    number of occurences that a (predicate, object) relation appears in a
+    Knowledge Graph.
 
     Attributes:
         _counts: The counter for vertices.
@@ -186,8 +186,8 @@ class ObjPredFreqSampler(Sampler):
     )
 
     def fit(self, kg: KG) -> None:
-        """Fits the sampling strategy by counting the number of occurance of
-        having two neighboring vertices.
+        """Fits the sampling strategy by counting the number of occurrences of
+        an object belonging to a subject.
 
         Args:
             kg: The Knowledge Graph.
@@ -196,9 +196,9 @@ class ObjPredFreqSampler(Sampler):
         super().fit(kg)
         for vertex in kg._vertices:
             if vertex.predicate:
-                neighbors = list(kg.get_neighbors(vertex))
-                if len(neighbors) > 0:
-                    obj = neighbors[0]
+                objs = list(kg.get_neighbors(vertex))
+                if objs:
+                    obj = objs[0]
                     if (vertex.name, obj.name) in self._counts:
                         self._counts[(vertex.name, obj.name)] += 1
                     else:
@@ -208,19 +208,20 @@ class ObjPredFreqSampler(Sampler):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The hop (pred, obj) to get the weight.
+            hop: The hop of a vertex in a (predicate, object) form to get the
+                weight.
 
         Returns:
-            The weight for a given hop.
+            The weight of a given hop.
 
         Raises:
             ValueError: If there is an attempt to access the weight of a hop
                 without the sampling strategy having been trained.
 
         """
-        if len(self._counts) == 0:
+        if self._counts:
             raise ValueError(
-                "You must call the `fit(kg)` function before get the weight of"
+                "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
             )
         return self._counts[(hop[0].name, hop[1].name)]
