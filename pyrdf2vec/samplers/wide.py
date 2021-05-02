@@ -81,6 +81,7 @@ class WideSampler(Sampler):
         Args:
             hop: The hop of a vertex in a (predicate, object) form to get the
                 weight.
+
         Returns:
             The weight of a given hop.
 
@@ -89,7 +90,7 @@ class WideSampler(Sampler):
                 without the sampling strategy having been trained.
 
         """
-        if not (self._pred_degs and self._obj_degs and self._neighbor_counts):
+        if self._pred_degs or self._obj_degs or self._neighbor_counts:
             raise ValueError(
                 "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
