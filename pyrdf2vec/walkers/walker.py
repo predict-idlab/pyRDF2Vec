@@ -162,16 +162,15 @@ class Walker(ABC):
 
     @abstractmethod
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-            entity: The entity to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         Raises:
             NotImplementedError: If this method is called, without having

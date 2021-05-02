@@ -35,7 +35,11 @@ np.random.permutation = lambda x: next(itertools.permutations(x))
 
 @attr.s
 class CommunityWalker(Walker):
-    """Defines the community walking strategy.
+    """Community walking strategy which groups vertices with similar properties
+    through probabilities and relations that are not explicitly modeled in a
+    Knowledge Graph. Similar to the Random walking strategy, the Depth First
+    Search (DFS) algorithm is used if a maximum number of walks is specified.
+    Otherwise, the Breath First Search (BFS) algorithm is chosen.
 
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
@@ -127,27 +131,23 @@ class CommunityWalker(Walker):
             self.labels_per_community[self.communities[node]].append(node)
 
     def _bfs(
-        self, kg: KG, root: Vertex, is_reverse: bool = False
+        self, kg: KG, entity: Vertex, is_reverse: bool = False
     ) -> List[Walk]:
-        """Extracts random walks of depth - 1 hops rooted in root with
-        Breadth-first search.
+        """Extracts random walks for an entity based on Knowledge Graph using
+        the Depth First Search (DFS) algorithm.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
-            root: The root node to extract walks.
+            entity: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors, False otherwise.
                 Defaults to False.
 
         Returns:
-            The list of walks for the root node according to the depth and
-            max_walks.
+            The list of unique walks for the provided entity.
 
         """
-        walks: Set[Walk] = {(root,)}
+        walks: Set[Walk] = {(entity,)}
         for i in range(self.max_depth):
             for walk in walks.copy():
                 if is_reverse:
@@ -201,31 +201,27 @@ class CommunityWalker(Walker):
         return list(walks)
 
     def _dfs(
-        self, kg: KG, root: Vertex, is_reverse: bool = False
+        self, kg: KG, entity: Vertex, is_reverse: bool = False
     ) -> List[Walk]:
-        """Extracts a random limited number of walks of depth - 1 hops rooted
-        in root with Depth-first search.
+        """Extracts random walks for an entity based on Knowledge Graph using
+        the Depth First Search (DFS) algorithm.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
-            root: The root node to extract walks.
+            entity: The root node to extract walks.
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors, False otherwise.
-                Defaults to False
+                Defaults to False.
 
         Returns:
-            The list of walks for the root node according to the depth and
-            max_walks.
+            The list of unique walks for the provided entity.
 
         """
         self.sampler.visited = set()
         walks: List[Walk] = []
         assert self.max_walks is not None
         while len(walks) < self.max_walks:
-            sub_walk: Walk = (root,)
+            sub_walk: Walk = (entity,)
             d = 1
             while d // 2 < self.max_depth:
                 pred_obj = self.sampler.sample_hop(
@@ -301,18 +297,15 @@ class CommunityWalker(Walker):
         self._community_detection(kg)
         return super().extract(kg, entities, verbose)
 
-    def extract_walks(self, kg: KG, root: Vertex) -> List[Walk]:
+    def extract_walks(self, kg: KG, entity: Vertex) -> List[Walk]:
         """Extracts random walks of depth - 1 hops rooted in root.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
-            root: The root node to extract walks.
+            entity: The root node to extract walks.
 
         Returns:
-            The list of walks.
+            The list of unique walks for the provided entity.
 
         """
         if self.max_walks is None:
@@ -322,33 +315,30 @@ class CommunityWalker(Walker):
         if self.with_reverse:
             return [
                 r_walk[:-1] + walk
-                for walk in fct_search(kg, root)
-                for r_walk in fct_search(kg, root, is_reverse=True)
+                for walk in fct_search(kg, entity)
+                for r_walk in fct_search(kg, entity, is_reverse=True)
             ]
-        return [walk for walk in fct_search(kg, root)]
+        return [walk for walk in fct_search(kg, entity)]
 
-    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         """
         canonical_walks: Set[SWalk] = set()
-        for walk in self.extract_walks(kg, instance):
-            canonical_walk: List[str] = []
-            for i, hop in enumerate(walk):
-                if i == 0 or i % 2 == 1 or self.md5_bytes is None:
-                    canonical_walk.append(hop.name)
-                else:
-                    canonical_walk.append(
-                        str(md5(hop.name.encode()).digest()[: self.md5_bytes])
-                    )
+        for walk in self.extract_walks(kg, entity):
+            canonical_walk: List[str] = [
+                vertex.name
+                if i == 0 or i % 2 == 1 or self.md5_bytes is None
+                else str(md5(vertex.name.encode()).digest()[: self.md5_bytes])
+                for i, vertex in enumerate(walk)
+            ]
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: list(canonical_walks)}
+        return {entity.name: list(canonical_walks)}

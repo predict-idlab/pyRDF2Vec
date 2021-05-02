@@ -3,14 +3,15 @@ from typing import Set
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.typings import EntityWalks, SWalk
+from pyrdf2vec.typings import EntityWalks, List, SWalk
 from pyrdf2vec.walkers import RandomWalker
 
 
 @attr.s
 class AnonymousWalker(RandomWalker):
-    """Walker that transforms label information into positional information in
-    order to anonymize the random walks.
+    """Anonymous walking strategy which transforms each vertex name other than
+    the root node, into positional information, in order to anonymize the
+    randomly extracted walks.
 
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
@@ -33,27 +34,24 @@ class AnonymousWalker(RandomWalker):
 
     """
 
-    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         """
         canonical_walks: Set[SWalk] = set()
-        for walk in self.extract_walks(kg, instance):
-            canonical_walk = []
-            str_walk = [hop.name for hop in walk]
-            for i, hop in enumerate(walk):
-                if i == 0:
-                    canonical_walk.append(hop.name)
-                else:
-                    canonical_walk.append(str(str_walk.index(hop.name)))
+        for walk in self.extract_walks(kg, entity):
+            vertex_names = [vertex.name for vertex in walk]
+            canonical_walk: List[str] = [
+                vertex.name if i == 0 else str(vertex_names.index(vertex.name))
+                for i, vertex in enumerate(walk)
+            ]
             canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: list(canonical_walks)}
+        return {entity.name: list(canonical_walks)}

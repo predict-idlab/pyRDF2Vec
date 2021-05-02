@@ -10,11 +10,10 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class NGramWalker(RandomWalker):
-    """Walker that relabels the N-grams in random walks to define a mapping
-    from one-to-many.
-
-    The intuition behind this is that the predecessors of a node that two
-    different walks have in common can be different.
+    """N-Gram walking strategy which relabels the n-grams in random walks to
+    define a mapping from one-to-many. The intuition behind this is that the
+    predecessors of a node that two different walks have in common can be
+    different.
 
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
@@ -73,9 +72,9 @@ class NGramWalker(RandomWalker):
 
         """
         n_gram_walk = []
-        for i, hop in enumerate(walk):
+        for i, vertex in enumerate(walk):
             if i == 0 or i % 2 == 1 or i < self.grams:
-                n_gram_walk.append(hop.name)
+                n_gram_walk.append(vertex.name)
             else:
                 n_gram = tuple(
                     walk[j].name
@@ -86,21 +85,20 @@ class NGramWalker(RandomWalker):
                 n_gram_walk.append(self._n_gram_map[n_gram])
         return n_gram_walk
 
-    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         """
         canonical_walks: Set[SWalk] = set()
-        for walk in self.extract_walks(kg, instance):
+        for walk in self.extract_walks(kg, entity):
             canonical_walks.add(tuple(self._take_n_grams(walk)))
 
             # Introduce wild-cards and re-calculate n-grams
@@ -117,4 +115,4 @@ class NGramWalker(RandomWalker):
                     canonical_walks.add(
                         tuple(self._take_n_grams(new_walk))  # type: ignore
                     )
-        return {instance.name: list(canonical_walks)}
+        return {entity.name: list(canonical_walks)}
