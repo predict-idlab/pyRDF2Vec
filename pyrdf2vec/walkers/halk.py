@@ -147,7 +147,10 @@ class HALKWalker(RandomWalker):
                     for i, vertex in enumerate(walk[1::2], 2):
                         if vertex not in rare_predicates:
                             obj = walk[i] if i % 2 == 0 else walk[i + 1]
-                            canonical_walk += [vertex, obj]
+                            if self.with_reverse:
+                                canonical_walk = [obj, vertex] + canonical_walk
+                            else:
+                                canonical_walk += [vertex, obj]
                     if len(canonical_walk) >= 3:
                         canonical_walks.append(tuple(canonical_walk))
                 if canonical_walks:
