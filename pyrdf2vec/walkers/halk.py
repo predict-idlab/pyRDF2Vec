@@ -135,3 +135,43 @@ class HALKWalker(RandomWalker):
                         )
                 canonical_walks.add(tuple(canonical_walk))
         return {entity.name: list(canonical_walks)}
+
+    def _post_extract(self, res: List[EntityWalks]) -> List[List[SWalk]]:
+        """Post processed walks.
+
+        Args:
+            res: the result of the walks extracted with multiprocessing.
+
+        Returns:
+            The 2D matrix with its number of rows equal to the number of
+            provided entities; number of column equal to the embedding size.
+
+        """
+        conv_res = list(
+            walks
+            for entity_to_walks in res
+            for walks in entity_to_walks.values()
+        )
+        walks: List[SWalk] = [
+            walk for entity_walks in conv_res for walk in entity_walks
+        ]
+
+        predicates_dict = self.build_dictionary(walks)
+        pred_thresholds = [
+            self.get_rare_predicates(predicates_dict, walks, freq_threshold)
+            for freq_threshold in self.freq_thresholds
+        ]
+        res_halk = []
+        for rare_predicates in pred_thresholds:
+            for entity_walks in conv_res:
+                canonical_walks = []
+                for walk in entity_walks:
+                    canonical_walk = [walk[0]]
+                    for i, vertex in enumerate(walk[1::2], 2):
+                        if vertex not in rare_predicates:
+                            obj = walk[i] if i % 2 == 0 else walk[i + 1]
+                            canonical_walk += [vertex, obj]
+                    if len(canonical_walk) > 1:
+                        canonical_walks.append(tuple(canonical_walk))
+                res_halk.append(canonical_walks)
+        return res_halk

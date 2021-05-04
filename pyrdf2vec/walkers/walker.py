@@ -158,7 +158,7 @@ class Walker(ABC):
                     disable=True if verbose == 0 else False,
                 )
             )
-        return list(walks for elm in res for walks in elm.values())
+        return self._post_extract(res)
 
     @abstractmethod
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
@@ -188,6 +188,27 @@ class Walker(ABC):
         """
         global kg
         kg = init_kg  # type: ignore
+
+    def _post_extract(self, res: List[EntityWalks]) -> List[List[SWalk]]:
+        """Post processed walks.
+
+        Args:
+            res: the result of the walks extracted with multiprocessing.
+
+        Returns:
+            The 2D matrix with its number of rows equal to the number of
+            provided entities; number of column equal to the embedding size.
+
+        Raises:
+            NotImplementedError: If this method is called, without having
+                provided an implementation.
+
+        """
+        return list(
+            walks
+            for entity_to_walks in res
+            for walks in entity_to_walks.values()
+        )
 
     def _proc(self, entity: str) -> EntityWalks:
         """Executed by each process.
