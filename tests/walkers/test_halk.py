@@ -63,17 +63,17 @@ class TestHALKWalker:
         walks = HALKWalker(
             max_depth,
             max_walks,
-            freq_thresholds=[0.01],
+            freq_thresholds=[0.001],
             with_reverse=with_reverse,
             random_state=42,
-        )._extract(kg, Vertex(root))[root]
+        ).extract(kg, [root])
+
         if max_walks is not None:
-            if with_reverse:
-                assert len(walks) <= max_walks * max_walks
-            else:
-                assert len(walks) <= max_walks
-        for walk in walks:
-            if not with_reverse:
-                assert walk[0] == root
-            for pred_or_obj in walk[1:]:
-                assert pred_or_obj.startswith("b'")
+            assert len(walks) == 1
+
+        for entity_walks in walks:
+            for walk in entity_walks:
+                if not with_reverse:
+                    assert walk[0] == root
+                for obj in walk[2::2]:
+                    assert obj.startswith("b'")

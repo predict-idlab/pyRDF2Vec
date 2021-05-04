@@ -141,13 +141,17 @@ class HALKWalker(RandomWalker):
         for rare_predicates in pred_thresholds:
             for entity_walks in conv_res:
                 canonical_walks = []
+                curr_entity = entity_walks[0][0]
                 for walk in entity_walks:
-                    canonical_walk = [walk[0]]
+                    canonical_walk = [curr_entity]
                     for i, vertex in enumerate(walk[1::2], 2):
                         if vertex not in rare_predicates:
                             obj = walk[i] if i % 2 == 0 else walk[i + 1]
                             canonical_walk += [vertex, obj]
-                    if len(canonical_walk) > 1:
+                    if len(canonical_walk) >= 3:
                         canonical_walks.append(tuple(canonical_walk))
-                res_halk.append(canonical_walks)
+                if canonical_walks:
+                    res_halk.append(canonical_walks)
+                else:
+                    res_halk.append([(curr_entity,)])
         return res_halk

@@ -73,7 +73,7 @@ class ObjFreqSampler(Sampler):
                 without the sampling strategy having been trained.
 
         """
-        if len(self._counts) == 0:
+        if not self._counts:
             raise ValueError(
                 "You must call the `fit(kg)` function before get the weight of"
                 + " a hop."
@@ -144,7 +144,7 @@ class PredFreqSampler(Sampler):
                 without the sampling strategy having been trained.
 
         """
-        if self._counts:
+        if not self._counts:
             raise ValueError(
                 "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
@@ -219,7 +219,7 @@ class ObjPredFreqSampler(Sampler):
                 without the sampling strategy having been trained.
 
         """
-        if self._counts:
+        if not self._counts:
             raise ValueError(
                 "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
