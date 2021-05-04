@@ -20,7 +20,8 @@ class HALKWalker(RandomWalker):
             remote Knowledge Graph, False Otherwise
             Defaults to True.
         freq_thresholds: The minimum frequency thresholds of a (predicate,
-            object) hop to be kept.
+            object) hop to be kept. Beware that the accumulation of several
+            freq_thresholds extracts more walks, which is not always desirable.
             Defaults to [0.01].
         kg: The global KG used later on for the worker process.
             Defaults to None.
