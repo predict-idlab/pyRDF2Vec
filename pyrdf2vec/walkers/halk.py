@@ -54,8 +54,6 @@ class HALKWalker(RandomWalker):
         ),
     )
 
-    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
-
     def build_dictionary(
         self, walks: List[SWalk]
     ) -> DefaultDict[str, Set[int]]:

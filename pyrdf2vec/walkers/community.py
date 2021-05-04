@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import defaultdict
 from hashlib import md5
-from typing import List, Set
+from typing import List, Optional, Set
 
 import attr
 import community
@@ -76,7 +76,13 @@ class CommunityWalker(Walker):
         type=float,
         validator=attr.validators.instance_of(float),
     )
-    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
+
+    md5_bytes = attr.ib(
+        kw_only=True,
+        type=Optional[int],
+        default=8,
+        repr=False,
+    )
 
     resolution = attr.ib(
         kw_only=True,

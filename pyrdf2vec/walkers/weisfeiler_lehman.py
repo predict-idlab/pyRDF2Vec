@@ -46,8 +46,6 @@ class WLWalker(RandomWalker):
 
     """
 
-    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
-
     wl_iterations = attr.ib(
         kw_only=True,
         default=4,

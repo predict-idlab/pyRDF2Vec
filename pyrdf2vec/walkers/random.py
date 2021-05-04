@@ -1,5 +1,5 @@
 from hashlib import md5
-from typing import List, Set
+from typing import List, Optional, Set
 
 import attr
 
@@ -39,7 +39,12 @@ class RandomWalker(Walker):
 
     """
 
-    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
+    md5_bytes = attr.ib(
+        kw_only=True,
+        type=Optional[int],
+        default=8,
+        repr=False,
+    )
 
     def _bfs(
         self, kg: KG, entity: Vertex, is_reverse: bool = False
