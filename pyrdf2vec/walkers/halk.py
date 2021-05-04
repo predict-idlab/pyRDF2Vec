@@ -19,8 +19,9 @@ class HALKWalker(RandomWalker):
         _is_support_remote: True if the walking strategy can be used with a
             remote Knowledge Graph, False Otherwise
             Defaults to True.
-        freq_thresholds: The minimum frequency thresholds of a hop to be kept.
-            Defaults to [0.001].
+        freq_thresholds: The minimum frequency thresholds of a (predicate,
+            object) hop to be kept.
+            Defaults to [0.01].
         kg: The global KG used later on for the worker process.
             Defaults to None.
         max_depth: The maximum depth of one walk.
@@ -44,7 +45,7 @@ class HALKWalker(RandomWalker):
 
     freq_thresholds = attr.ib(
         kw_only=True,
-        factory=lambda: [0.001],
+        factory=lambda: [0.01],
         type=List[float],
         validator=attr.validators.deep_iterable(
             member_validator=attr.validators.instance_of(float),
