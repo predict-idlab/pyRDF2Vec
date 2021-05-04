@@ -199,10 +199,6 @@ class Walker(ABC):
             The 2D matrix with its number of rows equal to the number of
             provided entities; number of column equal to the embedding size.
 
-        Raises:
-            NotImplementedError: If this method is called, without having
-                provided an implementation.
-
         """
         return list(
             walks
