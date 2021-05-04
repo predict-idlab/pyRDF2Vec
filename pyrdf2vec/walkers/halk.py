@@ -1,11 +1,11 @@
+import itertools
 from collections import defaultdict
-from hashlib import md5
 from typing import DefaultDict, List, Set
 
 import attr
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.typings import EntityWalks, SWalk, Walk
+from pyrdf2vec.typings import EntityWalks, SWalk
 from pyrdf2vec.walkers import RandomWalker
 
 
@@ -56,35 +56,36 @@ class HALKWalker(RandomWalker):
     md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
 
     def build_dictionary(
-        self, walks: List[Walk]
-    ) -> DefaultDict[Vertex, Set[int]]:
-        """Builds a dictionary of vertices mapped to the extracted walk indices.
+        self, walks: List[SWalk]
+    ) -> DefaultDict[str, Set[int]]:
+        """Builds a dictionary of predicates mapped with the walk(s)
+        identifiers to which it appears.
 
         Args:
             walks: The walks to build the dictionary.
 
         Returns:
-            The dictionary of vertex.
+            The dictionary of predicate names.
 
         """
-        vertex_to_windices: DefaultDict[Vertex, Set[int]] = defaultdict(set)
+        vertex_to_windices: DefaultDict[str, Set[int]] = defaultdict(set)
         for i in range(len(walks)):
-            for vertex in walks[i]:
+            for vertex in itertools.islice(walks[i], 1, None, 2):
                 vertex_to_windices[vertex].add(i)
         return vertex_to_windices
 
-    def get_rare_vertices(
+    def get_rare_predicates(
         self,
-        vertex_to_windices: DefaultDict[Vertex, Set[int]],
-        walks: List[Walk],
+        vertex_to_windices: DefaultDict[str, Set[int]],
+        walks: List[SWalk],
         freq_threshold: float,
-    ) -> Set[Vertex]:
+    ) -> Set[str]:
         """Gets vertices which doesn't reach a certain threshold of frequency
         of occurrence.
 
         Args:
-            vertex_to_windices: The dictionary of vertices mapped to the
-                extracted walk indices.
+            vertex_to_windices: The dictionary of predicates mapped with the
+                walk(s) identifiers to which it appears.
             walks: The walks.
             freq_threshold: The threshold frequency of occurrence.
 
@@ -110,31 +111,7 @@ class HALKWalker(RandomWalker):
             corresponding to the extracted walks.
 
         """
-        walks = self.extract_walks(kg, entity)
-        vertex_to_windices = self.build_dictionary(walks)
-        canonical_walks: Set[SWalk] = set()
-
-        for freq_threshold in self.freq_thresholds:
-            rare_vertices = self.get_rare_vertices(
-                vertex_to_windices, walks, freq_threshold
-            )
-            for walk in walks:
-                canonical_walk = []
-                for i, vertex in enumerate(walk):
-                    if i == 0 or (
-                        vertex not in rare_vertices and self.md5_bytes is None
-                    ):
-                        canonical_walk.append(vertex.name)
-                    elif vertex not in rare_vertices:
-                        canonical_walk.append(
-                            str(
-                                md5(vertex.name.encode()).digest()[
-                                    : self.md5_bytes
-                                ]
-                            )
-                        )
-                canonical_walks.add(tuple(canonical_walk))
-        return {entity.name: list(canonical_walks)}
+        return super()._extract(kg, entity)
 
     def _post_extract(self, res: List[EntityWalks]) -> List[List[SWalk]]:
         """Post processed walks.
