@@ -112,8 +112,8 @@ class RandomWalker(Walker):
         return list(set(walks))
 
     def extract_walks(self, kg: KG, entity: Vertex) -> List[Walk]:
-        """Extracts random walks for an entity based on Knowledge Graph
-        using the Depth First Search (DFS) algorithm if a maximum number of walks is
+        """Extracts random walks for an entity based on Knowledge Graph using
+        the Depth First Search (DFS) algorithm if a maximum number of walks is
         specified, otherwise the Breath First Search (BFS) algorithm is used.
 
         Args:
