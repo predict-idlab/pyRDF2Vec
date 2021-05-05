@@ -161,7 +161,7 @@ class RDF2VecTransformer:
 
         """
         # Avoids duplicate entities for unnecessary walk extractions.
-        entities = list(set(entities))
+        entities = list(dict(zip(entities, entities)))
         if kg.skip_verify is False and not kg.is_exist(entities):
             if kg.mul_req:
                 asyncio.run(kg.connector.close())
