@@ -47,7 +47,7 @@ class Walker(ABC):
         with_reverse: True to extracts parents and children hops from an
             entity, creating (max_walks * max_walks) walks of 2 * depth,
             allowing also to centralize this entity in the walks. False
-            otherwise.
+            otherwise. This doesn't work with NGramWalker and WLWalker.
             Defaults to False.
 
     """
