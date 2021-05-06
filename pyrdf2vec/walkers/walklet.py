@@ -52,7 +52,7 @@ class WalkletWalker(RandomWalker):
                 canonical_walks.add((walk[0].name,))
             for i in range(1, len(walk)):
                 if self.with_reverse:
-                    canonical_walks.add((walk[i].name, walk[0].name))
+                    canonical_walks.add((walk[i].name, entity.name))
                 else:
-                    canonical_walks.add((walk[0].name, walk[i].name))
+                    canonical_walks.add((entity.name, walk[i].name))
         return {entity.name: list(canonical_walks)}
