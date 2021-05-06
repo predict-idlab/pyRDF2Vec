@@ -130,10 +130,7 @@ class RandomWalker(Walker):
             The list of unique walks for the provided entity.
 
         """
-        if self.max_walks is None:
-            fct_search = self._bfs
-        else:
-            fct_search = self._dfs
+        fct_search = self._bfs if self.max_walks is None else self._dfs
         if self.with_reverse:
             return [
                 r_walk[:-1] + walk
