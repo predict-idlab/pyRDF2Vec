@@ -1,4 +1,5 @@
 import itertools
+import math
 from collections import defaultdict
 from typing import DefaultDict, List, Set
 
@@ -37,9 +38,10 @@ class HALKWalker(RandomWalker):
             Defaults to None.
         sampler: The sampling strategy.
             Defaults to UniformSampler.
-        with_reverse: True to extracts children's and parents' walks from the
-            root, creating (max_walks * max_walks) more walks of 2 * depth,
-            False otherwise.
+        with_reverse: True to extracts parents and children hops from an
+            entity, creating (max_walks * max_walks) walks of 2 * depth,
+            allowing also to centralize this entity in the walks. False
+            otherwise.
             Defaults to False.
 
     """
@@ -141,16 +143,29 @@ class HALKWalker(RandomWalker):
         for rare_predicates in pred_thresholds:
             for entity_walks in conv_res:
                 canonical_walks = []
-                curr_entity = entity_walks[0][0]
+                if not self.with_reverse:
+                    curr_entity = entity_walks[0][0]
+                else:
+                    curr_walk = list(entity_walks[0])
+                    curr_entity = curr_walk[math.trunc(len(curr_walk) / 2)]
                 for walk in entity_walks:
-                    canonical_walk = [curr_entity]
+                    if not self.with_reverse:
+                        canonical_walk = [curr_entity]
+                    else:
+                        canonical_walk = [walk[0]]
+                    reverse = True
+                    j = 0
                     for i, vertex in enumerate(walk[1::2], 2):
                         if vertex not in rare_predicates:
-                            obj = walk[i] if i % 2 == 0 else walk[i + 1]
                             if self.with_reverse:
-                                canonical_walk = [obj, vertex] + canonical_walk
+                                obj = walk[i + j]
+                                j += 1
                             else:
-                                canonical_walk += [vertex, obj]
+                                obj = walk[i] if i % 2 == 0 else walk[i + 1]
+                            if self.with_reverse and reverse:
+                                if obj == curr_entity:
+                                    reverse = False
+                            canonical_walk += [vertex, obj]
                     if len(canonical_walk) >= 3:
                         canonical_walks.append(tuple(canonical_walk))
                 if canonical_walks:
