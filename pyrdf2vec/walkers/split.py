@@ -15,9 +15,33 @@ class SplitWalker(RandomWalker):
     node) present in the randomly extracted walks.
 
     Attributes:
+        _is_support_remote: True if the walking strategy can be used with a
+            remote Knowledge Graph, False Otherwise
+            Defaults to True.
+        kg: The global KG used later on for the worker process.
+            Defaults to None.
+        max_depth: The maximum depth of one walk.
+        max_walks: The maximum number of walks per entity.
+            Defaults to None.
+        md5_bytes: The number of bytes to keep after hashing objects in
+            MD5. Hasher allows to reduce the memory occupied by a long
+            text. If md5_bytes is None, no hash is applied.
+            Defaults to 8.
+        random_state: The random state to use to keep random determinism with
+            the walking strategy.
+            Defaults to None.
+        sampler: The sampling strategy.
+            Defaults to UniformSampler.
+        with_reverse: True to extracts parents and children hops from an
+            entity, creating (max_walks * max_walks) walks of 2 * depth,
+            allowing also to centralize this entity in the walks. False
+            otherwise.
+            Defaults to False.
         func_split: The function to call for the splitting of vertices. In case
             of reimplementation, it is important to respect the signature
             imposed by `basic_split` function.
+            Defaults to func_split.
+
     """
 
     func_split = attr.ib(kw_only=True, default=None, repr=False)
@@ -42,7 +66,7 @@ class SplitWalker(RandomWalker):
          'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
          'http://dl-learner.org/carcinogenesis#Compound')
 
-        -> ('http://dl-learner.org/carcinogenesis#d19', 'type', 'compound', 'class')
+        -> ('http://dl-learner.org/carcinogenesis#d19', 'type', 'compound')
 
         Args:
             walks: The random extracted walks.
@@ -53,37 +77,49 @@ class SplitWalker(RandomWalker):
         """
         canonical_walks: Set[SWalk] = set()
         for walk in walks:
-            canonical_walk = [walk[0].name]
+            tmp_vertices = []
+            canonical_walk = [] if self.with_reverse else [walk[0].name]
             for i, _ in enumerate(walk[1::], 1):
                 vertices = []
                 if "http" in walk[i].name:
                     vertices = " ".join(re.split("[#]", walk[i].name)).split()
-                if i % 2 == 1:
-                    name = vertices[1] if vertices else walk[i].name
-                    preds = [
-                        sub_name
-                        for sub_name in re.split(r"([A-Z][a-z]*)", name)
-                        if sub_name
-                    ]
-                    for pred in preds:
-                        canonical_walk += [pred.lower()]
-                else:
-                    name = vertices[-1] if vertices else walk[i].name
-                    objs = []
+                name = vertices[-1] if vertices else walk[i].name
+
+                vertices = [
+                    sub_name
+                    for sub_name in re.split(r"([A-Z][a-z]*)", name)
+                    if sub_name
+                ]
+                if i % 2 != 1:
                     try:
-                        objs = [str(float(name))]
+                        vertices = [str(float(name))]
                     except ValueError:
-                        objs = re.sub("[^A-Za-z0-9]+", " ", name).split()
-                        if len(objs) == 1:
+                        vertices = re.sub("[^A-Za-z0-9]+", " ", name).split()
+                        if len(vertices) == 1:
                             match = re.match(
-                                r"([a-z]+)([0-9]+)", objs[0], re.I
+                                r"([a-z]+)([0-9]+)", vertices[0], re.I
                             )
                             if match:
-                                objs = list(match.groups())
-                    for obj in objs:
-                        canonical_walk += [obj.lower()]
-            canonical_walk = list(dict(zip(canonical_walk, canonical_walk)))
-            canonical_walks.add(tuple(canonical_walk))
+                                vertices = list(match.groups())
+
+                if self.with_reverse:
+                    if tmp_vertices:
+                        tmp_vertices.append(vertices)
+                        tmp_vertices.reverse()
+                        for v in tmp_vertices:
+                            for vertex in v:
+                                canonical_walk += [vertex.lower()]
+                        tmp_vertices = []
+                    else:
+                        tmp_vertices.append(vertices)
+                else:
+                    for vertex in vertices:
+                        canonical_walk += [vertex.lower()]
+            if self.with_reverse:
+                canonical_walk += [walk[0].name]
+            canonical_walks.add(
+                tuple(list(dict(zip(canonical_walk, canonical_walk))))
+            )
         return canonical_walks
 
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:

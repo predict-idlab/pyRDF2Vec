@@ -37,9 +37,10 @@ class WLWalker(RandomWalker):
             Defaults to None.
         sampler: The sampling strategy.
             Defaults to UniformSampler.
-        with_reverse: True to extracts children's and parents' walks from the
-            root, creating (max_walks * max_walks) more walks of 2 * depth,
-            False otherwise.
+        with_reverse: True to extracts parents and children hops from an
+            entity, creating (max_walks * max_walks) walks of 2 * depth,
+            allowing also to centralize this entity in the walks. False
+            otherwise.
             Defaults to False.
         wl_iterations: The Weisfeiler Lehman's iteration.
             Defaults to 4.
