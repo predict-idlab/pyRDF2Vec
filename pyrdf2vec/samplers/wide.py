@@ -85,9 +85,7 @@ class WideSampler(Sampler):
                 without the sampling strategy having been trained.
 
         """
-        if not (
-            self._pred_degs or self._obj_degs or not self._neighbor_counts
-        ):
+        if not (self._pred_degs or self._obj_degs or self._neighbor_counts):
             raise ValueError(
                 "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
