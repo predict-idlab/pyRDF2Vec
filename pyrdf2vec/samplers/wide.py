@@ -59,16 +59,11 @@ class WideSampler(Sampler):
         """
         super().fit(kg)
         for vertex in kg._vertices:
-            if vertex.predicate:
-                self._neighbor_counts[vertex.name] = len(
-                    kg.get_neighbors(vertex)
-                )
-                counter = self._pred_degs
-            else:
-                self._neighbor_counts[vertex.name] = len(
-                    kg.get_neighbors(vertex, is_reverse=True)
-                )
-                counter = self._obj_degs
+            is_reverse = True if vertex.predicate else False
+            counter = self._pred_degs if vertex.predicate else self._obj_degs
+            self._neighbor_counts[vertex.name] = len(
+                kg.get_neighbors(vertex, is_reverse=is_reverse)
+            )
 
             if vertex.name in counter:
                 counter[vertex.name] += 1
