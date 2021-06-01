@@ -1,0 +1,11 @@
+city_name	DBpedia_URL	rating	id	label
+Sydney	http://dbpedia.org/resource/Sydney	105.5	5.0	high
+Frankfurt	http://dbpedia.org/resource/Frankfurt	104.0	11.0	high
+Perth	http://dbpedia.org/resource/Perth	103.5	18.0	high
+Montevideo	http://dbpedia.org/resource/Montevideo	92.5	72.0	medium
+Stockholm	http://dbpedia.org/resource/Stockholm	103.0	23.0	high
+Hong Kong	http://dbpedia.org/resource/Hong_Kong	93.0	70.0	medium
+Rome	http://dbpedia.org/resource/Rome	93.0	71.0	medium
+Winston Salem	http://dbpedia.org/resource/Winston_Salem	101.0	41.0	high
+San Juan	http://dbpedia.org/resource/San_Juan	92.5	73.0	medium
+Madrid	http://dbpedia.org/resource/Madrid	100.0	49.0	high
