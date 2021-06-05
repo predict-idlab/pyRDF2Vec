@@ -9,9 +9,9 @@ from pyrdf2vec.typings import Embeddings, Entities, SWalk
 
 from transformers import (  # isort:skip
     DataCollatorForLanguageModeling,
-    DistilBertConfig,
-    DistilBertForMaskedLM,
-    DistilBertTokenizer,
+    BertConfig,
+    BertForMaskedLM,
+    BertTokenizer,
     Trainer,
     TrainingArguments,
 )
@@ -99,13 +99,13 @@ class BERT(Embedder):
         walks = [walk for entity_walks in walks for walk in entity_walks]
         nodes = list({node for walk in walks for node in walk})
         self._build_vocabulary(nodes, is_update)
-        self.tokenizer = DistilBertTokenizer(
+        self.tokenizer = BertTokenizer(
             vocab_file=self.vocab_filename,
             do_lower_case=False,
             never_split=nodes,
         )
-        self.model_ = DistilBertForMaskedLM(
-            DistilBertConfig(
+        self.model_ = BertForMaskedLM(
+            BertConfig(
                 vocab_size=self._vocabulary_size,
                 max_position_embeddings=512,
                 type_vocab_size=1,
@@ -135,7 +135,7 @@ class BERT(Embedder):
         """
         check_is_fitted(self, ["model_"])
         return [
-            self.model_.distilbert.embeddings.word_embeddings.weight[
+            self.model_.bert.embeddings.word_embeddings.weight[
                 self.tokenizer(entity)["input_ids"][1]
             ]
             .cpu()
