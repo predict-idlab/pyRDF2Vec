@@ -1,3 +1,41 @@
+0.2.3 (2021-06-09)
+-------------------
+
+🚀 Features
+^^^^^^^^^^^^^
+
+- Add the ``skip_verify`` attribute to the ``KG`` class to skip or not the
+  verification of the entity existence with remote Knowledge Graphs (default to
+  ``skip_verify=False``).
+- Add ``WideSampler`` as a new sampling strategy.
+- Add ``SplitWalker`` as a new walking strategy.
+
+Fixed
+^^^^^
+
+- Fix the installation dependencies with ``poetry``.
+- Fix the cache memory for local Knowledge Graphs.
+- Fix validation URL for remote Knowledge Graphs.
+- Fix the ``HALKWalker`` walking strategy.
+- Fix the DFS algorithm of ``RandomWalker`` and ``CommunityWalker`` to return
+  duplicate walks and prevent a different number of walks for the entities.
+- Fix the walk extraction with the ``with_reverse`` parameter for the different
+  walking strategies.
+
+Added
+^^^^^
+
+- Add the ``_post_extract`` private method in the ``Walker`` class for a post
+  processing of walks by a walking strategy.
+
+Changed
+^^^^^^^
+
+- Replace the default minimum frequency thresholds of a hop to keep with
+  ``HALKWalker`` (0.001 -> 0.01).
+- Drop support for Python 3.7.0
+- Remove ``negative=20`` and ``vector_size=500`` for Word2Vec.
+
 0.2.2 (2021-04-02)
 -------------------
 

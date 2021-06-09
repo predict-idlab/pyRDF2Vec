@@ -9,7 +9,7 @@ filterwarnings = [
 
 [tool.poetry]
 name = "pyrdf2vec"
-version = "0.2.2"
+version = "0.2.3"
 description = "Python implementation and extension of RDF2Vec"
 license = "Ghent University and IMEC vzw"
 authors = [
@@ -40,23 +40,23 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-aiohttp = "^3.7.3"
-attrs = "^20.3.0"
-cachetools = "^4.2.1"
-gensim = "^4.0.0"
-matplotlib = "^3.3.1"
-networkx = "^2.5"
+python = "^3.7.1"
+aiohttp = "^3.7.4"
+attrs = "^21.2.0"
+cachetools = "^4.2.2"
+gensim = "^4.0.1"
+matplotlib = "^3.4.2"
+networkx = "^2.5.1"
 nest-asyncio = "^1.5.1"
-numpy = "^1.20.0"
-pandas = "^1.1.1"
-python = "^3.7"
+numpy = "^1.20.3"
+pandas = "^1.2.4"
 python-Levenshtein = "^0.12.2"
-python-louvain = "^0.14"
+python-louvain = "^0.15"
 rdflib = "^5.0.0"
-scikit-learn = "^0.23.2"
-tomlkit = "^0.7.0"
-torch = "^1.7.1"
-tqdm = "^4.48.2"
+scikit-learn = "^0.24.2"
+tomlkit = "^0.7.2"
+torch = "^1.8.1"
+tqdm = "^4.61.0"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
