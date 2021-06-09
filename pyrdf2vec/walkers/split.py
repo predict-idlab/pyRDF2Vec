@@ -1,4 +1,3 @@
-import os
 import re
 from typing import Set
 
@@ -50,6 +49,7 @@ class SplitWalker(RandomWalker):
         if self.func_split is None:
             self.func_split = self.basic_split
 
+    # flake8: noqa: C901
     def basic_split(self, walks: List[Walk]) -> Set[SWalk]:
         """Splits vertices of random walks for an entity based. To achieve
         this, each vertex (except the root node) is split according to symbols
@@ -77,8 +77,10 @@ class SplitWalker(RandomWalker):
         """
         canonical_walks: Set[SWalk] = set()
         for walk in walks:
-            tmp_vertices = []
-            canonical_walk = [] if self.with_reverse else [walk[0].name]
+            tmp_vertices = []  # type: ignore
+            canonical_walk = []
+            if self.with_reverse:
+                canonical_walk = [walk[0].name]
             for i, _ in enumerate(walk[1::], 1):
                 vertices = []
                 if "http" in walk[i].name:

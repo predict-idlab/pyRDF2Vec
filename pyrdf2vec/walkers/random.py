@@ -115,7 +115,7 @@ class RandomWalker(Walker):
                     sub_walk += (pred_obj[0], pred_obj[1])
                 d = len(sub_walk) - 1
             walks.append(sub_walk)
-        return list(set(walks))
+        return list(walks)
 
     def extract_walks(self, kg: KG, entity: Vertex) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using

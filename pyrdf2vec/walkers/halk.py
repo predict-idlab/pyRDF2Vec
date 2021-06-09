@@ -114,6 +114,7 @@ class HALKWalker(RandomWalker):
         """
         return super()._extract(kg, entity)
 
+    # flake8: noqa: C901
     def _post_extract(self, res: List[EntityWalks]) -> List[List[SWalk]]:
         """Post processed walks.
 

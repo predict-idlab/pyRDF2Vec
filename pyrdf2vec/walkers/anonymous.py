@@ -29,7 +29,8 @@ class AnonymousWalker(RandomWalker):
             Defaults to UniformSampler.
         with_reverse: True to extracts parents and children hops from an
             entity, creating (max_walks * max_walks) more walks of 2 * depth,
-            allowing also to centralize this entity in the walks. False otherwise.
+            allowing also to centralize this entity in the walks. False
+            otherwise.
             Defaults to False.
 
     """

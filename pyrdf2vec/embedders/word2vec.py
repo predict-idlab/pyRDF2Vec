@@ -19,7 +19,7 @@ class Word2Vec(Embedder):
         _model: The gensim.models.word2vec model.
             Defaults to None.
         kwargs: The keyword arguments dictionary.
-            Defaults to { min_count=0, negative=20, vector_size=500 }.
+            Defaults to { min_count=0 }.
 
     """
 
@@ -29,8 +29,6 @@ class Word2Vec(Embedder):
     def __init__(self, **kwargs):
         self.kwargs = {
             "min_count": 0,
-            "negative": 20,
-            "vector_size": 500,
             **kwargs,
         }
         self._model = W2V(**self.kwargs)

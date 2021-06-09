@@ -275,7 +275,7 @@ class CommunityWalker(Walker):
                         sub_walk += (pred_obj[0], pred_obj[1])
                 d = len(sub_walk) - 1
             walks.append(sub_walk)
-        return list(set(walks))
+        return list(walks)
 
     def extract(
         self, kg: KG, entities: Entities, verbose: int = 0

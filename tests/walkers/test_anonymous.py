@@ -69,8 +69,7 @@ class TestAnonymousWalker:
             else:
                 assert len(walks) <= max_walks
         for walk in walks:
-            assert not walk[0].isnumeric()
-            for obj in walk[2::2]:
+            for obj in walk[1::2]:
                 assert obj.isnumeric()
             if not with_reverse:
                 assert walk[0] == root

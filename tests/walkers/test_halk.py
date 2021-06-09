@@ -28,7 +28,7 @@ KG_CHAIN = KG()
 
 MAX_DEPTHS = range(15)
 KGS = [KG_LOOP, KG_CHAIN]
-MAX_WALKS = [None, 0, 1, 2, 3, 4, 5]
+MAX_WALKS = [None, 1, 2, 3, 4, 5]
 ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
 WITH_REVERSE = [False, True]
 
