@@ -35,12 +35,7 @@ embeddings, literals = RDF2VecTransformer(
     # generated for the entities without hashing as MUTAG is a short KG.
     walkers=[
         HALKWalker(
-            2,
-            None,
-            n_jobs=2,
-            sampler=WideSampler(),
-            random_state=RANDOM_STATE,
-            md5_bytes=None,
+            2, None, n_jobs=2, random_state=RANDOM_STATE, md5_bytes=None
         )
     ],
     verbose=1,
