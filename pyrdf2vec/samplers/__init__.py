@@ -5,6 +5,7 @@ from .sampler import Sampler
 from .uniform import UniformSampler
 from .frequency import ObjFreqSampler, ObjPredFreqSampler, PredFreqSampler
 from .pagerank import PageRankSampler
+from .wide import WideSampler
 
 __all__ = [
     "ObjFreqSampler",
@@ -13,4 +14,5 @@ __all__ = [
     "PredFreqSampler",
     "Sampler",
     "UniformSampler",
+    "WideSampler",
 ]

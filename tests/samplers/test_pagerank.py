@@ -34,7 +34,7 @@ KGS = [KG_LOOP, KG_CHAIN]
 ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
 
 
-class TestHALKWalker:
+class TestPageRankSampler:
     @pytest.fixture(scope="session")
     def setup(self):
         for i, graph in enumerate([LOOP, LONG_CHAIN]):

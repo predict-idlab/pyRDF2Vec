@@ -44,9 +44,10 @@ class Walker(ABC):
             Defaults to None.
         sampler: The sampling strategy.
             Defaults to UniformSampler.
-        with_reverse: True to extracts children's and parents' walks from the
-            root, creating (max_walks * max_walks) more walks of 2 * depth,
-            False otherwise.
+        with_reverse: True to extracts parents and children hops from an
+            entity, creating (max_walks * max_walks) walks of 2 * depth,
+            allowing also to centralize this entity in the walks. False
+            otherwise. This doesn't work with NGramWalker and WLWalker.
             Defaults to False.
 
     """
@@ -158,20 +159,19 @@ class Walker(ABC):
                     disable=True if verbose == 0 else False,
                 )
             )
-        return list(walks for elm in res for walks in elm.values())
+        return self._post_extract(res)
 
     @abstractmethod
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-            entity: The entity to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         Raises:
             NotImplementedError: If this method is called, without having
@@ -189,6 +189,23 @@ class Walker(ABC):
         """
         global kg
         kg = init_kg  # type: ignore
+
+    def _post_extract(self, res: List[EntityWalks]) -> List[List[SWalk]]:
+        """Post processed walks.
+
+        Args:
+            res: the result of the walks extracted with multiprocessing.
+
+        Returns:
+            The 2D matrix with its number of rows equal to the number of
+            provided entities; number of column equal to the embedding size.
+
+        """
+        return list(
+            walks
+            for entity_to_walks in res
+            for walks in entity_to_walks.values()
+        )
 
     def _proc(self, entity: str) -> EntityWalks:
         """Executed by each process.

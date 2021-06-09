@@ -8,7 +8,8 @@ from sklearn.svm import SVC
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
-from pyrdf2vec.walkers import RandomWalker
+from pyrdf2vec.samplers import WideSampler
+from pyrdf2vec.walkers import HALKWalker
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
 RANDOM_STATE = 22
@@ -31,8 +32,12 @@ embeddings, literals = RDF2VecTransformer(
     Word2Vec(workers=1, epochs=10),
     # Extract all walks with a maximum depth of 2 for each entity using two
     # processes and use a random state to ensure that the same walks are
-    # generated for the entities.
-    walkers=[RandomWalker(2, None, n_jobs=1, random_state=RANDOM_STATE)],
+    # generated for the entities without hashing as MUTAG is a short KG.
+    walkers=[
+        HALKWalker(
+            2, None, n_jobs=2, random_state=RANDOM_STATE, md5_bytes=None
+        )
+    ],
     verbose=1,
 ).fit_transform(
     KG(

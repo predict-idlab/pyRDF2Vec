@@ -11,7 +11,9 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class WLWalker(RandomWalker):
-    """Defines the Weisfeler-Lehman walking strategy.
+    """Weisfeiler-Lehman walking strategy which relabels the nodes of the
+    extracted random walks, providing additional information about the entity
+    representations only when a maximum number of walks is not specified.
 
     Attributes:
         _inv_label_map: Stores the mapping of the inverse labels.
@@ -35,16 +37,10 @@ class WLWalker(RandomWalker):
             Defaults to None.
         sampler: The sampling strategy.
             Defaults to UniformSampler.
-        with_reverse: True to extracts children's and parents' walks from the
-            root, creating (max_walks * max_walks) more walks of 2 * depth,
-            False otherwise.
-            Defaults to False.
         wl_iterations: The Weisfeiler Lehman's iteration.
             Defaults to 4.
 
     """
-
-    md5_bytes = attr.ib(kw_only=True, default=8, type=int, repr=False)
 
     wl_iterations = attr.ib(
         kw_only=True,
@@ -156,30 +152,26 @@ class WLWalker(RandomWalker):
         self._weisfeiler_lehman(kg)
         return super().extract(kg, entities, verbose)
 
-    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-
-                The graph from which the neighborhoods are extracted for the
-                provided entities.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         """
         canonical_walks: Set[SWalk] = set()
         for n in range(self.wl_iterations + 1):
-            for walk in self.extract_walks(kg, instance):
-                canonical_walk: List[str] = []
-                for i, hop in enumerate(walk):
-                    if i == 0 or i % 2 == 1:
-                        canonical_walk.append(hop.name)
-                    else:
-                        canonical_walk.append(self._label_map[hop][n])
+            for walk in self.extract_walks(kg, entity):
+                canonical_walk: List[str] = [
+                    vertex.name
+                    if i == 0 or i % 2 == 1
+                    else self._label_map[vertex][n]
+                    for i, vertex in enumerate(walk)
+                ]
                 canonical_walks.add(tuple(canonical_walk))
-        return {instance.name: list(canonical_walks)}
+        return {entity.name: list(canonical_walks)}

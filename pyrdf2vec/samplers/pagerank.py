@@ -10,16 +10,16 @@ from pyrdf2vec.typings import Hop
 
 @attr.s
 class PageRankSampler(Sampler):
-    """Defines the Object Frequency Weight sampling strategy.
-    This sampling strategy is a node-centric approach. With this strategy, some
-    nodes are more important than others and hence there will be resources
-    which are more frequent in the walks as others.
+    """PageRank node-centric sampling strategy which prioritizes walks
+    containing the most frequent objects. This frequency being defined by
+    assigning a higher weight to the most frequent objects using the
+    PageRank ranking.
 
     Attributes:
         _is_support_remote: True if the sampling strategy can be used with a
             remote Knowledge Graph, False Otherwise
             Defaults to False.
-        _pageranks: The Page Rank dictionary.
+        _pageranks: The PageRank dictionary.
             Defaults to {}.
         _random_state: The random state to use to keep random determinism with
             the sampling strategy.
@@ -29,7 +29,7 @@ class PageRankSampler(Sampler):
         _visited: Tags vertices that appear at the max depth or of which all
             their children are tagged.
             Defaults to set.
-        alpha: The damping for Page Rank.
+        alpha: The damping for PageRank.
             Defaults to 0.85.
         inverse: True if the inverse algorithm must be used, False otherwise.
             Defaults to False.
@@ -60,33 +60,31 @@ class PageRankSampler(Sampler):
         super().fit(kg)
         nx_graph = nx.DiGraph()
 
-        for vertex in kg._vertices:
-            if not vertex.predicate:
-                nx_graph.add_node(vertex.name, vertex=vertex)
-                for predicate in kg.get_neighbors(vertex):
-                    for obj in kg.get_neighbors(predicate):
-                        nx_graph.add_edge(
-                            vertex.name, obj.name, name=predicate.name
-                        )
+        subs_objs = [vertex for vertex in kg._vertices if not vertex.predicate]
+        for vertex in subs_objs:
+            nx_graph.add_node(vertex.name, vertex=vertex)
+            for hop in kg.get_hops(vertex):
+                nx_graph.add_edge(vertex.name, hop[1].name, name=hop[0].name)
         self._pageranks = nx.pagerank(nx_graph, alpha=self.alpha)
 
     def get_weight(self, hop: Hop) -> float:
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
-            hop: The hop (pred, obj) to get the weight.
+            hop: The hop of a vertex in a (predicate, object) form to get the
+                weight.
 
         Returns:
-            The weight for a given hop.
+            The weight of a given hop.
 
         Raises:
             ValueError: If there is an attempt to access the weight of a hop
                 without the sampling strategy having been trained.
 
         """
-        if len(self._pageranks) == 0:
+        if not self._pageranks:
             raise ValueError(
-                "You must call the `fit(kg)` function before get the weight of"
+                "You must call the `fit(kg)` method before get the weight of"
                 + " a hop."
             )
         return self._pageranks[hop[1].name]

@@ -9,8 +9,9 @@ from pyrdf2vec.walkers import RandomWalker
 
 @attr.s
 class WalkletWalker(RandomWalker):
-    """Walker that transforms walks into walklets, which are walks of length
-    two consisting of the root of the original walk and one of the hop.
+    """Walklets walking strategy which transforms randomly extracted walks into
+    walklets which are walks of size one or two including the root node and
+    potentially another vertex that can be a predicate or an object.
 
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
@@ -26,33 +27,33 @@ class WalkletWalker(RandomWalker):
             Defaults to None.
         sampler: The sampling strategy.
             Defaults to UniformSampler.
-        with_reverse: True to extracts children's and parents' walks from the
-            root, creating (max_walks * max_walks) more walks of 2 * depth,
-            False otherwise.
+        with_reverse: True to extracts parents and children hops from an
+            entity, creating (max_walks * max_walks) walks of 2 * depth,
+            allowing also to centralize this entity in the walks. False
+            otherwise.
             Defaults to False.
 
     """
 
-    def _extract(self, kg: KG, instance: Vertex) -> EntityWalks:
-        """Extracts walks rooted at the provided entities which are then each
-        transformed into a numerical representation.
+    def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
+        """Extracts random walks for an entity based on a Knowledge Graph.
 
         Args:
             kg: The Knowledge Graph.
-            instance: The instance to be extracted from the Knowledge Graph.
+            entity: The root node to extract walks.
 
         Returns:
-            The 2D matrix with its number of rows equal to the number of
-            provided entities; number of column equal to the embedding size.
+            A dictionary having the entity as key and a list of tuples as value
+            corresponding to the extracted walks.
 
         """
         canonical_walks: Set[SWalk] = set()
-        for walk in self.extract_walks(kg, instance):
+        for walk in self.extract_walks(kg, entity):
             if len(walk) == 1:
                 canonical_walks.add((walk[0].name,))
             for i in range(1, len(walk)):
                 if self.with_reverse:
-                    canonical_walks.add((walk[i].name, walk[0].name))
+                    canonical_walks.add((walk[i].name, entity.name))
                 else:
-                    canonical_walks.add((walk[0].name, walk[i].name))
-        return {instance.name: list(canonical_walks)}
+                    canonical_walks.add((entity.name, walk[i].name))
+        return {entity.name: list(canonical_walks)}

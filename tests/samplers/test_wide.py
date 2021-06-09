@@ -3,7 +3,7 @@ import itertools
 import pytest
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.walkers import HALKWalker
+from pyrdf2vec.samplers import WideSampler
 
 LOOP = [
     ["Alice", "knows", "Bob"],
@@ -26,14 +26,11 @@ URL = "http://pyRDF2Vec"
 KG_LOOP = KG()
 KG_CHAIN = KG()
 
-MAX_DEPTHS = range(15)
 KGS = [KG_LOOP, KG_CHAIN]
-MAX_WALKS = [None, 0, 1, 2, 3, 4, 5]
 ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
-WITH_REVERSE = [False, True]
 
 
-class TestHALKWalker:
+class TestWideSampler:
     @pytest.fixture(scope="session")
     def setup(self):
         for i, graph in enumerate([LOOP, LONG_CHAIN]):
@@ -48,32 +45,30 @@ class TestHALKWalker:
                 else:
                     KG_CHAIN.add_walk(subj, pred, obj)
 
+    def test_invalid_weight(self):
+        with pytest.raises(ValueError):
+            WideSampler().get_weight(None)
+
+    @pytest.mark.parametrize("kg", list((KG_LOOP, KG_CHAIN)))
+    def test_fit(self, setup, kg):
+        sampler = WideSampler()
+        assert len(sampler._pred_degs) == 0
+        assert len(sampler._obj_degs) == 0
+        assert len(sampler._neighbor_counts) == 0
+
+        sampler.fit(kg)
+        assert len(sampler._pred_degs) > 0
+        assert len(sampler._obj_degs) > 0
+        assert len(sampler._neighbor_counts) > 0
+
     @pytest.mark.parametrize(
-        "kg, root, max_depth, max_walks, with_reverse",
-        list(
-            itertools.product(
-                KGS, ROOTS_WITHOUT_URL, MAX_DEPTHS, MAX_WALKS, WITH_REVERSE
-            )
-        ),
+        "kg, root",
+        list(itertools.product(KGS, ROOTS_WITHOUT_URL)),
     )
-    def test_extract(
-        self, setup, kg, root, max_depth, max_walks, with_reverse
-    ):
-        root = f"{URL}#{root}"
-        walks = HALKWalker(
-            max_depth,
-            max_walks,
-            freq_thresholds=[0.001],
-            with_reverse=with_reverse,
-            random_state=42,
-        ).extract(kg, [root])
-
-        if max_walks is not None:
-            assert len(walks) == 1
-
-        for entity_walks in walks:
-            for walk in entity_walks:
-                if not with_reverse:
-                    assert walk[0] == root
-                for obj in walk[2::2]:
-                    assert obj.startswith("b'")
+    def test_weight(self, setup, kg, root):
+        sampler = WideSampler()
+        sampler.fit(kg)
+        for hop in kg.get_hops(Vertex(f"{URL}#{root}")):
+            weight = sampler.get_weight(hop)
+            assert weight > 0
+            assert isinstance(weight, float)
