@@ -434,9 +434,18 @@ modules as well as their functions available to you.
 Contributions
 -------------
 
-Your help in the development of ``pyRDF2Vec`` is more than welcome. In order to
-better understand how you can help either through pull requests and/or issues,
-please take a look at the `CONTRIBUTING
+Your help in the development of ``pyRDF2Vec`` is more than welcome.
+
+.. raw:: html
+
+   <p align="center">
+     <img width="85%" src="./assets/architecture.png" alt="architecture">
+   </p>
+
+The architecture of ``pyRDF2Vec`` makes it easy to create new extraction and
+sampling strategies, new embedding techniques. In order to better understand
+how you can help either through pull requests and/or issues, please take a look
+at the `CONTRIBUTING
 <https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst>`__
 file.
 
