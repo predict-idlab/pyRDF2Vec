@@ -164,7 +164,7 @@ it remains possible to do it (**SEE:** `FAQ <#faq>`__).
 Installation
 ~~~~~~~~~~~~
 
-``pyRDF2Vec`` can be installed in two ways:
+``pyRDF2Vec`` can be installed in three ways:
 
 1. from `PyPI <https://pypi.org/project/pyrdf2vec>`__ using ``pip``:
 
@@ -177,6 +177,14 @@ Installation
 .. code:: bash
 
    poetry add pyRDF2vec
+   
+3. from source:
+
+.. code:: bash
+
+   git clone https://github.com/IBCNServices/pyRDF2Vec.git
+   pip install .
+   
 
 Introduction
 ~~~~~~~~~~~~
