@@ -177,14 +177,14 @@ Installation
 .. code:: bash
 
    poetry add pyRDF2vec
-   
+
 3. from source:
 
 .. code:: bash
 
    git clone https://github.com/IBCNServices/pyRDF2Vec.git
    pip install .
-   
+
 
 Introduction
 ~~~~~~~~~~~~
