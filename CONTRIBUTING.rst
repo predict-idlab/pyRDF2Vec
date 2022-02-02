@@ -176,6 +176,15 @@ Now all you have to do is spawn a terminal to your virtual environment:
 
    poetry shell
 
+If you prefer, you could contribute directly to ``pyRDF2Vec`` with the Docker
+image and avoid installing dependencies on your machine:
+
+.. code:: bash
+
+   docker-compose up --build -d
+
+Now you only have to go to `localhost:9000 <http://localhost:9000>`__.
+
 Add a New Embedding Technique
 -----------------------------
 

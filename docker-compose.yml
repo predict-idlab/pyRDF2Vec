@@ -1,0 +1,16 @@
+version: "3.2"
+
+services:
+  jupyter:
+    container_name: pyrdf2vec-jupyter
+    build:
+      context: ./
+    restart: unless-stopped
+    volumes:
+      - ./pyrdf2vec:/home/jovyan/work/pyrdf2vec
+      - ./tests:/home/jovyan/work/tests
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=pyrdf2vec
+    ports:
+      - 9000:8888
