@@ -157,7 +157,7 @@ Before contributing, it is important that you can install the pyRDF2Vec
 dependencies in your environment. Whether you are using a Notebook or directly
 your text editor, here is the preferred method:
 
-1. **Install `poetry <https://python-poetry.org/>`__**:
+Install `poetry <https://python-poetry.org/>`__:
 
 .. code:: bash
 
