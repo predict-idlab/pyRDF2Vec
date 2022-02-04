@@ -90,6 +90,7 @@ embeddings and get literals from a given Knowledge Graph (KG) and entities:
    from pyrdf2vec.graphs import KG
    from pyrdf2vec.walkers import RandomWalker
 
+   # Read a CSV file containing the entities we want to classify.
    data = pd.read_csv("samples/countries-cities/entities.tsv", sep="\t")
    entities = [entity for entity in data["location"]]
    print(entities)
@@ -99,25 +100,26 @@ embeddings and get literals from a given Knowledge Graph (KG) and entities:
    #    "http://dbpedia.org/resource/Germany",
    # ]
 
+   # Define our knowledge graph (here: DBPedia SPARQL endpoint).
+   knowledge_graph = KG(
+       "https://dbpedia.org/sparql",
+       skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+       literals=[
+           [
+               "http://dbpedia.org/ontology/wikiPageWikiLink",
+               "http://www.w3.org/2004/02/skos/core#prefLabel",
+           ],
+           ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
+       ],
+   )
+   # Create our transformer, setting the embedding & walking strategy.
    transformer = RDF2VecTransformer(
        Word2Vec(epochs=10),
        walkers=[RandomWalker(4, 10, with_reverse=False, n_jobs=2)],
        # verbose=1
    )
-   embeddings, literals = transformer.fit_transform(
-       KG(
-           "https://dbpedia.org/sparql",
-           skip_predicates={"www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-           literals=[
-               [
-                   "http://dbpedia.org/ontology/wikiPageWikiLink",
-                   "http://www.w3.org/2004/02/skos/core#prefLabel",
-               ],
-               ["http://dbpedia.org/ontology/humanDevelopmentIndex"],
-           ],
-       ),
-       entities
-   )
+   # Get our embeddings.
+   embeddings, literals = transformer.fit_transform(knowledge_graph, entities)
    print(embeddings)
    # [
    #     array([ 1.5737595e-04,  1.1333118e-03, -2.9838676e-04,  ..., -5.3064007e-04,
@@ -164,7 +166,7 @@ it remains possible to do it (**SEE:** `FAQ <#faq>`__).
 Installation
 ~~~~~~~~~~~~
 
-``pyRDF2Vec`` can be installed in two ways:
+``pyRDF2Vec`` can be installed in three ways:
 
 1. from `PyPI <https://pypi.org/project/pyrdf2vec>`__ using ``pip``:
 
@@ -177,6 +179,14 @@ Installation
 .. code:: bash
 
    poetry add pyRDF2vec
+
+3. from source:
+
+.. code:: bash
+
+   git clone https://github.com/IBCNServices/pyRDF2Vec.git
+   pip install .
+
 
 Introduction
 ~~~~~~~~~~~~

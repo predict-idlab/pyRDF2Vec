@@ -2,7 +2,6 @@
 
 from .walker import Walker
 
-from .community import CommunityWalker
 from .random import RandomWalker
 
 from .anonymous import AnonymousWalker
@@ -14,7 +13,6 @@ from .weisfeiler_lehman import WLWalker
 
 __all__ = [
     "AnonymousWalker",
-    "CommunityWalker",
     "HALKWalker",
     "NGramWalker",
     "RandomWalker",
