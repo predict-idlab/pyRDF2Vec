@@ -101,7 +101,7 @@ class TestRandomWalker:
         walker = RandomWalker(
             max_depth, max_walks, with_reverse=with_reverse, random_state=42
         )
-        walks = walker._extract(kg, Vertex(root))[root]
+        walks = walker.extract(kg, [root])[0]
         if max_walks is not None:
             if with_reverse:
                 assert len(walks) <= max_walks * max_walks
@@ -116,3 +116,11 @@ class TestRandomWalker:
                 assert len(walk) <= (max_depth * 2) + 1
             else:
                 assert len(walk) <= ((max_depth * 2) + 1) * 2
+
+    def test_inverse_extract(self, setup):
+        walker = RandomWalker(1, None, with_reverse=True, random_state=42)
+        walks = walker.extract(KG_LOOP, [f"{URL}#Bob", f"{URL}#Alice"])
+        assert any(
+            walk[0] == f"{URL}#Alice" and walk[2] == f"{URL}#Bob"
+            for walk in walks[0] + walks[1]
+        )
