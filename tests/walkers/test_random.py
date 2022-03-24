@@ -98,9 +98,10 @@ class TestRandomWalker:
         self, setup, kg, root, max_depth, max_walks, with_reverse
     ):
         root = f"{URL}#{root}"
-        walks = RandomWalker(
+        walker = RandomWalker(
             max_depth, max_walks, with_reverse=with_reverse, random_state=42
-        )._extract(kg, Vertex(root))[root]
+        )
+        walks = walker._extract(kg, Vertex(root))[root]
         if max_walks is not None:
             if with_reverse:
                 assert len(walks) <= max_walks * max_walks
@@ -108,7 +109,8 @@ class TestRandomWalker:
                 assert len(walks) <= max_walks
         for walk in walks:
             for obj in walk[2::2]:
-                assert obj.startswith("b'")
+                if obj not in walker._entities:
+                    assert obj.startswith("b'")
             if not with_reverse:
                 assert walk[0] == root
                 assert len(walk) <= (max_depth * 2) + 1

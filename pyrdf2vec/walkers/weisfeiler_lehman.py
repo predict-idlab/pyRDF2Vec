@@ -152,6 +152,25 @@ class WLWalker(RandomWalker):
         self._weisfeiler_lehman(kg)
         return super().extract(kg, entities, verbose)
 
+    def _map_wl(self, entity: Vertex, pos: int, n: int) -> str:
+        """Maps certain vertices to MD5 hashes to save memory. For entities of
+        interest (provided by the user to the extract function) and predicates,
+        the string representation is kept.
+
+        Args:
+            entity: The entity to be mapped.
+            pos: The position of the entity in the walk.
+            n: The iteration number of the WL algorithm.
+
+        Returns:
+            A hash (string) or original string representation.
+
+        """
+        if entity.name in self._entities or pos % 2 == 1:
+            return entity.name
+        else:
+            return self._label_map[entity][n]
+
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
         """Extracts random walks for an entity based on a Knowledge Graph.
 
@@ -168,10 +187,7 @@ class WLWalker(RandomWalker):
         for n in range(self.wl_iterations + 1):
             for walk in self.extract_walks(kg, entity):
                 canonical_walk: List[str] = [
-                    vertex.name
-                    if i == 0 or i % 2 == 1
-                    else self._label_map[vertex][n]
-                    for i, vertex in enumerate(walk)
+                    self._map_wl(vertex, i, n) for i, vertex in enumerate(walk)
                 ]
                 canonical_walks.add(tuple(canonical_walk))
         return {entity.name: list(canonical_walks)}

@@ -10,9 +10,9 @@ from pyrdf2vec.walkers import Walker
 
 @attr.s
 class RandomWalker(Walker):
-    """Random walking strategy which extracts walks from a rood node using the
+    """Random walking strategy which extracts walks from a root node using the
     Depth First Search (DFS) algorithm if a maximum number of walks is
-    specified, otherwise the Breath First Search (BFS) algorithm is used.
+    specified, otherwise the Breadth First Search (BFS) algorithm is used.
 
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
@@ -51,7 +51,7 @@ class RandomWalker(Walker):
         self, kg: KG, entity: Vertex, is_reverse: bool = False
     ) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
-        the Breath First Search (BFS) algorithm.
+        the Breadth First Search (BFS) algorithm.
 
         Args:
             kg: The Knowledge Graph.
@@ -120,7 +120,7 @@ class RandomWalker(Walker):
     def extract_walks(self, kg: KG, entity: Vertex) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm if a maximum number of walks is
-        specified, otherwise the Breath First Search (BFS) algorithm is used.
+        specified, otherwise the Breadth First Search (BFS) algorithm is used.
 
         Args:
             kg: The Knowledge Graph.
@@ -139,6 +139,29 @@ class RandomWalker(Walker):
             ]
         return [walk for walk in fct_search(kg, entity)]
 
+    def _map_vertex(self, entity: Vertex, pos: int) -> str:
+        """Maps certain vertices to MD5 hashes to save memory. For entities of
+        interest (provided by the user to the extract function) and predicates,
+        the string representation is kept.
+
+        Args:
+            entity: The entity to be mapped.
+            pos: The position of the entity in the walk.
+
+        Returns:
+            A hash (string) or original string representation.
+
+        """
+        if (
+            entity.name in self._entities
+            or pos % 2 == 1
+            or self.md5_bytes is None
+        ):
+            return entity.name
+        else:
+            ent_hash = md5(entity.name.encode()).digest()
+            return str(ent_hash[: self.md5_bytes])
+
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
         """Extracts random walks for an entity based on a Knowledge Graph.
 
@@ -154,10 +177,7 @@ class RandomWalker(Walker):
         canonical_walks: Set[SWalk] = set()
         for walk in self.extract_walks(kg, entity):
             canonical_walk: List[str] = [
-                vertex.name
-                if i == 0 or i % 2 == 1 or self.md5_bytes is None
-                else str(md5(vertex.name.encode()).digest()[: self.md5_bytes])
-                for i, vertex in enumerate(walk)
+                self._map_vertex(vertex, i) for i, vertex in enumerate(walk)
             ]
             canonical_walks.add(tuple(canonical_walk))
         return {entity.name: list(canonical_walks)}

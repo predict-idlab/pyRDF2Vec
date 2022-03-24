@@ -1,7 +1,7 @@
 import multiprocessing
 import warnings
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import attr
 from tqdm import tqdm
@@ -101,6 +101,8 @@ class Walker(ABC):
         init=False, repr=False, type=bool, default=True
     )
 
+    _entities = attr.ib(init=False, repr=False, type=Set[str], default=set())
+
     def __attrs_post_init__(self):
         if self.n_jobs == -1:
             self.n_jobs = multiprocessing.cpu_count()
@@ -136,7 +138,6 @@ class Walker(ABC):
                 "Invalid walking strategy. Please, choose a walking strategy "
                 + "that can fetch walks via a SPARQL endpoint server."
             )
-        self.sampler.fit(kg)
 
         process = self.n_jobs if self.n_jobs is not None else 1
         if (kg._is_remote and kg.mul_req) and process >= 2:
@@ -150,6 +151,9 @@ class Walker(ABC):
 
         if kg._is_remote and kg.mul_req:
             kg._fill_hops(entities)
+
+        self.sampler.fit(kg)
+        self._entities |= set(entities)
 
         with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
             res = list(

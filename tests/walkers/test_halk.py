@@ -60,13 +60,14 @@ class TestHALKWalker:
         self, setup, kg, root, max_depth, max_walks, with_reverse
     ):
         root = f"{URL}#{root}"
-        walks = HALKWalker(
+        walker = HALKWalker(
             max_depth,
             max_walks,
             freq_thresholds=[0.001],
             with_reverse=with_reverse,
             random_state=42,
-        ).extract(kg, [root])
+        )
+        walks = walker.extract(kg, [root])
 
         if max_walks is not None:
             assert len(walks) == 1
@@ -76,4 +77,5 @@ class TestHALKWalker:
                 if not with_reverse:
                     assert walk[0] == root
                 for obj in walk[2::2]:
-                    assert obj.startswith("b'")
+                    if obj not in walker._entities:
+                        assert obj.startswith("b'")
