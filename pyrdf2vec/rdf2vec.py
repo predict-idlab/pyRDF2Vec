@@ -86,12 +86,13 @@ class RDF2VecTransformer:
     _pos_walks = attr.ib(init=False, type=List[int], factory=list)
 
     def fit(
-        self, walks: List[List[SWalk]], is_update: bool = False
+        self, kg: KG, entities: Entities, is_update: bool = False
     ) -> RDF2VecTransformer:
         """Fits the embeddings based on the provided entities.
 
         Args:
-            walks: The walks to fit.
+            kg: The KG from which walks should be extracted.
+            entities: The entities of interest, starting points for walkers.
             is_update: True if the new corpus should be added to old model's
                 corpus, False otherwise.
                 Defaults to False.
@@ -102,6 +103,8 @@ class RDF2VecTransformer:
         """
         if self.verbose == 2:
             print(self.embedder)
+
+        walks = self.get_walks(kg, entities)
 
         tic = time.perf_counter()
         self.embedder.fit(walks, is_update)
@@ -140,7 +143,7 @@ class RDF2VecTransformer:
 
         """
         self._is_extract_walks_literals = True
-        self.fit(self.get_walks(kg, entities), is_update)
+        self.fit(kg, entities, is_update)
         return self.transform(kg, entities)
 
     def get_walks(self, kg: KG, entities: Entities) -> List[List[SWalk]]:
