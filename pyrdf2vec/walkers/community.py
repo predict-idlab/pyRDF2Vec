@@ -168,9 +168,7 @@ class CommunityWalker(Walker):
                         ):
                             comm = self.communities[obj]
                             comm_labels = self.labels_per_community[comm]
-                            walks.add(
-                                (rng.random().choice(comm_labels),) + walk
-                            )
+                            walks.add((rng.choice(comm_labels),) + walk)
                 else:
                     hops = kg.get_hops(walk[-1])
                     for pred, obj in hops:
@@ -181,9 +179,7 @@ class CommunityWalker(Walker):
                         ):
                             comm = self.communities[obj]
                             comm_labels = self.labels_per_community[comm]
-                            walks.add(
-                                walk + (rng.random().choice(comm_labels),)
-                            )
+                            walks.add(walk + (rng.choice(comm_labels),))
                 if len(hops) > 0:
                     walks.remove(walk)
         return list(walks)
@@ -232,7 +228,6 @@ class CommunityWalker(Walker):
                         sub_walk = (
                             pred_obj[1],
                             rng.choice(community_nodes),
-                            community_nodes,
                         ) + sub_walk
                     else:
                         sub_walk = (pred_obj[1], pred_obj[0]) + sub_walk
@@ -247,7 +242,6 @@ class CommunityWalker(Walker):
                         sub_walk += (
                             pred_obj[0],
                             rng.choice(community_nodes),
-                            community_nodes,
                         )
                     else:
                         sub_walk += (pred_obj[0], pred_obj[1])
@@ -279,6 +273,7 @@ class CommunityWalker(Walker):
             provided entities; number of column equal to the embedding size.
 
         """
+
         self._community_detection(kg)
         return super().extract(kg, entities, verbose)
 
