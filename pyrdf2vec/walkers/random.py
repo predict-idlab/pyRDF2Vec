@@ -73,6 +73,7 @@ class RandomWalker(Walker):
                         walks.add((obj, pred) + walk)
                 else:
                     hops = kg.get_hops(walk[-1])
+                    #print(walk[-1])
                     for pred, obj in hops:
                         walks.add(walk + (pred, obj))
 
