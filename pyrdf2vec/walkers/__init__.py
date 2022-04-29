@@ -10,6 +10,7 @@ from .ngram import NGramWalker
 from .split import SplitWalker
 from .walklet import WalkletWalker
 from .weisfeiler_lehman import WLWalker
+from .community import CommunityWalker
 
 __all__ = [
     "AnonymousWalker",
@@ -20,4 +21,5 @@ __all__ = [
     "Walker",
     "WalkletWalker",
     "WLWalker",
+    "CommunityWalker",
 ]

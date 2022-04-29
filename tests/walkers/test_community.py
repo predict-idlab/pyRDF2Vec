@@ -3,7 +3,7 @@ import itertools
 import pytest
 
 from pyrdf2vec.graphs import KG, Vertex
-from pyrdf2vec.walkers import RandomWalker
+from pyrdf2vec.walkers import CommunityWalker
 
 LOOP = [
     ["Alice", "knows", "Bob"],
@@ -34,7 +34,7 @@ ROOTS_WITHOUT_URL = ["Alice", "Bob", "Dean"]
 WITH_REVERSE = [False, True]
 
 
-class TestRandomWalker:
+class TestCommunityWalker:
     @pytest.fixture(scope="session")
     def setup(self):
         for i, graph in enumerate([LOOP, LONG_CHAIN]):
@@ -57,9 +57,9 @@ class TestRandomWalker:
     )
     def test_bfs(self, setup, kg, root, max_depth, is_reverse):
         root = f"{URL}#{root}"
-        walks = RandomWalker(max_depth, None, random_state=42)._bfs(
-            kg, Vertex(root), is_reverse
-        )
+        walker = CommunityWalker(max_depth, None, random_state=42)
+        walker._community_detection(kg)
+        walks = walker._bfs(kg, Vertex(root), is_reverse)
         for walk in walks:
             assert len(walk) <= (max_depth * 2) + 1
             if is_reverse:
@@ -77,9 +77,10 @@ class TestRandomWalker:
     )
     def test_dfs(self, setup, kg, root, max_depth, max_walks, is_reverse):
         root = f"{URL}#{root}"
-        for walk in RandomWalker(max_depth, max_walks, random_state=42)._dfs(
-            kg, Vertex(root), is_reverse
-        ):
+        walker = CommunityWalker(max_depth, max_walks, random_state=42)
+        walker._community_detection(kg)
+        walks = walker._dfs(kg, Vertex(root), is_reverse)
+        for walk in walks:
             assert len(walk) <= (max_depth * 2) + 1
             if is_reverse:
                 assert walk[-1].name == root
@@ -98,7 +99,7 @@ class TestRandomWalker:
         self, setup, kg, root, max_depth, max_walks, with_reverse
     ):
         root = f"{URL}#{root}"
-        walker = RandomWalker(
+        walker = CommunityWalker(
             max_depth, max_walks, with_reverse=with_reverse, random_state=42
         )
         walks = walker.extract(kg, [root])[0]
@@ -116,11 +117,3 @@ class TestRandomWalker:
                 assert len(walk) <= (max_depth * 2) + 1
             else:
                 assert len(walk) <= ((max_depth * 2) + 1) * 2
-
-    def test_inverse_extract(self, setup):
-        walker = RandomWalker(1, None, with_reverse=True, random_state=42)
-        walks = walker.extract(KG_LOOP, [f"{URL}#Bob", f"{URL}#Alice"])
-        assert any(
-            walk[0] == f"{URL}#Alice" and walk[2] == f"{URL}#Bob"
-            for walk in walks[0] + walks[1]
-        )

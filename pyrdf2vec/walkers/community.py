@@ -39,7 +39,7 @@ class CommunityWalker(Walker):
     through probabilities and relations that are not explicitly modeled in a
     Knowledge Graph. Similar to the Random walking strategy, the Depth First
     Search (DFS) algorithm is used if a maximum number of walks is specified.
-    Otherwise, the Breath First Search (BFS) algorithm is chosen.
+    Otherwise, the Breadth First Search (BFS) algorithm is chosen.
 
     Attributes:
         _is_support_remote: True if the walking strategy can be used with a
@@ -155,6 +155,7 @@ class CommunityWalker(Walker):
 
         """
         walks: Set[Walk] = {(entity,)}
+        rng = np.random.RandomState(self.random_state)
         for i in range(self.max_depth):
             for walk in walks.copy():
                 if is_reverse:
@@ -163,46 +164,22 @@ class CommunityWalker(Walker):
                         walks.add((obj, pred) + walk)
                         if (
                             obj in self.communities
-                            and np.random.RandomState(
-                                self.random_state
-                            ).random()
-                            < self.hop_prob
+                            and rng.random() < self.hop_prob
                         ):
-                            walks.add(
-                                (
-                                    np.random.RandomState(
-                                        self.random_state
-                                    ).choice(
-                                        self.labels_per_community[
-                                            self.communities[obj]
-                                        ]
-                                    ),
-                                )
-                                + walk
-                            )
+                            comm = self.communities[obj]
+                            comm_labels = self.labels_per_community[comm]
+                            walks.add((rng.choice(comm_labels),) + walk)
                 else:
                     hops = kg.get_hops(walk[-1])
                     for pred, obj in hops:
                         walks.add(walk + (pred, obj))
                         if (
                             obj in self.communities
-                            and np.random.RandomState(
-                                self.random_state
-                            ).random()
-                            < self.hop_prob
+                            and rng.random() < self.hop_prob
                         ):
-                            walks.add(
-                                walk
-                                + (
-                                    np.random.RandomState(
-                                        self.random_state
-                                    ).choice(
-                                        self.labels_per_community[
-                                            self.communities[obj]
-                                        ]
-                                    ),
-                                )
-                            )
+                            comm = self.communities[obj]
+                            comm_labels = self.labels_per_community[comm]
+                            walks.add(walk + (rng.choice(comm_labels),))
                 if len(hops) > 0:
                     walks.remove(walk)
         return list(walks)
@@ -227,6 +204,9 @@ class CommunityWalker(Walker):
         self.sampler.visited = set()
         walks: List[Walk] = []
         assert self.max_walks is not None
+
+        rng = np.random.RandomState(self.random_state)
+
         while len(walks) < self.max_walks:
             sub_walk: Walk = (entity,)
             d = 1
@@ -240,36 +220,28 @@ class CommunityWalker(Walker):
                 if is_reverse:
                     if (
                         pred_obj[0] in self.communities
-                        and np.random.RandomState(self.random_state).random()
-                        < self.hop_prob
+                        and rng.random() < self.hop_prob
                     ):
                         community_nodes = self.labels_per_community[
                             self.communities[pred_obj[0]]
                         ]
                         sub_walk = (
                             pred_obj[1],
-                            np.random.RandomState(self.random_state).choice(
-                                community_nodes
-                            ),
-                            community_nodes,
+                            rng.choice(community_nodes),
                         ) + sub_walk
                     else:
                         sub_walk = (pred_obj[1], pred_obj[0]) + sub_walk
                 else:
                     if (
                         pred_obj[1] in self.communities
-                        and np.random.RandomState(self.random_state).random()
-                        < self.hop_prob
+                        and rng.random() < self.hop_prob
                     ):
                         community_nodes = self.labels_per_community[
                             self.communities[pred_obj[1]]
                         ]
                         sub_walk += (
                             pred_obj[0],
-                            np.random.RandomState(self.random_state).choice(
-                                community_nodes
-                            ),
-                            community_nodes,
+                            rng.choice(community_nodes),
                         )
                     else:
                         sub_walk += (pred_obj[0], pred_obj[1])
@@ -301,6 +273,7 @@ class CommunityWalker(Walker):
             provided entities; number of column equal to the embedding size.
 
         """
+
         self._community_detection(kg)
         return super().extract(kg, entities, verbose)
 
@@ -327,6 +300,29 @@ class CommunityWalker(Walker):
             ]
         return [walk for walk in fct_search(kg, entity)]
 
+    def _map_vertex(self, entity: Vertex, pos: int) -> str:
+        """Maps certain vertices to MD5 hashes to save memory. For entities of
+        interest (provided by the user to the extract function) and predicates,
+        the string representation is kept.
+
+        Args:
+            entity: The entity to be mapped.
+            pos: The position of the entity in the walk.
+
+        Returns:
+            A hash (string) or original string representation.
+
+        """
+        if (
+            entity.name in self._entities
+            or pos % 2 == 1
+            or self.md5_bytes is None
+        ):
+            return entity.name
+        else:
+            ent_hash = md5(entity.name.encode()).digest()
+            return str(ent_hash[: self.md5_bytes])
+
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:
         """Extracts random walks for an entity based on a Knowledge Graph.
 
@@ -342,10 +338,7 @@ class CommunityWalker(Walker):
         canonical_walks: Set[SWalk] = set()
         for walk in self.extract_walks(kg, entity):
             canonical_walk: List[str] = [
-                vertex.name
-                if i == 0 or i % 2 == 1 or self.md5_bytes is None
-                else str(md5(vertex.name.encode()).digest()[: self.md5_bytes])
-                for i, vertex in enumerate(walk)
+                self._map_vertex(vertex, i) for i, vertex in enumerate(walk)
             ]
             canonical_walks.add(tuple(canonical_walk))
         return {entity.name: list(canonical_walks)}
