@@ -71,7 +71,7 @@ print("\nWithout using literals:")
 # Fit a Support Vector Machine on train embeddings and pick the best
 # C-parameters (regularization strength).
 clf = GridSearchCV(
-    SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+    SVC(random_state=RANDOM_STATE), {"C": [10**i for i in range(-3, 4)]}
 )
 clf.fit(train_embeddings, train_labels)
 
@@ -81,7 +81,7 @@ print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
     + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
 )
-print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
+print("Confusion Matrix ([[TN, FP], [FN, TP]]):")
 print(confusion_matrix(test_labels, predictions))
 
 print("\nUsing literals:")
@@ -141,7 +141,7 @@ test_features = features[len(train_entities) :]
 
 # fit a Support Vector Machine on train embeddings.
 clf = GridSearchCV(
-    SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+    SVC(random_state=RANDOM_STATE), {"C": [10**i for i in range(-3, 4)]}
 )
 clf.fit(train_embeddings2, train_labels)
 
@@ -151,7 +151,7 @@ print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
     + f"{accuracy_score(test_labels, predictions2) * 100 :.4f}%"
 )
-print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
+print("Confusion Matrix ([[TN, FP], [FN, TP]]):")
 print(confusion_matrix(test_labels, predictions2))
 
 f, ax = plt.subplots(1, 2, figsize=(15, 6))

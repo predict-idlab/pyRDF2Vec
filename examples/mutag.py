@@ -68,7 +68,7 @@ test_embeddings = embeddings[len(train_entities) :]
 # Fit a Support Vector Machine on train embeddings and pick the best
 # C-parameters (regularization strength).
 clf = GridSearchCV(
-    SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+    SVC(random_state=RANDOM_STATE), {"C": [10**i for i in range(-3, 4)]}
 )
 clf.fit(train_embeddings, train_labels)
 
@@ -78,7 +78,7 @@ print(
     f"Predicted {len(test_entities)} entities with an accuracy of "
     + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
 )
-print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
+print("Confusion Matrix ([[TN, FP], [FN, TP]]):")
 print(confusion_matrix(test_labels, predictions))
 
 # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
