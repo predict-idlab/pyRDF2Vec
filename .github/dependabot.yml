@@ -4,6 +4,5 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
+      interval: "monthly"
+    target-branch: "develop"
