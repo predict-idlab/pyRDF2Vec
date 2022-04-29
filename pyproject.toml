@@ -43,7 +43,7 @@ include = [
 python = "^3.7.1"
 aiohttp = "^3.7.4"
 attrs = "^21.2.0"
-cachetools = "^4.2.2"
+cachetools = ">=4.2.2,<6.0.0"
 gensim = "^4.0.1"
 matplotlib = "^3.4.2"
 networkx = "^2.5.1"
