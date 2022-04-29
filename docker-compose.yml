@@ -10,6 +10,7 @@ services:
     volumes:
       - ./examples:/home/jovyan/work/examples
       - ./pyrdf2vec:/home/jovyan/work/pyrdf2vec
+      - ./samples:/home/jovyan/work/samples
       - ./tests:/home/jovyan/work/tests
     environment:
       - JUPYTER_ENABLE_LAB=yes
