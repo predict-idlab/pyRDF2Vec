@@ -8,6 +8,7 @@ services:
       context: ./
     restart: unless-stopped
     volumes:
+      - ./examples:/home/jovyan/work/examples
       - ./pyrdf2vec:/home/jovyan/work/pyrdf2vec
       - ./tests:/home/jovyan/work/tests
     environment:
