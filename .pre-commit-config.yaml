@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 22.3.0
     hooks:
       - id: black
         name: Check code formatting (black)
@@ -9,7 +9,7 @@ repos:
         exclude: rdflib_web
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.9
+    rev: 4.0.1
     hooks:
       - id: flake8
         name: Check code formatting (flake8)
@@ -29,7 +29,7 @@ repos:
       - id: mypy
 
   - repo: https://github.com/PyCQA/doc8
-    rev: 0.8.1rc2
+    rev: 0.11.1
     hooks:
       - id: doc8
         name: Checks the style of the documentation (doc8)
