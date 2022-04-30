@@ -1,7 +1,6 @@
 import asyncio
 import operator
 from abc import ABC, abstractmethod
-from functools import partial
 from typing import Dict, List, Optional, Tuple, Union
 from urllib import parse
 
@@ -10,7 +9,6 @@ import attr
 import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
-from cachetools.keys import hashkey
 
 from pyrdf2vec.typings import Literal, Response
 
@@ -120,7 +118,7 @@ class SPARQLConnector(Connector):
         async with self._asession.get(url, headers=self._headers) as res:
             return await res.json()
 
-    @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "fetch"))
+    @cachedmethod(operator.attrgetter("cache"))
     def fetch(self, query: str) -> Response:
         """Fetchs the result of a SPARQL query.
 

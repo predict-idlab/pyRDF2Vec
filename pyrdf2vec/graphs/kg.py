@@ -1,14 +1,12 @@
 import asyncio
 import operator
 from collections import defaultdict
-from functools import partial
 from typing import DefaultDict, Dict, List, Optional, Set, Tuple, Union
 
 import attr
 import numpy as np
 import rdflib
 from cachetools import Cache, TTLCache, cachedmethod
-from cachetools.keys import hashkey
 from tqdm import tqdm
 
 from pyrdf2vec.connectors import SPARQLConnector
@@ -444,9 +442,7 @@ class KG:
             )
             self._entity_hops.update({entity: hops})
 
-    @cachedmethod(
-        operator.attrgetter("cache"), key=partial(hashkey, "_get_hops")
-    )
+    @cachedmethod(operator.attrgetter("cache"))
     def _get_hops(self, vertex: Vertex, is_reverse: bool = False) -> List[Hop]:
         """Returns the hops of a vertex for a local Knowledge Graph.
 
