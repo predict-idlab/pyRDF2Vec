@@ -56,9 +56,9 @@ golden rules that you should know before you contribute to ``pyRDF2Vec``:
    to avoid unpleasant surprises.
 -  **Attach a short note to the pull request:** it would help us to better
    understand what you did.
--  **It's up to you how you handle updates to the master branch:** since we
-   squash on merge, whether you prefer to rebase on ``master`` or merge
-   ``master`` into your branch, do whatever is more comfortable for you.
+-  **It's up to you how you handle updates to the main branch:** since we
+   squash on merge, whether you prefer to rebase on ``main`` or merge
+   ``main`` into your branch, do whatever is more comfortable for you.
 
 
 Changelog
@@ -210,7 +210,7 @@ To achieve this, there are 5 points there are 5 points to follow:
     ]
 
 3. **Extend the** `Embedder
-   <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/embedders/embedder.py>`__
+   <https://github.com/IBCNServices/pyRDF2Vec/blob/main/pyrdf2vec/embedders/embedder.py>`__
    **class** in your embedder's class and implement at least the ``fit`` and
    ``transform`` functions:
 
@@ -260,7 +260,7 @@ To achieve this, there are 5 points there are 5 points to follow:
 
 Create a ``tests/embedders/foo.py`` file and see `how the tests are done for
 Word2Vec
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/embedders/test_word2vec.py>`__
+<https://github.com/IBCNServices/pyRDF2Vec/blob/main/tests/embedders/test_word2vec.py>`__
 as an example.
 
 Once this is done, run your tests:
@@ -313,7 +313,7 @@ adding an embedding technique:
     ]
 
 3. **Extend the** `Walker
-   <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/walkers/walker.py>`__
+   <https://github.com/IBCNServices/pyRDF2Vec/blob/main/pyrdf2vec/walkers/walker.py>`__
    **class** in your walker's class and implement at least the ``_extract``
    function:
 
@@ -369,7 +369,7 @@ adding an embedding technique:
 
 Create a ``tests/walkers/foo.py`` file and see `how the tests are done for
 RandomWalker
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/walkers/test_random.py>`__
+<https://github.com/IBCNServices/pyRDF2Vec/blob/main/tests/walkers/test_random.py>`__
 as an example.
 
 Once this is done, run your tests:
@@ -418,7 +418,7 @@ adding a walking strategy and a embedding technique:
     ]
 
 3. **Extend the** `Sampler
-   <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/samplers/sampler.py>`__
+   <https://github.com/IBCNServices/pyRDF2Vec/blob/main/pyrdf2vec/samplers/sampler.py>`__
    **class** in your sampler's class and implement at least the ``fit`` and
    ``get_weight`` functions:
 
@@ -459,7 +459,7 @@ adding a walking strategy and a embedding technique:
 
 Create a ``tests/samplers/foo.py`` file and see `how the tests are done for
 UniformSampler
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/tests/samplers/uniform.py>`__
+<https://github.com/IBCNServices/pyRDF2Vec/blob/main/tests/samplers/uniform.py>`__
 as an example.
 
 Once this is done, run your tests:
@@ -489,7 +489,7 @@ illustrated:
 1. **Create your connector** (e.g., ``FooConnector``) in ``pyrdf2vec/connectors``.
 2. **Import your connector** in the ``pyrdf2vec/connector/__init__.py`` file.
 3. **Extend the** `Connector
-   <https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/connectors.py>`__
+   <https://github.com/IBCNServices/pyRDF2Vec/blob/main/pyrdf2vec/connectors.py>`__
    **class** in your connector's class and implement at least the ``fetch``
    function:
 
@@ -533,7 +533,7 @@ illustrated:
 
 Create a ``tests/connectors/foo.py`` file and see `how the tests are done for
 SPARQLConnector
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/pyrdf2vec/connectors.py>`__
+<https://github.com/IBCNServices/pyRDF2Vec/blob/main/pyrdf2vec/connectors.py>`__
 as an example.
 
 Once this is done, run your tests:
@@ -560,9 +560,9 @@ pyRDF2Vec <https://pyrdf2vec.readthedocs.io/en/latest/>`__ is hosted on
 `Read the Docs <https://readthedocs.org/>`__. To generate this online
 documentation, we use:
 
-- `Sphinx <https://www.sphinx-doc.org/en/master/>`__ as a Python documentation generator ;
+- `Sphinx <https://www.sphinx-doc.org/en/main/>`__ as a Python documentation generator ;
 -  `Google Style
-   docstrings <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html>`__:
+   docstrings <https://www.sphinx-doc.org/en/main/usage/extensions/example_google.html>`__:
    as a docstring writing convention.
 - ``mypy``: as a optional static typing for Python.
 
