@@ -19,7 +19,7 @@
        <a href="https://pypi.org/project/pyrdf2vec">
            <img src="https://img.shields.io/pypi/dm/pyrdf2vec.svg?logo=pypi&color=1082C2" alt="Version">
        </a>
-       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/master/LICENSE">
+       <a href="https://github.com/IBCNServices/pyRDF2Vec/blob/main/LICENSE">
            <img src="https://img.shields.io/github/license/IBCNServices/pyRDF2vec" alt="License">
        </a>
    </p>
@@ -30,8 +30,8 @@
         <a href="https://pyrdf2vec.readthedocs.io/en/latest/?badge=latest">
            <img src="https://readthedocs.org/projects/pyrdf2vec/badge/?version=latest" alt="Documentation Status">
        </a>
-        <a href="https://codecov.io/gh/IBCNServices/pyRDF2Vec?branch=master">
-           <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=master&precision=2" alt="Coverage Status">
+        <a href="https://codecov.io/gh/IBCNServices/pyRDF2Vec?branch=main">
+           <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=main&precision=2" alt="Coverage Status">
        </a>
        <a href="https://github.com/psf/black">
            <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
@@ -198,7 +198,7 @@ beforehand:
 2. **define a walking strategy**.
 
 For more elaborate examples, check the `examples
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/examples>`__ folder.
+<https://github.com/IBCNServices/pyRDF2Vec/blob/main/examples>`__ folder.
 
 If no sampling strategy is defined, ``UniformSampler`` is used. Similarly for
 the embedding techniques, ``Word2Vec`` is used by default.
@@ -436,7 +436,7 @@ Documentation
 
 For more information on how to use ``pyRDF2Vec``, `visit our online documentation
 <https://pyrdf2vec.readthedocs.io/en/latest/>`__ which is automatically updated
-with the latest version of the ``master`` branch.
+with the latest version of the ``main`` branch.
 
 From then on, you will be able to learn more about the use of the
 modules as well as their functions available to you.
@@ -456,7 +456,7 @@ The architecture of ``pyRDF2Vec`` makes it easy to create new extraction and
 sampling strategies, new embedding techniques. In order to better understand
 how you can help either through pull requests and/or issues, please take a look
 at the `CONTRIBUTING
-<https://github.com/IBCNServices/pyRDF2Vec/blob/master/CONTRIBUTING.rst>`__
+<https://github.com/IBCNServices/pyRDF2Vec/blob/main/CONTRIBUTING.rst>`__
 file.
 
 FAQ
@@ -530,4 +530,3 @@ citation:
       organization = {IDLab},
       keywords     = {Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences}
     }
-
