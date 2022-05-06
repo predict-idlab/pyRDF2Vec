@@ -23,8 +23,8 @@ Preview
            <a href="https://pyrdf2vec.readthedocs.io/en/latest/?badge=latest">
               <img src="https://readthedocs.org/projects/pyrdf2vec/badge/?version=latest" alt="Documentation Status">
           </a>
-           <a href="https://codecov.io/gh/IBCNServices/pyRDF2Vec?branch=master">
-              <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=master&precision=2" alt="Coverage Status">
+           <a href="https://codecov.io/gh/IBCNServices/pyRDF2Vec?branch=main">
+              <img src="https://codecov.io/gh/IBCNServices/pyRDF2Vec/coverage.svg?branch=main&precision=2" alt="Coverage Status">
           </a>
           <a href="https://github.com/psf/black">
               <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
