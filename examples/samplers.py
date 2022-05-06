@@ -77,7 +77,7 @@ for _, sampler in samplers:
     # Fit a Support Vector Machine on train embeddings and pick the best
     # C-parameters (regularization strength).
     clf = GridSearchCV(
-        SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+        SVC(random_state=RANDOM_STATE), {"C": [10**i for i in range(-3, 4)]}
     )
     clf.fit(train_embeddings, train_labels)
 

@@ -92,7 +92,7 @@ def is_valid_url(url: str) -> bool:
     """
     try:
         query = "ASK {}"
-        res_code = requests.head(url, params={'query': query}).status_code
+        res_code = requests.head(url, params={"query": query}).status_code
         return res_code == requests.codes.ok
     except Exception:
         return False
