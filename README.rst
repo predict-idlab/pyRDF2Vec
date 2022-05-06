@@ -519,15 +519,15 @@ citation:
 
 .. code:: bibtex
 
-@article{pyrdf2vec,
-	title        = {pyRDF2Vec: A Python Implementation and Extension of RDF2Vec},
-	author       = {Vandewiele, Gilles and Steenwinckel, Bram and Agozzino, Terencio and Ongenae, Femke},
-	year         = 2022,
-	publisher    = {arXiv},
-	doi          = {10.48550/ARXIV.2205.02283},
-	url          = {https://arxiv.org/abs/2205.02283},
-	copyright    = {Creative Commons Attribution 4.0 International},
-	organization = {IDLab},
-	keywords     = {Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences}
-}
+    @article{pyrdf2vec,
+      title        = {pyRDF2Vec: A Python Implementation and Extension of RDF2Vec},
+      author       = {Vandewiele, Gilles and Steenwinckel, Bram and Agozzino, Terencio and Ongenae, Femke},
+      year         = 2022,
+      publisher    = {arXiv},
+      doi          = {10.48550/ARXIV.2205.02283},
+      url          = {https://arxiv.org/abs/2205.02283},
+      copyright    = {Creative Commons Attribution 4.0 International},
+      organization = {IDLab},
+      keywords     = {Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences}
+    }
 
