@@ -209,7 +209,7 @@ python-versions = "*"
 
 [[package]]
 name = "doc8"
-version = "0.11.1"
+version = "0.11.2"
 description = "Style checker for Sphinx (or other) RST documentation"
 category = "dev"
 optional = false
@@ -1467,8 +1467,8 @@ distlib = [
     {file = "distlib-0.3.4.zip", hash = "sha256:e4b58818180336dc9c529bfb9a0b58728ffc09ad92027a3f30b7cd91e3458579"},
 ]
 doc8 = [
-    {file = "doc8-0.11.1-py3-none-any.whl", hash = "sha256:eb1199522e5b018b359ad932a07722f1f78a4da3f6a2d182ae02791aff993427"},
-    {file = "doc8-0.11.1.tar.gz", hash = "sha256:6dbcb5472efd332763ffb2862b4fdeec40c8a6fdc6bb67e68713ad749ca5808c"},
+    {file = "doc8-0.11.2-py3-none-any.whl", hash = "sha256:9187da8c9f115254bbe34f74e2bbbdd3eaa1b9e92efd19ccac7461e347b5055c"},
+    {file = "doc8-0.11.2.tar.gz", hash = "sha256:c35a231f88f15c204659154ed3d499fa4d402d7e63d41cba7b54cf5e646123ab"},
 ]
 docutils = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
