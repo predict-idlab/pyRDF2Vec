@@ -26,7 +26,7 @@ class HDTConnector(Connector):
     def __attrs_post_init__(self):
         self.store = None
 
-    @cachedmethod(operator.attrgetter("cache"), key=partial(hashkey, "fetch"))
+    @cachedmethod(operator.attrgetter("cache"))
     def fetch(self, query: str) -> Response:
         if self.store is None:
             self.store = rdflib_hdt.HDTStore(self.endpoint)
