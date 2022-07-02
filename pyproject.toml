@@ -60,7 +60,7 @@ tqdm = "^4.61.0"
 aiohttp = "^3.8.1"
 
 [tool.poetry.dev-dependencies]
-black = "^22.3.0"
+black = "^22.6.0"
 codecov = "^2.1.9"
 doc8 = "^0.11.2"
 flake8 = "^4.0.1"
@@ -70,12 +70,12 @@ mypy = "^0.961"
 pre-commit = "^2.19.0"
 pytest = "^7.0.2"
 pytest-cov = "^3.0.0"
-sphinx = "^5.0.1"
+sphinx = "^5.0.2"
 sphinx-autodoc-typehints = "^1.18.3"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-apidoc = "^0.3.0"
 towncrier = "^21.9.0"
-tox = "^3.19.0"
+tox = "^3.25.1"
 yamllint = "^1.24.2"
 
 [tool.poetry.extras]
