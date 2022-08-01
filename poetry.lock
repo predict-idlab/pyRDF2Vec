@@ -526,7 +526,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "networkx"
-version = "2.8.4"
+version = "2.8.5"
 description = "Python package for creating and manipulating graphs and networks"
 category = "main"
 optional = false
@@ -636,8 +636,8 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-dev = ["pre-commit", "tox"]
-testing = ["pytest", "pytest-benchmark"]
+testing = ["pytest-benchmark", "pytest"]
+dev = ["tox", "pre-commit"]
 
 [[package]]
 name = "pre-commit"
@@ -732,7 +732,7 @@ coverage = {version = ">=5.2.1", extras = ["toml"]}
 pytest = ">=4.6"
 
 [package.extras]
-testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
+testing = ["virtualenv", "pytest-xdist", "six", "process-tests", "hunter", "fields"]
 
 [[package]]
 name = "python-dateutil"
@@ -842,10 +842,10 @@ scipy = ">=1.3.2"
 threadpoolctl = ">=2.0.0"
 
 [package.extras]
-benchmark = ["matplotlib (>=3.1.2)", "pandas (>=1.0.5)", "memory-profiler (>=0.57.0)"]
-docs = ["matplotlib (>=3.1.2)", "scikit-image (>=0.14.5)", "pandas (>=1.0.5)", "seaborn (>=0.9.0)", "memory-profiler (>=0.57.0)", "sphinx (>=4.0.1)", "sphinx-gallery (>=0.7.0)", "numpydoc (>=1.2.0)", "Pillow (>=7.1.2)", "sphinx-prompt (>=1.3.0)", "sphinxext-opengraph (>=0.4.2)"]
-examples = ["matplotlib (>=3.1.2)", "scikit-image (>=0.14.5)", "pandas (>=1.0.5)", "seaborn (>=0.9.0)"]
-tests = ["matplotlib (>=3.1.2)", "scikit-image (>=0.14.5)", "pandas (>=1.0.5)", "pytest (>=5.0.1)", "pytest-cov (>=2.9.0)", "flake8 (>=3.8.2)", "black (>=22.3.0)", "mypy (>=0.770)", "pyamg (>=4.0.0)", "numpydoc (>=1.2.0)"]
+tests = ["numpydoc (>=1.2.0)", "pyamg (>=4.0.0)", "mypy (>=0.770)", "black (>=22.3.0)", "flake8 (>=3.8.2)", "pytest-cov (>=2.9.0)", "pytest (>=5.0.1)", "pandas (>=1.0.5)", "scikit-image (>=0.14.5)", "matplotlib (>=3.1.2)"]
+examples = ["seaborn (>=0.9.0)", "pandas (>=1.0.5)", "scikit-image (>=0.14.5)", "matplotlib (>=3.1.2)"]
+docs = ["sphinxext-opengraph (>=0.4.2)", "sphinx-prompt (>=1.3.0)", "Pillow (>=7.1.2)", "numpydoc (>=1.2.0)", "sphinx-gallery (>=0.7.0)", "sphinx (>=4.0.1)", "memory-profiler (>=0.57.0)", "seaborn (>=0.9.0)", "pandas (>=1.0.5)", "scikit-image (>=0.14.5)", "matplotlib (>=3.1.2)"]
+benchmark = ["memory-profiler (>=0.57.0)", "pandas (>=1.0.5)", "matplotlib (>=3.1.2)"]
 
 [[package]]
 name = "scipy"
@@ -967,7 +967,7 @@ docutils = "<0.18"
 sphinx = ">=1.6"
 
 [package.extras]
-dev = ["transifex-client", "sphinxcontrib-httpdomain", "bump2version"]
+dev = ["bump2version", "sphinxcontrib-httpdomain", "transifex-client"]
 
 [[package]]
 name = "sphinxcontrib-apidoc"
@@ -990,8 +990,8 @@ optional = false
 python-versions = ">=3.5"
 
 [package.extras]
-lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
+lint = ["docutils-stubs", "mypy", "flake8"]
 
 [[package]]
 name = "sphinxcontrib-devhelp"
@@ -1002,8 +1002,8 @@ optional = false
 python-versions = ">=3.5"
 
 [package.extras]
-lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
+lint = ["docutils-stubs", "mypy", "flake8"]
 
 [[package]]
 name = "sphinxcontrib-htmlhelp"
@@ -1014,8 +1014,8 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-lint = ["flake8", "mypy", "docutils-stubs"]
-test = ["pytest", "html5lib"]
+test = ["html5lib", "pytest"]
+lint = ["docutils-stubs", "mypy", "flake8"]
 
 [[package]]
 name = "sphinxcontrib-jsmath"
@@ -1026,7 +1026,7 @@ optional = false
 python-versions = ">=3.5"
 
 [package.extras]
-test = ["pytest", "flake8", "mypy"]
+test = ["mypy", "flake8", "pytest"]
 
 [[package]]
 name = "sphinxcontrib-qthelp"
@@ -1037,8 +1037,8 @@ optional = false
 python-versions = ">=3.5"
 
 [package.extras]
-lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
+lint = ["docutils-stubs", "mypy", "flake8"]
 
 [[package]]
 name = "sphinxcontrib-serializinghtml"
@@ -1257,7 +1257,7 @@ tests = ["aiohttp", "gensim", "nest-asyncio", "numpy", "pandas", "rdflib"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "5b628db17d8948068aa3e01b2e4c1ceea0c4781cae2e6f58f5fa39610aa66d4e"
+content-hash = "a98f9c816b87c24fc51f79bac0299d22952fabd63d78677fed7d361ae1e92eba"
 
 [metadata.files]
 aiohttp = [
@@ -1836,8 +1836,8 @@ nest-asyncio = [
     {file = "nest_asyncio-1.5.5.tar.gz", hash = "sha256:e442291cd942698be619823a17a86a5759eabe1f8613084790de189fe9e16d65"},
 ]
 networkx = [
-    {file = "networkx-2.8.4-py3-none-any.whl", hash = "sha256:6933b9b3174a0bdf03c911bb4a1ee43a86ce3edeb813e37e1d4c553b3f4a2c4f"},
-    {file = "networkx-2.8.4.tar.gz", hash = "sha256:5e53f027c0d567cf1f884dbb283224df525644e43afd1145d64c9d88a3584762"},
+    {file = "networkx-2.8.5-py3-none-any.whl", hash = "sha256:a762f4b385692d9c3a6f2912d058d76d29a827deaedf9e63ed14d397b8030687"},
+    {file = "networkx-2.8.5.tar.gz", hash = "sha256:15a7b81a360791c458c55a417418ea136c13378cfdc06a2dcdc12bd2f9cf09c1"},
 ]
 nodeenv = [
     {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
