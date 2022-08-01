@@ -41,7 +41,7 @@ include = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-attrs = "^21.2.0"
+attrs = ">=21.2,<23.0"
 cachetools = "^5.0.0"
 gensim = "^4.0.1"
 matplotlib = "^3.4.2"
