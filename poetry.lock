@@ -55,17 +55,17 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "attrs"
-version = "21.4.0"
+version = "22.1.0"
 description = "Classes Without Boilerplate"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.5"
 
 [package.extras]
-dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit", "cloudpickle"]
+dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "mypy (>=0.900,!=0.940)", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit", "cloudpickle"]
 docs = ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"]
-tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "cloudpickle"]
-tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
+tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "mypy (>=0.900,!=0.940)", "pytest-mypy-plugins", "zope.interface", "cloudpickle"]
+tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "mypy (>=0.900,!=0.940)", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
 name = "babel"
@@ -526,7 +526,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "networkx"
-version = "2.8.4"
+version = "2.8.5"
 description = "Python package for creating and manipulating graphs and networks"
 category = "main"
 optional = false
@@ -909,7 +909,7 @@ python-versions = "*"
 
 [[package]]
 name = "sphinx"
-version = "5.0.2"
+version = "5.1.1"
 description = "Python documentation generator"
 category = "dev"
 optional = false
@@ -919,7 +919,7 @@ python-versions = ">=3.6"
 alabaster = ">=0.7,<0.8"
 babel = ">=1.3"
 colorama = {version = ">=0.3.5", markers = "sys_platform == \"win32\""}
-docutils = ">=0.14,<0.19"
+docutils = ">=0.14,<0.20"
 imagesize = "*"
 importlib-metadata = {version = ">=4.4", markers = "python_version < \"3.10\""}
 Jinja2 = ">=2.3"
@@ -936,7 +936,7 @@ sphinxcontrib-serializinghtml = ">=1.1.5"
 
 [package.extras]
 docs = ["sphinxcontrib-websupport"]
-lint = ["flake8 (>=3.5.0)", "isort", "mypy (>=0.950)", "docutils-stubs", "types-typed-ast", "types-requests"]
+lint = ["flake8 (>=3.5.0)", "flake8-comprehensions", "flake8-bugbear", "isort", "mypy (>=0.971)", "sphinx-lint", "docutils-stubs", "types-typed-ast", "types-requests"]
 test = ["pytest (>=4.6)", "html5lib", "cython", "typed-ast"]
 
 [[package]]
@@ -1351,8 +1351,8 @@ atomicwrites = [
     {file = "atomicwrites-1.4.0.tar.gz", hash = "sha256:ae70396ad1a434f9c7046fd2dd196fc04b12f9e91ffb859164193be8b6168a7a"},
 ]
 attrs = [
-    {file = "attrs-21.4.0-py2.py3-none-any.whl", hash = "sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4"},
-    {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
+    {file = "attrs-22.1.0-py2.py3-none-any.whl", hash = "sha256:86efa402f67bf2df34f51a335487cf46b1ec130d02b8d39fd248abfd30da551c"},
+    {file = "attrs-22.1.0.tar.gz", hash = "sha256:29adc2665447e5191d0e7c568fde78b21f9672d344281d0c6e1ab085429b22b6"},
 ]
 babel = [
     {file = "Babel-2.10.1-py3-none-any.whl", hash = "sha256:3f349e85ad3154559ac4930c3918247d319f21910d5ce4b25d439ed8693b98d2"},
@@ -1836,8 +1836,8 @@ nest-asyncio = [
     {file = "nest_asyncio-1.5.5.tar.gz", hash = "sha256:e442291cd942698be619823a17a86a5759eabe1f8613084790de189fe9e16d65"},
 ]
 networkx = [
-    {file = "networkx-2.8.4-py3-none-any.whl", hash = "sha256:6933b9b3174a0bdf03c911bb4a1ee43a86ce3edeb813e37e1d4c553b3f4a2c4f"},
-    {file = "networkx-2.8.4.tar.gz", hash = "sha256:5e53f027c0d567cf1f884dbb283224df525644e43afd1145d64c9d88a3584762"},
+    {file = "networkx-2.8.5-py3-none-any.whl", hash = "sha256:a762f4b385692d9c3a6f2912d058d76d29a827deaedf9e63ed14d397b8030687"},
+    {file = "networkx-2.8.5.tar.gz", hash = "sha256:15a7b81a360791c458c55a417418ea136c13378cfdc06a2dcdc12bd2f9cf09c1"},
 ]
 nodeenv = [
     {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
@@ -2100,8 +2100,8 @@ snowballstemmer = [
     {file = "snowballstemmer-2.2.0.tar.gz", hash = "sha256:09b16deb8547d3412ad7b590689584cd0fe25ec8db3be37788be3810cbf19cb1"},
 ]
 sphinx = [
-    {file = "Sphinx-5.0.2-py3-none-any.whl", hash = "sha256:d3e57663eed1d7c5c50895d191fdeda0b54ded6f44d5621b50709466c338d1e8"},
-    {file = "Sphinx-5.0.2.tar.gz", hash = "sha256:b18e978ea7565720f26019c702cd85c84376e948370f1cd43d60265010e1c7b0"},
+    {file = "Sphinx-5.1.1-py3-none-any.whl", hash = "sha256:309a8da80cb6da9f4713438e5b55861877d5d7976b69d87e336733637ea12693"},
+    {file = "Sphinx-5.1.1.tar.gz", hash = "sha256:ba3224a4e206e1fbdecf98a4fae4992ef9b24b85ebf7b584bb340156eaf08d89"},
 ]
 sphinx-autodoc-typehints = [
     {file = "sphinx_autodoc_typehints-1.18.3-py3-none-any.whl", hash = "sha256:20294de2a818bda04953c5cb302ec5af46138c81980ad9efa6d8fc1fc4242518"},
