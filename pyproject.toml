@@ -76,7 +76,7 @@ sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-apidoc = "^0.3.0"
 towncrier = "^21.9.0"
 tox = "^3.25.1"
-yamllint = "^1.24.2"
+yamllint = "^1.27.1"
 
 [tool.poetry.extras]
 docs = [
