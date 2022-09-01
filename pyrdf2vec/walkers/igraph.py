@@ -54,7 +54,7 @@ class RandomWalker(Walker):
         repr=False,
     )
 
-    def __init__(self, kg: KG):
+    def transformKG(self, kg: KG):
         """
         Transform each pyRDF2Vec KG object into igraph graph
 
@@ -68,7 +68,6 @@ class RandomWalker(Walker):
         tupleValue = nodeTuple + predicateTuple
         # transform tuple into graph and store into class variable
         self.graph = Graph.TupleList(tupleValue, directed=True, edge_attrs='description')
-        print(self.graph.summary())
 
     def predicateGeneration(self, pathList):
         """Generate path sequence for a list of single paths based on graph object
@@ -89,7 +88,7 @@ class RandomWalker(Walker):
         return pathSequence
 
 
-    def _bfs(self, is_reverse:bool, idNumber: int):
+    def _bfs(self, kg: KG , idNumber: int, is_reverse:bool = False):
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm.
         
@@ -102,8 +101,9 @@ class RandomWalker(Walker):
             nodeIndex: Index of node in graph
             dfsList: List of unique walks for the provided entitiy
         """
+        graph = self.transformKG()
         # extract node index for vertices
-        nodeIndex = self.graph.vs.find(idNumber).index
+        nodeIndex = graph.vs.find(idNumber).index
         # define orientation of graph
         orient = 'out' if is_reverse else'all'
         # perform breadth-first search extraction
@@ -129,7 +129,7 @@ class RandomWalker(Walker):
         dfsList = self.graph.dfsiter(nodeIndex, orient, advanced=True)
         return nodeIndex, dfsList
     
-    def extract_walks(self, entity: Vertex):
+    def extract_walks(self, entity: Vertex) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm if a maximum number of walks is
         specified, otherwise the Breadth First Search (BFS) algorithm is used.
