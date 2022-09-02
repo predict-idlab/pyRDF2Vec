@@ -74,7 +74,7 @@ sphinx = "^5.1.1"
 sphinx-autodoc-typehints = "^1.19.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-apidoc = "^0.3.0"
-towncrier = "^21.9.0"
+towncrier = "^22.8.0"
 tox = "^3.25.1"
 yamllint = "^1.27.1"
 
