@@ -27,6 +27,7 @@ def find(key: str) -> str:
     """
     return str(PYPROJECT_CONTENT["tool"]["poetry"][key])
 
+
 author = re.sub(r"\s\<.+?\>", "", ", ".join(ast.literal_eval(find("authors"))))
 copyright = "2020, " + find("license")
 master_doc = "index"
