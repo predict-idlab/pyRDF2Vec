@@ -11,6 +11,7 @@ Submodules
    pyrdf2vec.samplers.pagerank
    pyrdf2vec.samplers.sampler
    pyrdf2vec.samplers.uniform
+   pyrdf2vec.samplers.wide
 
 Module contents
 ---------------

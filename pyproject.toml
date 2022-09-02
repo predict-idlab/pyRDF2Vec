@@ -54,10 +54,10 @@ python-Levenshtein = "^0.12.2"
 python-louvain = "^0.16"
 rdflib = "^6.1.1"
 scikit-learn = "^1.0.2"
-tomlkit = ">=0.10.2,<0.12.0"
 torch = "^1.8.1"
 tqdm = "^4.61.0"
 aiohttp = "^3.8.1"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.8.0"
@@ -87,6 +87,7 @@ docs = [
     "sphinx-autodoc-typehints",
     "sphinx-rtd-theme",
     "sphinxcontrib-apidoc",
+    "toml"
 ]
 lint = ["black", "doc8", "flake8", "isort", "mypy", "yamllint"]
 tests = [
@@ -170,7 +171,7 @@ deps =
     sphinx-autodoc-typehints
     sphinx-rtd-theme
     sphinxcontrib-apidoc
-    tomlkit
+    toml
 commands =
     sphinx-build -n -T docs docs/_build/html
     python -m doctest README.rst

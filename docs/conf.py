@@ -7,10 +7,10 @@ import ast
 import re
 from pathlib import Path
 
-import tomlkit
+import toml
 
-root = Path(__file__).parent.parent.absolute()
-toml = tomlkit.loads((root / "pyproject.toml").read_text(encoding="utf8"))
+PROJECT_DIR = Path(__file__).parent.parent.absolute()
+PYPROJECT_CONTENT = toml.load(f"{PROJECT_DIR}/pyproject.toml")
 
 autodoc_mock_imports = ["aiohttp", "cachetools", "nest_asyncio"]
 
@@ -25,8 +25,7 @@ def find(key: str) -> str:
         The TOML key's value
 
     """
-    return str(toml["tool"]["poetry"][key])
-
+    return str(PYPROJECT_CONTENT["tool"]["poetry"][key])
 
 author = re.sub(r"\s\<.+?\>", "", ", ".join(ast.literal_eval(find("authors"))))
 copyright = "2020, " + find("license")
