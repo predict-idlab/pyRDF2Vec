@@ -1111,18 +1111,18 @@ typing-extensions = "*"
 
 [[package]]
 name = "towncrier"
-version = "21.9.0"
+version = "22.8.0"
 description = "Building newsfiles for your project."
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [package.dependencies]
 click = "*"
 click-default-group = "*"
 incremental = "*"
 jinja2 = "*"
-tomli = {version = "*", markers = "python_version >= \"3.6\""}
+tomli = "*"
 
 [package.extras]
 dev = ["packaging"]
@@ -2188,8 +2188,8 @@ torch = [
     {file = "torch-1.12.1-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:69fe2cae7c39ccadd65a123793d30e0db881f1c1927945519c5c17323131437e"},
 ]
 towncrier = [
-    {file = "towncrier-21.9.0-py2.py3-none-any.whl", hash = "sha256:fc5a88a2a54988e3a8ed2b60d553599da8330f65722cc607c839614ed87e0f92"},
-    {file = "towncrier-21.9.0.tar.gz", hash = "sha256:9cb6f45c16e1a1eec9d0e7651165e7be60cd0ab81d13a5c96ca97a498ae87f48"},
+    {file = "towncrier-22.8.0-py2.py3-none-any.whl", hash = "sha256:3b780c3d966e1b26414830aec3d15000654b31e64e024f3e5fd128b4c6eb8f47"},
+    {file = "towncrier-22.8.0.tar.gz", hash = "sha256:7d3839b033859b45fb55df82b74cfd702431933c0cc9f287a5a7ea3e05d042cb"},
 ]
 tox = [
     {file = "tox-3.25.1-py2.py3-none-any.whl", hash = "sha256:c38e15f4733683a9cc0129fba078633e07eb0961f550a010ada879e95fb32632"},
