@@ -1219,7 +1219,7 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 
 [[package]]
 name = "towncrier"
-version = "22.8.0"
+version = "22.12.0"
 description = "Building newsfiles for your project."
 category = "dev"
 optional = false
@@ -1231,10 +1231,10 @@ click-default-group = "*"
 incremental = "*"
 jinja2 = "*"
 setuptools = "*"
-tomli = "*"
+tomli = {version = "*", markers = "python_version < \"3.11\""}
 
 [package.extras]
-dev = ["packaging"]
+dev = ["furo", "packaging", "sphinx (>=5)", "twisted"]
 
 [[package]]
 name = "tox"
@@ -1384,7 +1384,7 @@ tests = ["aiohttp", "gensim", "nest-asyncio", "nest_asyncio", "numpy", "pandas",
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "ef92c7b898f8424b5f629b2b3e05153aca3edf20013a7c184d240b21ee88266a"
+content-hash = "aa984d51c64afa17275c65e31f49d3ecb19eeee3ee88b24a4067453df7e75094"
 
 [metadata.files]
 aiohttp = [
@@ -2645,8 +2645,8 @@ torch = [
     {file = "torch-1.13.0-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:47fe6228386bff6d74319a2ffe9d4ed943e6e85473d78e80502518c607d644d2"},
 ]
 towncrier = [
-    {file = "towncrier-22.8.0-py2.py3-none-any.whl", hash = "sha256:3b780c3d966e1b26414830aec3d15000654b31e64e024f3e5fd128b4c6eb8f47"},
-    {file = "towncrier-22.8.0.tar.gz", hash = "sha256:7d3839b033859b45fb55df82b74cfd702431933c0cc9f287a5a7ea3e05d042cb"},
+    {file = "towncrier-22.12.0-py3-none-any.whl", hash = "sha256:9767a899a4d6856950f3598acd9e8f08da2663c49fdcda5ea0f9e6ba2afc8eea"},
+    {file = "towncrier-22.12.0.tar.gz", hash = "sha256:9c49d7e75f646a9aea02ae904c0bc1639c8fd14a01292d2b123b8d307564034d"},
 ]
 tox = [
     {file = "tox-3.27.1-py2.py3-none-any.whl", hash = "sha256:f52ca66eae115fcfef0e77ef81fd107133d295c97c52df337adedb8dfac6ab84"},
