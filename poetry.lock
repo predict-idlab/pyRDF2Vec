@@ -2633,14 +2633,14 @@ test = ["pytest (>=3.0.0)", "pytest-cov"]
 
 [[package]]
 name = "yamllint"
-version = "1.28.0"
+version = "1.29.0"
 description = "A linter for YAML files."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "yamllint-1.28.0-py2.py3-none-any.whl", hash = "sha256:89bb5b5ac33b1ade059743cf227de73daa34d5e5a474b06a5e17fc16583b0cf2"},
-    {file = "yamllint-1.28.0.tar.gz", hash = "sha256:9e3d8ddd16d0583214c5fdffe806c9344086721f107435f68bad990e5a88826b"},
+    {file = "yamllint-1.29.0-py3-none-any.whl", hash = "sha256:5153bf9f8205aa9dc6af6217e38bd4f5baf09d9a7c6f4ae1e23f90d9c00c49c5"},
+    {file = "yamllint-1.29.0.tar.gz", hash = "sha256:66a755d5fbcbb8831f1a9568676329b5bac82c37995bcc9afd048b6459f9fa48"},
 ]
 
 [package.dependencies]
@@ -2758,4 +2758,4 @@ tests = ["aiohttp", "gensim", "nest-asyncio", "nest_asyncio", "numpy", "pandas",
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "37cf533ca9b8044df6ba3ceb9a15e747462d575b89e4387b08a1a38f01ba731e"
+content-hash = "955e1f67af8211d40c03bba8a1f4ca8b1dd088b66afd411375d067c571141908"
