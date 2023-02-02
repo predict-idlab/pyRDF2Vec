@@ -76,6 +76,10 @@ sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-apidoc = "^0.3.0"
 towncrier = "^22.12.0"
 tox = "^3.27.1"
+types-attrs = "^19.1.0"
+types-cachetools = "^5.2.1"
+types-requests = "^2.28.11.8"
+types-toml = "^0.10.8.2"
 yamllint = "^1.29.0"
 
 [tool.poetry.extras]
