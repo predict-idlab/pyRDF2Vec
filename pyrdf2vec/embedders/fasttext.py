@@ -118,7 +118,6 @@ class FastText(Embedder):
 
 @attr.s
 class RDFFastTextKeyedVectors(FastTextKeyedVectors):
-
     bucket: int = attr.ib(default=2000000)
     vector_size: int = attr.ib(default=500)
     func_computing_ngrams = attr.ib(kw_only=True, default=None, repr=False)
