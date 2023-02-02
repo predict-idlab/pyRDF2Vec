@@ -60,7 +60,7 @@ aiohttp = "^3.8.1"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
-black = "^22.10.0"
+black = "^23.1.0"
 codecov = "^2.1.9"
 doc8 = "^0.11.2"
 flake8 = "^5.0.4"
