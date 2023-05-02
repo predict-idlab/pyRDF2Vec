@@ -41,7 +41,7 @@ include = [
 
 [tool.poetry.dependencies]
 aiohttp = "^3.8.1"
-attrs = ">=21.2,<23.0"
+attrs = ">=21.2,<24.0"
 cachetools = "^5.0.0"
 gensim = "^4.0.1"
 levenshtein = ">=0.12.2,<0.21.0"
