@@ -72,6 +72,8 @@ Rosati, Tommaso Di Noia, Renato De Leone, Heiko Paulheim
 `[original
 code] <http://data.dws.informatik.uni-mannheim.de/rdf2vec/>`__).
 
+**Recently,** `a book about RDF2Vec <http://rdf2vec.org/book>`__ **was published by Heiko Paulheim, Jan Portisch, and Petar Ristoski. The book is a great introduction to what RDF2Vec is, and what can be done with it. The examples in the book use pyRDF2Vec, so it is recommended to have a look at it!**
+
 .. rdf2vec-end
 .. getting-started-begin
 
