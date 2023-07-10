@@ -27,6 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip poetry
+          poetry run python -m pip install pybind11==2.2.4 --no-use-pep517
           poetry run python -m pip install hdt==2.3 --no-use-pep517
           poetry install
 
