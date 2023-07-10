@@ -58,8 +58,7 @@ scikit-learn = "^1.0.2"
 toml = "^0.10.2"
 torch = "^1.8.1"
 tqdm = "^4.61.0"
-pybind11 = "^2.2.4"
-hdt = "^2.3"
+rdflib-hdt = "^3.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
@@ -106,8 +105,7 @@ tests = [
     "pytest",
     "pytest-cov",
     "rdflib",
-    "pybind11",
-    "hdt"
+    "rdflib-hdt"
 ]
 
 [tool.poetry.urls]
@@ -204,7 +202,6 @@ deps =
     pytest-xdist
     rdflib
     scikit-learn
-    pybind11
-    hdt
+    rdflib-hdt
 commands = pytest --cov=pyrdf2vec --cov-report=xml tests
 """

@@ -828,19 +828,6 @@ test = ["POT", "cython", "mock", "pytest", "pytest-cov", "testfixtures", "visdom
 test-win = ["POT", "cython", "mock", "pytest", "pytest-cov", "testfixtures"]
 
 [[package]]
-name = "hdt"
-version = "2.3"
-description = "Read and query HDT document with ease in Python"
-optional = false
-python-versions = "*"
-files = [
-    {file = "hdt-2.3.tar.gz", hash = "sha256:103eac995122a9109408bfcfa5d7508d09a25ab7cf954c541b48a27ebb01c2f9"},
-]
-
-[package.dependencies]
-pybind11 = "2.2.4"
-
-[[package]]
 name = "identify"
 version = "2.5.22"
 description = "File identification library for Python"
@@ -2174,6 +2161,20 @@ lxml = ["lxml (>=4.3.0,<5.0.0)"]
 networkx = ["networkx (>=2.0.0,<3.0.0)"]
 
 [[package]]
+name = "rdflib-hdt"
+version = "3.1"
+description = "A Store back-end for rdflib to allow for reading and querying HDT documents"
+optional = false
+python-versions = "*"
+files = [
+    {file = "rdflib_hdt-3.1.tar.gz", hash = "sha256:0db95fe58e276fe58668cae6ef94dd7b7b30bf1e9f89dd06d3941208a17fcc44"},
+]
+
+[package.dependencies]
+pybind11 = ">=2.2.4"
+rdflib = ">=4.2"
+
+[[package]]
 name = "requests"
 version = "2.28.2"
 description = "Python HTTP for Humans."
@@ -2959,9 +2960,9 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [extras]
 docs = ["gensim", "rdflib", "scikit-learn", "toml"]
 lint = []
-tests = ["aiohttp", "gensim", "hdt", "nest-asyncio", "nest_asyncio", "numpy", "pandas", "pybind11", "rdflib"]
+tests = ["aiohttp", "gensim", "nest-asyncio", "nest_asyncio", "numpy", "pandas", "rdflib", "rdflib-hdt"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "f503054e998613f0862dd78eb6539ffa9371eb23c550798f859a6b6e421e5667"
+content-hash = "6e670ee31a8f6e8e828fa124f7b29a686c4795a1364418b893d85bc5676cd273"

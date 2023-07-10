@@ -9,7 +9,7 @@ import attr
 import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
-from hdt import HDTDocument
+from rdflib_hdt import HDTDocument
 
 from pyrdf2vec.typings import Literal, Response
 
