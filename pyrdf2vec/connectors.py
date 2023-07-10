@@ -9,10 +9,9 @@ import attr
 import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
+from hdt import HDTDocument
 
 from pyrdf2vec.typings import Literal, Response
-
-from hdt import HDTDocument
 
 
 @attr.s
@@ -192,6 +191,7 @@ class HDTConnector(Connector):
             val = [{"p": {"value": r[1]}, "o": {"value": r[2]}} for r in res]
             return {"results": {"bindings": val}}
         except Exception as e:
+            print(e)
             return {"results": {"bindings": []}}
 
     def get_query(self, entity: str, preds: Optional[List[str]] = None) -> str:

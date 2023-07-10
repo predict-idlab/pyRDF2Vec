@@ -1,17 +1,16 @@
-from pyrdf2vec.connectors import Connector
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from sklearn.manifold import TSNE
-import numpy as np
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
 
 from pyrdf2vec import RDF2VecTransformer
+from pyrdf2vec.connectors import HDTConnector
 from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
-from pyrdf2vec.connectors import HDTConnector
-from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, confusion_matrix
 
 # Ensure the determinism of this script by initializing a pseudo-random number.
 RANDOM_STATE = 22
@@ -76,10 +75,10 @@ if __name__ == "__main__":
         f"Predicted {len(test_entities)} entities with an accuracy of "
         + f"{accuracy_score(test_labels, predictions) * 100 :.4f}%"
     )
-    print(f"Confusion Matrix ([[TN, FP], [FN, TP]]):")
+    print("Confusion Matrix ([[TN, FP], [FN, TP]]):")
     print(confusion_matrix(test_labels, predictions))
 
-    # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
+    # Reduce the dimensions of embeddings to represent them in a 2D plane.
     X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
         np.array(train_embeddings + test_embeddings)
     )
