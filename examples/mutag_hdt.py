@@ -28,8 +28,7 @@ test_labels = list(test_data["label_mutagenic"])
 entities = train_entities + test_entities
 labels = train_labels + test_labels
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     connector = HDTConnector("../samples/mutag/mutag.hdt")
 
     embeddings, literals = RDF2VecTransformer(
@@ -50,8 +49,13 @@ if __name__ == '__main__':
         ],
         verbose=1,
     ).fit_transform(
-        KG(connector=connector, is_remote=True, skip_verify=True,
-            skip_predicates={"http://dl-learner.org/carcinogenesis#isMutagenic"},
+        KG(
+            connector=connector,
+            is_remote=True,
+            skip_verify=True,
+            skip_predicates={
+                "http://dl-learner.org/carcinogenesis#isMutagenic"
+            },
         ),
         entities,
     )
@@ -62,7 +66,7 @@ if __name__ == '__main__':
     # Fit a Support Vector Machine on train embeddings and pick the best
     # C-parameters (regularization strength).
     clf = GridSearchCV(
-        SVC(random_state=RANDOM_STATE), {"C": [10 ** i for i in range(-3, 4)]}
+        SVC(random_state=RANDOM_STATE), {"C": [10**i for i in range(-3, 4)]}
     )
     clf.fit(train_embeddings, train_labels)
 
@@ -137,4 +141,3 @@ if __name__ == '__main__':
     plt.title("pyRDF2Vec", fontsize=32)
     plt.axis("off")
     plt.show()
-

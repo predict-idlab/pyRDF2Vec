@@ -176,6 +176,8 @@ class SPARQLConnector(Connector):
         if len(literals) > 1:
             return tuple(literals)
         return literals[0]
+
+
 @attr.s
 class HDTConnector(Connector):
     def __attrs_post_init__(self):
@@ -187,8 +189,7 @@ class HDTConnector(Connector):
             self.store = HDTDocument(self.endpoint)
         try:
             res = self.store.search_triples(query, "", "")[0]
-            val = [{"p": {"value": r[1]},
-                    "o": {"value": r[2]}} for r in res]
+            val = [{"p": {"value": r[1]}, "o": {"value": r[2]}} for r in res]
             return {"results": {"bindings": val}}
         except Exception as e:
             return {"results": {"bindings": []}}

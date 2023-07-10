@@ -111,9 +111,7 @@ class KG:
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
 
-    connector = attr.ib(
-        init=True, default=None, type=Connector, repr=False
-    )
+    connector = attr.ib(init=True, default=None, type=Connector, repr=False)
 
     _is_remote = attr.ib(
         default=False, type=bool, validator=attr.validators.instance_of(bool)
@@ -234,9 +232,11 @@ class KG:
             return hops
         elif vertex.name in self._entity_hops:
             return self._entity_hops[vertex.name]
-        elif vertex.name.startswith("http://") or vertex.name.startswith(
-            "https://"
-        ) or vertex.name.startswith("_:"):
+        elif (
+            vertex.name.startswith("http://")
+            or vertex.name.startswith("https://")
+            or vertex.name.startswith("_:")
+        ):
             res = self.connector.fetch(self.connector.get_query(vertex.name))
             hops = self._res2hops(vertex, res["results"]["bindings"])
         return hops

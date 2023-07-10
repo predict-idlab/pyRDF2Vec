@@ -193,7 +193,7 @@ class Walker(ABC):
         """
         global kg
         kg = init_kg  # type: ignore
- 
+
     def _post_extract(self, res: List[EntityWalks]) -> List[List[SWalk]]:
         """Post processed walks.
 
