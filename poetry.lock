@@ -2959,9 +2959,9 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [extras]
 docs = ["gensim", "rdflib", "scikit-learn", "toml"]
 lint = []
-tests = ["aiohttp", "gensim", "hdt", "nest-asyncio", "nest_asyncio", "numpy", "pandas", "rdflib"]
+tests = ["aiohttp", "gensim", "hdt", "nest-asyncio", "nest_asyncio", "numpy", "pandas", "pybind11", "rdflib"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "bb4aa26c0f0ce8928ce3f90e3bd319299876f8d3d14ff245ab2a05388598e805"
+content-hash = "f503054e998613f0862dd78eb6539ffa9371eb23c550798f859a6b6e421e5667"
