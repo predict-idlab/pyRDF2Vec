@@ -151,6 +151,7 @@ class KG:
                     self.location, cache=self.cache
                 )
             elif self.location is not None:
+                self.triples = []
                 for subj, pred, obj in rdflib.Graph().parse(
                     self.location, format=self.fmt
                 ):
@@ -163,6 +164,9 @@ class KG:
                         ),
                         obj,
                     )
+                    self.triples.append((subj, obj, Vertex(
+                            str(pred), predicate=True, vprev=subj, vnext=obj
+                        )))
 
     def add_edge(self, v1: Vertex, v2: Vertex) -> bool:
         """Adds a uni-directional edge.

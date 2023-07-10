@@ -62,24 +62,20 @@ class RandomWalker(Walker):
             kg: Knowledge Graph of PYRDF2Vec object
         """
         # extract nodes and edges from KG storing them into tuples
-        nodeTuple = tuple((vertex for vertex in kg._vertices if not vertex.predicate))
-        predicateTuple = tuple((vertex for vertex in kg._vertices if vertex.predicate))
-        # merge node and edge tuples into one
-        tupleValue = nodeTuple + predicateTuple
-        # transform tuple into graph and store into class variable
-        self.graph = Graph.TupleList(tupleValue, directed=True, edge_attrs='description')
+        self.graph = Graph.TupleList(kg.triples, directed=True, edge_attrs='description')
 
     def predicateGeneration(self, pathList):
         """Generate path sequence for a list of single paths based on graph object
         using shortest path algorithm
-        
+
         Args:
             pathList: List of paths for one vertex ID
-        
+
         Returns:
             List of path sequences in a tuple
         """
         graph = self.graph
+        print([e.attributes() for e in graph.es(pathList)])
         predValues = np.array([e.attributes()['description'] for e in graph.es(pathList)])
         nodeSequence = np.array([graph.vs().select(e.tuple).get_attribute_values('name') for e in graph.es(pathList)]).flatten()
         nodeSequence = np.array([key for key, _group in groupby(nodeSequence)])
@@ -91,29 +87,7 @@ class RandomWalker(Walker):
     def _bfs(self, kg: KG , idNumber: int, is_reverse:bool = False):
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm.
-        
-        Args:
-            is_reverse: True to get the parent neighbors instead of the child
-                neighbors, False otherwise.
-                Defaults to False
-            idNumber: ID number of a node within a graph
-        Returns: 
-            nodeIndex: Index of node in graph
-            dfsList: List of unique walks for the provided entitiy
-        """
-        graph = self.transformKG()
-        # extract node index for vertices
-        nodeIndex = graph.vs.find(idNumber).index
-        # define orientation of graph
-        orient = 'out' if is_reverse else'all'
-        # perform breadth-first search extraction
-        bfsList = self.graph.bfsiter(nodeIndex, orient, advanced=True)
-        return nodeIndex, bfsList
-    
-    def _dfs(self, is_reverse:bool, idNumber):
-        """Extracts random walks for an entity based on Knowledge Graph using
-        the Depth First Search (DFS) algorithm.
-        
+
         Args:
             is_reverse: True to get the parent neighbors instead of the child
                 neighbors, False otherwise.
@@ -123,13 +97,36 @@ class RandomWalker(Walker):
             nodeIndex: Index of node in graph
             dfsList: List of unique walks for the provided entitiy
         """
+        self.transformKG(kg)
+        # extract node index for vertices
+        nodeIndex = self.graph.vs.find(name=idNumber).index
+        # define orientation of graph
+        orient = 'out' if is_reverse else'all'
+        # perform breadth-first search extraction
+        bfsList = self.graph.bfsiter(nodeIndex, orient, advanced=True)
+        return nodeIndex, bfsList
+
+    def _dfs(self, kg:KG, idNumber, is_reverse:bool,):
+        """Extracts random walks for an entity based on Knowledge Graph using
+        the Depth First Search (DFS) algorithm.
+
+        Args:
+            is_reverse: True to get the parent neighbors instead of the child
+                neighbors, False otherwise.
+                Defaults to False
+            idNumber: ID number of a node within a graph
+        Returns:
+            nodeIndex: Index of node in graph
+            dfsList: List of unique walks for the provided entitiy
+        """
+        self.transformKG(kg)
         assert self.max_walks is not None
         nodeIndex = self.graph.vs.find(idNumber).index
         orient = 'out' if is_reverse else'all'
         dfsList = self.graph.dfsiter(nodeIndex, orient, advanced=True)
         return nodeIndex, dfsList
-    
-    def extract_walks(self, entity: Vertex) -> List[Walk]:
+
+    def extract_walks(self, kg:KG, entity: Vertex) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm if a maximum number of walks is
         specified, otherwise the Breadth First Search (BFS) algorithm is used.
@@ -140,18 +137,20 @@ class RandomWalker(Walker):
             The list of unique walks for the provided entity.
         """
         fct_search = self._bfs if self.max_walks is None else self._dfs
-        nodeIndex, fctList = fct_search(self.with_reverse, entity)
-        distanceList = tuple((nodePath for nodePath in fctList if nodePath[1] <= self.distance))
+        nodeIndex, fctList = fct_search(kg, entity, self.with_reverse)
+        distanceList = tuple((nodePath for nodePath in fctList if nodePath[1] <= self.max_depth))
+
         vertexList = tuple((vertexElement[0] for vertexElement in distanceList))
+        if self.max_walks is not None:
         # limit maximum walks to maximum length of walkSequence length
-        maxWalks = len(vertexList) if len(vertexList) < self.max_walks else self.max_walks
-        # random sample defined maximumWalk from vertexList list
-        random.seed(15)
-        vertexList = random.sample(vertexList, maxWalks)
+            maxWalks = len(vertexList) if len(vertexList) < self.max_walks else self.max_walks
+            # random sample defined maximumWalk from vertexList list
+            random.seed(15)
+            vertexList = random.sample(vertexList, maxWalks)
         shortestPathList = self.graph.get_shortest_paths(v=nodeIndex, to=vertexList, output='epath')
         pathSequence = list(map(self.predicateGeneration, shortestPathList))
         return pathSequence
-    
+
 
     def _map_vertex(self, entity: Vertex, pos: int) -> str:
         """Maps certain vertices to MD5 hashes to save memory. For entities of
