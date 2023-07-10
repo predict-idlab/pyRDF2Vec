@@ -14,6 +14,8 @@ from cachetools.keys import hashkey
 
 from pyrdf2vec.typings import Literal, Response
 
+from hdt import HDTDocument
+
 
 @attr.s
 class Connector(ABC):
@@ -176,3 +178,22 @@ class SPARQLConnector(Connector):
         if len(literals) > 1:
             return tuple(literals)
         return literals[0]
+@attr.s
+class HDTConnector(Connector):
+    def __attrs_post_init__(self):
+        self.store = None
+
+    @cachedmethod(operator.attrgetter("cache"))
+    def fetch(self, query: str) -> Response:
+        if self.store is None:
+            self.store = HDTDocument(self.endpoint)
+        try:
+            res = self.store.search_triples(query, "", "")[0]
+            val = [{"p": {"value": r[1]},
+                    "o": {"value": r[2]}} for r in res]
+            return {"results": {"bindings": val}}
+        except Exception as e:
+            return {"results": {"bindings": []}}
+
+    def get_query(self, entity: str, preds: Optional[List[str]] = None) -> str:
+        return entity

@@ -2,54 +2,22 @@ from pyrdf2vec.connectors import Connector
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.manifold import TSNE
+import numpy as np
 
 from pyrdf2vec import RDF2VecTransformer
 from pyrdf2vec.embedders import Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.walkers import RandomWalker
-from pyrdf2vec.typings import Literal, Response
-from cachetools import cachedmethod
-from cachetools.keys import hashkey
-import operator
-from functools import partial
-from typing import List, Optional
-from rdflib import URIRef, Literal
-import rdflib_hdt
-import attr
+from pyrdf2vec.connectors import HDTConnector
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, confusion_matrix
 
-
-@attr.s
-class HDTConnector(Connector):
-    def __attrs_post_init__(self):
-        self.store = None
-
-    @cachedmethod(operator.attrgetter("cache"))
-    def fetch(self, query: str) -> Response:
-        if self.store is None:
-            self.store = rdflib_hdt.HDTStore(self.endpoint)
-        try:
-            res = self.store.hdt_document.search((query, None, None))[0]
-            val = [{"p": {"value": r[1].toPython()},
-                    "o": {"value": r[2].n3().split('"')[1]}} if isinstance(
-                r[2], Literal) else {"p": {"value": r[1].toPython()},
-                                     "o": {"value": r[2].toPython()}} for r
-                   in res]
-            return {"results": {"bindings": val}}
-        except Exception as e:
-            return {"results": {"bindings": []}}
-
-
-    def get_query(self, entity: str, preds: Optional[List[str]] = None) -> str:
-        return URIRef(entity)
-
 # Ensure the determinism of this script by initializing a pseudo-random number.
 RANDOM_STATE = 22
 
-test_data = pd.read_csv("samples/mutag/test.tsv", sep="\t")
-train_data = pd.read_csv("samples/mutag/train.tsv", sep="\t")
+test_data = pd.read_csv("../samples/mutag/test.tsv", sep="\t")
+train_data = pd.read_csv("../samples/mutag/train.tsv", sep="\t")
 
 train_entities = [entity for entity in train_data["bond"]]
 train_labels = list(train_data["label_mutagenic"])
@@ -62,12 +30,12 @@ labels = train_labels + test_labels
 
 if __name__ == '__main__':
 
-    connector = HDTConnector("samples/mutag/mutag.hdt")
+    connector = HDTConnector("../samples/mutag/mutag.hdt")
 
     embeddings, literals = RDF2VecTransformer(
         # Ensure random determinism for Word2Vec.
         # Must be used with PYTHONHASHSEED.
-        Word2Vec(workers=1, epochs=10),
+        Word2Vec(workers=1, epochs=50),
         # Extract all walks with a maximum depth of 2 for each entity using two
         # processes and use a random state to ensure that the same walks are
         # generated for the entities without hashing as MUTAG is a short KG.
@@ -109,7 +77,7 @@ if __name__ == '__main__':
 
     # Reduce the dimensions of entity embeddings to represent them in a 2D plane.
     X_tsne = TSNE(random_state=RANDOM_STATE).fit_transform(
-        train_embeddings + test_embeddings
+        np.array(train_embeddings + test_embeddings)
     )
 
     # Define the color map.
