@@ -1865,13 +1865,13 @@ testing = ["covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytes
 
 [[package]]
 name = "pytest"
-version = "7.4.2"
+version = "7.4.3"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.4.2-py3-none-any.whl", hash = "sha256:1d881c6124e08ff0a1bb75ba3ec0bfd8b5354a01c194ddd5a0a870a48d99b002"},
-    {file = "pytest-7.4.2.tar.gz", hash = "sha256:a766259cfab564a2ad52cb1aae1b881a75c3eb7e34ca3779697c23ed47c47069"},
+    {file = "pytest-7.4.3-py3-none-any.whl", hash = "sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac"},
+    {file = "pytest-7.4.3.tar.gz", hash = "sha256:d989d136982de4e3b29dabcc838ad581c64e8ed52c11fbe86ddebd9da0818cd5"},
 ]
 
 [package.dependencies]
@@ -2923,4 +2923,4 @@ tests = ["aiohttp", "gensim", "nest-asyncio", "nest_asyncio", "numpy", "pandas",
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "0e49a3172351b70452ffad93c54b6ffdbbf0600fdd711a86f3f841b7dcfdbaf1"
+content-hash = "a5bcf7f708c1a96440bdebed83d9d897d3fc9f94ecb60f5ac7e330633eba71f6"
