@@ -2522,13 +2522,13 @@ dev = ["bump2version", "sphinxcontrib-httpdomain", "transifex-client", "wheel"]
 
 [[package]]
 name = "sphinxcontrib-apidoc"
-version = "0.4.0"
+version = "0.5.0"
 description = "A Sphinx extension for running 'sphinx-apidoc' on each build"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "sphinxcontrib-apidoc-0.4.0.tar.gz", hash = "sha256:fe59d15882472aa93c2737afbdea6bedb34ce35cbd34aa4947909f5df1500aad"},
-    {file = "sphinxcontrib_apidoc-0.4.0-py3-none-any.whl", hash = "sha256:18b9fb0cd4816758ec5f8be41c64f8924991dd40fd7b10e666ec9eed2800baff"},
+    {file = "sphinxcontrib-apidoc-0.5.0.tar.gz", hash = "sha256:65efcd92212a5f823715fb95ee098b458a6bb09a5ee617d9ed3dead97177cd55"},
+    {file = "sphinxcontrib_apidoc-0.5.0-py3-none-any.whl", hash = "sha256:c671d644d6dc468be91b813dcddf74d87893bff74fe8f1b8b01b69408f0fb776"},
 ]
 
 [package.dependencies]
@@ -3095,4 +3095,4 @@ tests = ["aiohttp", "gensim", "nest-asyncio", "nest_asyncio", "numpy", "pandas",
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4.0"
-content-hash = "59f0df11fe3f5ea0d41c774a23bfe92a97c452d9d3a32910198be96f3a6e8ceb"
+content-hash = "dbe8000da64141273257bdcd8a0e4977fef8ef911c454e9f4c02e090eb6ccf1a"
