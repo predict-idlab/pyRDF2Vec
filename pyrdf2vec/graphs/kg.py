@@ -399,6 +399,13 @@ class KG:
             return True
         return False
 
+    def iter_triples(self):
+        for subj in list(self._transition_matrix):
+            for pred in self._transition_matrix[subj]:
+                for obj in self._transition_matrix[pred]:
+                    if pred.predicate:
+                        yield subj, pred, obj
+
     def _cast_literals(
         self, entity_literals: List[List[str]]
     ) -> List[Union[Literal, Tuple[Literal, ...]]]:

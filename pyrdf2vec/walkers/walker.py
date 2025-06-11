@@ -1,4 +1,9 @@
 import multiprocessing
+try:
+    multiprocessing.set_start_method("fork")
+except RuntimeError:
+    pass
+
 import warnings
 from abc import ABC, abstractmethod
 from typing import List, Optional, Set

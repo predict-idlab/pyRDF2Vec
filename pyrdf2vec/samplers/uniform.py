@@ -3,6 +3,7 @@ import attr
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.samplers import Sampler
 from pyrdf2vec.typings import Hop
+from pyrdf2vec.graphs.vertex import Vertex
 
 
 @attr.s
@@ -55,10 +56,11 @@ class UniformSampler(Sampler):
         """
         pass
 
-    def get_weight(self, hop: Hop) -> int:
+    def get_weight(self, entity: Vertex, hop: Hop):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
+            entity: The subject node where the edge starts
             hop: The hop of a vertex in a (predicate, object) form to get the
                 weight.
 

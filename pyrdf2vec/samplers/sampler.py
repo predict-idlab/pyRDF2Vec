@@ -7,6 +7,7 @@ import numpy as np
 
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.typings import Hop, Walk
+from pyrdf2vec.graphs.vertex import Vertex
 
 
 class SamplerNotSupported(Exception):
@@ -91,10 +92,11 @@ class Sampler(ABC):
                     )
 
     @abstractmethod
-    def get_weight(self, hop: Hop):
+    def get_weight(self, entity: Vertex, hop: Hop):
         """Gets the weight of a hop in the Knowledge Graph.
 
         Args:
+            entity: The subject node where the edge starts
             hop: The hop of a vertex in a (predicate, object) form to get the
                 weight.
 
@@ -108,17 +110,18 @@ class Sampler(ABC):
         """
         raise NotImplementedError("This has to be implemented")
 
-    def get_weights(self, hops: List[Hop]) -> Optional[List[float]]:
+    def get_weights(self, entity: Vertex, hops: List[Hop]) -> Optional[List[float]]:
         """Gets the weights of the provided hops.
 
         Args:
+            entity: The subject node where the edge starts
             hops: The hops to get the weights.
 
         Returns:
             The weights to the edge of the Knowledge Graph.
 
         """
-        weights: List[float] = [self.get_weight(hop) for hop in hops]
+        weights: List[float] = [self.get_weight(entity, hop) for hop in hops]
         if {} in weights:
             return []
         if self.inverse:
@@ -172,7 +175,7 @@ class Sampler(ABC):
 
         rnd_id = np.random.RandomState(self._random_state).choice(
             range(len(untagged_neighbors)),
-            p=self.get_weights(untagged_neighbors),
+            p=self.get_weights(subj, untagged_neighbors),
         )
 
         if is_last_hop:

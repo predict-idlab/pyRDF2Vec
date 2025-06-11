@@ -6,6 +6,7 @@ from .uniform import UniformSampler
 from .frequency import ObjFreqSampler, ObjPredFreqSampler, PredFreqSampler
 from .pagerank import PageRankSampler
 from .wide import WideSampler
+from .geo import GeoSampler
 
 __all__ = [
     "ObjFreqSampler",
@@ -15,4 +16,5 @@ __all__ = [
     "Sampler",
     "UniformSampler",
     "WideSampler",
+    "GeoSampler"
 ]

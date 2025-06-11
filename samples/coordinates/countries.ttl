@@ -1,0 +1,65 @@
+@prefix ex: <http://example.org/places/> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Classes
+ex:Country a rdfs:Class .
+ex:City a rdfs:Class .
+
+# Property definitions
+ex:isInCountry a rdf:Property ;
+    rdfs:domain ex:City ;
+    rdfs:range ex:Country .
+
+ex:hasNeighbor a rdf:Property ;
+    rdfs:domain ex:Country ;
+    rdfs:range ex:Country ;
+    rdfs:label "has neighboring country" .
+
+# Countries
+ex:France a ex:Country ;
+    rdfs:label "France" ;
+    ex:hasNeighbor ex:Germany, ex:Italy, ex:Spain .
+
+ex:Germany a ex:Country ;
+    rdfs:label "Germany" ;
+    ex:hasNeighbor ex:France, ex:Italy .
+
+ex:Italy a ex:Country ;
+    rdfs:label "Italy" ;
+    ex:hasNeighbor ex:France, ex:Germany .
+
+ex:Spain a ex:Country ;
+    rdfs:label "Spain" ;
+    ex:hasNeighbor ex:France .
+
+# Cities (keep original lat/long for compatibility, **add WKT Point**)
+ex:Paris a ex:City ;
+    rdfs:label "Paris" ;
+    geo:lat "48.8566"^^xsd:float ;
+    geo:long "2.3522"^^xsd:float ;
+    geo:hasGeometry "POINT(2.3522 48.8566)"^^geo:wktLiteral ;
+    ex:isInCountry ex:France .
+
+ex:Berlin a ex:City ;
+    rdfs:label "Berlin" ;
+    geo:lat "52.52"^^xsd:float ;
+    geo:long "13.4050"^^xsd:float ;
+    geo:hasGeometry "POINT(13.4050 52.52)"^^geo:wktLiteral ;
+    ex:isInCountry ex:Germany .
+
+ex:Rome a ex:City ;
+    rdfs:label "Rome" ;
+    geo:lat "41.9028"^^xsd:float ;
+    geo:long "12.4964"^^xsd:float ;
+    geo:hasGeometry "POINT(12.4964 41.9028)"^^geo:wktLiteral ;
+    ex:isInCountry ex:Italy .
+
+ex:Madrid a ex:City ;
+    rdfs:label "Madrid" ;
+    geo:lat "40.4168"^^xsd:float ;
+    geo:long "-3.7038"^^xsd:float ;
+    geo:hasGeometry "POINT(-3.7038 40.4168)"^^geo:wktLiteral ;
+    ex:isInCountry ex:Spain .
