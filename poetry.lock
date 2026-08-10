@@ -2420,14 +2420,14 @@ networkx = ["networkx (>=2.0.0,<3.0.0)"]
 
 [[package]]
 name = "rdflib-hdt"
-version = "3.1"
+version = "3.3"
 description = "A Store back-end for rdflib to allow for reading and querying HDT documents"
 optional = false
 python-versions = "*"
 groups = ["main"]
 markers = "extra == \"tests\""
 files = [
-    {file = "rdflib_hdt-3.1.tar.gz", hash = "sha256:0db95fe58e276fe58668cae6ef94dd7b7b30bf1e9f89dd06d3941208a17fcc44"},
+    {file = "rdflib_hdt-3.3-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:be752c773ec45527a41729adace7f6dc0ef4e7feeb1c8534d3942c2c2ca8e6fc"},
 ]
 
 [package.dependencies]
